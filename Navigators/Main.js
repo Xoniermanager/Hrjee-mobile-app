@@ -3,7 +3,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Entypo from 'react-native-vector-icons/Entypo';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import GlobalStyle from '../src/reusable/GlobalStyle';
@@ -21,6 +20,7 @@ import ProfileDrawer from './ProfileDrawer';
 import Payslip from '../src/screens/home/Services/Payslip/Payslip';
 import Attendence from '../src/screens/home/Attendence/Attendence';
 import Services from '../src/screens/home/Services/Services';
+import LocationList from '../src/screens/Location/LocationList';
 
 const Tab = createBottomTabNavigator();
 
@@ -81,6 +81,16 @@ const Main = () => {
         }}
         name="Services"
         component={Services}
+      />
+       <Tab.Screen
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Entypo name="location-pin" style={{ fontSize: 23, color: color }} />
+          ),
+        }}
+        name="LocationList"
+        component={LocationList}
       />
       <Tab.Screen
         options={{

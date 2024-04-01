@@ -12,6 +12,7 @@ import {
   Alert,
   ActivityIndicator,
   FlatList,
+  useColorScheme
 } from 'react-native';
 // import React, {useState, useContext} from 'react';
 import React, { useState, useContext, useCallback, useMemo, useRef } from 'react';
@@ -50,9 +51,13 @@ import {
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
+import Themes from '../../Theme/Theme';
+
 const Drawer = createDrawerNavigator();
 
 const Profile = ({ navigation }) => {
+  const theme = useColorScheme();
+
   const { user, setShowDrawerHeader } = useContext(EssContext);
   const get_user_post_api = useApi(post.get_user_post);
 
@@ -856,13 +861,13 @@ const Profile = ({ navigation }) => {
                             alignItems: 'center',
                             flexDirection:"row"
                           }}>
-                          <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                          <Text style={[{ fontSize: 20, fontWeight: '600' },{color:Themes=='dark'?'#000':'#000'}]}>
                             {elements.balance_leave}
                           </Text>
-                          <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                          <Text style={[{ fontSize: 20, fontWeight: '600' }, {color:Themes=='dark'?'#000':'#000'}]}>
                             / 
                           </Text>
-                          <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                          <Text style={[{ fontSize: 20, fontWeight: '600' }, {color:Themes=='dark'?'#000':'#000'}]}>
                             {total}
                           </Text>
                         </View>

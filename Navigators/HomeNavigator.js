@@ -60,7 +60,7 @@ import AuthNavigator from './AuthNavigator';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SplashScreen from 'react-native-splash-screen';
-
+import LocationList from '../src/screens/Location/LocationList';
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
@@ -103,6 +103,13 @@ function MyStack() {
                 options={{
                   headerShown: false,
                 }}
+                name="LocationList"
+                component={LocationList}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
                 name="Forgot Password"
                 component={ForgotPassword}
               />
@@ -113,7 +120,7 @@ function MyStack() {
                 name="home"
                 component={Home}
               />
-
+              
 
               <Stack.Screen name="News" component={News} />
               <Stack.Screen name="Attendence" component={Attendence} />

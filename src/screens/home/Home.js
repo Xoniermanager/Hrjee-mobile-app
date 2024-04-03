@@ -190,7 +190,7 @@ const Home = ({ navigation }) => {
     get_training();
     get_announcement();
     get_news();
-
+    get_month_logs();
   };
 
   const getActiveLocation = async () => {
@@ -554,56 +554,113 @@ const Home = ({ navigation }) => {
   };
 
   // console.log("night.............",  (officetiming?.office_timing + `${d.getHours()}:${d.getMinutes()} AM`))
-  
+
 
   const punch_in = async () => {
 
     // alert(officetiming?.office_timing + `${d.getHours()}:${d.getMinutes()} AM`);
     // if (`${d.getHours()}:${d.getMinutes()} AM` >= officetiming?.office_timing) {
-      setloading(true);
+    setloading(true);
 
-      //console.log('sdvsdvgsfg---');
-      // GetLocation.getCurrentPosition({})
-      const userData = await AsyncStorage.getItem('UserData');
-      const userInfo = JSON.parse(userData);
-      let company_id = userInfo?.company_id;
+    //console.log('sdvsdvgsfg---');
+    // GetLocation.getCurrentPosition({})
+    const userData = await AsyncStorage.getItem('UserData');
+    const userInfo = JSON.parse(userData);
+    let company_id = userInfo?.company_id;
 
-      GetLocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 15000,
-      })
-        .then(async location => {
-          var lat = parseFloat(location.latitude);
-          var long = parseFloat(location.longitude);
-          //alert('dsfsdf',long);
-          console.log('loc1-->', location);
-          console.log('loc2-->', lat);
-          console.log('loc3-->', long);
-          setcurrentLocation({
-            long: long,
-            lat: lat,
-          });
-
-
-          console.log('fasdfdf-', activeLocation.latitude);
-          var dis = getDistance(
-            { latitude: lat, longitude: long },
-            {
-              latitude: activeLocation.latitude,
-              longitude: activeLocation.longitude,
-            },
-          );
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 15000,
+    })
+      .then(async location => {
+        var lat = parseFloat(location.latitude);
+        var long = parseFloat(location.longitude);
+        //alert('dsfsdf',long);
+        console.log('loc1-->', location);
+        console.log('loc2-->', lat);
+        console.log('loc3-->', long);
+        setcurrentLocation({
+          long: long,
+          lat: lat,
+        });
 
 
-          console.log('dis-->', dis);
-          console.log(
-            'act loc->',
-            activeLocation.latitude,
-            activeLocation.longitude,
-          );
-          console.log('curr loc->', lat, long);
+        console.log('fasdfdf-', activeLocation.latitude);
+        var dis = getDistance(
+          { latitude: lat, longitude: long },
+          {
+            latitude: activeLocation.latitude,
+            longitude: activeLocation.longitude,
+          },
+        );
 
-          if (company_id == 56 || company_id == 89 || company_id == 92) {
+
+        console.log('dis-->', dis);
+        console.log(
+          'act loc->',
+          activeLocation.latitude,
+          activeLocation.longitude,
+        );
+        console.log('curr loc->', lat, long);
+
+        if (company_id == 56 || company_id == 89 || company_id == 92) {
+          const token = await AsyncStorage.getItem('Token');
+          const userData = await AsyncStorage.getItem('UserData');
+          const userInfo = JSON.parse(userData);
+
+          const config = {
+            headers: { Token: token },
+          };
+          const body = {
+            email: userInfo.email,
+            location_id: activeLocation.location_id,
+            latitude: lat,
+            longitude: long,
+          };
+
+          //alert('asdFAsfasf-----', body);
+
+          axios
+            .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+            .then(function (response) {
+              //alert('punch in', response.data);
+              if (response.data.status == 1) {
+                check_punchIn();
+              } else {
+                alert(response.data.message);
+                setloading(false);
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        } else {
+
+          if (lat == null || lat == '') {
+            setloading(false);
+            alert('Location not find');
+            return;
+          } else if (long == null || long == '') {
+            setloading(false);
+            alert('Location not find');
+            return;
+          } else if (
+            activeLocation.latitude == null ||
+            activeLocation.latitude == ''
+          ) {
+            setloading(false);
+            alert('Please set active location');
+            return;
+          } else if (
+            activeLocation.longitude == null ||
+            activeLocation.longitude == ''
+          ) {
+            setloading(false);
+            alert('Please set active location');
+            return;
+          }
+
+          if (dis <= 4000) {
             const token = await AsyncStorage.getItem('Token');
             const userData = await AsyncStorage.getItem('UserData');
             const userInfo = JSON.parse(userData);
@@ -617,17 +674,15 @@ const Home = ({ navigation }) => {
               latitude: lat,
               longitude: long,
             };
-
-            //alert('asdFAsfasf-----', body);
-
+            console.log('logitute-----', body)
             axios
               .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
               .then(function (response) {
-                //alert('punch in', response.data);
+                console.log('punch in', response.data);
                 if (response.data.status == 1) {
                   check_punchIn();
                 } else {
-                  alert(response.data.message);
+                  alert(response.data.message)
                   setloading(false);
                 }
               })
@@ -636,75 +691,20 @@ const Home = ({ navigation }) => {
               });
           } else {
 
-            if (lat == null || lat == '') {
-              setloading(false);
-              alert('Location not find');
-              return;
-            } else if (long == null || long == '') {
-              setloading(false);
-              alert('Location not find');
-              return;
-            } else if (
-              activeLocation.latitude == null ||
-              activeLocation.latitude == ''
-            ) {
-              setloading(false);
-              alert('Please set active location');
-              return;
-            } else if (
-              activeLocation.longitude == null ||
-              activeLocation.longitude == ''
-            ) {
-              setloading(false);
-              alert('Please set active location');
-              return;
-            }
-
-            if (dis <= 4000) {
-              const token = await AsyncStorage.getItem('Token');
-              const userData = await AsyncStorage.getItem('UserData');
-              const userInfo = JSON.parse(userData);
-
-              const config = {
-                headers: { Token: token },
-              };
-              const body = {
-                email: userInfo.email,
-                location_id: activeLocation.location_id,
-                latitude: lat,
-                longitude: long,
-              };
-              console.log('logitute-----', body)
-              axios
-                .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
-                .then(function (response) {
-                  console.log('punch in', response.data);
-                  if (response.data.status == 1) {
-                    check_punchIn();
-                  } else {
-                    alert(response.data.message)
-                    setloading(false);
-                  }
-                })
-                .catch(function (error) {
-                  console.log(error);
-                });
-            } else {
-
-              setloading(false);
-              alert('You are not in the radius');
-            }
+            setloading(false);
+            alert('You are not in the radius');
           }
-          get_recent_logs();
-        })
-        .catch(error => {
-          setloading(false);
-          const { code, message } = error;
-          //alert('fadsfsdaf');
-          console.warn(code, message);
-        });
+        }
+        get_recent_logs();
+      })
+      .catch(error => {
+        setloading(false);
+        const { code, message } = error;
+        //alert('fadsfsdaf');
+        console.warn(code, message);
+      });
 
-      
+
     // } else {
     //   Alert.alert('At the moment, you do not have the eligibility to clock in.')
     // }
@@ -1014,11 +1014,11 @@ const Home = ({ navigation }) => {
       getActiveLocation();
       check_punchIn();
       get_recent_logs();
-      
+
     }, []),
   );
 
-  
+
 
   useEffect(() => {
     if (punchInApi.data != null) {
@@ -1067,7 +1067,7 @@ const Home = ({ navigation }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [timerOn, ]);
+  }, [timerOn,]);
 
   useEffect(() => {
     setTimeout(function () {
@@ -1152,23 +1152,103 @@ const Home = ({ navigation }) => {
   }, [getActiveLocationApi.loading]);
 
   // console.log('activity timer-->', activityTime);
+  // const get_recent_logs = async () => {
+  //   const token = await AsyncStorage.getItem('Token');
+  //   const config = {
+  //     headers: { Token: token },
+  //   };
+  //   const date = new Date();
+  //   // console.log('****', days[date.getDay()]);
+  //   const body = {
+  //     start_date: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate() - 7
+  //       }`,
+  //     end_date: `${date.getFullYear()}-${date.getMonth() + 1
+  //       }-${date.getDate()}`,
+  //   };
+  //   // console.log('body-->', body);
+  //   getAtendenceApi?.request(body, config);
+
+  // }
+
   const get_recent_logs = async () => {
+    setloading(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: { Token: token },
     };
-    const date = new Date();
-    // console.log('****', days[date.getDay()]);
+    const date = new Date('2022-12-08');
+    console.log('****', days[date.getDay()]);
     const body = {
-      start_date: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate() - 7
-        }`,
-      end_date: `${date.getFullYear()}-${date.getMonth() + 1
-        }-${date.getDate()}`,
-    };
-    // console.log('body-->', body);
-    getAtendenceApi?.request(body, config);
+      start_date: `${startDate.getFullYear()}-${startDate.getMonth() + 1
+        }-${startDate.getDate()}`,
 
-  }
+      end_date: `${endDate.getFullYear()}-${endDate.getMonth() + 1
+        }-${endDate.getDate()}`,
+    };
+    console.log("body=>", body)
+
+    if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` > `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
+      setloading(false);
+      alert('Till date should muast be greater than the From date ')
+    } else {
+      axios
+        .post(`${apiUrl}/Api/attendance`, body, config)
+        .then(response => {
+          console.log('addtendance response......................................', response.data);
+          if (response.data.status == 1) {
+            setloading(false);
+
+            try {
+              setrecentLogs(response.data.content);
+            } catch (e) {
+              alert(e);
+            }
+          } else {
+            setloading(false);
+            setrecentLogs([]);
+            alert('attendence not found');
+          }
+        })
+        .catch(error => {
+          setloading(false);
+          alert(error);
+        });
+    }
+  };
+
+  const get_month_logs = async () => {
+    const token = await AsyncStorage.getItem('Token');
+    const config = {
+      headers: { Token: token },
+    };
+
+    var startOfWeek = moment().startOf('month').toDate();
+    var endOfWeek = moment().endOf('month').toDate();
+
+    const body = {
+      start_date: startOfWeek,
+      end_date: endOfWeek,
+    };
+    console.log('body1mon----->', startOfWeek, endOfWeek);
+    axios
+      .post(`${apiUrl}/Api/attendance`, body, config)
+      .then(response => {
+        console.log('response', response.data);
+        if (response.data.status == 1) {
+          try {
+            console.log(response.data.content);
+            setrecentLogs(response.data.content);
+          } catch (e) {
+            alert(e);
+          }
+        } else {
+          // alert(response.data.message);
+        }
+      })
+      .catch(error => {
+        alert(error);
+      });
+  };
 
   //Recent Login Data end
 
@@ -1198,7 +1278,7 @@ const Home = ({ navigation }) => {
                     : require('../../images/profile_pic.webp')
                 }
               />
-              <Text numberOfLines={1} style={[{ fontSize: 18, fontWeight: 'bold', marginLeft: 2 }, {color:Themes=='dark'?'#000':'#000'}]}>
+              <Text numberOfLines={1} style={[{ fontSize: 18, fontWeight: 'bold', marginLeft: 2 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
                 Hi,{user?.FULL_NAME}!
               </Text>
             </View>
@@ -1230,12 +1310,12 @@ const Home = ({ navigation }) => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-              <Text style={[{ fontSize: 18, fontWeight: '700' }, {color:Themes=='dark'?'#000':'#000'}]}>
+              <Text style={[{ fontSize: 18, fontWeight: '700' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
                 E-Attendance
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Select Attendance')}>
-                <Text style={[styles.purple_txt, {color:Themes=='dark'?'#000':'#000'}]}>View History</Text>
+                <Text style={[styles.purple_txt, { color: Themes == 'dark' ? '#000' : '#000' }]}>View History</Text>
               </TouchableOpacity>
             </View>
             <View style={{ marginTop: 15, borderRadius: 15 }}>
@@ -1271,7 +1351,7 @@ const Home = ({ navigation }) => {
                         }}>
                         {days[d.getDay()]}
                       </Text>
-                      <Text style={[{ fontSize: 18, fontWeight: '600' }, {color:Themes=='dark'?'#818181':'#818181'}]}>
+                      <Text style={[{ fontSize: 18, fontWeight: '600' }, { color: Themes == 'dark' ? '#818181' : '#818181' }]}>
                         {d.getDate() + ' ' + monthNames[d.getMonth()]}
                       </Text>
                       <Text
@@ -1383,49 +1463,37 @@ const Home = ({ navigation }) => {
             </View>
           </View>
 
-          <View style={{ marginTop: 10, marginHorizontal: 10 }}>
-            <Text style={[{ fontSize: 18, fontWeight: '600' }, {color:Themes=='dark'?'#000':'#000'}]}>Recent Logs</Text>
-            {getAtendenceApi?.data?.content?.map((i, index) => (
-              <View key={index} style={styles.recent_log_box}>
-                <View>
-                  <Text style={styles.weekDay}>
-                    {days[new Date(i.TR_DATE).getDay()]}
-                  </Text>
-                  <Text style={{color:Themes=='dark'?'':'#000'}}>{i.TR_DATE}</Text>
-                </View>
-                <View style={{ alignItems: 'center' }}>
-                  <AntDesign
-                    name="clockcircleo"
-                    size={20}
-                    style={[{ marginBottom: 5 }, {color:Themes=='dark'?'#000':'#000'}]}
-                  />
+            <View style={{ marginTop: 10, marginHorizontal: 10 }}>
+              <Text style={[{ fontSize: 18, fontWeight: '600' }, {color: Themes == 'dark' ? '#000' : '#000'}]}>Recent Logs</Text>
+              {recentLogs
+                ? recentLogs.map((i, index) => (
+                  <View key={index} style={styles.recent_log_box}>
+                    <View>
+                      <Text style={styles.weekDay}>
+                        {days[new Date(i.TR_DATE).getDay()]}
+                      </Text>
+                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>{i.TR_DATE}</Text>
+                    </View>
+                    <View style={{ alignItems: 'center' }}>
+                      <AntDesign
+                        name="clockcircleo"
+                        size={20}
+                        style={[{ marginBottom: 5 }, {color: Themes == 'dark' ? '#000' : '#000'}]}
+                      />
+                      {
+                        (datetime == i.TR_DATE && i.location_id != null) ?
+                          <Text >{i.PRESENT_HOURS}</Text>
+                          : (datetime > i.TR_DATE) ? <Text >{i.PRESENT_HOURS}</Text> : (hours >= '19:00') ? <Text>{i.PRESENT_HOURS}</Text> : <Text >NA</Text>
+                      }
+                      {/* <Text >{i.PRESENT_HOURS}</Text> */}
+                    </View>
+                  </View>
+                ))
+                :  <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>No found data</Text>
+              }
+            </View>
 
-                  {
-                    (datetime != i.TR_DATE) ? <Text style={{color:Themes=='dark'?'#000':'#000'}}> {i.PRESENT_HOURS} </Text> : (i.location_id == null) ? <Text style={{color:Themes=='dark'?'#000':'#000'}}>NA</Text> : <Text style={{color:Themes=='dark'?'#000':'#000'}}> {i.PRESENT_HOURS} </Text>
-                  }
-                  
 
-
-                </View>
-              </View>
-            ))}
-            {getAtendenceApi?.data?.status == 0 && (
-              <View
-                style={{
-                  marginTop: 20,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text>No recent logs found!</Text>
-              </View>
-            )}
-            {getAtendenceApi?.loading && (
-              <View style={styles.loader}>
-                <ActivityIndicator size="small" color="#388aeb" />
-              </View>
-            )}
-            {getAtendenceApi?.error && alert(getAtendenceApi?.error)}
-          </View>
 
           {/* <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
             {news.length == 0 && loading == false ? (
@@ -1613,7 +1681,7 @@ const styles = StyleSheet.create({
   heading_grey: { fontSize: 14, color: 'grey', fontWeight: '300' },
   add_txt: { fontSize: 14, color: '#efad37', fontWeight: '600' },
   view_txt: { color: '#702963', fontWeight: 'bold' },
-  weekDay: { fontSize: 19, fontWeight: '600', marginBottom: 5, color:Themes=='dark'?'#000':'#000' },
+  weekDay: { fontSize: 19, fontWeight: '600', marginBottom: 5, color: Themes == 'dark' ? '#000' : '#000' },
   recent_log_box: {
     marginTop: 15,
     padding: 10,
@@ -1623,13 +1691,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: 'white', color: Themes == 'dark' ? '#000' : '#000'
   },
   emptyContainer: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  title: { fontSize: 16, marginVertical: 10, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000' },
+  display_row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+  },
+  heading: {
+    fontSize: 17, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000'
+  },
+  btn_style: {
+    marginTop: 30,
+    backgroundColor: GlobalStyle.blueDark,
+    padding: 15,
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  calender: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    borderRadius: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: 'grey',
   },
 });
 

@@ -9,12 +9,14 @@ import NetInfo from '@react-native-community/netinfo';
 import Main from './Navigators/Main';
 
 const App = ({ navigation }) => {
+
   useEffect(() => {
 
     setTimeout(() => {
       SplashScreen.hide();
     }, 1000);
   }, []);
+
 
   const [isConnected, setIsConnected] = useState("")
   const [isModalVisiblebeneficial, setModalVisiblebeneficial] = useState(false);
@@ -83,3 +85,5 @@ const App = ({ navigation }) => {
 export default App;
 
 const styles = StyleSheet.create({});
+
+

@@ -86,8 +86,6 @@ const Profile = ({ navigation }) => {
     salary: '',
     location: {},
   });
-
-
   const [loading, setloading] = useState(false);
   const [location, setlocation] = useState();
   const [showInput, setshowInput] = useState(false);

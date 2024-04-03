@@ -48,6 +48,7 @@ const Main = () => {
       }}>
       <Tab.Screen
         options={({ route }) => ({
+          unmountOnBlur: true,
           tabBarStyle: { display: getRouteName(route) },
           headerShown: false,
           tabBarIcon: ({ color }) => (
@@ -59,7 +60,7 @@ const Main = () => {
       />
       <Tab.Screen
         options={{
-
+          unmountOnBlur: true,
           tabBarIcon: ({ color }) => (
             <FontAwesome
               name="rupee"
@@ -72,6 +73,7 @@ const Main = () => {
       />
       <Tab.Screen
         options={{
+          unmountOnBlur: true,
           tabBarIcon: ({ color }) => (
             <AntDesign
               name="appstore-o"
@@ -84,6 +86,7 @@ const Main = () => {
       />
        <Tab.Screen
         options={{
+          unmountOnBlur: true,
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Entypo name="location-pin" style={{ fontSize: 23, color: color }} />
@@ -94,6 +97,7 @@ const Main = () => {
       />
       <Tab.Screen
         options={{
+          unmountOnBlur: true,
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="person" style={{ fontSize: 23, color: color }} />

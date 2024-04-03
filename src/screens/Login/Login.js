@@ -144,10 +144,10 @@ const Login = ({ navigation }) => {
                 onPress={() => navigation.navigate('Forgot Password')}>
                 <Text style={styles.text}>Forgot Password?</Text>
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
                 <Text style={styles.text}>Contact HR for any login issue</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
         </View>

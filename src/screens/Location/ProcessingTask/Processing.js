@@ -195,7 +195,7 @@ const Processing = () => {
     <View style={styles.container}>
       {data?.length != 0 ? null :
         <View style={{ flex: 1, justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
-          <Text style={{ textAlign: 'center', fontSize: 20 }}>No Data Found</Text>
+          <Text style={{ textAlign: 'center', fontSize: 20, color:Themes=='dark'?'#000':'#000' }}>No Data Found</Text>
         </View>
       }
       <FlatList

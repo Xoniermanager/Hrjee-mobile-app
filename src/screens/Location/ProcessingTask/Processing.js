@@ -1,6 +1,6 @@
-import { FlatList, StyleSheet, TextInput, Text, TouchableOpacity, View, Alert, Dimensions, useColorScheme, Modal, Pressable } from 'react-native'
+import { FlatList, StyleSheet, ActivityIndicator, TextInput, Text, PermissionsAndroid, TouchableOpacity, View, Alert, Dimensions, useColorScheme, Modal, Pressable } from 'react-native'
 import React, { useEffect, useState, useCallback } from 'react'
-import GlobalStyle from '../../../reusable/GlobalStyle'
+import GlobalStyle from '../../../reusable/GlobalStyle';
 import { responsiveHeight, responsiveScreenWidth, responsiveWidth } from 'react-native-responsive-dimensions'
 import Themes from '../PendingTask/Pending';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,7 +26,12 @@ const Processing = () => {
   const [fileResponse, setFileResponse] = useState([]);
   const [currentLocation, setCurrentLocation] = useState()
   const [address, setAddress] = useState()
-  const [remark, setRemart] = useState()
+  const [remark, setRemart] = useState('')
+  const [loading, setloading] = useState(false);
+  const [loading1, setloading1] = useState(false);
+  const [remarkError, setRemarkError] = useState()
+  const [photoError, setPhotoError] = useState()
+  const [documentError, setDocumentError] = useState()
 
   const [show, setShow] = useState('2')
   const [showMore, setShowMore] = useState(false);
@@ -41,6 +46,7 @@ const Processing = () => {
       cropping: true,
       includeBase64: true,
     }).then(image => {
+      setPhotoError(null)
       setPhoto(image);
       setPhotoPath(image?.path);
       setCameramodal(!cameramodal);
@@ -60,6 +66,7 @@ const Processing = () => {
     }).then(image => {
       // setImage(image.path)
       // setMimez(image?.mime)
+      setPhotoError(null)
       console.log(image)
       setPhoto(image);
       setPhotoPath(image?.path);
@@ -67,6 +74,7 @@ const Processing = () => {
       setStore(`data:${image.mime};base64,${image.data}`)  //convert image base 64
       console.log("file ", image?.data?.mime);
       setCameramodal(!cameramodal);
+
 
     }).catch((err) => { console.log(err); });
   }
@@ -79,23 +87,30 @@ const Processing = () => {
         presentationStyle: 'fullScreen',
       });
       setFileResponse(response);
+      setDocumentError(null)
       console.log(response)
     } catch (err) {
       console.warn(err);
     }
   }, []);
+
+
   useEffect(() => {
+    get_employee_detail()
+    setloading(true)
     GetLocation.getCurrentPosition({
       enableHighAccuracy: true,
       timeout: 15000,
     })
       .then(async location => {
+        setloading(false)
         var lat = parseFloat(location.latitude);
         var long = parseFloat(location.longitude);
         setCurrentLocation({
           long: long,
           lat: lat,
         });
+
       })
   }, [])
   const latitude = currentLocation?.lat;
@@ -104,7 +119,7 @@ const Processing = () => {
   const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
   const getAddress = async () => {
     axios.get(urlAddress).then(res => {
-      console.log(res.data?.results[0].formatted_address, 'res.data?.results[0].formatted_address')
+
       setAddress(res.data?.results[0].formatted_address)
     })
   }
@@ -131,45 +146,97 @@ const Processing = () => {
         alert(error.request._response);
       });
   };
-
+  // console.log(fileResponse,'123')
   const tast_status_update = async (item) => {
+    setloading1(true);
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        GetLocation.getCurrentPosition({})
+        GetLocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 15000,
+        })
+          .then(async location => {
+            setloading1(false);
+            const updatedStatus = (parseInt(item?.status) + parseInt(1));
+            const token = await AsyncStorage.getItem('Token');
+            const config = {
+              headers: {
+                Token: token,
+                'Content-Type': 'multipart/form-data'
+              },
+            };
+            let data = new FormData();
+            data.append('task_id', item?.task_id);
+            data.append('remark', remark);
+            data.append('latitude', latitude);
+            data.append('longitude', longitude);
 
-    const updatedStatus = (parseInt(item?.status) + parseInt(1));
-    const token = await AsyncStorage.getItem('Token');
-    let data = new FormData();
-    data.append('task_id', item?.task_id);
-    data.append('remark', remark);
-    data.append('latitude', latitude);
-    data.append('longitude', longitude);
+            data.append('image', fileResponse[0]);
+            data.append('status', updatedStatus);
+            var selfie_image = {
+              uri: photo?.path,
+              type: photo?.mime,
+              name: photo?.modificationDate + '.' + 'jpg',
+            };
+            data.append('selfie_image', selfie_image);
+            data.append('lat_long_address', address);
 
-    data.append('image', fileResponse?.uri);
-    data.append('status', updatedStatus);
-    var selfie_image = {
-      uri: photo?.path,
-      type: photo?.mime,
-      name: photo?.modificationDate + '.' + 'jpg',
-    };
-    data.append('selfie_image', selfie_image);
-    data.append('lat_long_address', address);
-    const config = {
-      headers: {
-        Token: token,
-        'Content-Type': 'multipart/form-data'
-      },
-    };
+            console.log("body = > ", data)
+            if (remark.trim() === '') {
+              setRemarkError('Please enter some text');
 
-    console.log("body = > ", data)
-    axios
-      .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
-      .then(response => {
-        console.log("response statsu ---------", response?.data)
-        get_employee_detail()
-        setModalVisible1(false)
-        setRemart('')
-      })
-      .catch(error => {
-        alert(error.request._response);
-      });
+            } else if (photo == null) {
+              setPhotoError('Please Upload the Image');
+            }
+            else if (fileResponse.length == 0) {
+              setDocumentError('Please Upload the Document');
+            } else {
+              axios
+                .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
+                .then(response => {
+
+                  if (response?.data?.status == 1) {
+                    console.log("response statsu ---------", response?.data)
+                    get_employee_detail()
+                    setModalVisible1(false)
+                    setRemart('')
+                  }
+                  else {
+                    alert(response?.data?.message)
+                    console.log(response?.data, 'yashu')
+                    setModalVisible1(false)
+
+                  }
+
+                })
+                .catch(error => {
+                  console.log("ggg", error)
+                  // alert(error);
+                });
+            }
+          })
+
+          .catch(error => {
+            setloading1(false);
+            const { code, message } = error;
+            //alert('fadsfsdaf');
+            Alert.alert(code, message);
+          });
+      } else {
+        setloadin1(false);
+        Alert.alert('Location permission denied');
+      }
+    }
+    catch (err) {
+      setloading1(false);
+      console.warn(err);
+    }
+
+
   };
   useEffect(() => {
     get_employee_detail()
@@ -195,16 +262,19 @@ const Processing = () => {
     <View style={styles.container}>
       {data?.length != 0 ? null :
         <View style={{ flex: 1, justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
-          <Text style={{ textAlign: 'center', fontSize: 20, color:Themes=='dark'?'#000':'#000' }}>No Data Found</Text>
+          <Text style={{ textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
         </View>
       }
+      {loading ? <ActivityIndicator size='large' color="#0043ae" /> : null}
+
       <FlatList
         data={data}
         renderItem={({ item, index }) =>
           <>
             <View activeOpacity={0.2} style={styles.maincard}>
+
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignContent: "center", alignItems: "center" }}>
-                <TouchableOpacity onPress={() => tast_status_update(item)} style={{ flexDirection: "row", alignItems: "center" }}>
+                <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={() => [setModalVisible1(true), getAddress()]}>
                   <Text style={{ color: Themes == 'dark' ? '#0043ae' : '#0043ae', fontWeight: "bold", fontSize: 18 }}>Task</Text>
                   <View>
                     <FontAwesome5
@@ -212,13 +282,12 @@ const Processing = () => {
                       size={20}
                       color="#000"
                       marginLeft={5}
-                      onPress={() => [setModalVisible1(true), getAddress()]}
+                    // onPress={() => []}
                     />
                   </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => update_show_hide(item?.task_id, true)} style={{ flexDirection: "row", alignItems: "center" }}>
-
                   <View >
                     <Text style={{ color: Themes == 'dark' ? '#0043ae' : '#0043ae', fontWeight: "bold", fontSize: 18, marginRight: 5 }}>
                       {currentDisplayedTask != item.task_id ? 'More' : 'Hide'}
@@ -237,24 +306,80 @@ const Processing = () => {
                 currentDisplayedTask && currentDisplayedTask == item?.task_id ?
                   <>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.task_id}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Customer_name</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>User id:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.assign}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Customer name:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.customer_name}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Mobile Number</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Mobile Number:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.mobile_no}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved_by</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.approved_by}</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved_by:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item.approved_by !== '' ? item.approved_by : 'N/A'}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Status</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.status}</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Employee number:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.employee_number}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Address:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Loan no:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.loan_no}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Risk Category:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.risk_category}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Total Amount:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.total_amount}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Principal:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.principle}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Emi amount:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.emi_amount}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Overdue amount:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.overdue_amount}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Link account:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.link_account}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Builder name:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.builder_name}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Banker name:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.banker_name}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Loan center:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.loan_center}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Employee number:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.employee_number}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Current address:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Remark:</Text>
@@ -264,30 +389,26 @@ const Processing = () => {
 
                   :
                   <>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id</Text>
+                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.task_id}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Customer_name {showMore}</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Customer name:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.customer_name}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Mobile Number</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Mobile Number:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.mobile_no}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved_by</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved by:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.approved_by}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Status</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.status}</Text>
                     </View>
 
                     <View style={styles.centeredView}>
                       <Modal
-                        animationType="slide"
+                        animationType="none"
                         transparent={true}
                         visible={modalVisible1}
                         onRequestClose={() => {
@@ -298,32 +419,61 @@ const Processing = () => {
                         <View style={styles.centeredView}>
                           <View style={styles.modalView}>
                             <View style={{ padding: 10 }}>
-                              <Text style={[{ fontSize: 16, fontWeight: "bold" }, { color: Themes == 'dark' ? '#2196F3' : '#2196F3' }]}>Remark</Text>
+                              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                                <Text style={[{ fontSize: 16, fontWeight: "bold" }, { color: Themes == 'dark' ? '#2196F3' : '#2196F3', marginBottom: 5 }]}>Remark</Text>
+                                {loading1 ? <ActivityIndicator size='small' color="#0043ae" /> : null}
+                              </View>
                               <TextInput
                                 placeholder='Notes'
                                 value={remark}
                                 placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-                                style={{ color: Themes == 'dark' ? '#000' : '#000' }}
+                                style={{ color: Themes == 'dark' ? '#000' : '#000', borderWidth: 1, borderRadius: 10, textAlignVertical: 'top', padding: 5 }}
+                                multiline={true}
+                                numberOfLines={4}
                                 onChangeText={(text) => setRemart(text)}
+                                onChange={() => setRemarkError(null)}
                               />
+                              {remarkError ? (
+                                <Text style={{
+                                  color: 'red',
+                                  marginBottom: 8,
+                                  textAlign: 'center', fontSize: 13, marginTop: 5
+                                }}>{remarkError}</Text>
+                              ) : null}
                             </View>
                             <View style={{ margin: 20, alignSelf: "center" }}>
-                              <View style={styles.takepic}>
-                                <TouchableOpacity onPress={takePhotoFromCamera}>
+                              <Pressable onPress={takePhotoFromCamera}>
+                                <View style={styles.takepic}>
                                   <Text style={styles.takepictext}>PICK FROM CAMERA</Text>
-                                </TouchableOpacity>
-                              </View>
+                                </View>
+                              </Pressable>
+                              <TouchableOpacity onPress={choosePhotoFromLibrary}>
 
-                              <View style={styles.takepic1}>
-                                <TouchableOpacity onPress={choosePhotoFromLibrary}>
+                                <View style={styles.takepic1}>
                                   <Text style={styles.takepictext}>PICK FROM GALLERY</Text>
-                                </TouchableOpacity>
-                              </View>
-                              <View style={styles.takepic1}>
-                                <TouchableOpacity onPress={chooseDocumentLibrary}>
+                                </View>
+                              </TouchableOpacity>
+
+                              {photoError ? (
+                                <Text style={{
+                                  color: 'red',
+                                  marginBottom: 8,
+                                  textAlign: 'center', fontSize: 13, marginTop: 5
+                                }}>{photoError}</Text>
+                              ) : null}
+                              <Pressable onPress={chooseDocumentLibrary}>
+                                <View style={styles.takepic1}>
                                   <Text style={styles.takepictext}>PICK Document</Text>
-                                </TouchableOpacity>
-                              </View>
+                                </View>
+                              </Pressable>
+
+                              {documentError ? (
+                                <Text style={{
+                                  color: 'red',
+                                  marginBottom: 8,
+                                  textAlign: 'center', fontSize: 13, marginTop: 5
+                                }}>{documentError}</Text>
+                              ) : null}
                             </View>
                             <View style={{ flexDirection: "row", alignSelf: "center" }}>
                               <Pressable

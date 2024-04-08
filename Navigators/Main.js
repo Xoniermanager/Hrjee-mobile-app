@@ -3,8 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Entypo from 'react-native-vector-icons/Entypo';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import GlobalStyle from '../src/reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -21,6 +22,8 @@ import Payslip from '../src/screens/home/Services/Payslip/Payslip';
 import Attendence from '../src/screens/home/Attendence/Attendence';
 import Services from '../src/screens/home/Services/Services';
 import LocationList from '../src/screens/Location/LocationList';
+import PRM from '../src/screens/PRM/PRM';
+import Home from '../src/screens/home/Home';
 
 const Tab = createBottomTabNavigator();
 
@@ -30,8 +33,7 @@ const Main = () => {
     if (
       routeName?.includes('Login') ||
       routeName?.includes('Forgot Password') || 
-      routeName?.includes('Onboarding') || 
-      routeName?.includes('LandingPage') ||
+
       routeName === undefined
     ) {
       return 'none';
@@ -49,14 +51,14 @@ const Main = () => {
       <Tab.Screen
         options={({ route }) => ({
           unmountOnBlur: true,
-          tabBarStyle: { display: getRouteName(route) },
+          // tabBarStyle: { display: getRouteName(route) },
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Entypo name="home" style={{ fontSize: 23, color: color }} />
           ),
         })}
         name="Home"
-        component={HomeNavigator}
+        component={Home}
       />
       <Tab.Screen
         options={{
@@ -94,6 +96,17 @@ const Main = () => {
         }}
         name="LocationList"
         component={LocationList}
+      />
+       <Tab.Screen
+        options={{
+          unmountOnBlur: true,
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="payment" style={{ fontSize: 23, color: color }} />
+          ),
+        }}
+        name="PRM"
+        component={PRM}
       />
       <Tab.Screen
         options={{

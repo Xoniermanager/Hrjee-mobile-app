@@ -30,6 +30,7 @@ import {
   useFocusEffect,
   useRoute,
   getFocusedRouteNameFromRoute,
+  useNavigation,
 } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -166,6 +167,7 @@ function CustomDrawerContent(props) {
   })
 
   const get_employee_detail = async () => {
+    const navigation = useNavigation()
     setloading(true)
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -1016,7 +1018,7 @@ function CustomDrawerContent(props) {
             source={
               Userdata.image
                 ? { uri: Userdata.image }
-                : require('../src/images/profile.jpeg')
+                : require('../src/images/profile_pic.webp')
             }
             resizeMode="cover"
             style={{

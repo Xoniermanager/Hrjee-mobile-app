@@ -180,6 +180,7 @@ const Home = ({ navigation }) => {
       get_training();
       get_announcement();
       ProfileDetails();
+      get_month_logs()
     }, []),
   );
 
@@ -191,6 +192,7 @@ const Home = ({ navigation }) => {
     get_announcement();
     get_news();
     get_month_logs();
+
   };
 
   const getActiveLocation = async () => {
@@ -351,7 +353,7 @@ const Home = ({ navigation }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [timerOn]);
+  }, [timerOn,]);
 
   const check_punchIn = async () => {
     settimerOn(false);
@@ -410,9 +412,11 @@ const Home = ({ navigation }) => {
           setinTime(null);
           setlocationOut(null);
           setactivityTime(null);
+          setloading(false);
         }
       })
       .catch(function (error) {
+        setloading(false);
         console.log("some-------------", error);
       });
   };
@@ -557,152 +561,168 @@ const Home = ({ navigation }) => {
 
 
   const punch_in = async () => {
+    setloading(true);
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        GetLocation.getCurrentPosition({})
+        const userData = await AsyncStorage.getItem('UserData');
+        const userInfo = JSON.parse(userData);
+        let company_id = userInfo?.company_id;
+
+        GetLocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 15000,
+        })
+          .then(async location => {
+            setloading(false);
+            var lat = parseFloat(location.latitude);
+            var long = parseFloat(location.longitude);
+            //alert('dsfsdf',long);
+            console.log('loc1-->', location);
+            console.log('loc2-->', lat);
+            console.log('loc3-->', long);
+            setcurrentLocation({
+              long: long,
+              lat: lat,
+            });
+
+
+            console.log('fasdfdf-', activeLocation.latitude);
+            var dis = getDistance(
+              { latitude: lat, longitude: long },
+              {
+                latitude: activeLocation.latitude,
+                longitude: activeLocation.longitude,
+              },
+            );
+
+
+            console.log('dis-->', dis);
+            console.log(
+              'act loc->',
+              activeLocation.latitude,
+              activeLocation.longitude,
+            );
+            console.log('curr loc->', lat, long);
+
+            if (company_id == 56 || company_id == 89 || company_id == 92) {
+              const token = await AsyncStorage.getItem('Token');
+              const userData = await AsyncStorage.getItem('UserData');
+              const userInfo = JSON.parse(userData);
+
+              const config = {
+                headers: { Token: token },
+              };
+              const body = {
+                email: userInfo.email,
+                location_id: activeLocation.location_id,
+                latitude: lat,
+                longitude: long,
+              };
+
+              //alert('asdFAsfasf-----', body);
+
+              axios
+                .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+                .then(function (response) {
+                  //alert('punch in', response.data);
+                  if (response.data.status == 1) {
+                    check_punchIn();
+                  } else {
+                    alert(response.data.message);
+                    setloading(false);
+                  }
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+            } else {
+
+              if (lat == null || lat == '') {
+                setloading(false);
+                alert('Location not find');
+                return;
+              } else if (long == null || long == '') {
+                setloading(false);
+                alert('Location not find');
+                return;
+              } else if (
+                activeLocation.latitude == null ||
+                activeLocation.latitude == ''
+              ) {
+                setloading(false);
+                alert('Please set active location');
+                return;
+              } else if (
+                activeLocation.longitude == null ||
+                activeLocation.longitude == ''
+              ) {
+                setloading(false);
+                alert('Please set active location');
+                return;
+              }
+
+              if (dis <= 4000) {
+                const token = await AsyncStorage.getItem('Token');
+                const userData = await AsyncStorage.getItem('UserData');
+                const userInfo = JSON.parse(userData);
+
+                const config = {
+                  headers: { Token: token },
+                };
+                const body = {
+                  email: userInfo.email,
+                  location_id: activeLocation.location_id,
+                  latitude: lat,
+                  longitude: long,
+                };
+                console.log('logitute-----', body)
+                axios
+                  .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+                  .then(function (response) {
+                    console.log('punch in', response.data);
+                    if (response.data.status == 1) {
+                      check_punchIn();
+                    } else {
+                      alert(response.data.message)
+                      setloading(false);
+                    }
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                  });
+              } else {
+
+                setloading(false);
+                alert('You are not in the radius');
+              }
+            }
+            get_recent_logs();
+          })
+          .catch(error => {
+            setloading(false);
+            const { code, message } = error;
+            //alert('fadsfsdaf');
+            Alert.alert(code, message);
+          });
+      } else {
+        setloading(false);
+        Alert.alert('Location permission denied');
+      }
+    } catch (err) {
+      setloading(false);
+      console.warn(err);
+    }
+
 
     // alert(officetiming?.office_timing + `${d.getHours()}:${d.getMinutes()} AM`);
     // if (`${d.getHours()}:${d.getMinutes()} AM` >= officetiming?.office_timing) {
-    setloading(true);
 
     //console.log('sdvsdvgsfg---');
-    // GetLocation.getCurrentPosition({})
-    const userData = await AsyncStorage.getItem('UserData');
-    const userInfo = JSON.parse(userData);
-    let company_id = userInfo?.company_id;
 
-    GetLocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 15000,
-    })
-      .then(async location => {
-        var lat = parseFloat(location.latitude);
-        var long = parseFloat(location.longitude);
-        //alert('dsfsdf',long);
-        console.log('loc1-->', location);
-        console.log('loc2-->', lat);
-        console.log('loc3-->', long);
-        setcurrentLocation({
-          long: long,
-          lat: lat,
-        });
-
-
-        console.log('fasdfdf-', activeLocation.latitude);
-        var dis = getDistance(
-          { latitude: lat, longitude: long },
-          {
-            latitude: activeLocation.latitude,
-            longitude: activeLocation.longitude,
-          },
-        );
-
-
-        console.log('dis-->', dis);
-        console.log(
-          'act loc->',
-          activeLocation.latitude,
-          activeLocation.longitude,
-        );
-        console.log('curr loc->', lat, long);
-
-        if (company_id == 56 || company_id == 89 || company_id == 92) {
-          const token = await AsyncStorage.getItem('Token');
-          const userData = await AsyncStorage.getItem('UserData');
-          const userInfo = JSON.parse(userData);
-
-          const config = {
-            headers: { Token: token },
-          };
-          const body = {
-            email: userInfo.email,
-            location_id: activeLocation.location_id,
-            latitude: lat,
-            longitude: long,
-          };
-
-          //alert('asdFAsfasf-----', body);
-
-          axios
-            .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
-            .then(function (response) {
-              //alert('punch in', response.data);
-              if (response.data.status == 1) {
-                check_punchIn();
-              } else {
-                alert(response.data.message);
-                setloading(false);
-              }
-            })
-            .catch(function (error) {
-              console.log(error);
-            });
-        } else {
-
-          if (lat == null || lat == '') {
-            setloading(false);
-            alert('Location not find');
-            return;
-          } else if (long == null || long == '') {
-            setloading(false);
-            alert('Location not find');
-            return;
-          } else if (
-            activeLocation.latitude == null ||
-            activeLocation.latitude == ''
-          ) {
-            setloading(false);
-            alert('Please set active location');
-            return;
-          } else if (
-            activeLocation.longitude == null ||
-            activeLocation.longitude == ''
-          ) {
-            setloading(false);
-            alert('Please set active location');
-            return;
-          }
-
-          if (dis <= 4000) {
-            const token = await AsyncStorage.getItem('Token');
-            const userData = await AsyncStorage.getItem('UserData');
-            const userInfo = JSON.parse(userData);
-
-            const config = {
-              headers: { Token: token },
-            };
-            const body = {
-              email: userInfo.email,
-              location_id: activeLocation.location_id,
-              latitude: lat,
-              longitude: long,
-            };
-            console.log('logitute-----', body)
-            axios
-              .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
-              .then(function (response) {
-                console.log('punch in', response.data);
-                if (response.data.status == 1) {
-                  check_punchIn();
-                } else {
-                  alert(response.data.message)
-                  setloading(false);
-                }
-              })
-              .catch(function (error) {
-                console.log(error);
-              });
-          } else {
-
-            setloading(false);
-            alert('You are not in the radius');
-          }
-        }
-        get_recent_logs();
-      })
-      .catch(error => {
-        setloading(false);
-        const { code, message } = error;
-        //alert('fadsfsdaf');
-        console.warn(code, message);
-      });
 
 
     // } else {
@@ -946,7 +966,7 @@ const Home = ({ navigation }) => {
               name: response.data.data.FULL_NAME,
               image: response.data.data.image,
             });
-            get_employee_detail();
+            // get_employee_detail();
           } catch (e) {
             console.log(e);
           }
@@ -1014,7 +1034,6 @@ const Home = ({ navigation }) => {
       getActiveLocation();
       check_punchIn();
       get_recent_logs();
-
     }, []),
   );
 
@@ -1171,14 +1190,12 @@ const Home = ({ navigation }) => {
   // }
 
   const get_recent_logs = async () => {
-    setloading(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: { Token: token },
     };
     const date = new Date('2022-12-08');
-    console.log('****', days[date.getDay()]);
-    const body = {
+    body = {
       start_date: `${startDate.getFullYear()}-${startDate.getMonth() + 1
         }-${startDate.getDate()}`,
 
@@ -1194,10 +1211,9 @@ const Home = ({ navigation }) => {
       axios
         .post(`${apiUrl}/Api/attendance`, body, config)
         .then(response => {
-          console.log('addtendance response......................................', response.data);
+          console.log('addtendance response......................................', response);
           if (response.data.status == 1) {
             setloading(false);
-
             try {
               setrecentLogs(response.data.content);
             } catch (e) {
@@ -1463,35 +1479,37 @@ const Home = ({ navigation }) => {
             </View>
           </View>
 
-            <View style={{ marginTop: 10, marginHorizontal: 10 }}>
-              <Text style={[{ fontSize: 18, fontWeight: '600' }, {color: Themes == 'dark' ? '#000' : '#000'}]}>Recent Logs</Text>
-              {recentLogs
-                ? recentLogs.map((i, index) => (
-                  <View key={index} style={styles.recent_log_box}>
-                    <View>
-                      <Text style={styles.weekDay}>
-                        {days[new Date(i.TR_DATE).getDay()]}
-                      </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>{i.TR_DATE}</Text>
-                    </View>
-                    <View style={{ alignItems: 'center' }}>
-                      <AntDesign
-                        name="clockcircleo"
-                        size={20}
-                        style={[{ marginBottom: 5 }, {color: Themes == 'dark' ? '#000' : '#000'}]}
-                      />
-                      {
-                        (datetime == i.TR_DATE && i.location_id != null) ?
-                          <Text >{i.PRESENT_HOURS}</Text>
-                          : (datetime > i.TR_DATE) ? <Text >{i.PRESENT_HOURS}</Text> : (hours >= '19:00') ? <Text>{i.PRESENT_HOURS}</Text> : <Text >NA</Text>
-                      }
-                      {/* <Text >{i.PRESENT_HOURS}</Text> */}
-                    </View>
+          <View style={{ marginTop: 10, marginHorizontal: 10 }}>
+            <Text style={[{ fontSize: 18, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>Recent Logs</Text>
+
+            {recentLogs.length > 0
+              ? recentLogs.map((i, index) => (
+                <View key={index} style={styles.recent_log_box}>
+                  <View>
+                    <Text style={styles.weekDay}>
+                      {days[new Date(i.TR_DATE).getDay()]}
+                    </Text>
+                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.TR_DATE}</Text>
                   </View>
-                ))
-                :  <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>No found data</Text>
-              }
-            </View>
+                  <View style={{ alignItems: 'center' }}>
+                    <AntDesign
+                      name="clockcircleo"
+                      size={20}
+                      style={[{ marginBottom: 5 }, { color: Themes == 'dark' ? '#000' : '#000' }]}
+                    />
+                    {
+                      (datetime == i.TR_DATE && i.location_id != null) ?
+                        <Text >{i.PRESENT_HOURS}</Text>
+                        : (datetime > i.TR_DATE) ? <Text >{i.PRESENT_HOURS}</Text> : (hours >= '19:00') ? <Text>{i.PRESENT_HOURS}</Text> : <Text >NA</Text>
+                    }
+                    {/* <Text >{i.PRESENT_HOURS}</Text> */}
+                  </View>
+                </View>
+              ))
+              :
+              <Text style={{ textAlign: "center", color: Themes == 'dark' ? '#000' : '#000' }}>No found data</Text>
+            }
+          </View>
 
 
 
@@ -1726,5 +1744,6 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
   },
 });
+
 
 

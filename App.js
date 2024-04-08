@@ -6,7 +6,8 @@ import SplashScreen from 'react-native-splash-screen';
 import NetInfo from '@react-native-community/netinfo';
 
 
-import Main from './Navigators/Main';
+import Main, { H } from './Navigators/Main';
+import HomeNavigator from './Navigators/HomeNavigator';
 
 const App = ({ navigation }) => {
 
@@ -49,7 +50,7 @@ const App = ({ navigation }) => {
         <>
           <EssProvider>
             <NavigationContainer>
-              <Main />
+              <HomeNavigator/>
             </NavigationContainer>
           </EssProvider>
         </>
@@ -85,5 +86,7 @@ const App = ({ navigation }) => {
 export default App;
 
 const styles = StyleSheet.create({});
+
+
 
 

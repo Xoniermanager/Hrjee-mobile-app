@@ -59,7 +59,7 @@ const Login = ({ navigation }) => {
             setlocation(response.data.location);
             navigation.reset({
               index: 0,
-              routes: [{ name: 'home' }],
+              routes: [{ name: 'Main' }],
             });
           } catch (e) {
             setloading(false);
@@ -137,7 +137,7 @@ const Login = ({ navigation }) => {
                 }}>
                 Sign In
               </Text>
-              {loading ? <ActivityIndicator /> : null}
+              {loading ? <ActivityIndicator style={{color:"#fff"}} /> : null}
             </TouchableOpacity>
             <View style={{ alignItems: 'center', marginTop: 40 }}>
               <TouchableOpacity

@@ -2,8 +2,11 @@ import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Button from '../../../reusable/Button';
+import { useNavigation } from '@react-navigation/native';
 
-const Services = ({navigation}) => {
+const Services = () => {
+const navigation=useNavigation()
+// console.log(navigation.navigate('Holidays'),'kejdkh')
   return (
 
     <View style={{flex: 1, padding: 15, backgroundColor: '#e3eefb'}}>
@@ -37,3 +40,4 @@ const Services = ({navigation}) => {
 export default Services;
 
 const styles = StyleSheet.create({});
+

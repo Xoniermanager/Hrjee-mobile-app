@@ -61,6 +61,8 @@ import AuthNavigator from './AuthNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SplashScreen from 'react-native-splash-screen';
 import LocationList from '../src/screens/Location/LocationList';
+import AddPRM from '../src/screens/PRM/AddPRM';
+import Main from './Main';
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
@@ -117,8 +119,8 @@ function MyStack() {
                 options={{
                   headerShown: false,
                 }}
-                name="home"
-                component={Home}
+                name="Main"
+                component={Main}
               />
               
 
@@ -135,6 +137,7 @@ function MyStack() {
                 component={SelectAttendence}
               />
               <Stack.Screen name="Applied Leaves" component={LeaveList} />
+              <Stack.Screen name="AddPRM" component={AddPRM} />
               <Stack.Screen name="Apply Leave" component={ApplyLeave} />
               <Stack.Screen name="Holidays" component={Holidays} />
               <Stack.Screen name="Resign" component={Resign} />
@@ -240,17 +243,18 @@ function MyStack() {
             </>
           ) : (
             <>
-              <Stack.Screen
+            
+              <Stack.Screen 
                 options={{
                   headerShown: false,
                 }}
-                name="home"
-                component={Home}
+                name="Main"
+                component={Main}
               />
               <Stack.Screen name="Attendance" component={Attendence} />
               <Stack.Screen name="News" component={News} />
               <Stack.Screen name="Policies" component={Policies} />
-              <Stack.Screen name="Services" component={Services} />
+              <Stack.Screen name="Services" component={Services}  />
               <Stack.Screen name="Support" component={Support} />
               <Stack.Screen name="Notifications" component={Notifications} />
               <Stack.Screen name="LeavePolicy" component={LeavePolicy} />
@@ -262,6 +266,7 @@ function MyStack() {
               <Stack.Screen name="Applied Leaves" component={LeaveList} />
               <Stack.Screen name="Apply Leave" component={ApplyLeave} />
               <Stack.Screen name="Holidays" component={Holidays} />
+              <Stack.Screen name="AddPRM" component={AddPRM} />
               <Stack.Screen name="Resign" component={Resign} />
               <Stack.Screen name="Payslip" component={Payslip} />
               <Stack.Screen name="Document" component={Document} />
@@ -389,3 +394,16 @@ function MyStack() {
 export default function HomeNavigator() {
   return <MyStack />;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

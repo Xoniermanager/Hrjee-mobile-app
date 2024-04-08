@@ -52,6 +52,7 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import Themes from '../../Theme/Theme';
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 
 const Drawer = createDrawerNavigator();
 
@@ -97,6 +98,7 @@ const Profile = ({ navigation }) => {
   const [showUpdateModal, setshowUpdateModal] = useState(false);
   const [caption, setcaption] = useState('');
   const [leavedata, setLeaveData] = useState([]);
+  const [photoPath, setPhotoPath] = useState(null);
 
 
 
@@ -733,14 +735,26 @@ const Profile = ({ navigation }) => {
             <View
               style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row' }}>
-                <Image
+                {/* <Image
                   style={styles.tinyLogo}
                   source={
                     Userdata.image
                       ? { uri: Userdata.image }
                       : require('../../images/profile_pic.webp')
                   }
-                />
+                /> */}
+                {
+                  photoPath ?
+                    <Image
+                      source={{ uri: photoPath }}
+                      style={styles.tinyLogo}
+                    />
+                    :
+                    <Image
+                      source={{ uri: `https://i.postimg.cc/0y72NN2K/user.png` }}
+                      style={styles.tinyLogo}
+                    />
+                }
                 <View>
                   <Text
                     style={[
@@ -841,7 +855,7 @@ const Profile = ({ navigation }) => {
 
               {
                 leavedata?.map((elements, index) => {
-                  const total = parseInt(elements.taken_leave ) + parseInt(elements.balance_leave);
+                  const total = parseInt(elements.taken_leave) + parseInt(elements.balance_leave);
 
                   return (
                     <View key={index} style={{ alignItems: 'center' }}>
@@ -857,15 +871,15 @@ const Profile = ({ navigation }) => {
                             backgroundColor: '#ffffff95',
                             justifyContent: 'center',
                             alignItems: 'center',
-                            flexDirection:"row"
+                            flexDirection: "row"
                           }}>
-                          <Text style={[{ fontSize: 20, fontWeight: '600' },{color:Themes=='dark'?'#000':'#000'}]}>
+                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
                             {elements.balance_leave}
                           </Text>
-                          <Text style={[{ fontSize: 20, fontWeight: '600' }, {color:Themes=='dark'?'#000':'#000'}]}>
-                            / 
+                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                            /
                           </Text>
-                          <Text style={[{ fontSize: 20, fontWeight: '600' }, {color:Themes=='dark'?'#000':'#000'}]}>
+                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
                             {total}
                           </Text>
                         </View>
@@ -939,9 +953,9 @@ export default Profile;
 
 const styles = StyleSheet.create({
   tinyLogo: {
-    width: 70,
-    height: 70,
-    borderRadius: 100,
+    width: responsiveWidth(25),
+    height: responsiveHeight(13),
+    borderRadius:50,
     marginRight: 10,
     borderWidth: 1,
     borderColor: 'white',

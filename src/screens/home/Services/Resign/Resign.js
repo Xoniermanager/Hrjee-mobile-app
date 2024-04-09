@@ -99,13 +99,15 @@ const Resign = () => {
             <Image style={{ width: 100, height: 100, resizeMode: "contain", alignSelf: "center", marginVertical: 20 }}
                 source={require('../../../../images/resigned.png')}
             />
-            <Text style={styles.txtname}>Reson</Text>
+            <Text style={styles.txtname}>Resign write</Text>
             <TextInput
-                placeholder='Reson'
-                placeholderTextColor={theme=='dark'?'#000':'#000'}
+                placeholder='Resign.......'
+                placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
                 value={resignin}
+                multiline={true}
+                numberOfLines={6}
                 onChangeText={(text) => setResign(text)}
-                style={{color:Themes=='dark'?'#000':'#000'}}
+                style={{ color: Themes == 'dark' ? '#000' : '#000', borderWidth:0.5, textAlignVertical: 'top'}}
             />
             <View style={styles.underline}></View>
             <TouchableOpacity activeOpacity={0.8} onPress={resign}>
@@ -145,7 +147,7 @@ const styles = StyleSheet.create({
         borderBottomColor: 'grey',
     },
     txtname: {
-        fontSize: 16, marginVertical: 10, fontWeight: '600'
+        fontSize: 16, marginVertical: 10, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000'
     },
     underline: {
         borderWidth: 0.5,

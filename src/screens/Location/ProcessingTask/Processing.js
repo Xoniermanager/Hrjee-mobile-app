@@ -514,6 +514,7 @@ export default Processing
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:"#e3eefb"
   },
   maincard: {
     // flexDirection:"row", justifyContent:"space-between", marginHorizontal: responsiveScreenWidth(2),

@@ -22,8 +22,8 @@ import Payslip from '../src/screens/home/Services/Payslip/Payslip';
 import Attendence from '../src/screens/home/Attendence/Attendence';
 import Services from '../src/screens/home/Services/Services';
 import LocationList from '../src/screens/Location/LocationList';
-import PRM from '../src/screens/PRM/PRM';
 import Home from '../src/screens/home/Home';
+import PRM from '../src/screens/PRM/PRM';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,7 +32,7 @@ const Main = () => {
     const routeName = getFocusedRouteNameFromRoute(route);
     if (
       routeName?.includes('Login') ||
-      routeName?.includes('Forgot Password') || 
+      routeName?.includes('Forgot Password') ||
 
       routeName === undefined
     ) {
@@ -86,21 +86,19 @@ const Main = () => {
         name="Services"
         component={Services}
       />
-       <Tab.Screen
+      <Tab.Screen
         options={{
           unmountOnBlur: true,
-          headerShown: false,
           tabBarIcon: ({ color }) => (
             <Entypo name="location-pin" style={{ fontSize: 23, color: color }} />
           ),
         }}
-        name="LocationList"
+        name="Location List"
         component={LocationList}
       />
-       <Tab.Screen
+      <Tab.Screen
         options={{
           unmountOnBlur: true,
-          headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="payment" style={{ fontSize: 23, color: color }} />
           ),

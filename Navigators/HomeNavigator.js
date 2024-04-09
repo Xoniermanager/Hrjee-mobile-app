@@ -63,6 +63,7 @@ import SplashScreen from 'react-native-splash-screen';
 import LocationList from '../src/screens/Location/LocationList';
 import AddPRM from '../src/screens/PRM/AddPRM';
 import Main from './Main';
+import PRM from '../src/screens/PRM/PRM';
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
@@ -138,6 +139,7 @@ function MyStack() {
               />
               <Stack.Screen name="Applied Leaves" component={LeaveList} />
               <Stack.Screen name="AddPRM" component={AddPRM} />
+              <Stack.Screen name="PRM" component={PRM} />
               <Stack.Screen name="Apply Leave" component={ApplyLeave} />
               <Stack.Screen name="Holidays" component={Holidays} />
               <Stack.Screen name="Resign" component={Resign} />
@@ -267,6 +269,7 @@ function MyStack() {
               <Stack.Screen name="Apply Leave" component={ApplyLeave} />
               <Stack.Screen name="Holidays" component={Holidays} />
               <Stack.Screen name="AddPRM" component={AddPRM} />
+              <Stack.Screen name="PRM" component={PRM} />
               <Stack.Screen name="Resign" component={Resign} />
               <Stack.Screen name="Payslip" component={Payslip} />
               <Stack.Screen name="Document" component={Document} />

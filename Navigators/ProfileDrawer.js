@@ -47,7 +47,7 @@ import { EssContext } from '../Context/EssContext';
 import Zocial from 'react-native-vector-icons/Zocial';
 import ImagePicker from 'react-native-image-crop-picker';
 import { moderateScale } from 'react-native-size-matters';
-import { responsiveWidth } from 'react-native-responsive-dimensions';
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import Themes from '../../HRjee/Navigators/ProfileNavigator'
 import DatePicker from 'react-native-date-picker';
 import { RadioButton } from 'react-native-paper';
@@ -507,52 +507,35 @@ function CustomDrawerContent(props) {
       return (
         <>
           <View style={{ marginHorizontal: 10 }}>
-            <View style={{}}>
-              {/* <Text style={styles.heading_modal}>Profile Photo</Text> */}
-              <View style={{}}>
-                {/* <Image
-                  style={styles.tinyLogo}
-                  source={
-                    Userdata.image
-                      ? { uri: Userdata.image }
-                      : require('../src/images/profile_pic.webp')
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ position: 'relative' }} >
+                <>
+                  {
+                    photoPath ?
+                      <Image
+                        source={{ uri: photoPath }}
+                        style={{ width: 150, height: 150, borderRadius: 150 / 2, overflow: "hidden", borderWidth: 2, borderColor: "green" }}
+                      />
+                      :
+                      <Image
+                        source={{ uri: `https://i.postimg.cc/0y72NN2K/user.png` }}
+                        style={{ width: 150, height: 150, borderRadius: 150 / 2, overflow: "hidden", borderWidth: 2, borderColor: "green" }}
+                      />
                   }
-                /> */}
-                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                  <View style={{ position: 'relative' }} >
-                    <>
-                      {
-                        photoPath ?
-                          <Image
-                            source={{ uri: photoPath }}
-                            style={{ width: 150, height: 150, borderRadius: 150 / 2, overflow: "hidden", borderWidth: 2, borderColor: "green" }}
-                          />
-                          :
-                          <Image
-                            source={{ uri: `https://i.postimg.cc/0y72NN2K/user.png` }}
-                            style={{ width: 150, height: 150, borderRadius: 150 / 2, overflow: "hidden", borderWidth: 2, borderColor: "green" }}
-                          />
-                      }
 
-                    </>
-
-
-
-
-                    <View style={{ position: 'absolute', right: 7, bottom: 7, }}>
-                      <View style={{ width: 30, height: 30, backgroundColor: 'black', borderRadius: 30 / 2, justifyContent: 'center', alignItems: 'center' }}>
-                        <IconButton
-                          icon="camera"
-                          iconColor={MD3Colors.neutral100}
-                          size={20}
-                          onPress={() => setModalVisible1(true)}
-                        />
-                      </View>
-                    </View>
+                </>
+                <View style={{ position: 'absolute', right: 7, bottom: 7, }}>
+                  <View style={{ width: 30, height: 30, backgroundColor: 'black', borderRadius: 30 / 2, justifyContent: 'center', alignItems: 'center' }}>
+                    <IconButton
+                      icon="camera"
+                      iconColor={MD3Colors.neutral100}
+                      size={20}
+                      onPress={() => setModalVisible1(true)}
+                    />
                   </View>
                 </View>
-
               </View>
+
             </View>
             <View style={{ marginVertical: 10 }}>
               <Text style={styles.heading_modal}>Father's Name</Text>
@@ -705,7 +688,16 @@ function CustomDrawerContent(props) {
             >
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                  <View style={{ margin: 20, alignSelf: "center" }}>
+                  <View style={{ marginVertical: responsiveHeight(2), alignSelf: "center" }}>
+                    <View style={{ marginBottom:10, alignItems:"flex-end" }}>
+                      <AntDesign
+                        name="close"
+                        size={22}
+                        color="red"
+                        onPress={() => handleItemPress('')}
+                      // onPress={() => setModalVisible(!modalVisible)}
+                      />
+                    </View>
                     <View style={styles.takepic}>
                       <TouchableOpacity onPress={takePhotoFromCamera}>
                         <Text style={styles.takepictext}>PICK FROM CAMERA</Text>
@@ -718,13 +710,13 @@ function CustomDrawerContent(props) {
                       </TouchableOpacity>
                     </View>
                   </View>
-
+                  {/* 
                   <Pressable
                     style={[styles.button, styles.buttonClose]}
                     onPress={() => setModalVisible1(!modalVisible1)}
                   >
                     <Text style={{ textAlign: "center", color: "#fff" }}>Cancel</Text>
-                  </Pressable>
+                  </Pressable> */}
                 </View>
               </View>
             </Modal>
@@ -737,7 +729,7 @@ function CustomDrawerContent(props) {
       );
     } else if (show == 'CompanyDetails') {
       return (
-        <View>
+        <View style={{ padding: 10 }}>
           <View style={{ marginVertical: 10 }}>
             <Text style={styles.heading_modal}>Employee Number</Text>
             <TextInput
@@ -813,6 +805,7 @@ function CustomDrawerContent(props) {
                       borderWidth: 1,
                       borderRadius: 5,
                       borderColor: 'grey',
+                      marginHorizontal: 10
                     }}>
                     <View
                       style={{
@@ -1215,21 +1208,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 5,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: width / 1.1,
-  },
+
   input: {
     marginTop: 5,
     height: 40,
@@ -1314,22 +1293,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    // alignItems: 'center',
-  },
   modalView: {
-    margin: 10,
     borderRadius: 15,
-    // padding: 35,
-    // alignItems: 'center',
-    marginHorizontal: 25,
     shadowRadius: 4,
     backgroundColor: "#fff",
     elevation: 7,
     borderWidth: 1,
-    borderColor: "#e2ddfe"
+    borderColor: "#e2ddfe",
+    width: responsiveWidth(95),
   },
   takepic: {
     width: 160,

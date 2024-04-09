@@ -137,7 +137,7 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     if (getActiveLocationApi.data != null) {
       // console.log('getActiveLocationApi.data--->', getActiveLocationApi.data);
-      let activeLocation = getActiveLocationApi.data.data.map(i => {
+      let activeLocation = getActiveLocationApi?.data?.data?.map(i => {
         if (i.active_status == 1) {
           setactiveLocation({
             latitude: i.latitude,
@@ -1156,7 +1156,7 @@ const Home = ({ navigation }) => {
     setTimeout(function () {
       if (getActiveLocationApi.data != null) {
         // console.log('getActiveLocationApi.data--->', getActiveLocationApi.data);
-        let activeLocation = getActiveLocationApi.data.data.map(i => {
+        let activeLocation = getActiveLocationApi?.data?.data?.map(i => {
           if (i.active_status == 1) {
             setactiveLocation({
               latitude: i.latitude,

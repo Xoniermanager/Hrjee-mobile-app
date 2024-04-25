@@ -38,24 +38,25 @@ const PRM = () => {
     const [loading, setloading] = useState(false);
     const [active, setSetActive] = useState(-1)
 
+
     const get_employee_detail = async () => {
         setloading(true)
         const token = await AsyncStorage.getItem('Token');
         const config = {
             headers: { Token: token },
         };
-        console.log(token)
         axios
             .get(`${apiUrl}/SecondPhaseApi/get_prm_payments`, config)
             .then(response => {
                 setloading(false)
                 if (response?.data?.status == 1) {
                     setPRMdata(response?.data?.data);
+                    console.log(response.data, 'ghfhjsfk')
                 }
             })
             .catch(error => {
-                setloading(false)
                 alert(error.request._response);
+                setloading(false)
             });
     }
     useEffect(() => {
@@ -91,8 +92,8 @@ const PRM = () => {
                 }
             })
             .catch(error => {
-                setloading(false)
                 alert(error.request._response);
+                setloading(false)
             });
     }
 
@@ -108,7 +109,6 @@ const PRM = () => {
         let data = new FormData();
 
         data.append('prm_request_id', item?.id);
-        console.log(data)
         axios
             .post(`${apiUrl}/SecondPhaseApi/get_details_prm`, data, config)
             .then(response => {
@@ -118,8 +118,8 @@ const PRM = () => {
                 })
             })
             .catch(error => {
-                setloading(false)
                 alert(error);
+                setloading(false)
             });
     }
     const handleToggle = async (index) => {
@@ -128,7 +128,6 @@ const PRM = () => {
 
 
     return (
-        <SafeAreaView style={styles.container}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <TouchableOpacity activeOpacity={0.8}
                     style={{
@@ -148,20 +147,16 @@ const PRM = () => {
                     renderItem={({ item, index }) =>
                         <View style={styles.Card_Box} key={index}>
                             <View style={{
-                                width: responsiveWidth(95),
-                                height: responsiveHeight(4),
-                                backgroundColor: '#000',
-                                borderTopLeftRadius: 10,
-                                borderTopRightRadius: 10,
                                 flexDirection: "row",
-                                justifyContent: "flex-end"
+                                justifyContent: "flex-end",
+                                marginVertical: 5
                             }}>
                                 <TouchableOpacity onPress={() => prm_delete(item)}>
-                                    <Feather
+                                    <AntDesign
                                         name="delete"
                                         style={{
                                             fontSize: 25,
-                                            color: '#fff',
+                                            color: '#000',
                                             marginRight: 10
                                         }}
                                     />
@@ -171,7 +166,7 @@ const PRM = () => {
                                         name="edit"
                                         style={{
                                             fontSize: 25,
-                                            color: '#fff',
+                                            color: '#000',
                                             marginRight: 10
                                         }}
                                     />
@@ -202,51 +197,41 @@ const PRM = () => {
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
                                     }}>
-                                    <Text style={styles.card_textleft}>Caretaker Name</Text>
-                                    <Text style={styles.card_text}>{"Pyare"}</Text>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                    }}>
-                                    <Text style={styles.card_textleft}>Role</Text>
-                                    <Text style={styles.card_text}>{item?.role}</Text>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                    }}>
-                                    <Text style={styles.card_textleft}>Payment Date</Text>
-                                    <Text style={styles.card_text}>{item?.payment_date}</Text>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                    }}>
                                     <Text style={styles.card_textleft}>Category Name</Text>
                                     <Text style={styles.card_text}>{item?.category_name}</Text>
                                 </View>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                    }}>
-                                    <Text style={styles.card_textleft}>Remark</Text>
-                                    <Text style={styles.card_text}>{item?.remark}</Text>
-                                </View>
+
                             </>
                             {
-                                active === index && 
+                                active === index &&
                                 <>
-                                    <View>
-                                        <Text style={{ color: "#000" }}>Ankur</Text>
+
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                        }}>
+                                        <Text style={styles.card_textleft}>Role</Text>
+                                        <Text style={styles.card_text}>{item?.role}</Text>
+                                    </View>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                        }}>
+                                        <Text style={styles.card_textleft}>Payment Date</Text>
+                                        <Text style={styles.card_text}>{item?.payment_date}</Text>
+                                    </View>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between', 
+                                        }}>
+                                        <Text style={styles.card_textleft}>Remark:</Text>
+                                        <Text numberOfLines={1} style={styles.card_text}>{item?.remark}</Text>
                                     </View>
                                 </>
                             }
@@ -263,23 +248,19 @@ const PRM = () => {
 
                             </TouchableOpacity>
                             <View style={{
-                                width: responsiveWidth(95),
-                                height: responsiveHeight(4),
-                                backgroundColor: '#000',
-                                borderBottomLeftRadius: 10,
-                                borderBottomRightRadius: 10,
-                                justifyContent: "center"
+
                             }}>
                                 <TouchableOpacity key={index} onPress={() => handleToggle(index)}>
-                                   
+
                                     {active ?
                                         <SimpleLineIcons
                                             name="arrow-up"
                                             style={{
                                                 fontSize: 25,
-                                                color: '#fff',
+                                                color: '#000',
                                                 alignSelf: "flex-end",
-                                                marginRight: 10
+                                                marginRight: 10,
+                                                marginBottom: 5
                                             }}
                                         />
                                         :
@@ -287,9 +268,10 @@ const PRM = () => {
                                             name="arrow-down"
                                             style={{
                                                 fontSize: 25,
-                                                color: '#fff',
+                                                color: '#000',
                                                 alignSelf: "flex-end",
-                                                marginRight: 10
+                                                marginRight: 10,
+                                                marginBottom: 5
                                             }}
                                         />
                                     }
@@ -300,7 +282,6 @@ const PRM = () => {
                         </View>}
                 />
             </ScrollView>
-        </SafeAreaView>
     );
 };
 export default PRM;
@@ -355,7 +336,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         marginTop: 5,
         elevation: 10,
-        borderWidth: 1,
         marginBottom: 5
     },
     card_text: {
@@ -363,6 +343,8 @@ const styles = StyleSheet.create({
         marginTop: 5,
         color: '#37496E',
         marginRight: 20,
+        textAlign:"justify",
+        width: responsiveWidth(50)
     },
     card_textleft: {
         fontSize: responsiveFontSize(1.9),

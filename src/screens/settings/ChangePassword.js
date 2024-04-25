@@ -55,8 +55,8 @@ const ChangePassword = () => {
             }
           })
           .catch(error => {
-            setloading(false);
-            alert(error);
+            alert(error.request._response);
+            setloading(false)
           })
       : alert('Your password did not match');
   };

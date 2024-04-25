@@ -329,7 +329,6 @@ const Attendence = () => {
             latitude: lat,
             longitude: long,
           };
-          console.log('bodyout-->', body);
           punchOutApi.request(body, config);
         } else {
           setloading(false);
@@ -337,9 +336,9 @@ const Attendence = () => {
         }
       })
       .catch(error => {
-        setloading(false);
         const {code, message} = error;
-        console.warn(code, message);
+        alert(code, message);
+        setloading(false)
       });
   };
 
@@ -391,7 +390,6 @@ const Attendence = () => {
           },
         );
         if (dis) {
-          console.log('it is running');
           const token = await AsyncStorage.getItem('Token');
           const userData = await AsyncStorage.getItem('UserData');
           const userInfo = JSON.parse(userData);
@@ -413,9 +411,9 @@ const Attendence = () => {
         }
       })
       .catch(error => {
-        setloading(false);
         const {code, message} = error;
-        console.warn(code, message);
+        alert(code, message);
+        setloading(false)
       });
   };
   // console.log('activity timer-->', activityTime);

@@ -8,9 +8,10 @@ import apiUrl from '../../../reusable/apiUrl'
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Reload from '../../../../Reload';
 
 
-const Done = ({navigation}) => {
+const Done = ({ navigation }) => {
   const theme = useColorScheme();
 
   const [Userdata, setUserdata] = useState();
@@ -40,13 +41,13 @@ const Done = ({navigation}) => {
       .then(response => {
         setloading(false)
         console.log("data--------------11111111", response?.data?.data)
-        if (response?.data?.status == 1) {
+        if (response?.data?.status == 200) {
           setUserdata(response?.data?.data);
         }
       })
       .catch(error => {
-        setloading(false)
         alert(error.request._response);
+        setloading(false)
       });
   };
   const update_show_hide = async (task_id, show) => {
@@ -61,20 +62,23 @@ const Done = ({navigation}) => {
   }
   useEffect(() => {
     get_employee_detail()
-  }, [])
+  }, [show])
+
   const data = Userdata && Userdata.filter((item, index) => {
     return item.status == 2;
   })
-  // console.log(data,'yashuweyriuyeriuywiue')
+  if (data == null) {
+    return <Reload />
+  }
 
   return (
     <View style={styles.container}>
-      {data?.length != 0 ? null :
-        <View style={{ flex: 1, justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
-          <Text style={{ textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
+      {data?.length > 0 ? null :
+        <View style={{ justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
+          <Text style={{ marginTop: responsiveHeight(30), textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
         </View>
       }
-      {loading ? <ActivityIndicator size='large' color="#0043ae" /> : null}
+
 
       <FlatList
         data={data}
@@ -187,7 +191,7 @@ const Done = ({navigation}) => {
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Current address:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign:"right", width: responsiveWidth(40) }}>{item?.lat_long_address}</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "right", width: responsiveWidth(40) }}>{item?.lat_long_address}</Text>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Remark:</Text>
@@ -234,7 +238,7 @@ export default Done
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:"#e3eefb"
+    backgroundColor: "#e3eefb"
   },
   maincard: {
     // flexDirection:"row", justifyContent:"space-between", marginHorizontal: responsiveScreenWidth(2),

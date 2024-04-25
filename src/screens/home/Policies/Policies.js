@@ -52,8 +52,8 @@ const Policies = ({navigation}) => {
         }
       })
       .catch(error => {
-        setloading(false);
-        console.log(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

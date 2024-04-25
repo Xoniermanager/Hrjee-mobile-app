@@ -8,30 +8,36 @@ import {
   TextInput,
   ActivityIndicator,
   ScrollView,
-  useColorScheme
+  useColorScheme, Linking, Platform, Alert
 } from 'react-native';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import GlobalStyle from '../../reusable/GlobalStyle';
-import { Linking } from 'react-native';
+// import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../reusable/apiUrl';
 import axios from 'axios';
 import { EssContext } from '../../../Context/EssContext';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import Themes from '../../Theme/Theme';
+import { useNavigation } from '@react-navigation/native';
+import VersionCheck from 'react-native-version-check';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // import messaging from '@react-native-firebase/messaging';
 
-const Login = ({ navigation }) => {
+const Login = () => {
   const theme = useColorScheme();
-  console.log(theme)
-
+  const navigation = useNavigation()
   const { setuser, setlocation } = useContext(EssContext);
 
   const [email, setemail] = useState('');
   const [password, setpassword] = useState('');
   const [loading, setloading] = useState(false);
   const [fcmtoken, setfcmtoken] = useState();
+  const [showPassword, setShowPassword] = useState(false);
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   const login = () => {
     setloading(true);
@@ -42,49 +48,86 @@ const Login = ({ navigation }) => {
         device_id: fcmtoken,
       })
       .then(response => {
-        if (response.data.status == 1) {
-          try {
+
+        if (response?.data?.status == 1) {
+          if (response?.data?.data?.login_type === 'web') {
+            alert('You are not authorized to use mobile application. Kindly contact admin!')
             setloading(false);
-            // console.log('token####>', response.data.token);
-            AsyncStorage.setItem('Token', response.data.token);
-            AsyncStorage.setItem(
-              'UserData',
-              JSON.stringify(response.data.data),
-            );
-            setuser(response.data.data);
-            AsyncStorage.setItem(
-              'UserLocation',
-              JSON.stringify(response.data.location),
-            );
-            setlocation(response.data.location);
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Main' }],
-            });
-          } catch (e) {
-            setloading(false);
-            alert(e);
           }
+          else {
+            try {
+              setloading(false);
+              // console.log('token####>', response.data.token);
+              AsyncStorage.setItem('Token', response.data.token);
+              AsyncStorage.setItem(
+                'UserData',
+                JSON.stringify(response.data.data),
+              );
+              setuser(response.data.data);
+              AsyncStorage.setItem(
+                'UserLocation',
+                JSON.stringify(response.data.location),
+              );
+              setlocation(response.data.location);
+              AsyncStorage.setItem(
+                'PRMData', (response.data.data?.prm_assign),
+              );
+              let options = []
+              response?.data?.menu_access?.map((item) => {
+                if (item.menu_name.includes("News Management")) {
+                  console.log("news is ")
+                  options.push({
+                    id: 2,
+                    name: 'News',
+                    location: require('../../images/news.png'),
+                    moveTo: 'News',
+                  })
+                } else if (item.menu_name.includes("Training Management")) {
+                  console.log("training is ")
+                  options.push({
+                    id: 6,
+                    name: 'Training',
+                    location: require('../../images/training.png'),
+                    moveTo: 'Training',
+                  })
+                }
+                return item;
+              });
+              // console.log(options,'option')
+              AsyncStorage.setItem(
+                'menu', JSON.stringify(options),
+              );
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Main' }],
+              });
+
+            } catch (e) {
+              setloading(false);
+              alert(e);
+            }
+          }
+
         } else {
           setloading(false);
           alert('Please enter correct credentials');
         }
       })
       .catch(error => {
-        setloading(false);
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
-  async function getFCMToken() {
-    const token = await messaging().getToken();
-    // console.log(token);
-    setfcmtoken(token);
-  }
+  // async function getFCMToken() {
+  //   const token = await messaging().getToken();
+  //   // console.log(token);
+  //   setfcmtoken(token);
+  // }
 
-  getFCMToken();
+  // getFCMToken();
 
-  console.log('new token', fcmtoken);
+
 
   const phoneNumber = '8989777878';
   return (
@@ -110,24 +153,43 @@ const Login = ({ navigation }) => {
 
             <View style={styles.input_top_margin}>
               <Text style={styles.input_title}>Employee Id</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="xyz@gmail.com"
-                placeholderTextColor={theme=='dark'?'#000':'#000'}
-                onChangeText={text => setemail(text.toLowerCase())}
-              />
+              <View style={{
+                flexDirection: "row", borderBottomWidth: 1,
+                justifyContent: "space-between"
+              }}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="xyz@gmail.com"
+                  placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                  onChangeText={text => setemail(text.toLowerCase())}
+                />
+
+              </View>
+
             </View>
             <View style={styles.input_top_margin}>
               <Text style={styles.input_title}>Password</Text>
-              <TextInput
-                style={styles.input}
-                secureTextEntry={true}
-                placeholder="**********"
-                placeholderTextColor={theme=='dark'?'#000':'#000'}
-                onChangeText={text => setpassword(text.toLowerCase())}
-              />
+              <View style={{
+                flexDirection: "row", borderBottomWidth: 1,
+                justifyContent: "space-between"
+              }}>
+                <TextInput
+                  style={styles.input}
+                  secureTextEntry={!showPassword}
+                  placeholder="**********"
+                  placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                  onChangeText={text => setpassword(text.toLowerCase())}
+                />
+                <MaterialCommunityIcons
+                  name={!showPassword ? 'eye-off' : 'eye'}
+                  size={24}
+                  color="#000"
+                  style={{ alignSelf: 'center' }}
+                  onPress={toggleShowPassword}
+                />
+              </View>
             </View>
-            <TouchableOpacity style={[styles.btn_style]} onPress={login}>
+            <TouchableOpacity style={[styles.btn_style]} onPress={() => login()}>
               <Text
                 style={{
                   color: 'white',
@@ -137,7 +199,7 @@ const Login = ({ navigation }) => {
                 }}>
                 Sign In
               </Text>
-              {loading ? <ActivityIndicator style={{color:"#fff"}} /> : null}
+              {loading ? <ActivityIndicator size={'large'} color={"#fff"} /> : null}
             </TouchableOpacity>
             <View style={{ alignItems: 'center', marginTop: 40 }}>
               <TouchableOpacity
@@ -159,8 +221,9 @@ const Login = ({ navigation }) => {
 export default Login;
 
 const styles = StyleSheet.create({
-  text: { fontSize: 13, marginTop: 10 ,     color:Themes=='dark'?'#000':'#000'
-},
+  text: {
+    fontSize: 13, marginTop: 10, color: Themes == 'dark' ? '#000' : '#000'
+  },
   tinyLogo: {
     width: 45,
     height: 45,
@@ -169,15 +232,15 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     resizeMode: 'contain',
   },
-  input_title: { marginBottom: 3, fontSize: 18, fontWeight: '600', color:"#000" },
+  input_title: { marginBottom: 3, fontSize: 18, fontWeight: '600', color: "#000" },
   input_top_margin: { marginTop: 20 },
   input: {
     height: 50,
     backgroundColor: 'white',
     padding: 10,
-    borderBottomWidth: 1,
     borderBottomColor: 'grey',
-    color:Themes=='dark'?'#000':'#000'
+    color: Themes == 'dark' ? '#000' : '#000',
+    flex:1
   },
   btn_style: {
     width: '100%',

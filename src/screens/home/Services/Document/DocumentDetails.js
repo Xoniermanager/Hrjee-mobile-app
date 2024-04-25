@@ -53,8 +53,8 @@ const DocumentDetails = ({route}) => {
         // Here you can perform any of your completion tasks
       })
       .catch(error => {
-        setloading(false);
-        // error
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

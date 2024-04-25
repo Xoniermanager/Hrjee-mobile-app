@@ -12,7 +12,8 @@ import {
   Dimensions,
   RefreshControl,
   Alert,
-  useColorScheme
+  useColorScheme,
+  Platform
 } from 'react-native';
 import React, {
   useState,
@@ -68,7 +69,6 @@ const Home = ({ navigation }) => {
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
   const [show, setShow] = useState(true)
-  // console.log("timing-----------------------------------------------", officetiming?.office_timing)
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -123,6 +123,16 @@ const Home = ({ navigation }) => {
   const datetime = d.getFullYear() + '-' + mon + '-' + day;
   const hours = d.getHours() + ":" + d.getMinutes();
 
+  const [menuAccessData, setMenuAccessData] = useState()
+
+  // console.log("menuAccessData", menuAccessData)
+  // AsyncStorage.getItem('menu').then(res => {
+  //   setMenuAccessData(JSON.parse(res))
+  //   console.log(JSON.parse(res))
+  // });
+
+
+
   useEffect(() => {
     const getData = async () => {
       AsyncStorage.getItem('UserData').then(res => {
@@ -148,30 +158,6 @@ const Home = ({ navigation }) => {
       });
     }
   }, [getActiveLocationApi.loading]);
-
-  // useEffect(() => {
-  //   // Register listeners for incoming messages
-  //   messaging().onMessage(async remoteMessage => {
-  //     console.log(
-  //       'Received a notification while app is in foreground:',
-  //       remoteMessage,
-  //     );
-  //     // Display the notification in the app or handle it in some other way
-  //   });
-
-  //   messaging().setBackgroundMessageHandler(async remoteMessage => {
-  //     console.log(
-  //       'Received a notification while app is in background:',
-  //       remoteMessage,
-  //     );
-  //     // Display a notification in the system tray or the notification center
-  //   });
-
-  //   messaging().onNotificationOpenedApp(async remoteMessage => {
-  //     console.log('User opened the app from a notification:', remoteMessage);
-  //     navigation.jumpTo('Post');
-  //   });
-  // }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -231,7 +217,7 @@ const Home = ({ navigation }) => {
       })
       .catch(error => {
         setloading(false);
-        console.log(error);
+        alert(error.request._response);
       });
   };
 
@@ -262,9 +248,11 @@ const Home = ({ navigation }) => {
       })
       .catch(error => {
         setloading(false);
-        console.log(error);
+        alert(error.request._response);
       });
   };
+
+
 
   const options = [
     {
@@ -278,6 +266,7 @@ const Home = ({ navigation }) => {
       name: 'Attendance',
       location: require('../../images/attendence.jpeg'),
       moveTo: 'Select Attendance',
+
     },
     {
       id: 2,
@@ -304,12 +293,6 @@ const Home = ({ navigation }) => {
       moveTo: 'Support',
     },
     {
-      id: 6,
-      name: 'Training',
-      location: require('../../images/training.png'),
-      moveTo: 'Training',
-    },
-    {
       id: 7,
       name: 'Notifications',
       location: require('../../images/notifications.webp'),
@@ -321,7 +304,31 @@ const Home = ({ navigation }) => {
       location: require('../../images/account.jpeg'),
       moveTo: 'Profile',
     },
+
   ];
+
+  // menuAccessData && menuAccessData?.map((item) => {
+  //   if (item.name.includes("News")) {
+  //     console.log("news is ")
+  //     options.push({
+  //       id: 2,
+  //       name: 'News',
+  //       location: require('../../images/news.png'),
+  //       moveTo: 'News',
+  //     })
+  //   } else if (item.name.includes("Training")) {
+  //     console.log("training is ")
+  //     options.push({
+  //       id: 6,
+  //       name: 'Training',
+  //       location: require('../../images/training.png'),
+  //       moveTo: 'Training',
+  //     })
+  //   }
+  //   return item;
+  // });
+
+  // console.log("options 2 => ", options);
 
   useEffect(() => {
     let interval = null;
@@ -356,6 +363,7 @@ const Home = ({ navigation }) => {
   }, [timerOn,]);
 
   const check_punchIn = async () => {
+    get_month_logs()
     settimerOn(false);
     const token = await AsyncStorage.getItem('Token');
     const userData = await AsyncStorage.getItem('UserData');
@@ -417,7 +425,7 @@ const Home = ({ navigation }) => {
       })
       .catch(function (error) {
         setloading(false);
-        console.log("some-------------", error);
+        alert(error.request._response);
       });
   };
 
@@ -431,15 +439,15 @@ const Home = ({ navigation }) => {
           // onPress: handleCancelButtonPress,
           style: 'cancel',
         },
-        { text: 'OK', onPress: punch_out },
+        { text: 'OK', onPress: () => punch_out() },
       ],
       { cancelable: false },
     );
   };
 
   const punch_out = async () => {
-
     setloading(true);
+    get_month_logs()
     const userData = await AsyncStorage.getItem('UserData');
     const userInfo = JSON.parse(userData);
     let company_id = userInfo?.company_id;
@@ -463,7 +471,6 @@ const Home = ({ navigation }) => {
             longitude: activeLocation.longitude,
           },
         );
-        console.log("distance=>", dis, user.userid, user.email)
 
         if (company_id == 56 || company_id == 89 || company_id == 92) {
           const token = await AsyncStorage.getItem('Token');
@@ -489,31 +496,31 @@ const Home = ({ navigation }) => {
               }
             })
             .catch(function (error) {
-              console.log(error);
+              alert(error.request._response);
             });
         } else {
           //console.log('dis=-----',dis);
           if (lat == null || lat == '') {
-            setloading(false);
             alert('Location not find');
+            setloading(false);
             return;
           } else if (long == null || long == '') {
-            setloading(false);
             alert('Location not find');
+            setloading(false);
             return;
           } else if (
             activeLocation.latitude == null ||
             activeLocation.latitude == ''
           ) {
-            setloading(false);
             alert('Please set active location');
+            setloading(false);
             return;
           } else if (
             activeLocation.longitude == null ||
             activeLocation.longitude == ''
           ) {
-            setloading(false);
             alert('Please set active location');
+            setloading(false);
             return;
           }
           if (dis <= 4000) {
@@ -529,7 +536,6 @@ const Home = ({ navigation }) => {
               latitude: lat,
               longitude: long,
             };
-            console.log("body=>", body)
             axios
               .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
               .then(function (response) {
@@ -543,8 +549,8 @@ const Home = ({ navigation }) => {
                 console.log(error);
               });
           } else {
-            setloading(false);
             alert('You are not in the radius');
+            setloading(false);
           }
         }
         get_recent_logs();
@@ -553,7 +559,7 @@ const Home = ({ navigation }) => {
       .catch(error => {
         setloading(false);
         const { code, message } = error;
-        console.warn(code, message);
+        Alert.alert(code, message);
       });
   };
 
@@ -561,12 +567,154 @@ const Home = ({ navigation }) => {
 
 
   const punch_in = async () => {
-    setloading(true);
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+    setloading(true)
+    if (Platform.OS == 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          GetLocation.getCurrentPosition({})
+          const userData = await AsyncStorage.getItem('UserData');
+          const userInfo = JSON.parse(userData);
+          let company_id = userInfo?.company_id;
+
+          GetLocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 15000,
+          })
+            .then(async location => {
+              setloading(false);
+              var lat = parseFloat(location.latitude);
+              var long = parseFloat(location.longitude);
+              //alert('dsfsdf',long);
+
+              setcurrentLocation({
+                long: long,
+                lat: lat,
+              });
+
+
+              var dis = getDistance(
+                { latitude: lat, longitude: long },
+                {
+                  latitude: activeLocation.latitude,
+                  longitude: activeLocation.longitude,
+                },
+              );
+
+
+              if (company_id == 56 || company_id == 89 || company_id == 92) {
+                const token = await AsyncStorage.getItem('Token');
+                const userData = await AsyncStorage.getItem('UserData');
+                const userInfo = JSON.parse(userData);
+
+                const config = {
+                  headers: { Token: token },
+                };
+                const body = {
+                  email: userInfo.email,
+                  location_id: activeLocation.location_id,
+                  latitude: lat,
+                  longitude: long,
+                  login_type: 'mobile'
+                };
+
+
+                axios
+                  .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+                  .then(function (response) {
+                    //alert('punch in', response.data);
+                    if (response.data.status == 1) {
+                      check_punchIn();
+                    } else {
+                      alert(response.data.message);
+                      setloading(false);
+                    }
+                  })
+                  .catch(function (error) {
+                    setloading(false);
+                    alert(error.request._response);
+                  });
+              } else {
+
+                if (lat == null || lat == '') {
+                  alert('Location not find');
+                  setloading(false);
+                  return;
+                } else if (long == null || long == '') {
+                  alert('Location not find');
+                  setloading(false);
+                  return;
+                } else if (
+                  activeLocation.latitude == null ||
+                  activeLocation.latitude == ''
+                ) {
+                  alert('Please set active location');
+                  setloading(false);
+                  return;
+                } else if (
+                  activeLocation.longitude == null ||
+                  activeLocation.longitude == ''
+                ) {
+                  alert('Please set active location');
+                  setloading(false);
+                  return;
+                }
+
+                if (dis <= 4000) {
+                  const token = await AsyncStorage.getItem('Token');
+                  const userData = await AsyncStorage.getItem('UserData');
+                  const userInfo = JSON.parse(userData);
+
+                  const config = {
+                    headers: { Token: token },
+                  };
+                  const body = {
+                    email: userInfo.email,
+                    location_id: activeLocation.location_id,
+                    latitude: lat,
+                    longitude: long,
+                    login_type: 'mobile'
+                  };
+                  console.log('logitute-----', body)
+                  axios
+                    .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+                    .then(function (response) {
+                      if (response.data.status == 1) {
+                        check_punchIn();
+                      } else {
+                        alert(response.data.message)
+                        setloading(false);
+                      }
+                    })
+                    .catch(function (error) {
+                      setloading(false);
+                      alert(error.request._response);
+                    });
+                } else {
+                  alert('You are not in the radius');
+                  setloading(false);
+                }
+              }
+              get_recent_logs();
+            })
+            .catch(error => {
+              const { code, message } = error;
+              Alert.alert(code, message);
+              setloading(false);
+            });
+        } else {
+          Alert.alert('Location permission denied');
+          setloading(false);
+        }
+      } catch (err) {
+        setloading(false);
+        console.warn(err);
+      }
+    }
+    else {
+      try {
         GetLocation.getCurrentPosition({})
         const userData = await AsyncStorage.getItem('UserData');
         const userInfo = JSON.parse(userData);
@@ -581,16 +729,13 @@ const Home = ({ navigation }) => {
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
             //alert('dsfsdf',long);
-            console.log('loc1-->', location);
-            console.log('loc2-->', lat);
-            console.log('loc3-->', long);
+
             setcurrentLocation({
               long: long,
               lat: lat,
             });
 
 
-            console.log('fasdfdf-', activeLocation.latitude);
             var dis = getDistance(
               { latitude: lat, longitude: long },
               {
@@ -599,14 +744,6 @@ const Home = ({ navigation }) => {
               },
             );
 
-
-            console.log('dis-->', dis);
-            console.log(
-              'act loc->',
-              activeLocation.latitude,
-              activeLocation.longitude,
-            );
-            console.log('curr loc->', lat, long);
 
             if (company_id == 56 || company_id == 89 || company_id == 92) {
               const token = await AsyncStorage.getItem('Token');
@@ -621,9 +758,9 @@ const Home = ({ navigation }) => {
                 location_id: activeLocation.location_id,
                 latitude: lat,
                 longitude: long,
+                login_type: 'mobile'
               };
 
-              //alert('asdFAsfasf-----', body);
 
               axios
                 .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
@@ -637,31 +774,32 @@ const Home = ({ navigation }) => {
                   }
                 })
                 .catch(function (error) {
-                  console.log(error);
+                  setloading(false);
+                  alert(error.request._response);
                 });
             } else {
 
               if (lat == null || lat == '') {
-                setloading(false);
                 alert('Location not find');
+                setloading(false);
                 return;
               } else if (long == null || long == '') {
-                setloading(false);
                 alert('Location not find');
+                setloading(false);
                 return;
               } else if (
                 activeLocation.latitude == null ||
                 activeLocation.latitude == ''
               ) {
-                setloading(false);
                 alert('Please set active location');
+                setloading(false);
                 return;
               } else if (
                 activeLocation.longitude == null ||
                 activeLocation.longitude == ''
               ) {
-                setloading(false);
                 alert('Please set active location');
+                setloading(false);
                 return;
               }
 
@@ -678,12 +816,12 @@ const Home = ({ navigation }) => {
                   location_id: activeLocation.location_id,
                   latitude: lat,
                   longitude: long,
+                  login_type: 'mobile'
                 };
                 console.log('logitute-----', body)
                 axios
                   .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
                   .then(function (response) {
-                    console.log('punch in', response.data);
                     if (response.data.status == 1) {
                       check_punchIn();
                     } else {
@@ -692,31 +830,29 @@ const Home = ({ navigation }) => {
                     }
                   })
                   .catch(function (error) {
-                    console.log(error);
+                    setloading(false);
+                    alert(error.request._response);
                   });
               } else {
-
-                setloading(false);
                 alert('You are not in the radius');
+                setloading(false);
               }
             }
             get_recent_logs();
           })
           .catch(error => {
-            setloading(false);
             const { code, message } = error;
-            //alert('fadsfsdaf');
             Alert.alert(code, message);
+            setloading(false);
           });
-      } else {
-        setloading(false);
-        Alert.alert('Location permission denied');
+        get_recent_logs();
       }
-    } catch (err) {
-      setloading(false);
-      console.warn(err);
-    }
 
+      catch (err) {
+        setloading(false);
+        console.warn(err);
+      }
+    }
 
     // alert(officetiming?.office_timing + `${d.getHours()}:${d.getMinutes()} AM`);
     // if (`${d.getHours()}:${d.getMinutes()} AM` >= officetiming?.office_timing) {
@@ -730,12 +866,21 @@ const Home = ({ navigation }) => {
     // }
   };
 
+
+  // const res = options.filter(v => menuAccessData && menuAccessData.some(g => g.menu_id == v.id));
+
+  // console.log(res, 'pyar')
+
   const renderItem = ({ item }) =>
-    // console.log("A.......", item.id)
+
+    // console.log("A.......", item)
     // let x = item?.id;
-    // console.log(x);
+    // console.log(x); 
+
+
+
     item?.id === 0 ||
-    item?.id === 6 || (
+    item?.id === 8 || (
       <TouchableOpacity
         onPress={() =>
           item.id == 0
@@ -744,7 +889,7 @@ const Home = ({ navigation }) => {
         }>
         <ImageBackground
           style={styles.options1}
-          source={item.location}
+          source={item?.location}
           imageStyle={{ borderRadius: 5 }}>
           <LinearGradient
             colors={['#00000000', '#000000']}
@@ -762,16 +907,12 @@ const Home = ({ navigation }) => {
                 fontWeight: '600',
                 alignSelf: "center",
               }}>
-              {item.name}
+              {item?.name}
             </Text>
           </LinearGradient>
         </ImageBackground>
       </TouchableOpacity>
     );
-  // for (let i = x; i < x; i++) {
-  //   x += i + "<br>";
-  //   console.log( "skipt data........",x)
-  // }
 
   const navigateTo = item => {
     const url = item.download_video;
@@ -975,7 +1116,7 @@ const Home = ({ navigation }) => {
         }
       })
       .catch(error => {
-        console.log(error);
+        alert(error.request._response);
       });
   };
 
@@ -1016,8 +1157,8 @@ const Home = ({ navigation }) => {
         }
       })
       .catch(error => {
+        alert(error.request._response);
         setloading(false);
-        console.log(error);
       });
   };
 
@@ -1036,8 +1177,6 @@ const Home = ({ navigation }) => {
       get_recent_logs();
     }, []),
   );
-
-
 
   useEffect(() => {
     if (punchInApi.data != null) {
@@ -1170,27 +1309,10 @@ const Home = ({ navigation }) => {
     }, 1500);
   }, [getActiveLocationApi.loading]);
 
-  // console.log('activity timer-->', activityTime);
-  // const get_recent_logs = async () => {
-  //   const token = await AsyncStorage.getItem('Token');
-  //   const config = {
-  //     headers: { Token: token },
-  //   };
-  //   const date = new Date();
-  //   // console.log('****', days[date.getDay()]);
-  //   const body = {
-  //     start_date: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate() - 7
-  //       }`,
-  //     end_date: `${date.getFullYear()}-${date.getMonth() + 1
-  //       }-${date.getDate()}`,
-  //   };
-  //   // console.log('body-->', body);
-  //   getAtendenceApi?.request(body, config);
-
-  // }
-
   const get_recent_logs = async () => {
     const token = await AsyncStorage.getItem('Token');
+
+    let menuAccessData = await AsyncStorage.get('menu')
     const config = {
       headers: { Token: token },
     };
@@ -1202,11 +1324,10 @@ const Home = ({ navigation }) => {
       end_date: `${endDate.getFullYear()}-${endDate.getMonth() + 1
         }-${endDate.getDate()}`,
     };
-    console.log("body=>", body)
 
     if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` > `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
-      setloading(false);
       alert('Till date should muast be greater than the From date ')
+      setloading(false);
     } else {
       axios
         .post(`${apiUrl}/Api/attendance`, body, config)
@@ -1220,14 +1341,14 @@ const Home = ({ navigation }) => {
               alert(e);
             }
           } else {
-            setloading(false);
             setrecentLogs([]);
             alert('attendence not found');
+            setloading(false);
           }
         })
         .catch(error => {
+          alert(error.request._response);
           setloading(false);
-          alert(error);
         });
     }
   };
@@ -1245,14 +1366,12 @@ const Home = ({ navigation }) => {
       start_date: startOfWeek,
       end_date: endOfWeek,
     };
-    console.log('body1mon----->', startOfWeek, endOfWeek);
     axios
       .post(`${apiUrl}/Api/attendance`, body, config)
       .then(response => {
         console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log(response.data.content);
             setrecentLogs(response.data.content);
           } catch (e) {
             alert(e);
@@ -1262,13 +1381,13 @@ const Home = ({ navigation }) => {
         }
       })
       .catch(error => {
-        alert(error);
+        alert(error.request._response);
+        setloading(false);
       });
   };
 
   //Recent Login Data end
 
-  // console.log("data--------------", getAtendenceApi?.data?.content)
 
 
 
@@ -1316,7 +1435,7 @@ const Home = ({ navigation }) => {
               horizontal
               data={options}
               renderItem={renderItem}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item?.id}
             />
           </View>
           <View style={{ padding: 15, marginTop: 5 }}>
@@ -1428,7 +1547,7 @@ const Home = ({ navigation }) => {
 
                     {!inTime && !locationOut && (
                       <TouchableOpacity
-                        onPress={punch_in}
+                        onPress={() => punch_in()}
                         style={{
                           padding: 10,
                           paddingHorizontal: 20,
@@ -1499,8 +1618,8 @@ const Home = ({ navigation }) => {
                     />
                     {
                       (datetime == i.TR_DATE && i.location_id != null) ?
-                        <Text >{i.PRESENT_HOURS}</Text>
-                        : (datetime > i.TR_DATE) ? <Text >{i.PRESENT_HOURS}</Text> : (hours >= '19:00') ? <Text>{i.PRESENT_HOURS}</Text> : <Text >NA</Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text>
+                        : (datetime > i.TR_DATE) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text> : (hours >= '19:00') ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>NA</Text>
                     }
                     {/* <Text >{i.PRESENT_HOURS}</Text> */}
                   </View>
@@ -1744,6 +1863,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
   },
 });
+
 
 
 

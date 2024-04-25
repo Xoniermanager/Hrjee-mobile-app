@@ -76,7 +76,6 @@ const Details = ({navigation, route}) => {
         if (response.data.status === 1) {
           try {
             setloading(false);
-            console.log(response.data.data);
             setpolicyDetail(response.data.data);
           } catch (e) {
             setloading(false);
@@ -88,8 +87,8 @@ const Details = ({navigation, route}) => {
         }
       })
       .catch(error => {
-        setloading(false);
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

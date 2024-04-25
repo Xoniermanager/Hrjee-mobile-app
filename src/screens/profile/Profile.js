@@ -53,6 +53,7 @@ import {
 } from '@react-navigation/drawer';
 import Themes from '../../Theme/Theme';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
+import Reload from '../../../Reload';
 
 const Drawer = createDrawerNavigator();
 
@@ -87,6 +88,7 @@ const Profile = ({ navigation }) => {
     salary: '',
     location: {},
   });
+  console.log(Userdata, "2002")
   const [loading, setloading] = useState(false);
   const [location, setlocation] = useState();
   const [showInput, setshowInput] = useState(false);
@@ -133,26 +135,20 @@ const Profile = ({ navigation }) => {
     axios
       .post(`${apiUrl}/secondPhaseApi/balance_leave`, {}, config)
       .then(response => {
-        console.log("leave------------------------------", response?.data?.data)
-        if (response.data.status === "1") {
-          console.log("responsedata>>>>>>>>>>>>>>>>>>>>>>>", response?.data?.data)
-          try {
-            setLeaveData(response?.data?.data)
-            get_employee_detail();
-          } catch (e) {
-            console.log(e);
-          }
-        } else {
-          console.log('some error occured');
+        if (response?.data?.status == "1") {
+          setLeaveData(response?.data?.data)
+          // get_employee_detail();
         }
       })
       .catch(error => {
-        console.log("error-------------------", error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
 
   const get_employee_detail = async () => {
+    setloading(true)
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: { Token: token },
@@ -160,6 +156,8 @@ const Profile = ({ navigation }) => {
     axios
       .post(`${apiUrl}/api/get_employee_detail`, {}, config)
       .then(response => {
+        console.log("responseprofile.............", response?.data?.data)
+        setloading(false)
         if (response.data.status === 1) {
           try {
             setUserdata({
@@ -181,16 +179,19 @@ const Profile = ({ navigation }) => {
               status: response.data.data.status,
               salary: `${response.data.data.total_salary}`,
             });
-            get_employee_detail();
+            // get_employee_detail();
           } catch (e) {
-            console.log(e);
+            setloading(false)
+            console.log("dddd.......", e);
           }
         } else {
+          setloading(false)
           console.log('some error occured');
         }
       })
       .catch(error => {
-        console.log(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
@@ -214,7 +215,8 @@ const Profile = ({ navigation }) => {
         }
       })
       .catch(error => {
-        console.log(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
@@ -650,78 +652,12 @@ const Profile = ({ navigation }) => {
     }
   };
 
+  if (Userdata == null) {
+    return <Reload />
+  }
+
   return (
     <>
-      {/* <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisibleImgUp}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <View style={{alignItems: 'flex-end'}}>
-              <AntDesign
-                name="close"
-                style={{fontSize: 20, color: 'red'}}
-                onPress={() => setModalVisibleImgUp(!modalVisibleImgUp)}
-              />
-            </View>
-            {singleFile ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginBottom: 30,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <Text>{singleFile ? singleFile[0]?.name : null}</Text>
-                  <Feather
-                    name="delete"
-                    style={{fontSize: 20, color: 'red', marginLeft: 10}}
-                    onPress={() => {
-                      setSingleFile(null);
-                      setshowUpdateModal(true);
-                    }}
-                  />
-                </View>
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={selectFile}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 30,
-                }}>
-                <AntDesign
-                  name="cloudupload"
-                  style={{fontSize: 20, marginRight: 10}}
-                />
-                <Text>Upload</Text>
-              </TouchableOpacity>
-            )}
-            <TextInput
-              multiline
-              style={styles.input}
-              placeholder="write a caption..."
-              onChangeText={text => setcaption(text)}
-              value={caption}
-            />
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={uploadPost}>
-              {uploading ? (
-                <Text style={styles.textStyle}>Uploading...</Text>
-              ) : (
-                <Text style={styles.textStyle}>Upload</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal> */}
       {loading && renderPlaceholder()}
       {!loading && (
         <PullToRefresh
@@ -735,15 +671,15 @@ const Profile = ({ navigation }) => {
             <View
               style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row' }}>
-                {/* <Image
+                <Image
                   style={styles.tinyLogo}
                   source={
                     Userdata.image
                       ? { uri: Userdata.image }
                       : require('../../images/profile_pic.webp')
                   }
-                /> */}
-                {
+                />
+                {/* {
                   photoPath ?
                     <Image
                       source={{ uri: photoPath }}
@@ -754,12 +690,12 @@ const Profile = ({ navigation }) => {
                       source={{ uri: `https://i.postimg.cc/0y72NN2K/user.png` }}
                       style={styles.tinyLogo}
                     />
-                }
+                } */}
                 <View>
                   <Text
                     style={[
                       styles.profileFont,
-                      { fontSize: 20, fontWeight: 'bold' },
+                      { fontSize: 20, fontWeight: 'bold',  },
                     ]}>
                     {Userdata.name}
                   </Text>
@@ -955,13 +891,13 @@ const styles = StyleSheet.create({
   tinyLogo: {
     width: responsiveWidth(25),
     height: responsiveHeight(13),
-    borderRadius:50,
+    borderRadius: 50,
     marginRight: 10,
     borderWidth: 1,
     borderColor: 'white',
   },
   profileFont: {
-    color: 'white',
+    color: 'white', width:responsiveWidth(55)
   },
   options: {
     width: 65,
@@ -1085,3 +1021,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+

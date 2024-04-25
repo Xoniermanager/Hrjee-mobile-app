@@ -20,7 +20,6 @@ const DocDetails = ({navigation, route}) => {
   const [showMore, setshowMore] = useState(true);
 
   const type = route.params.type;
-  console.log('type', type);
   const monthNames = [
     'January',
     'February',
@@ -88,8 +87,8 @@ const DocDetails = ({navigation, route}) => {
         // Here you can perform any of your completion tasks
       })
       .catch(error => {
-        setloading(false);
-        // error
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

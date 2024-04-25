@@ -67,7 +67,7 @@ const Holidays = () => {
         }
       })
       .catch(error => {
-        alert(error);
+        alert(error.request._response);
       });
   };
 

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, ActivityIndicator, TextInput, Text, PermissionsAndroid, TouchableOpacity, View, Alert, Dimensions, useColorScheme, Modal, Pressable } from 'react-native'
+import { FlatList, StyleSheet, ActivityIndicator, TextInput, Text, PermissionsAndroid, TouchableOpacity, View, Alert, Dimensions, useColorScheme, Modal, Pressable, Platform } from 'react-native'
 import React, { useEffect, useState, useCallback } from 'react'
 import GlobalStyle from '../../../reusable/GlobalStyle';
 import { responsiveHeight, responsiveScreenWidth, responsiveWidth } from 'react-native-responsive-dimensions'
@@ -12,14 +12,19 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import ImagePicker from 'react-native-image-crop-picker';
 import DocumentPicker from 'react-native-document-picker'
 import GetLocation from 'react-native-get-location';
+import Reload from '../../../../Reload';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
 
 const Processing = () => {
+  const navigation = useNavigation()
   const theme = useColorScheme();
   const [modalVisible1, setModalVisible1] = useState(false);
   const [cameramodal, setCameramodal] = useState(false);
+  const [cameramodal1, setCameramodal1] = useState(false);
+  const [docmodal, setDocmodal] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [photoPath, setPhotoPath] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false); // state to control modal visibility
@@ -32,11 +37,11 @@ const Processing = () => {
   const [remarkError, setRemarkError] = useState()
   const [photoError, setPhotoError] = useState()
   const [documentError, setDocumentError] = useState()
-
+  const [location, setLocation] = useState(1)
   const [show, setShow] = useState('2')
   const [showMore, setShowMore] = useState(false);
   const [currentDisplayedTask, setCurrentDisplayedTask] = useState(null);
-
+  const [showAddress, setShowAddress] = useState(0)
   // choose from front camera  for profile Images////////
 
   const takePhotoFromCamera = () => {
@@ -67,13 +72,12 @@ const Processing = () => {
       // setImage(image.path)
       // setMimez(image?.mime)
       setPhotoError(null)
-      console.log(image)
+      // console.log(image)
       setPhoto(image);
       setPhotoPath(image?.path);
-
-      setStore(`data:${image.mime};base64,${image.data}`)  //convert image base 64
-      console.log("file ", image?.data?.mime);
-      setCameramodal(!cameramodal);
+      setCameramodal1(!cameramodal1);
+      //convert image base 64
+      // console.log("file ", image?.data?.mime);
 
 
     }).catch((err) => { console.log(err); });
@@ -85,10 +89,12 @@ const Processing = () => {
     try {
       const response = await DocumentPicker.pick({
         presentationStyle: 'fullScreen',
+        type: [DocumentPicker.types.pdf], // Specify the file types you want to pick
       });
       setFileResponse(response);
       setDocumentError(null)
-      console.log(response)
+      setDocmodal(!docmodal);
+      // console.log(response)
     } catch (err) {
       console.warn(err);
     }
@@ -96,14 +102,12 @@ const Processing = () => {
 
 
   useEffect(() => {
-    get_employee_detail()
-    setloading(true)
+
     GetLocation.getCurrentPosition({
       enableHighAccuracy: true,
       timeout: 15000,
     })
       .then(async location => {
-        setloading(false)
         var lat = parseFloat(location.latitude);
         var long = parseFloat(location.longitude);
         setCurrentLocation({
@@ -112,23 +116,26 @@ const Processing = () => {
         });
 
       })
-  }, [])
+  }, [showAddress])
   const latitude = currentLocation?.lat;
   const longitude = currentLocation?.long;
-
+  console.log(latitude, longitude, '33333333335678768768')
   const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
   const getAddress = async () => {
     axios.get(urlAddress).then(res => {
 
       setAddress(res.data?.results[0].formatted_address)
+      console.log(res.data?.results[0].formatted_address, 'res.data?.results[0].formatted_address')
     })
   }
 
 
   const [Userdata, setUserdata] = useState();
 
+  // console.log(Userdata, "processing")
+
   const get_employee_detail = async () => {
-    // Alert.alert('hii')
+    setloading(true)
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: { Token: token },
@@ -137,135 +144,243 @@ const Processing = () => {
     axios
       .get(`${apiUrl}/SecondPhaseApi/get_user_task`, config)
       .then(response => {
-        if (response?.data?.status == 1) {
+        setloading(false)
+        if (response?.data?.status == 200) {
           setUserdata(response?.data?.data);
-          get_employee_detail();
         }
       })
       .catch(error => {
         alert(error.request._response);
+        setloading(false)
       });
   };
   // console.log(fileResponse,'123')
   const tast_status_update = async (item) => {
     setloading1(true);
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        GetLocation.getCurrentPosition({})
-        GetLocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 15000,
-        })
-          .then(async location => {
-            setloading1(false);
-            const updatedStatus = (parseInt(item?.status) + parseInt(1));
-            const token = await AsyncStorage.getItem('Token');
-            const config = {
-              headers: {
-                Token: token,
-                'Content-Type': 'multipart/form-data'
-              },
-            };
-            let data = new FormData();
-            data.append('task_id', item?.task_id);
-            data.append('remark', remark);
-            data.append('latitude', latitude);
-            data.append('longitude', longitude);
+    setShowAddress(showAddress + 1)
+    if (Platform.OS == 'android') {
+      try {
 
-            data.append('image', fileResponse[0]);
-            data.append('status', updatedStatus);
-            var selfie_image = {
-              uri: photo?.path,
-              type: photo?.mime,
-              name: photo?.modificationDate + '.' + 'jpg',
-            };
-            data.append('selfie_image', selfie_image);
-            data.append('lat_long_address', address);
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
 
-            console.log("body = > ", data)
-            if (remark.trim() === '') {
-              setRemarkError('Please enter some text');
-
-            } else if (photo == null) {
-              setPhotoError('Please Upload the Image');
-            }
-            else if (fileResponse.length == 0) {
-              setDocumentError('Please Upload the Document');
-            } else {
-              axios
-                .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
-                .then(response => {
-
-                  if (response?.data?.status == 1) {
-                    console.log("response statsu ---------", response?.data)
-                    get_employee_detail()
-                    setModalVisible1(false)
-                    setRemart('')
-                  }
-                  else {
-                    alert(response?.data?.message)
-                    console.log(response?.data, 'yashu')
-                    setModalVisible1(false)
-
-                  }
-
-                })
-                .catch(error => {
-                  console.log("ggg", error)
-                  // alert(error);
-                });
-            }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          GetLocation.getCurrentPosition({})
+          GetLocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 15000,
           })
+            .then(async location => {
+              setloading1(false);
 
-          .catch(error => {
-            setloading1(false);
-            const { code, message } = error;
-            //alert('fadsfsdaf');
-            Alert.alert(code, message);
-          });
-      } else {
-        setloadin1(false);
-        Alert.alert('Location permission denied');
+              const updatedStatus = (parseInt(item?.status) + parseInt(1));
+              const token = await AsyncStorage.getItem('Token');
+              const config = {
+                headers: {
+                  Token: token,
+                  'Content-Type': 'multipart/form-data'
+                },
+              };
+              let data = new FormData();
+              data.append('task_id', item?.task_id);
+              data.append('remark', remark);
+              data.append('latitude', latitude);
+              data.append('longitude', longitude);
+
+              data.append('image', fileResponse[0]);
+              data.append('status', updatedStatus);
+              var selfie_image = {
+                uri: photo?.path,
+                type: photo?.mime,
+                name: photo?.modificationDate + '.' + 'jpg',
+              };
+              data.append('selfie_image', selfie_image);
+              data.append('lat_long_address', address);
+
+              // console.log("body = > ", data)
+              console.log(address, 'address')
+              if (remark.trim() === '') {
+                setRemarkError('Please enter some text');
+
+              } else if (photo == null) {
+                setPhotoError('Please Upload the Image');
+              }
+              else if (fileResponse.length == 0) {
+                setDocumentError('Please Upload the Document');
+              } else {
+                axios
+                  .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
+                  .then(response => {
+
+                    if (response?.data?.status == 1) {
+                      // console.log("response statsu ---------", response?.data)
+                      get_employee_detail()
+                      setModalVisible1(false)
+                      setRemart('')
+                      setCameramodal('')
+                      setCameramodal1('')
+                      setDocmodal('')
+                    }
+                    else {
+                      // console.log(response?.data, 'yashu')
+                      setModalVisible1(false)
+                      alert(response?.data?.message)
+                    }
+
+                  })
+                  .catch(error => {
+                    alert(error.request._response);
+                    setloading1(false)
+                  });
+              }
+            })
+
+            .catch(error => {
+              const { code, message } = error;
+              //alert('fadsfsdaf');
+              Alert.alert(code, message);
+              setModalVisible1(!modalVisible1)
+              setRemart('')
+              setCameramodal('')
+              setCameramodal1('')
+              setDocmodal('')
+              setloading1(false);
+            });
+        } else {
+          setModalVisible1(!modalVisible1)
+          setRemart('')
+          setCameramodal('')
+          setCameramodal1('')
+          setDocmodal('')
+          Alert.alert('Location permission denied');
+          setloading1(false);
+
+        }
+
+      }
+      catch (err) {
+        console.warn(err.request._response);
+        setloading1(false);
       }
     }
-    catch (err) {
-      setloading1(false);
-      console.warn(err);
+    else {
+      try {
+        setloading1(false);
+        const updatedStatus = (parseInt(item?.status) + parseInt(1));
+        const token = await AsyncStorage.getItem('Token');
+        const config = {
+          headers: {
+            Token: token,
+            'Content-Type': 'multipart/form-data'
+          },
+        };
+        let data = new FormData();
+        data.append('task_id', item?.task_id);
+        data.append('remark', remark);
+        data.append('latitude', latitude);
+        data.append('longitude', longitude);
+
+        data.append('image', fileResponse[0]);
+        data.append('status', updatedStatus);
+        var selfie_image = {
+          uri: photo?.path,
+          type: photo?.mime,
+          name: photo?.modificationDate + '.' + 'jpg',
+        };
+        data.append('selfie_image', selfie_image);
+        data.append('lat_long_address', address);
+
+        // console.log("body = > ", data)
+        if (remark.trim() === '') {
+          setRemarkError('Please enter some text');
+
+        } else if (photo == null) {
+          setPhotoError('Please Upload the Image');
+        }
+        else if (fileResponse.length == 0) {
+          setDocumentError('Please Upload the Document');
+        } else {
+          setloading1(true);
+          axios
+            .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
+            .then(response => {
+
+              if (response?.data?.status == 1) {
+                // console.log("response statsu ---------", response?.data)
+                get_employee_detail()
+                setModalVisible1(false)
+                setRemart('')
+                setCameramodal('')
+                setCameramodal1('')
+                setDocmodal('')
+              }
+              else {
+                // console.log(response?.data, 'yashu')
+                setModalVisible1(false)
+                alert(response?.data?.message)
+              }
+
+            })
+            .catch(error => {
+              alert(error.request._response);
+              setloading1(false)
+            });
+        }
+      }
+
+
+
+
+      catch (err) {
+        console.warn(err.request._response);
+        setloading1(false);
+      }
     }
+
 
 
   };
   useEffect(() => {
-    get_employee_detail()
+    getAddress()
+  }, [location])
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      get_employee_detail()
+    });
+
+    return unsubscribe;
+
 
   }, [])
 
   const update_show_hide = async (task_id, show) => {
-    console.log(" task_id, show => ", task_id, show)
+    // console.log(" task_id, show => ", task_id, show)
     if (task_id == currentDisplayedTask) {
       setCurrentDisplayedTask(null);
       setShowMore(false);
     } else {
       setCurrentDisplayedTask(task_id);
       setShowMore(true);
+      setShowMore(false);
     }
   }
 
   const data = Userdata && Userdata.filter((item, index) => {
     return item.status == 1
   })
+  if (data == null) {
+    return <Reload />
+  }
 
   return (
     <View style={styles.container}>
-      {data?.length != 0 ? null :
-        <View style={{ flex: 1, justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
-          <Text style={{ textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
+      {data?.length > 0 ? null :
+        <View style={{ justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
+          <Text style={{ marginTop: responsiveHeight(30), textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
         </View>
       }
-      {loading ? <ActivityIndicator size='large' color="#0043ae" /> : null}
 
       <FlatList
         data={data}
@@ -274,29 +389,20 @@ const Processing = () => {
             <View activeOpacity={0.2} style={styles.maincard}>
 
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignContent: "center", alignItems: "center" }}>
-                <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={() => [setModalVisible1(true), getAddress()]}>
-                  <Text style={{ color: Themes == 'dark' ? '#0043ae' : '#0043ae', fontWeight: "bold", fontSize: 18 }}>Task</Text>
-                  <View>
-                    <FontAwesome5
-                      name="edit"
-                      size={20}
-                      color="#000"
-                      marginLeft={5}
-                    // onPress={() => []}
-                    />
-                  </View>
+                <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1)]}>
+                  <Text style={{ color: Themes == 'dark' ? '#fff' : '#fff', fontWeight: "bold", fontSize: 16, padding: 5 }}>Update </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => update_show_hide(item?.task_id, true)} style={{ flexDirection: "row", alignItems: "center" }}>
                   <View >
-                    <Text style={{ color: Themes == 'dark' ? '#0043ae' : '#0043ae', fontWeight: "bold", fontSize: 18, marginRight: 5 }}>
+                    <Text style={{ color: Themes == 'dark' ? '#0043ae' : '#0043ae', fontWeight: "bold", fontSize: 16, marginRight: 5 }}>
                       {currentDisplayedTask != item.task_id ? 'More' : 'Hide'}
                     </Text>
                   </View>
                   <View>
                     <AntDesign
                       name="down"
-                      size={30}
+                      size={20}
                       color="#000"
                     />
                   </View>
@@ -389,7 +495,7 @@ const Processing = () => {
 
                   :
                   <>
-                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.task_id}</Text>
                     </View>
@@ -421,7 +527,7 @@ const Processing = () => {
                             <View style={{ padding: 10 }}>
                               <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                                 <Text style={[{ fontSize: 16, fontWeight: "bold" }, { color: Themes == 'dark' ? '#2196F3' : '#2196F3', marginBottom: 5 }]}>Remark</Text>
-                                {loading1 ? <ActivityIndicator size='small' color="#0043ae" /> : null}
+
                               </View>
                               <TextInput
                                 placeholder='Notes'
@@ -430,7 +536,7 @@ const Processing = () => {
                                 style={{ color: Themes == 'dark' ? '#000' : '#000', borderWidth: 1, borderRadius: 10, textAlignVertical: 'top', padding: 5 }}
                                 multiline={true}
                                 numberOfLines={4}
-                                onChangeText={(text) => setRemart(text)}
+                                onChangeText={(text) => [setRemart(text), setLocation(location + 1)]}
                                 onChange={() => setRemarkError(null)}
                               />
                               {remarkError ? (
@@ -445,12 +551,34 @@ const Processing = () => {
                               <Pressable onPress={takePhotoFromCamera}>
                                 <View style={styles.takepic}>
                                   <Text style={styles.takepictext}>PICK FROM CAMERA</Text>
+                                  {
+                                    cameramodal ?
+
+                                      <AntDesign
+                                        name="check"
+                                        size={20}
+                                        color="#fff"
+                                      />
+                                      :
+                                      null
+                                  }
                                 </View>
                               </Pressable>
                               <TouchableOpacity onPress={choosePhotoFromLibrary}>
 
                                 <View style={styles.takepic1}>
                                   <Text style={styles.takepictext}>PICK FROM GALLERY</Text>
+                                  {
+                                    cameramodal1 ?
+
+                                      <AntDesign
+                                        name="check"
+                                        size={20}
+                                        color="#fff"
+                                      />
+                                      :
+                                      null
+                                  }
                                 </View>
                               </TouchableOpacity>
 
@@ -464,6 +592,17 @@ const Processing = () => {
                               <Pressable onPress={chooseDocumentLibrary}>
                                 <View style={styles.takepic1}>
                                   <Text style={styles.takepictext}>PICK Document</Text>
+                                  {
+                                    docmodal ?
+
+                                      <AntDesign
+                                        name="check"
+                                        size={20}
+                                        color="#fff"
+                                      />
+                                      :
+                                      null
+                                  }
                                 </View>
                               </Pressable>
 
@@ -476,12 +615,26 @@ const Processing = () => {
                               ) : null}
                             </View>
                             <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                              <Pressable
-                                style={[styles.button, styles.buttonSubmit]}
-                                onPress={() => tast_status_update(item)}
-                              >
-                                <Text style={[{ textAlign: "center", }, { color: Themes == 'dark' ? '#fff' : '#fff' }]}>Submit</Text>
-                              </Pressable>
+                              {loading1 ?
+                                <>
+                                  <Pressable disabled={true}
+                                    style={[styles.button, styles.buttonSubmit]}
+                                    onPress={() => tast_status_update(item)}
+                                  >
+                                    <Text style={[{ textAlign: "center", }, { color: Themes == 'dark' ? '#000' : '#000' }]}>Submit</Text>
+                                    <ActivityIndicator marginHorizontal={8} size='small' color="#000" />
+                                  </Pressable>
+                                </>
+                                :
+                                <>
+                                  <Pressable
+                                    style={[styles.button, styles.buttonSubmit1]}
+                                    onPress={() => tast_status_update(item)}
+                                  >
+                                    <Text style={[{ textAlign: "center", }, { color: Themes == 'dark' ? '#fff' : '#fff' }]}>Submit</Text>
+                                  </Pressable>
+                                </>
+                              }
                               <Pressable
                                 style={[styles.button, styles.buttonClose]}
                                 onPress={() => setModalVisible1(!modalVisible1)}
@@ -514,7 +667,7 @@ export default Processing
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:"#e3eefb"
+    backgroundColor: "#e3eefb"
   },
   maincard: {
     // flexDirection:"row", justifyContent:"space-between", marginHorizontal: responsiveScreenWidth(2),
@@ -565,8 +718,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#75CFC5',
     opacity: 3,
     elevation: 2,
-    justifyContent: 'center',
     borderRadius: 8,
+    flexDirection: "row", alignSelf: "center", justifyContent: "center", alignItems: "center",
   },
   takepictext: {
     fontSize: 13,
@@ -580,9 +733,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#75CFC5',
     opacity: 3,
     elevation: 2,
-    justifyContent: 'center',
     borderRadius: 8,
-    marginTop: 10,
+    flexDirection: "row", alignSelf: "center", justifyContent: "center", alignItems: "center", marginTop: 5
   },
   button: {
     borderRadius: 10,
@@ -592,15 +744,24 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginTop: 0,
     marginHorizontal: 5,
-    justifyContent: "center"
+    justifyContent: "center",
+    flexDirection: "row", marginHorizontal: 5
   },
   buttonClose: {
     backgroundColor: 'red',
-    marginBottom: 25
+    marginBottom: 25,
+    justifyContent: "center", alignSelf: "center", alignItems: "center"
+
   },
   buttonSubmit: {
+    backgroundColor: '#cccccc',
+    marginBottom: 25, marginHorizontal: 5,
+    justifyContent: "center", alignSelf: "center", alignItems: "center"
+  },
+  buttonSubmit1: {
     backgroundColor: 'green',
-    marginBottom: 25
+    marginBottom: 25, marginHorizontal: 5,
+    justifyContent: "center", alignSelf: "center", alignItems: "center"
   },
   textStyle: {
     color: 'white',

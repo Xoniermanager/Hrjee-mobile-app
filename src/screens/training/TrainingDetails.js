@@ -9,13 +9,13 @@ import {
   Linking,
   ActivityIndicator,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
+import React, { useState, useRef } from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
 
-const TrainingDetails = ({navigation, route}) => {
+const TrainingDetails = ({ navigation, route }) => {
   const [loading, setloading] = useState(false);
   const [showMore, setshowMore] = useState(true);
 
@@ -93,27 +93,27 @@ const TrainingDetails = ({navigation, route}) => {
         // Here you can perform any of your completion tasks
       })
       .catch(error => {
-        setloading(false);
-        // error
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: 'white', padding: 15}}>
+    <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
       <ScrollView>
-        <Image style={styles.tinyLogo} source={{uri: route.params.photo}} />
-        <View style={{marginTop: 10, marginBottom: 100}}>
-          <Text style={{fontSize: 19, fontWeight: '600'}}>
+        <Image style={styles.tinyLogo} source={{ uri: route.params.photo }} />
+        <View style={{ marginTop: 10, marginBottom: 100 }}>
+          <Text style={{ fontSize: 19, fontWeight: '600' }}>
             {route.params.title}
           </Text>
-          <View style={{flexDirection: 'row', marginTop: 10}}>
+          <View style={{ flexDirection: 'row', marginTop: 10 }}>
             <AntDesign
               name="calendar"
               size={17}
               color="#0321a4"
-              style={{marginRight: 5}}
+              style={{ marginRight: 5 }}
             />
-            <Text style={{fontSize: 13}}>
+            <Text style={{ fontSize: 13 }}>
               {days[d.getDay()] +
                 ', ' +
                 d.getDate() +
@@ -122,11 +122,11 @@ const TrainingDetails = ({navigation, route}) => {
             </Text>
           </View>
           {showMore ? (
-            <Text style={{marginTop: 10, fontSize: 18}}>
+            <Text style={{ marginTop: 10, fontSize: 18 }}>
               {route.params.description.slice(0, 20)}...
             </Text>
           ) : (
-            <Text style={{marginTop: 10, fontSize: 18}}>
+            <Text style={{ marginTop: 10, fontSize: 18 }}>
               {route.params.description}
             </Text>
           )}
@@ -134,13 +134,13 @@ const TrainingDetails = ({navigation, route}) => {
           {showMore ? (
             <TouchableOpacity
               onPress={() => setshowMore(!showMore)}
-              style={{marginTop: 10}}>
+              style={{ marginTop: 10 }}>
               <Text style={styles.txt_color}>show more</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               onPress={() => setshowMore(!showMore)}
-              style={{marginTop: 10}}>
+              style={{ marginTop: 10 }}>
               <Text style={styles.txt_color}>show less</Text>
             </TouchableOpacity>
           )}
@@ -165,7 +165,7 @@ const TrainingDetails = ({navigation, route}) => {
             flexDirection: 'row',
             justifyContent: 'center',
           }}>
-          <Text style={{color: 'white', fontWeight: '700', marginRight: 10}}>
+          <Text style={{ color: 'white', fontWeight: '700', marginRight: 10 }}>
             Open
           </Text>
           {loading ? <ActivityIndicator size="small" color="white" /> : null}
@@ -183,5 +183,5 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 10,
   },
-  txt_color: {color: '#008080', fontSize: 15, fontWeight: '600'},
+  txt_color: { color: '#008080', fontSize: 15, fontWeight: '600' },
 });

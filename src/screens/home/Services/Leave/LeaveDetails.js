@@ -7,25 +7,25 @@ import {
   ActivityIndicator,
   useColorScheme
 } from 'react-native';
-import React, {useState, useContext} from 'react';
+import React, { useState, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../../reusable/apiUrl';
 import axios from 'axios';
-import {useFocusEffect} from '@react-navigation/native';
-import {EssContext} from '../../../../../Context/EssContext';
+import { useFocusEffect } from '@react-navigation/native';
+import { EssContext } from '../../../../../Context/EssContext';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Themes from '../../../../Theme/Theme';
 
 
-const LeaveDetails = ({navigation, route}) => {
+const LeaveDetails = ({ navigation, route }) => {
   const theme = useColorScheme();
 
-  const {user} = useContext(EssContext);
+  const { user } = useContext(EssContext);
 
   const [leaveDetails, setleaveDetails] = useState();
   const [approvalHist, setapprovalHist] = useState([]);
 
-console.log("leaveDetails=>", leaveDetails)
+  console.log("leaveDetails=>", leaveDetails)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -36,7 +36,7 @@ console.log("leaveDetails=>", leaveDetails)
   const get_leaveDetails = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
 
     const body = {
@@ -49,7 +49,7 @@ console.log("leaveDetails=>", leaveDetails)
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log("resp====================",response.data.data);
+            console.log("resp====================", response.data.data);
             // setrecentLogs(response.data.content);
             setleaveDetails(response.data.data);
             setapprovalHist(response.data.data.approval_history);
@@ -61,7 +61,8 @@ console.log("leaveDetails=>", leaveDetails)
         }
       })
       .catch(error => {
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
@@ -73,7 +74,7 @@ console.log("leaveDetails=>", leaveDetails)
   const cancelLeave = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
 
     const body = {
@@ -85,52 +86,53 @@ console.log("leaveDetails=>", leaveDetails)
     // console.log(body);
     leaveDetails
       ? axios
-          .post(`${apiUrl}/secondPhaseApi/leave_action`, body, config)
-          .then(response => {
-            // console.log('response', response.data);
-            if (response.data.status == 1) {
-              try {
-                alert(response.data.message);
-                navigation.goBack();
-              } catch (e) {
-                alert(e);
-              }
-            } else {
+        .post(`${apiUrl}/secondPhaseApi/leave_action`, body, config)
+        .then(response => {
+          // console.log('response', response.data);
+          if (response.data.status == 1) {
+            try {
               alert(response.data.message);
+              navigation.goBack();
+            } catch (e) {
+              alert(e);
             }
-          })
-          .catch(error => {
-            alert(error);
-          })
+          } else {
+            alert(response.data.message);
+          }
+        })
+        .catch(error => {
+          alert(error.request._response);
+          setloading(false)
+        })
       : null;
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: '#e3eefb'}}>
+    <View style={{ flex: 1, backgroundColor: '#e3eefb' }}>
       {leaveDetails ? (
         <>
           <PullToRefresh onRefresh={handleRefresh}>
-            <View style={{backgroundColor: 'white'}}>
+            <View style={{ backgroundColor: 'white' }}>
               <View
                 style={{
                   padding: 10,
                   backgroundColor: '#0043ae',
                   alignItems: 'center',
                 }}>
-                <Text style={{color: 'white', fontWeight: '600', fontSize: 17}}>
+                <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
                   Employee Details
                 </Text>
               </View>
-              <View style={{padding: 20}}>
+              <View style={{ padding: 20 }}>
                 <View
                   style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>
                     Leave ID:
                   </Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
+                  <Text style={[styles.value, { marginTop: 0 }]}>
                     {leaveDetails.leaveid}
                   </Text>
                 </View>
@@ -140,11 +142,11 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>
                     Employee ID:
                   </Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
-                    {leaveDetails.userid}
+                  <Text style={[styles.value, { marginTop: 0 }]}>
+                    {leaveDetails.user_employee_number}
                   </Text>
                 </View>
                 <View
@@ -153,8 +155,8 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>Name:</Text>
-                  <Text style={[styles.value, {marginTop: 0, width: 150}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>Name:</Text>
+                  <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
                     {leaveDetails.user_name}
                   </Text>
                 </View>
@@ -164,34 +166,34 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>Balance:</Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>Balance:</Text>
+                  <Text style={[styles.value, { marginTop: 0 }]}>
                     {leaveDetails.leave_balance}
                   </Text>
                 </View>
               </View>
             </View>
-            <View style={{backgroundColor: 'white', marginTop: 15}}>
+            <View style={{ backgroundColor: 'white', marginTop: 15 }}>
               <View
                 style={{
                   padding: 10,
                   backgroundColor: '#0043ae',
                   alignItems: 'center',
                 }}>
-                <Text style={{color: 'white', fontWeight: '600', fontSize: 17}}>
+                <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
                   Leave Details
                 </Text>
               </View>
-              <View style={{padding: 20}}>
+              <View style={{ padding: 20 }}>
                 <View
                   style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>
                     Leave Type:
                   </Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
+                  <Text style={[styles.value, { marginTop: 0 }]}>
                     {/* {leaveDetails.leavetype_data.leave_type} */}
                   </Text>
                 </View>
@@ -201,12 +203,12 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>
                     Current Status:
                   </Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
+                  <Text style={[styles.value, { marginTop: 0 }]}>
                     {approvalHist &&
-                      approvalHist[approvalHist.length - 1]?.status}
+                      approvalHist[approvalHist?.length - 1]?.status}
                   </Text>
                 </View>
                 <View
@@ -215,10 +217,10 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>
                     Leave start day:
                   </Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
+                  <Text style={[styles.value, { marginTop: 0 }]}>
                     {new Date(leaveDetails.leave_start_dt).toLocaleDateString(
                       'en-GB',
                     )}
@@ -230,10 +232,10 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>
                     Leave end day:
                   </Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
+                  <Text style={[styles.value, { marginTop: 0 }]}>
                     {new Date(leaveDetails.leave_end_dt).toLocaleDateString(
                       'en-GB',
                     )}
@@ -245,10 +247,10 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>
                     No. of Days:
                   </Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
+                  <Text style={[styles.value, { marginTop: 0 }]}>
                     {leaveDetails.number_of_days}
                   </Text>
                 </View>
@@ -258,8 +260,8 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>Note:</Text>
-                  <Text style={[styles.value, {marginTop: 0, width: 170}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>Note:</Text>
+                  <Text style={[styles.value, { marginTop: 0, width: 170 }]}>
                     {leaveDetails.notes}
                   </Text>
                 </View>
@@ -277,18 +279,18 @@ console.log("leaveDetails=>", leaveDetails)
                   backgroundColor: '#0043ae',
                   alignItems: 'center',
                 }}>
-                <Text style={{color: 'white', fontWeight: '600', fontSize: 17}}>
+                <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
                   Emergency Contacts
                 </Text>
               </View>
-              <View style={{padding: 20}}>
+              <View style={{ padding: 20 }}>
                 <View
                   style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>Name:</Text>
-                  <Text style={[styles.value, {marginTop: 0, width: 150}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>Name:</Text>
+                  <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
                     {leaveDetails.emergency_contact_name}
                   </Text>
                 </View>
@@ -298,8 +300,8 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>Address:</Text>
-                  <Text style={[styles.value, {marginTop: 0, width: 150}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>Address:</Text>
+                  <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
                     {leaveDetails.emergency_contact_address}
                   </Text>
                 </View>
@@ -309,10 +311,10 @@ console.log("leaveDetails=>", leaveDetails)
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <Text style={[styles.heading, {marginTop: 0}]}>
+                  <Text style={[styles.heading, { marginTop: 0 }]}>
                     Telephone:
                   </Text>
-                  <Text style={[styles.value, {marginTop: 0}]}>
+                  <Text style={[styles.value, { marginTop: 0 }]}>
                     {leaveDetails.emergency_contact_phone}
                   </Text>
                 </View>
@@ -334,17 +336,17 @@ console.log("leaveDetails=>", leaveDetails)
               justifyContent: 'space-between',
             }}>
             <TouchableOpacity onPress={() => cancelLeave()} style={styles.btn}>
-              <Text style={{color: 'white', fontWeight: '700'}}>Cancel</Text>
+              <Text style={{ color: 'white', fontWeight: '700' }}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               style={styles.btn}>
-              <Text style={{color: 'white', fontWeight: '700'}}>Close</Text>
+              <Text style={{ color: 'white', fontWeight: '700' }}>Close</Text>
             </TouchableOpacity>
           </View>
         </>
       ) : (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="small" color="#0043ae" />
         </View>
       )}
@@ -361,8 +363,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 10,
   },
-  heading: {fontWeight: '700', marginTop: 20, color: Themes == 'dark' ? '#000' : '#000' },
-  value: {marginTop: 20, textAlign: 'right',  color: Themes == 'dark' ? '#000' : '#000' },
+  heading: { fontWeight: '700', marginTop: 20, color: Themes == 'dark' ? '#000' : '#000' },
+  value: { marginTop: 20, textAlign: 'right', color: Themes == 'dark' ? '#000' : '#000' },
   btn: {
     padding: 13,
     backgroundColor: '#0043ae',

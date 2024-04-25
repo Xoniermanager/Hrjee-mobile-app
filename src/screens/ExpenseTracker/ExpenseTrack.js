@@ -49,7 +49,6 @@ const expenseTrack = ({navigation, route}) => {
   useFocusEffect(
     React.useCallback(() => {
       if (getDetailsApi.data && route.params.id) {
-        console.log('getDetailsApi.data==>', getDetailsApi.data);
         const fileNameArr = getDetailsApi.data.data?.thumb?.split('/');
         const fileName = fileNameArr
           ? fileNameArr[fileNameArr.length - 1]
@@ -66,7 +65,6 @@ const expenseTrack = ({navigation, route}) => {
         );
         setSingleFile([{fileName: fileName}]);
 
-        console.log('filename-->', fileName);
         // console.log(
         //   'getDetailsApi.data.data.items===>',
         //   getDetailsApi.data.data.type,
@@ -120,7 +118,6 @@ const expenseTrack = ({navigation, route}) => {
     launchImageLibrary(options, response => {
       if (response.error) {
       } else {
-        console.log('response-->', response);
         setSingleFile(response.assets);
       }
     });
@@ -139,7 +136,6 @@ const expenseTrack = ({navigation, route}) => {
     ) {
       // If file selected then create FormData
       const fileToUpload = singleFile;
-      console.log('fileToUpload->', fileToUpload[0]);
       const data = new FormData();
       data.append('user_id', user.userid);
       data.append('attachment', {
@@ -192,7 +188,6 @@ const expenseTrack = ({navigation, route}) => {
     if (singleFile != null || singleFile != undefined) {
       // If file selected then create FormData
       const fileToUpload = singleFile;
-      console.log('fileToUpload->', fileToUpload[0]);
       const data = new FormData();
       data.append('user_id', user.userid);
       data.append('attachment', {

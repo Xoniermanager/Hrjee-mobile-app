@@ -69,12 +69,16 @@ const Stack = createNativeStackNavigator();
 function MyStack() {
   const [token, settoken] = useState(null);
   const [loading, setloading] = useState(true);
+  const [prmData,setPrmData]=useState()
 
   const retrieveData = () => {
     AsyncStorage.getItem('Token').then(res => {
       settoken(res);
     });
   };
+  AsyncStorage.getItem('PRMData').then(res => {
+    setPrmData(res);
+  });  
 
   useEffect(() => {
     retrieveData();
@@ -123,6 +127,7 @@ function MyStack() {
                 name="Main"
                 component={Main}
               />
+             
               
 
               <Stack.Screen name="News" component={News} />
@@ -246,13 +251,15 @@ function MyStack() {
           ) : (
             <>
             
-              <Stack.Screen 
+        
+             <Stack.Screen 
                 options={{
                   headerShown: false,
                 }}
                 name="Main"
                 component={Main}
               />
+          
               <Stack.Screen name="Attendance" component={Attendence} />
               <Stack.Screen name="News" component={News} />
               <Stack.Screen name="Policies" component={Policies} />

@@ -54,20 +54,19 @@ const LeavePolicy = ({navigation, route}) => {
         if (response.data.status === 1) {
           try {
             setloading(false);
-            console.log('---->', response.data.content);
             setpolicyDetail(response.data.content);
           } catch (e) {
             setloading(false);
             alert(e);
           }
         } else {
-          setloading(false);
           alert(response.data.msg);
+          setloading(false)
         }
       })
       .catch(error => {
-        setloading(false);
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

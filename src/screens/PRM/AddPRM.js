@@ -28,6 +28,7 @@ import axios from 'axios';
 import Reload from '../../../Reload';
 import DocumentPicker from 'react-native-document-picker'
 import { useRoute } from '@react-navigation/native';
+import { lightGreen100 } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const AddPRM = ({ navigation }) => {
 
@@ -37,25 +38,31 @@ const AddPRM = ({ navigation }) => {
   const theme = useColorScheme(); 
   const [value, setValue] = useState(null);
   const [loading, setloading] = useState(false);
-  const [reason, setReason] = useState();
+  const [reason, setReason] = useState('');
   const [prmcategorydata, setPRM_category_data] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const [startdate, setStartDate] = useState(new Date());
   const [openstartdate, setOpenStartDate] = useState(false);
   const [prmcategory_id, setPrmcategory_id] = useState()
   const [fileResponse, setFileResponse] = useState([]);
+  const [remarkError, setRemarkError] = useState()
+  const [catError, setCatError] = useState()
+  const [documentError, setDocumentError] = useState()
+
+  console.log("respnse...............................", prmcategorydata)
 
   useEffect(()=> {
+    console.log("useeffect1", route?.params?.item)
+    console.log("useeffect2", route?.params?.item?.remark)
     if(route?.params?.item){
       setReason(route?.params?.item?.remark);
       setStartDate(new Date(route?.params?.item?.payment_date));
       setValue(route?.params?.item?.prmcategory_id)
     }
-  }, [route.params])
+  }, [route?.params])
 
-  // console.log("prmcategorydata_dropdown..........", prmcategorydata_dropdown)
 
-  // choose from library for Profile  chooseDocumentLibrary
+  // choose from library for Profile  chooseDocumentLibrar/y
 
   const chooseDocumentLibrary = useCallback(async () => {
     try {
@@ -63,6 +70,7 @@ const AddPRM = ({ navigation }) => {
         presentationStyle: 'fullScreen',
       });
       setFileResponse(response);
+      setDocumentError(null)
       console.log(response)
     } catch (err) {
       console.warn(err);
@@ -76,14 +84,17 @@ const AddPRM = ({ navigation }) => {
     axios
       .get(`${apiUrl}/SecondPhaseApi/get_prm_category_all`, config)
       .then(response => {
+        console.log("response..............", response?.data?.data)
         if (response?.data?.status == 1) {
-         setPRM_category_data(response.data?.data)
+         setPRM_category_data(response?.data?.data)
         }
       })
       .catch(error => {
         alert(error.request._response);
       });
   }
+
+  
 
   const Post_prm_category = async (get_data) => {
     setloading(true)
@@ -110,8 +121,8 @@ const AddPRM = ({ navigation }) => {
         }
       })
       .catch(error => {
-        setloading(false)
         alert(error.request._response);
+        setloading(false)
       });
     } else {
     let data = new FormData();
@@ -119,6 +130,18 @@ const AddPRM = ({ navigation }) => {
     data.append('remark', reason);
     data.append('payment_date', startdate.toISOString().split('T')[0]);
     data.append('image', fileResponse[0]);
+   if (value == null) {
+      setCatError('Select Category');
+      setloading(false)
+    }
+    else if (reason.trim() === '') {
+      setRemarkError('Please enter reason');
+      setloading(false)
+    }
+    else if (fileResponse.length == 0) {
+      setDocumentError('Please Upload the Document');
+      setloading(false)
+    } else {
     axios
       .post(`${apiUrl}/SecondPhaseApi/add_prm_request`, data, config)
       .then(response => {
@@ -128,9 +151,10 @@ const AddPRM = ({ navigation }) => {
         }
       })
       .catch(error => {
-        setloading(false)
         alert(error.request._response);
+        setloading(false)
       });
+    }
     }
   }
 
@@ -172,12 +196,18 @@ const AddPRM = ({ navigation }) => {
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
           onChange={item => {
-            setValue(item.id);
+            setValue(item?.id);
             setIsFocus(false);
-            setPrmcategory_id(item.id)
+            setPrmcategory_id(item?.id)
           }}
         />
-
+{catError ? (
+                                <Text style={{
+                                  color: 'red',
+                                  marginBottom: 8,
+                                  textAlign: 'center', fontSize: 13, marginTop: 5
+                                }}>{catError}</Text>
+                              ) : null}
         <Text
           style={[
             styles.reportType,
@@ -214,7 +244,13 @@ const AddPRM = ({ navigation }) => {
           style={styles.input_Text}
           onChangeText={prev => setReason(prev)}
         />
-
+{remarkError ? (
+                                <Text style={{
+                                  color: 'red',
+                                  marginBottom: 8,
+                                  textAlign: 'center', fontSize: 13, marginTop: 5
+                                }}>{remarkError}</Text>
+                              ) : null}
         <Text
           style={[
             styles.reportType,
@@ -236,7 +272,13 @@ const AddPRM = ({ navigation }) => {
             <Text style={styles.takepictext}>PICK Document</Text>
           </View>
         </Pressable>
-
+        {documentError ? (
+                                <Text style={{
+                                  color: 'red',
+                                  marginBottom: 8,
+                                  textAlign: 'center', fontSize: 13, marginTop: 5
+                                }}>{documentError}</Text>
+                              ) : null}
         <TouchableOpacity
           style={{
             width: 150,

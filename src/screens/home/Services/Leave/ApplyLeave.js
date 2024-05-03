@@ -72,8 +72,16 @@ const ApplyLeave = ({ navigation }) => {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
         setloading(false)
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 
@@ -165,10 +173,17 @@ const ApplyLeave = ({ navigation }) => {
           alert(response.data.message);
         }
       })
-      .catch(function (response) {
+      .catch(function (error) {
         //handle error
         setloading(false);
-        console.log(response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 

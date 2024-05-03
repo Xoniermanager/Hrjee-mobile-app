@@ -149,8 +149,16 @@ const Processing = () => {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
         setloading(false)
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
   // console.log(fileResponse,'123')
@@ -225,8 +233,12 @@ const Processing = () => {
 
                   })
                   .catch(error => {
-                    alert(error.request._response);
+                    // alert(error.request._response);
                     setloading1(false)
+                    AsyncStorage.removeItem('Token');
+                    AsyncStorage.removeItem('UserData');
+                    AsyncStorage.removeItem('UserLocation');
+                   navigation.navigate('Login');
                   });
               }
             })
@@ -254,9 +266,17 @@ const Processing = () => {
         }
 
       }
-      catch (err) {
-        alert(err.request._response);
+      catch (error) {
+        // alert(err.request._response);
         setloading1(false);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       }
     }
     else {
@@ -318,14 +338,30 @@ const Processing = () => {
 
             })
             .catch(error => {
-              alert(error.request._response);
+              // alert(error.request._response);
               setloading1(false)
+              if(error.response.status=='401')
+              {
+            alert(error.response.data.msg)
+              AsyncStorage.removeItem('Token');
+              AsyncStorage.removeItem('UserData');
+              AsyncStorage.removeItem('UserLocation');
+             navigation.navigate('Login');
+              }
             });
         }
       }
-      catch (err) {
-        alert(err.request._response);
+      catch (error) {
+        // alert(err.request._response);
         setloading1(false);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       }
     }
 
@@ -401,92 +437,519 @@ const Processing = () => {
               </View>
               {
                 currentDisplayedTask && currentDisplayedTask == item?.task_id ?
-                  <>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.task_id}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>User id:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.assign}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Customer name:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.customer_name}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Mobile Number:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.mobile_no}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved_by:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item.approved_by !== '' ? item.approved_by : 'N/A'}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Employee number:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.employee_number}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Address:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Loan no:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.loan_no}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Risk Category:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.risk_category}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Total Amount:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.total_amount}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Principal:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.principle}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Emi amount:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.emi_amount}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Overdue amount:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.overdue_amount}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Link account:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.link_account}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Builder name:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.builder_name}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Banker name:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.banker_name}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Loan center:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.loan_center}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Employee number:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.employee_number}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Current address:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Remark:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.remark}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Created Date:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.create_at}</Text>
-                    </View>
-                  </>
+                <>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Task id:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.task_id}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Dept id:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.dept_id}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Customer name:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.customer_name}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    User id:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.assign}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Mobile Number:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.mobile_no}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Employee number:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.employee_number}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Loan no:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.loan_no}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Risk Address:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.risk_address}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Total Amount:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.total_amount}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Principal:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.principle}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Emi amount:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.emi_amount}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Builder name:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.builder_name}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Banker name:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.banker_name}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Loan center:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.loan_center}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    Employee number:
+                  </Text>
+                  <Text
+                    style={{
+                      color: Themes == 'dark' ? '#000' : '#000',
+                      textAlign: 'center',
+                    }}>
+                    {item?.employee_number}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Proparty address:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.proparty_address}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Alternate no:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.alternate_no}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Legal status:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.legal_status}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Created Date:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.create_at}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Asign:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.assign}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Assign by:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.assign_by}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    update_at:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.update_at}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Company id:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.company_id}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Description:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.description}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Location coordinates:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.location_coordinates}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Home address:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.home_address}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    pos amount:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.pos_amount}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Product:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.product}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Product:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.product}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    Process name:
+                  </Text>
+                  <Text
+                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    {item?.process_name}
+                  </Text>
+                </View>
+              </>
 
                   :
                   <>

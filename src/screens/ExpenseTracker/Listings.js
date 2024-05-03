@@ -67,7 +67,11 @@ const Listings = ({navigation, route}) => {
       })
       .catch(error => {
         setloading(false);
-        alert(error.request._response)
+        // alert(error.request._response)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
       });
   };
 

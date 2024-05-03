@@ -116,7 +116,7 @@ const App = ({ navigation }) => {
             <Text style={{ fontSize: 12, fontWeight: "500", color: "#0D2BD3", textAlign: "center", }}>Please check your internet connection </Text>
             <Image
               style={{ width: 80, height: 80, alignSelf: "center", margin: 5 }}
-              source={require('../HRjee/src/images/internet.jpeg')}
+              source={require('./src/images/internet.jpeg')}
             />
           </View>
         </Modal>

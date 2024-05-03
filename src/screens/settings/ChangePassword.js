@@ -13,8 +13,10 @@ import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../reusable/apiUrl';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const ChangePassword = () => {
+  const navigation=useNavigation()
   const [password, setpassword] = useState({
     currentPassword: '',
     newPassword: '',
@@ -55,8 +57,16 @@ const ChangePassword = () => {
             }
           })
           .catch(error => {
-            alert(error.request._response);
+            // alert(error.request._response);
             setloading(false)
+            if(error.response.status=='401')
+            {
+          alert(error.response.data.msg)
+            AsyncStorage.removeItem('Token');
+            AsyncStorage.removeItem('UserData');
+            AsyncStorage.removeItem('UserLocation');
+           navigation.navigate('Login');
+            }
           })
       : alert('Your password did not match');
   };

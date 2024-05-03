@@ -48,9 +48,10 @@ import Zocial from 'react-native-vector-icons/Zocial';
 import ImagePicker from 'react-native-image-crop-picker';
 import { moderateScale } from 'react-native-size-matters';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
-import Themes from '../../HRjee/Navigators/ProfileNavigator'
+
 import DatePicker from 'react-native-date-picker';
 import { RadioButton } from 'react-native-paper';
+import Themes from '../src/Theme/Theme';
 
 
 function CustomDrawerContent(props) {
@@ -61,7 +62,6 @@ function CustomDrawerContent(props) {
     txt1: 'select date',
   });
   const [checked, setChecked] = useState('male');
-
   const [isModalVisible, setIsModalVisible] = useState(false); // state to control modal visibility
   const [Userdata, setUserdata] = useState({
     EMPLOYEE_NUMBER: '',
@@ -217,8 +217,19 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
         setloading(false)
+        
+
+
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+      AsyncStorage.removeItem('Token');
+      AsyncStorage.removeItem('UserData');
+      AsyncStorage.removeItem('UserLocation');
+     props.navigation.navigate('Login');
+        }
       });
   };
   useEffect(() => {
@@ -246,7 +257,15 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        alert(error?.request._response);
+        // alert(error?.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+      AsyncStorage.removeItem('Token');
+      AsyncStorage.removeItem('UserData');
+      AsyncStorage.removeItem('UserLocation');
+     props.navigation.navigate('Login');
+        }
       });
   };
   const add_address = async () => {
@@ -291,8 +310,16 @@ function CustomDrawerContent(props) {
             }
           })
           .catch(error => {
-            alert(error.request._response);
+            // alert(error.request._response);
             setloading(false)
+            if(error.response.status=='401')
+            {
+          alert(error.response.data.msg)
+          AsyncStorage.removeItem('Token');
+          AsyncStorage.removeItem('UserData');
+          AsyncStorage.removeItem('UserLocation');
+         props.navigation.navigate('Login');
+            }
           });
       })
       .catch(error => {
@@ -342,7 +369,15 @@ function CustomDrawerContent(props) {
       })
       .catch(err => {
         setloading(false);
-        alert(err.request._response)
+        // alert(err.request._response)
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+      AsyncStorage.removeItem('Token');
+      AsyncStorage.removeItem('UserData');
+      AsyncStorage.removeItem('UserLocation');
+     props.navigation.navigate('Login');
+        }
       });
   }
 
@@ -378,8 +413,16 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
         setloading(false)
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+      AsyncStorage.removeItem('Token');
+      AsyncStorage.removeItem('UserData');
+      AsyncStorage.removeItem('UserLocation');
+     props.navigation.navigate('Login');
+        }
       });
   };
 
@@ -428,8 +471,16 @@ function CustomDrawerContent(props) {
             }
           })
           .catch(error => {
-            alert(error.request._response);
+            // alert(error.request._response);
             setloading(false)
+            if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+      AsyncStorage.removeItem('Token');
+      AsyncStorage.removeItem('UserData');
+      AsyncStorage.removeItem('UserLocation');
+     props.navigation.navigate('Login');
+        }
           });
       })
       .catch(error => {
@@ -465,7 +516,15 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+      AsyncStorage.removeItem('Token');
+      AsyncStorage.removeItem('UserData');
+      AsyncStorage.removeItem('UserLocation');
+     props.navigation.navigate('Login');
+        }
       });
   };
 
@@ -496,7 +555,15 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+      AsyncStorage.removeItem('Token');
+      AsyncStorage.removeItem('UserData');
+      AsyncStorage.removeItem('UserLocation');
+     props.navigation.navigate('Login');
+        }
       });
   };
 
@@ -1003,6 +1070,10 @@ function CustomDrawerContent(props) {
     await AsyncStorage.removeItem('UserLocation');
     props.navigation.closeDrawer();
     props.navigation.navigate('Login');
+
+
+
+   
   };
 
 

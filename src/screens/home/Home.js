@@ -217,7 +217,15 @@ const Home = ({ navigation }) => {
       })
       .catch(error => {
         setloading(false);
-        alert(error.request._response);
+        // alert(error.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 
@@ -233,7 +241,7 @@ const Home = ({ navigation }) => {
     axios
       .post(`${apiUrl}/api/announcement`, body, config)
       .then(response => {
-        // console.log('response', response.data);
+        console.log('response.', response.data.status);
         if (response.data.status == 1) {
           setloading(false);
           try {
@@ -248,7 +256,15 @@ const Home = ({ navigation }) => {
       })
       .catch(error => {
         setloading(false);
-        alert(error.request._response);
+        // alert(error.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 
@@ -425,7 +441,15 @@ const Home = ({ navigation }) => {
       })
       .catch(function (error) {
         setloading(false);
-        alert(error.request._response);
+        // alert(error.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 
@@ -496,7 +520,15 @@ const Home = ({ navigation }) => {
               }
             })
             .catch(function (error) {
-              alert(error.request._response);
+              // alert(error.request._response);
+              if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
             });
         } else {
           //console.log('dis=-----',dis);
@@ -547,6 +579,14 @@ const Home = ({ navigation }) => {
               })
               .catch(function (error) {
                 console.log(error);
+                if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
               });
           } else {
             alert('You are not in the radius');
@@ -634,7 +674,15 @@ const Home = ({ navigation }) => {
                   })
                   .catch(function (error) {
                     setloading(false);
-                    alert(error.request._response);
+                    // alert(error.request._response);
+                    if(error.response.status=='401')
+                    {
+                  alert(error.response.data.msg)
+                    AsyncStorage.removeItem('Token');
+                    AsyncStorage.removeItem('UserData');
+                    AsyncStorage.removeItem('UserLocation');
+                   navigation.navigate('Login');
+                    }
                   });
               } else {
 
@@ -690,7 +738,15 @@ const Home = ({ navigation }) => {
                     })
                     .catch(function (error) {
                       setloading(false);
-                      alert(error.request._response);
+                      // alert(error.request._response);
+                      if(error.response.status=='401')
+                      {
+                    alert(error.response.data.msg)
+                      AsyncStorage.removeItem('Token');
+                      AsyncStorage.removeItem('UserData');
+                      AsyncStorage.removeItem('UserLocation');
+                     navigation.navigate('Login');
+                      }
                     });
                 } else {
                   alert('You are not in the radius');
@@ -775,7 +831,15 @@ const Home = ({ navigation }) => {
                 })
                 .catch(function (error) {
                   setloading(false);
-                  alert(error.request._response);
+                  // alert(error.request._response);
+                  if(error.response.status=='401')
+                  {
+                alert(error.response.data.msg)
+                  AsyncStorage.removeItem('Token');
+                  AsyncStorage.removeItem('UserData');
+                  AsyncStorage.removeItem('UserLocation');
+                 navigation.navigate('Login');
+                  }
                 });
             } else {
 
@@ -831,7 +895,15 @@ const Home = ({ navigation }) => {
                   })
                   .catch(function (error) {
                     setloading(false);
-                    alert(error.request._response);
+                    // alert(error.request._response);
+                    if(error.response.status=='401')
+                    {
+                  alert(error.response.data.msg)
+                    AsyncStorage.removeItem('Token');
+                    AsyncStorage.removeItem('UserData');
+                    AsyncStorage.removeItem('UserLocation');
+                   navigation.navigate('Login');
+                    }
                   });
               } else {
                 alert('You are not in the radius');
@@ -1116,7 +1188,15 @@ const Home = ({ navigation }) => {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 
@@ -1157,8 +1237,16 @@ const Home = ({ navigation }) => {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
         setloading(false);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 
@@ -1346,8 +1434,16 @@ const Home = ({ navigation }) => {
           }
         })
         .catch(error => {
-          alert(error.request._response);
+          // alert(error.request._response);
           setloading(false);
+          if(error.response.status=='401')
+          {
+        alert(error.response.data.msg)
+          AsyncStorage.removeItem('Token');
+          AsyncStorage.removeItem('UserData');
+          AsyncStorage.removeItem('UserLocation');
+         navigation.navigate('Login');
+          }
         });
     }
   };
@@ -1380,8 +1476,16 @@ const Home = ({ navigation }) => {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
         setloading(false);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 

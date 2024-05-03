@@ -15,7 +15,7 @@ import GlobalStyle from '../../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../reusable/apiUrl';
 import axios from 'axios';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
@@ -23,13 +23,14 @@ import { responsiveWidth } from 'react-native-responsive-dimensions';
 
 const SelectAttendence = () => {
   const theme = useColorScheme();
+  const navigation=useNavigation()
 
   const [startopen, setstartopen] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
 
   const [endopen, setendopen] = useState(false);
   const [endDate, setEndDate] = useState(
-    new Date(Date.UTC(2023, startDate.getUTCMonth() + 1, 1)),
+    new Date(Date.UTC(2024, startDate.getUTCMonth() + 1, 1)),
   );
 
   const [recentLogs, setrecentLogs] = useState([]);
@@ -105,8 +106,17 @@ const SelectAttendence = () => {
           }
         })
         .catch(error => {
-          alert(error.request._response);
+          // alert(error.request._response);
+       
         setloading(false)
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
         });
     }
   };
@@ -141,8 +151,17 @@ const SelectAttendence = () => {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
+      
         setloading(false)
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 

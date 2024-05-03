@@ -57,7 +57,15 @@ const Notifications = ({navigation}) => {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 

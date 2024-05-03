@@ -48,8 +48,12 @@ console.log(f2,'ddddd')
         // Here you can perform any of your completion tasks
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
         setloading(false)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
       });
   };
 

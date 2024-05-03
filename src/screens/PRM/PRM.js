@@ -29,6 +29,7 @@ import Reload from '../../../Reload';
 
 
 const PRM = () => {
+   
     const theme = useColorScheme();
     const [search, setSearch] = useState();
     // const [arr, setArr] = useState();
@@ -55,8 +56,16 @@ const PRM = () => {
                 }
             })
             .catch(error => {
-                alert(error.request._response);
+                // alert(error.request._response);
                 setloading(false)
+                if(error.response.status=='401')
+                {
+              alert(error.response.data.msg)
+                AsyncStorage.removeItem('Token');
+                AsyncStorage.removeItem('UserData');
+                AsyncStorage.removeItem('UserLocation');
+               navigation.navigate('Login');
+                }
             });
     }
     useEffect(() => {
@@ -92,8 +101,16 @@ const PRM = () => {
                 }
             })
             .catch(error => {
-                alert(error.request._response);
+                // alert(error.request._response);
                 setloading(false)
+                if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
             });
     }
 
@@ -118,8 +135,17 @@ const PRM = () => {
                 })
             })
             .catch(error => {
-                alert(error);
+                // alert(error);
+            
                 setloading(false)
+                if(error.response.status=='401')
+                {
+              alert(error.response.data.msg)
+                AsyncStorage.removeItem('Token');
+                AsyncStorage.removeItem('UserData');
+                AsyncStorage.removeItem('UserLocation');
+               navigation.navigate('Login');
+                }
             });
     }
     const handleToggle = async (index) => {

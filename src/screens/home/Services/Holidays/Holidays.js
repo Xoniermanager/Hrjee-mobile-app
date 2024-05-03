@@ -16,7 +16,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Themes from '../../../../Theme/Theme';
 
-const Holidays = () => {
+const Holidays = ({navigation}) => {
   const theme = useColorScheme();
 
   const [holidays, setholidays] = useState(null);
@@ -67,7 +67,15 @@ const Holidays = () => {
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        // alert(error.request._response);
+        if(error.response.status=='401')
+        {
+      alert(error.response.data.msg)
+        AsyncStorage.removeItem('Token');
+        AsyncStorage.removeItem('UserData');
+        AsyncStorage.removeItem('UserLocation');
+       navigation.navigate('Login');
+        }
       });
   };
 

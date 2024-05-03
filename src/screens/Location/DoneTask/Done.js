@@ -40,7 +40,6 @@ const Done = ({ navigation }) => {
       .get(`${apiUrl}/SecondPhaseApi/get_user_task`, config)
       .then(response => {
         setloading(false)
-        console.log("data--------------11111111", response?.data?.data)
         if (response?.data?.status == 200) {
           setUserdata(response?.data?.data);
         }
@@ -51,7 +50,6 @@ const Done = ({ navigation }) => {
       });
   };
   const update_show_hide = async (task_id, show) => {
-    console.log(" task_id, show => ", task_id, show)
     if (task_id == currentDisplayedTask) {
       setCurrentDisplayedTask(null);
       setShowMore(false);
@@ -197,6 +195,10 @@ const Done = ({ navigation }) => {
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Remark:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.remark}</Text>
                     </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Created Date:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.create_at}</Text>
+                    </View>
                   </>
 
                   :
@@ -216,6 +218,10 @@ const Done = ({ navigation }) => {
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved by:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.approved_by}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Created Date:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.create_at}</Text>
                     </View>
                   </>
               }

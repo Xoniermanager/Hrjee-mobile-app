@@ -121,7 +121,7 @@ const Home = ({ navigation }) => {
   var day = (d.getDate() <= 9) ? ('0' + d.getDate()) : d.getDate();
 
   const datetime = d.getFullYear() + '-' + mon + '-' + day;
-  const hours = d.getHours() + ":" + d.getMinutes();
+  const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()  + ":" + d.getMinutes();
 
   const [menuAccessData, setMenuAccessData] = useState()
 
@@ -1174,7 +1174,6 @@ const Home = ({ navigation }) => {
     React.useCallback(() => {
       getActiveLocation();
       check_punchIn();
-      get_recent_logs();
     }, []),
   );
 
@@ -1520,6 +1519,7 @@ const Home = ({ navigation }) => {
                             }}
                           />
                           <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{activityTime}</Text>
+                          
                         </View>
                         <TouchableOpacity
                           onPress={showAlert}
@@ -1616,12 +1616,12 @@ const Home = ({ navigation }) => {
                       size={20}
                       style={[{ marginBottom: 5 }, { color: Themes == 'dark' ? '#000' : '#000' }]}
                     />
+                    {/* <Text>{datetime}, {i.TR_DATE}, {i.location_id ? 'yes' : 'no'}, {i.PRESENT_HOURS}, {hours}, {hours >= '19:00' ? 'yes' : 'no'}</Text> */}
                     {
-                      (datetime == i.TR_DATE && i.location_id != null) ?
-                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text>
-                        : (datetime > i.TR_DATE) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text> : (hours >= '19:00') ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>NA</Text>
+                      ((datetime == i.TR_DATE && i.location_id) || (datetime > i.TR_DATE)) ?
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text>
+                      : hours >= '19:00' ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>NA</Text>
                     }
-                    {/* <Text >{i.PRESENT_HOURS}</Text> */}
                   </View>
                 </View>
               ))

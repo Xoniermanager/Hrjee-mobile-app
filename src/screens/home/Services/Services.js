@@ -30,7 +30,7 @@ const navigation=useNavigation()
         label={'Document'}
         onPress={() => navigation.navigate('Document')}
       />
-      <Button label={'Forms'} onPress={() => navigation.navigate('Forms')} />
+      {/* <Button label={'Forms'} onPress={() => navigation.navigate('Forms')} /> */}
       <Button label={'Resign'} onPress={() => navigation.navigate('Resign')} />
 
     </View>

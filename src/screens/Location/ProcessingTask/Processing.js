@@ -32,6 +32,7 @@ const Processing = () => {
   const [currentLocation, setCurrentLocation] = useState()
   const [address, setAddress] = useState()
   const [remark, setRemart] = useState('')
+  const [iD, setID] = useState()
   const [loading, setloading] = useState(false);
   const [loading1, setloading1] = useState(false);
   const [remarkError, setRemarkError] = useState()
@@ -119,13 +120,11 @@ const Processing = () => {
   }, [showAddress])
   const latitude = currentLocation?.lat;
   const longitude = currentLocation?.long;
-  console.log(latitude, longitude, '33333333335678768768')
   const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
   const getAddress = async () => {
     axios.get(urlAddress).then(res => {
 
       setAddress(res.data?.results[0].formatted_address)
-      console.log(res.data?.results[0].formatted_address, 'res.data?.results[0].formatted_address')
     })
   }
 
@@ -183,7 +182,7 @@ const Processing = () => {
                 },
               };
               let data = new FormData();
-              data.append('task_id', item?.task_id);
+              data.append('task_id', iD?.task_id);
               data.append('remark', remark);
               data.append('latitude', latitude);
               data.append('longitude', longitude);
@@ -198,8 +197,6 @@ const Processing = () => {
               data.append('selfie_image', selfie_image);
               data.append('lat_long_address', address);
 
-              // console.log("body = > ", data)
-              console.log(address, 'address')
               if (remark.trim() === '') {
                 setRemarkError('Please enter some text');
 
@@ -212,9 +209,7 @@ const Processing = () => {
                 axios
                   .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
                   .then(response => {
-
                     if (response?.data?.status == 1) {
-                      // console.log("response statsu ---------", response?.data)
                       get_employee_detail()
                       setModalVisible1(false)
                       setRemart('')
@@ -260,7 +255,7 @@ const Processing = () => {
 
       }
       catch (err) {
-        console.warn(err.request._response);
+        alert(err.request._response);
         setloading1(false);
       }
     }
@@ -328,12 +323,8 @@ const Processing = () => {
             });
         }
       }
-
-
-
-
       catch (err) {
-        console.warn(err.request._response);
+        alert(err.request._response);
         setloading1(false);
       }
     }
@@ -389,8 +380,8 @@ const Processing = () => {
             <View activeOpacity={0.2} style={styles.maincard}>
 
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignContent: "center", alignItems: "center" }}>
-                <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1)]}>
-                  <Text style={{ color: Themes == 'dark' ? '#fff' : '#fff', fontWeight: "bold", fontSize: 16, padding: 5 }}>Update </Text>
+                <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1), setID(item)]}>
+                  <Text style={{ color: Themes == 'dark' ? '#fff' : '#fff', fontWeight: "bold", fontSize: 16, padding: 5 }}>Update</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => update_show_hide(item?.task_id, true)} style={{ flexDirection: "row", alignItems: "center" }}>
@@ -491,6 +482,10 @@ const Processing = () => {
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Remark:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.remark}</Text>
                     </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Created Date:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.create_at}</Text>
+                    </View>
                   </>
 
                   :
@@ -510,6 +505,10 @@ const Processing = () => {
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved by:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.approved_by}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Created Date:</Text>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.create_at}</Text>
                     </View>
 
                     <View style={styles.centeredView}>

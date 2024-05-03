@@ -1,4 +1,4 @@
-import { StyleSheet, Text, ActivityIndicator, TextInput, View, TouchableOpacity, Image, useColorScheme } from 'react-native'
+import { StyleSheet, Text, ActivityIndicator, TextInput, View, TouchableOpacity, Image, useColorScheme, SafeAreaView, Platform } from 'react-native'
 import React, { useState } from 'react'
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import DatePicker from 'react-native-date-picker';
@@ -53,77 +53,45 @@ const Resign = () => {
                     }
                 })
                 .catch(error => {
-                    setloading(false);
-                    alert(error);
+                    alert(error.request._response);
+                    setloading(false)
                 });
         }
     };
 
     return (
-        <View style={styles.container}>
-            {/* <Text style={styles.txtname}>Name</Text>
-            <TextInput
-                placeholder='Name'
-            />
-            <View style={styles.underline}></View>
-            <View>
-                <Text style={styles.title}>Last Working Date</Text>
-                <TouchableOpacity
-                    onPress={() => setstartopen(true)} //
-                    style={styles.calender}>
-                    <Text>{new Date(startDate).toLocaleDateString('en-GB')}</Text>
-                    <AntDesign
-                        name="calendar"
-                        size={20}
-                        style={styles.radio_icon}
-                        color="#0321a4"
-                    />
-                </TouchableOpacity>
-                <DatePicker
-                    modal
-                    textColor="#000000"
-                    backgroundColor="#FFFFFF"
-                    open={startopen}
-                    date={startDate}
-                    mode="date"
-                    onConfirm={date => {
-                        setstartopen(false);
-                        setStartDate(date);
-                        setEndDate(new Date(Date.UTC(2023, date.getUTCMonth() + 1, 1)));
-                    }}
-                    onCancel={() => {
-                        setstartopen(false);
-                    }}
+        <SafeAreaView style={{flex: 1,}}>
+            <View style={styles.container}>
+                <Image style={{ width: 100, height: 100, resizeMode: "contain", alignSelf: "center", marginVertical: 20 }}
+                    source={require('../../../../images/resigned.png')}
                 />
-            </View> */}
-            <Image style={{ width: 100, height: 100, resizeMode: "contain", alignSelf: "center", marginVertical: 20 }}
-                source={require('../../../../images/resigned.png')}
-            />
-            <Text style={styles.txtname}>Reson</Text>
-            <TextInput
-                placeholder='Reson'
-                placeholderTextColor={theme=='dark'?'#000':'#000'}
-                value={resignin}
-                onChangeText={(text) => setResign(text)}
-                style={{color:Themes=='dark'?'#000':'#000'}}
-            />
-            <View style={styles.underline}></View>
-            <TouchableOpacity activeOpacity={0.8} onPress={resign}>
-                <Text style={styles.subtxt}>Submit</Text>
-            </TouchableOpacity>
-            <View style={styles.viewstatus}>
-                <Text style={{ color: "#000", fontSize: 18 }}>Status</Text>
-                <Text style={{ color: "#000", fontSize: 18 }}>*</Text>
-                {
-                    resigndata?.status == 0 ?
-                        <Text style={{ color: "#000", fontSize: 18 }}>Waiting for approval</Text>
-                        :
-                        <Text style={{ color: "green", fontSize: 18 }}>Active</Text>
-                }
-                {/* <Text style={{color:"red", fontSize:18}}>Rejected</Text> */}
+                <Text style={styles.txtname}>Resign write</Text>
+                <TextInput
+                    placeholder='Resign.......'
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    value={resignin}
+                    multiline={true}
+                    numberOfLines={4}
+                    onChangeText={(text) => setResign(text)}
+                    style={{ color: Themes == 'dark' ? '#000' : '#000', borderWidth: 0.5, textAlignVertical: 'top',height:Platform.OS==='ios'?100:null }}
+                />
+                <View style={styles.underline}></View>
+                <TouchableOpacity activeOpacity={0.8} onPress={()=> resign()}>
+                    <Text style={styles.subtxt}>Submit</Text>
+                </TouchableOpacity>
+                <View style={styles.viewstatus}>
+                    <Text style={{ color: "#000", fontSize: 18 }}>Status</Text>
+                    <Text style={{ color: "#000", fontSize: 18 }}>*</Text>
+                    {
+                        resigndata?.status == 0 ?
+                            <Text style={{ color: "#000", fontSize: 18 }}>Waiting for approval</Text>
+                            :
+                            <Text style={{ color: "green", fontSize: 18 }}>Active</Text>
+                    }
+                    {/* <Text style={{color:"red", fontSize:18}}>Rejected</Text> */}
+                </View>
             </View>
-        </View>
-
+        </SafeAreaView>
     )
 }
 
@@ -145,7 +113,7 @@ const styles = StyleSheet.create({
         borderBottomColor: 'grey',
     },
     txtname: {
-        fontSize: 16, marginVertical: 10, fontWeight: '600'
+        fontSize: 16, marginVertical: 10, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000'
     },
     underline: {
         borderWidth: 0.5,

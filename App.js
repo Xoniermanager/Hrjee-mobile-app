@@ -1,23 +1,74 @@
-import { StyleSheet, Text, View, Modal, Image } from 'react-native';
+import { StyleSheet, Text, View, Modal, Image, Linking, Platform, Alert, BackHandler } from 'react-native';
 import React, { useEffect, useContext, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { EssProvider, EssContext } from './Context/EssContext';
 import SplashScreen from 'react-native-splash-screen';
 import NetInfo from '@react-native-community/netinfo';
-
-
+import VersionCheck from 'react-native-version-check';
+import RNExitApp from 'react-native-exit-app';
 import Main, { H } from './Navigators/Main';
 import HomeNavigator from './Navigators/HomeNavigator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = ({ navigation }) => {
 
   useEffect(() => {
-
     setTimeout(() => {
       SplashScreen.hide();
     }, 1000);
+    
   }, []);
 
+  const update=async()=>{
+    Linking.openURL(
+      Platform.OS === 'ios'
+        ? 'http://itunes.apple.com/lookup?bundleId=com.appHRjee'
+        : 'https://play.google.com/store/apps/details?id=com.HRjee'
+    );
+    await AsyncStorage.removeItem('Token');
+    await AsyncStorage.removeItem('UserData');
+    await AsyncStorage.removeItem('UserLocation');
+    RNExitApp.exitApp();
+  }
+
+
+  useEffect(() => {
+    const checkAppVersion = async () => {
+      try {
+        const latestVersion = await VersionCheck.getLatestVersion({
+          packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
+          ignoreErrors: true,
+        });
+        const currentVersion = VersionCheck.getCurrentVersion();
+        console.log(latestVersion, currentVersion)
+        if (latestVersion > currentVersion) {
+          Alert.alert(
+            'Update Required',
+            'A new version of the app is available. Please update to continue using the app.',
+            [
+              {
+                text: 'Update Now',
+                onPress: () => {
+                  update()
+                },
+              },
+            
+            ],
+            { cancelable: false }
+          );
+        } else {
+          // App is up-to-date, proceed with the app
+        }
+      } catch (error) {
+        // Handle error while checking app version
+        console.error('Error checking app version:', error);
+      }
+    };
+
+    checkAppVersion();
+
+
+  }, []);
 
   const [isConnected, setIsConnected] = useState("")
   const [isModalVisiblebeneficial, setModalVisiblebeneficial] = useState(false);
@@ -50,7 +101,7 @@ const App = ({ navigation }) => {
         <>
           <EssProvider>
             <NavigationContainer>
-              <HomeNavigator/>
+              <HomeNavigator />
             </NavigationContainer>
           </EssProvider>
         </>
@@ -87,6 +138,55 @@ export default App;
 
 const styles = StyleSheet.create({});
 
+// import React, { useEffect } from 'react';
+// import { Linking, Platform, Alert } from 'react-native'; // Import Alert from 'react-native'
 
+// import VersionCheck from 'react-native-version-check';
 
+// const App = () => {
+  // useEffect(() => {
+  //   const checkAppVersion = async () => {
+  //     try {
+  //       const latestVersion = await VersionCheck.getLatestVersion({
+  //         packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
+  //         ignoreErrors: true,
+  //       });
 
+  //       const currentVersion = VersionCheck.getCurrentVersion();
+  //       console.log(currentVersion, latestVersion, 'currentVersion')
+
+  //       if (latestVersion >= currentVersion) {
+  //         Alert.alert(
+  //           'Update Required',
+  //           'A new version of the app is available. Please update to continue using the app.',
+  //           [
+  //             {
+  //               text: 'Update Now',
+  //               onPress: () => {
+  //                 Linking.openURL(
+  //                   Platform.OS === 'ios'
+  //                     ? 'http://itunes.apple.com/lookup?bundleId=com.appHRjee'
+  //                     : 'https://play.google.com/store/apps/details?id=com.HRjee'
+  //                 );
+  //               },
+  //             },
+            
+  //           ],
+  //           { cancelable: false }
+  //         );
+  //       } else {
+  //         // App is up-to-date, proceed with the app
+  //       }
+  //     } catch (error) {
+  //       // Handle error while checking app version
+  //       console.error('Error checking app version:', error);
+  //     }
+  //   };
+
+  //   checkAppVersion();
+  // }, []);
+
+//   // Render your app components here
+// };
+
+// export default App;

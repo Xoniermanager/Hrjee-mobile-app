@@ -7,18 +7,18 @@ import {
   ActivityIndicator,
   useColorScheme
 } from 'react-native';
-import React, {useState, useContext} from 'react';
+import React, { useState, useContext } from 'react';
 import GlobalStyle from '../../../reusable/GlobalStyle';
-import {EssContext} from '../../../../Context/EssContext';
+import { EssContext } from '../../../../Context/EssContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../reusable/apiUrl';
 import axios from 'axios';
 import Themes from '../../../Theme/Theme';
 
-const TalkToUs = ({navigation}) => {
+const TalkToUs = ({ navigation }) => {
   const theme = useColorScheme();
 
-  const {location, user} = useContext(EssContext);
+  const { location, user } = useContext(EssContext);
   const [subject, setsubject] = useState('');
   const [comment, setcomment] = useState('');
   const [loading, setloading] = useState(false);
@@ -29,7 +29,7 @@ const TalkToUs = ({navigation}) => {
     const UserLocation = await AsyncStorage.getItem('UserLocation');
 
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
 
     const body = {
@@ -62,8 +62,8 @@ const TalkToUs = ({navigation}) => {
           }
         })
         .catch(error => {
-          setloading(false);
-          console.log(error);
+          alert(error.request._response);
+          setloading(false)
         });
     } else if (subject == '') {
       alert('write a subject');
@@ -96,7 +96,7 @@ const TalkToUs = ({navigation}) => {
             style={styles.input}
             onChangeText={setsubject}
             placeholder="Please enter subject"
-            placeholderTextColor={theme=='dark'?'#000':'#000'}
+            placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
 
           />
         </View>
@@ -115,11 +115,11 @@ const TalkToUs = ({navigation}) => {
               },
             ]}
             placeholder="Put your comment here....."
-            placeholderTextColor={theme=='dark'?'#000':'#000'}
+            placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
 
           />
         </View>
-        <Text style={[{marginVertical: 20}, {color:Themes=='dark'?'#000':'#000'}]}>
+        <Text style={[{ marginVertical: 20 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
           * You will get an email after submission
         </Text>
         <TouchableOpacity
@@ -132,7 +132,7 @@ const TalkToUs = ({navigation}) => {
             flexDirection: 'row',
             justifyContent: 'center',
           }}>
-          <Text style={{color: 'white', fontWeight: '700', marginRight: 5}}>
+          <Text style={{ color: 'white', fontWeight: '700', marginRight: 5 }}>
             Done
           </Text>
           {loading ? <ActivityIndicator color="white" /> : null}
@@ -145,14 +145,14 @@ const TalkToUs = ({navigation}) => {
 export default TalkToUs;
 
 const styles = StyleSheet.create({
-  input_title: {marginBottom: 10, fontSize: 14, fontWeight: '500', color:Themes=='dark'?'#000':'#000'},
+  input_title: { marginBottom: 10, fontSize: 14, fontWeight: '500', color: Themes == 'dark' ? '#000' : '#000' },
 
   input: {
     height: 45,
     backgroundColor: 'white',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'grey', color:Themes=='dark'?'#000':'#000'
+    borderBottomColor: 'grey', color: Themes == 'dark' ? '#000' : '#000'
   },
-  input_top_margin: {marginTop: 30},
+  input_top_margin: { marginTop: 30 },
 });

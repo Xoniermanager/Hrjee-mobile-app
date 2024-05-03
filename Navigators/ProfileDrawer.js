@@ -12,7 +12,7 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
-  Linking, Pressable, useColorScheme
+  Linking, Pressable, useColorScheme, BackHandler
 } from 'react-native';
 import {
   createDrawerNavigator,
@@ -47,7 +47,7 @@ import { EssContext } from '../Context/EssContext';
 import Zocial from 'react-native-vector-icons/Zocial';
 import ImagePicker from 'react-native-image-crop-picker';
 import { moderateScale } from 'react-native-size-matters';
-import { responsiveWidth } from 'react-native-responsive-dimensions';
+import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import Themes from '../../HRjee/Navigators/ProfileNavigator'
 import DatePicker from 'react-native-date-picker';
 import { RadioButton } from 'react-native-paper';
@@ -132,13 +132,14 @@ function CustomDrawerContent(props) {
     }).then(image => {
       // setImage(image.path)
       // setMimez(image?.mime)
+      setModalVisible1(!modalVisible1);
       setPhoto(image);
       setPhotoPath(image?.path);
 
-      setStore(`data:${image.mime};base64,${image.data}`)  //convert image base 64
-      console.log("file ", image?.data?.mime);
+      // setStore(`data:${image.mime};base64,${image.data}`)  //convert image base 64
+
       setCameramodal(!cameramodal);
-      setModalVisible1(!modalVisible1);
+
     }).catch((err) => { console.log(err); });
   }
 
@@ -162,24 +163,26 @@ function CustomDrawerContent(props) {
     }, []),
   );
 
-  useEffect(() => {
-    aboutUs()
-  })
+
 
   const get_employee_detail = async () => {
-    const navigation = useNavigation()
+
+
+
+
     setloading(true)
     const token = await AsyncStorage.getItem('Token');
+
     const config = {
       headers: { Token: token },
     };
+    body = {}
     axios
-      .post(`${apiUrl}/api/get_employee_detail`, {}, config)
+      .post(`${apiUrl}/api/get_employee_detail`, body, config)
       .then(response => {
         if (response.data.status === 1) {
           setloading(false)
           try {
-            console.log("Response => ", response?.data?.data)
 
             setUserdata({
               EMPLOYEE_NUMBER: response.data.data.EMPLOYEE_NUMBER,
@@ -205,44 +208,45 @@ function CustomDrawerContent(props) {
             console.log('response', response?.data);
 
             var profilePath = response?.data?.data?.image;
-            console.log("getimage  => ", profilePath)
             setPhotoPath(profilePath);
           } catch (e) {
             setloading(false)
-            console.log(e);
           }
         } else {
           setloading(false)
-          console.log('some error occured');
         }
       })
       .catch(error => {
+        alert(error.request._response);
         setloading(false)
-        console.log(error);
       });
   };
+  useEffect(() => {
+    get_employee_detail()
+    aboutUs()
 
+  }, [])
   const get_address = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: { Token: token },
     };
+    body = {}
     axios
-      .post(`${apiUrl}/api/get_location_list`, {}, config)
+      .post(`${apiUrl}/api/get_location_list`, body, config)
       .then(response => {
         if (response.data.status === 1) {
           try {
-            console.log(response.data.data);
+
             setlocation(response.data.data);
           } catch (e) {
-            console.log(e);
           }
         } else {
           console.log('some error occured');
         }
       })
       .catch(error => {
-        console.log(error);
+        alert(error?.request._response);
       });
   };
   const add_address = async () => {
@@ -265,7 +269,6 @@ function CustomDrawerContent(props) {
           latitude: lat,
           longitude: long,
         };
-        console.log('add adrs=>', body);
         axios
           .post(`${apiUrl}/api/add_user_location`, body, config)
           .then(response => {
@@ -276,7 +279,7 @@ function CustomDrawerContent(props) {
                 setaddress('');
                 get_address();
                 setshowInput(false);
-                alert('Address added successfully, wait for admin approval');
+                Toast.show('Address added successfully, wait for admin approval');
               } catch (e) {
                 alert(e);
               }
@@ -288,14 +291,14 @@ function CustomDrawerContent(props) {
             }
           })
           .catch(error => {
-            setloading(false);
-            alert(error);
+            alert(error.request._response);
+            setloading(false)
           });
       })
       .catch(error => {
-        setloading(false);
         const { code, message } = error;
-        console.warn(code, message);
+        alert(code, message);
+        setloading(false)
       });
   };
 
@@ -312,7 +315,6 @@ function CustomDrawerContent(props) {
     formData.append('mobile_no', Userdata?.phone);
     formData.append('permanent_address', Userdata?.permanentAddress)
     if (photo) {
-      console.log('photo', photo);
       // var photoFormData = ;
       formData.append('image', {
         uri: photo?.path,
@@ -322,7 +324,6 @@ function CustomDrawerContent(props) {
       });
     }
 
-    console.log('formData ==> ', formData);
 
     fetch(`${apiUrl}/SecondPhaseApi/update_employee_data`, {
       method: 'POST',
@@ -334,16 +335,14 @@ function CustomDrawerContent(props) {
     })
       .then(response => response.json())
       .then(response => {
-        console.log("response => ", response?.data)
         setloading(false);
-        if (response?.status == 1) {
-          setModalVisible(!modalVisible);
-          get_employee_detail();
-        }
+        setModalVisible(!modalVisible);
+        get_employee_detail();
+        alert(response?.msg)
       })
       .catch(err => {
         setloading(false);
-        console.log("error => ", err)
+        alert(err.request._response)
       });
   }
 
@@ -379,8 +378,8 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        setloading(false);
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
@@ -429,14 +428,14 @@ function CustomDrawerContent(props) {
             }
           })
           .catch(error => {
-            setloading(false);
-            alert(error);
+            alert(error.request._response);
+            setloading(false)
           });
       })
       .catch(error => {
         setloading(false);
         const { code, message } = error;
-        console.warn(code, message);
+        alert(code, message);
       });
   };
 
@@ -448,7 +447,6 @@ function CustomDrawerContent(props) {
     const body = {
       location_id: id,
     };
-    // console.log('first-->>>>', body);
 
     axios
       .post(`${apiUrl}/api/active_user_location_request`, body, config)
@@ -467,7 +465,7 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        alert(error);
+        alert(error.request._response);
       });
   };
 
@@ -498,7 +496,7 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        console.log(error);
+        alert(error.request._response);
       });
   };
 
@@ -507,52 +505,35 @@ function CustomDrawerContent(props) {
       return (
         <>
           <View style={{ marginHorizontal: 10 }}>
-            <View style={{}}>
-              {/* <Text style={styles.heading_modal}>Profile Photo</Text> */}
-              <View style={{}}>
-                {/* <Image
-                  style={styles.tinyLogo}
-                  source={
-                    Userdata.image
-                      ? { uri: Userdata.image }
-                      : require('../src/images/profile_pic.webp')
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ position: 'relative' }} >
+                <>
+                  {
+                    photoPath ?
+                      <Image
+                        source={{ uri: photoPath }}
+                        style={{ width: 150, height: 150, borderRadius: 150 / 2, overflow: "hidden", borderWidth: 2, borderColor: "green" }}
+                      />
+                      :
+                      <Image
+                        source={{ uri: `https://i.postimg.cc/0y72NN2K/user.png` }}
+                        style={{ width: 150, height: 150, borderRadius: 150 / 2, overflow: "hidden", borderWidth: 2, borderColor: "green" }}
+                      />
                   }
-                /> */}
-                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                  <View style={{ position: 'relative' }} >
-                    <>
-                      {
-                        photoPath ?
-                          <Image
-                            source={{ uri: photoPath }}
-                            style={{ width: 150, height: 150, borderRadius: 150 / 2, overflow: "hidden", borderWidth: 2, borderColor: "green" }}
-                          />
-                          :
-                          <Image
-                            source={{ uri: `https://i.postimg.cc/0y72NN2K/user.png` }}
-                            style={{ width: 150, height: 150, borderRadius: 150 / 2, overflow: "hidden", borderWidth: 2, borderColor: "green" }}
-                          />
-                      }
 
-                    </>
-
-
-
-
-                    <View style={{ position: 'absolute', right: 7, bottom: 7, }}>
-                      <View style={{ width: 30, height: 30, backgroundColor: 'black', borderRadius: 30 / 2, justifyContent: 'center', alignItems: 'center' }}>
-                        <IconButton
-                          icon="camera"
-                          iconColor={MD3Colors.neutral100}
-                          size={20}
-                          onPress={() => setModalVisible1(true)}
-                        />
-                      </View>
-                    </View>
+                </>
+                <View style={{ position: 'absolute', right: 7, bottom: 7, }}>
+                  <View style={{ width: 30, height: 30, backgroundColor: 'black', borderRadius: 30 / 2, justifyContent: 'center', alignItems: 'center' }}>
+                    <IconButton
+                      icon="camera"
+                      iconColor={MD3Colors.neutral100}
+                      size={20}
+                      onPress={() => setModalVisible1(true)}
+                    />
                   </View>
                 </View>
-
               </View>
+
             </View>
             <View style={{ marginVertical: 10 }}>
               <Text style={styles.heading_modal}>Father's Name</Text>
@@ -704,8 +685,17 @@ function CustomDrawerContent(props) {
               }}
             >
               <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                  <View style={{ margin: 20, alignSelf: "center" }}>
+                <View style={styles.modalView1}>
+                  <View style={{ marginVertical: responsiveHeight(2), alignSelf: "center" }}>
+                    <View style={{ marginBottom: 10, alignItems: "flex-end" }}>
+                      <AntDesign
+                        name="close"
+                        size={22}
+                        color="red"
+                        onPress={() => setModalVisible1(!modalVisible1)}
+                      // onPress={() => setModalVisible(!modalVisible)}
+                      />
+                    </View>
                     <View style={styles.takepic}>
                       <TouchableOpacity onPress={takePhotoFromCamera}>
                         <Text style={styles.takepictext}>PICK FROM CAMERA</Text>
@@ -719,12 +709,6 @@ function CustomDrawerContent(props) {
                     </View>
                   </View>
 
-                  <Pressable
-                    style={[styles.button, styles.buttonClose]}
-                    onPress={() => setModalVisible1(!modalVisible1)}
-                  >
-                    <Text style={{ textAlign: "center", color: "#fff" }}>Cancel</Text>
-                  </Pressable>
                 </View>
               </View>
             </Modal>
@@ -737,7 +721,7 @@ function CustomDrawerContent(props) {
       );
     } else if (show == 'CompanyDetails') {
       return (
-        <View>
+        <View style={{ padding: 10 }}>
           <View style={{ marginVertical: 10 }}>
             <Text style={styles.heading_modal}>Employee Number</Text>
             <TextInput
@@ -813,6 +797,7 @@ function CustomDrawerContent(props) {
                       borderWidth: 1,
                       borderRadius: 5,
                       borderColor: 'grey',
+                      marginHorizontal: 10
                     }}>
                     <View
                       style={{
@@ -1000,6 +985,18 @@ function CustomDrawerContent(props) {
     }
   };
 
+  useEffect(() => {
+    const backAction = () => {
+      BackHandler.exitApp()
+    }
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   const logout = async () => {
     await AsyncStorage.removeItem('Token');
     await AsyncStorage.removeItem('UserData');
@@ -1007,6 +1004,7 @@ function CustomDrawerContent(props) {
     props.navigation.closeDrawer();
     props.navigation.navigate('Login');
   };
+
 
   return (
     <View style={{ flex: 1, }}>
@@ -1091,7 +1089,7 @@ function CustomDrawerContent(props) {
           activeTintColor={'red'}
         />
         <DrawerItem
-          label="About us"
+          label="Contact us"
           icon={color => (
             <MaterialCommunityIcons
               name="information-outline"
@@ -1190,7 +1188,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   profileFont: {
-    color: 'white',
+    color: Themes == 'dark' ? '#fff' : '#fff'
   },
   options: {
     width: 65,
@@ -1215,21 +1213,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 5,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: width / 1.1,
-  },
+
   input: {
     marginTop: 5,
     height: 40,
@@ -1314,22 +1298,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    // alignItems: 'center',
-  },
   modalView: {
-    margin: 10,
     borderRadius: 15,
-    // padding: 35,
-    // alignItems: 'center',
-    marginHorizontal: 25,
     shadowRadius: 4,
     backgroundColor: "#fff",
     elevation: 7,
     borderWidth: 1,
-    borderColor: "#e2ddfe"
+    borderColor: "#e2ddfe",
+    width: responsiveWidth(95),
+    height: responsiveHeight(75)
+  },
+  modalView1: {
+    borderRadius: 15,
+    shadowRadius: 4,
+    backgroundColor: "#fff",
+    elevation: 7,
+    borderWidth: 1,
+    borderColor: "#e2ddfe",
+    width: responsiveWidth(55),
+    height: responsiveHeight(25)
   },
   takepic: {
     width: 160,

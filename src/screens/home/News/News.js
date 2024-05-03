@@ -77,7 +77,6 @@ const News = ({ navigation }) => {
         if (response.data.status == 1) {
           try {
             setloading(false);
-            console.log("response>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", response.data.content);
             setnews(response.data.content);
           } catch (e) {
             setloading(false);
@@ -90,8 +89,8 @@ const News = ({ navigation }) => {
         }
       })
       .catch(error => {
-        setloading(false);
-        console.log(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

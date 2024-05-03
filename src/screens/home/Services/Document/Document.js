@@ -7,7 +7,8 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  useColorScheme
+  useColorScheme,
+  SafeAreaView
 } from 'react-native';
 import React, {useState} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -68,8 +69,8 @@ const Document = ({navigation}) => {
         }
       })
       .catch(error => {
-        setloading(false);
-        console.log(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
@@ -78,6 +79,7 @@ const Document = ({navigation}) => {
   return (
     <>
       {doc && !loading && (
+        <SafeAreaView  style={{flex: 1,}}>
         <View style={{flex: 1, backgroundColor: '#e3eefb', padding: 15}}>
           <PullToRefresh onRefresh={handleRefresh}>
             {doc?.map((i, index) => (
@@ -131,10 +133,9 @@ const Document = ({navigation}) => {
               right: 0,
               bottom: 0,
               padding: 15,
-              backgroundColor: 'white',
             }}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('home')}
+              onPress={() => navigation.navigate('Home')}
               style={{
                 padding: 15,
                 backgroundColor: GlobalStyle.blueDark,
@@ -147,6 +148,7 @@ const Document = ({navigation}) => {
             </TouchableOpacity>
           </View>
         </View>
+        </SafeAreaView>
       )}
 
       {loading && (

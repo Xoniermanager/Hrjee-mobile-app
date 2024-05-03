@@ -19,9 +19,6 @@ import Themes from '../../../Theme/Theme';
 
 const NewsDetails = ({navigation, route}) => {
   const theme = useColorScheme();
-
-  console.log('user++===>', route.params.userId);
-  console.log('news++===>', route.params.newsId);
   const monthNames = [
     'January',
     'February',
@@ -90,8 +87,8 @@ const NewsDetails = ({navigation, route}) => {
         }
       })
       .catch(error => {
-        setloading(false);
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

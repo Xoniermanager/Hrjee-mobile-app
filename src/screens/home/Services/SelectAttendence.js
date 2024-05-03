@@ -19,6 +19,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
+import { responsiveWidth } from 'react-native-responsive-dimensions';
 
 const SelectAttendence = () => {
   const theme = useColorScheme();
@@ -32,6 +33,8 @@ const SelectAttendence = () => {
   );
 
   const [recentLogs, setrecentLogs] = useState([]);
+
+  console.log(recentLogs, "202")
 
   const [loading, setloading] = useState(false);
 
@@ -84,27 +87,27 @@ const SelectAttendence = () => {
       alert('Till date should muast be greater than the From date ')
     } else {
       axios
-      .post(`${apiUrl}/Api/attendance`, body, config)
-      .then(response => {
-        console.log('addtendance response......................................', response.data);
-        if (response.data.status == 1) {
-          setloading(false);
+        .post(`${apiUrl}/Api/attendance`, body, config)
+        .then(response => {
+          console.log('addtendance response......................................', response.data);
+          if (response.data.status == 1) {
+            setloading(false);
 
-          try {
-            setrecentLogs(response.data.content);
-          } catch (e) {
-            alert(e);
+            try {
+              setrecentLogs(response.data.content);
+            } catch (e) {
+              alert(e);
+            }
+          } else {
+            setloading(false);
+            setrecentLogs([]);
+            alert('attendence not found');
           }
-        } else {
-          setloading(false);
-          setrecentLogs([]);
-          alert('attendence not found');
-        }
-      })
-      .catch(error => {
-        setloading(false);
-        alert(error);
-      });
+        })
+        .catch(error => {
+          alert(error.request._response);
+        setloading(false)
+        });
     }
   };
 
@@ -138,7 +141,8 @@ const SelectAttendence = () => {
         }
       })
       .catch(error => {
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
@@ -151,7 +155,7 @@ const SelectAttendence = () => {
     <View style={{ flex: 1, padding: 15, backgroundColor: 'white' }}>
       <PullToRefresh onRefresh={handleRefresh}>
         <View>
-          <Text style={styles.title}>From Date</Text>
+          <Text style={styles.title}>Start Date</Text>
           <TouchableOpacity
             onPress={() => setstartopen(true)} //
             style={styles.calender}>
@@ -182,7 +186,7 @@ const SelectAttendence = () => {
           />
         </View>
         <View>
-          <Text style={[styles.title, { marginTop: 20 }]}>Till Date</Text>
+          <Text style={[styles.title, { marginTop: 20 }]}>End Date</Text>
           <TouchableOpacity
             onPress={() => setendopen(true)} //
             style={styles.calender}>
@@ -253,9 +257,9 @@ const SelectAttendence = () => {
                     styles.display_row,
                     { borderTopWidth: 1, borderTopColor: 'grey' },
                   ]}>
-                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.TR_DATE}</Text>
+                  <Text style={{color: Themes == 'dark' ? '#000' : '#000' }}>{i.TR_DATE}</Text>
                   {
-                    (datetime != i.TR_DATE) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}> {i.PRESENT_HOURS} </Text> : (i.location_id == null) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>NA</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}> {i.PRESENT_HOURS} </Text>
+                    (datetime != i.TR_DATE) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000', }}> {i.PRESENT_HOURS}</Text> : (i.location_id == null) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>NA</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}> {i.PRESENT_HOURS} </Text>
                   }
                 </View>
               ))

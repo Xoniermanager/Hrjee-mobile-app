@@ -73,8 +73,8 @@ const Payslip = ({navigation}) => {
         }
       })
       .catch(error => {
-        setloading(false);
-        console.log(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 
@@ -82,17 +82,18 @@ const Payslip = ({navigation}) => {
     // Do something to refresh the data
     get_payslip();
   };
-
+console.log(payslip,'payslip')
   return (
     <>
-      {payslip.length == 0 && !loading && <Empty />}
+      {payslip && payslip?.length == 0 && !loading && <Empty />}
 
-      {payslip.length > 0 && (
+      {payslip?.length > 0 && (
         <View style={{flex: 1, backgroundColor: '#e3eefb', padding: 15}}>
           <PullToRefresh onRefresh={handleRefresh}>
-            {payslip.map((i, index) => (
+            {payslip?.map((i, index) => (
               <TouchableOpacity
                 onPress={() => navigation.navigate('Doc', {url: i.slip_url})}
+                
                 key={index}
                 style={[
                   {

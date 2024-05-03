@@ -13,7 +13,6 @@ import GlobalStyle from '../GlobalStyle';
 import {useFocusEffect} from '@react-navigation/native';
 
 const OpenPdf = ({route}) => {
-  console.log('doc-->', route.params.doc);
   const [loading, setloading] = useState(false);
 
   useFocusEffect(
@@ -25,13 +24,12 @@ const OpenPdf = ({route}) => {
   const openDoc = () => {
     setloading(true);
     const url = route.params.url;
-    console.log(url);
-
+console.log(route.params,'url')
     // this will split the whole url.
-    const f2 = url.split('/');
-
+    const f2 = url?.split('/');
+console.log(f2,'ddddd')
     // then get the file name with extention.
-    const fileName = f2[f2.length - 1];
+    const fileName = f2[f2?.length - 1];
     // const fileExtention = url.split(".")[3];
 
     // create a local file path from url
@@ -50,8 +48,8 @@ const OpenPdf = ({route}) => {
         // Here you can perform any of your completion tasks
       })
       .catch(error => {
-        setloading(false);
-        // error
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

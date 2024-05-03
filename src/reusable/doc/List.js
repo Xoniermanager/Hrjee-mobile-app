@@ -48,11 +48,9 @@ const List = ({navigation}) => {
     axios
       .post(`${apiUrl}/api/announcement`, body, config)
       .then(response => {
-        // console.log('response', response.data);
         if (response.data.status == 1) {
           setloading(false);
           try {
-            console.log(response.data.content);
             setannouncement(response.data.content);
             setempty(false);
             response.data.content.length < 1 ? setempty(true) : setempty(false);
@@ -65,8 +63,8 @@ const List = ({navigation}) => {
         }
       })
       .catch(error => {
-        setloading(false);
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

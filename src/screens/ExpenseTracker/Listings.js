@@ -42,7 +42,6 @@ const Listings = ({navigation, route}) => {
   const openDoc = str => {
     setloading(true);
     const url = str;
-    console.log(url);
 
     // this will split the whole url.
     const f2 = url.split('/');
@@ -68,7 +67,7 @@ const Listings = ({navigation, route}) => {
       })
       .catch(error => {
         setloading(false);
-        // error
+        alert(error.request._response)
       });
   };
 

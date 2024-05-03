@@ -59,8 +59,8 @@ const Training = ({navigation}) => {
         }
       })
       .catch(error => {
-        setloading(false);
-        alert(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
 

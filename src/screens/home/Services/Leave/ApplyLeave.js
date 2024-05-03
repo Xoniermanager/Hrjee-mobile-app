@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  useColorScheme
+  useColorScheme,
+  SafeAreaView
 } from 'react-native';
 import React, { useState, useContext } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -21,16 +22,16 @@ import axios from 'axios';
 import { EssContext } from '../../../../../Context/EssContext';
 import { moderateScale } from 'react-native-size-matters';
 import Themes from '../../../../Theme/Theme';
+import Reload from '../../../../../Reload';
 
 const ApplyLeave = ({ navigation }) => {
   const theme = useColorScheme();
-
   const { user } = useContext(EssContext);
   const [loading, setloading] = useState(false);
   // const [leaveBalance,setLeaveBalance]=useState()
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
-  const [halfDay, sethalfDay] = useState('A');
+  const [halfDay, sethalfDay] = useState('0');
 
   const [leaveType, setleaveType] = useState(null);
   console.log("leaveType..........................", leaveType)
@@ -42,6 +43,7 @@ const ApplyLeave = ({ navigation }) => {
   const [endDate, setEndDate] = useState(new Date());
 
   const [leaveBalance, setleaveBalance] = useState(0);
+  const [companyid, setCompany_id] = useState('');
 
 
   const [name, setname] = useState(null);
@@ -50,45 +52,54 @@ const ApplyLeave = ({ navigation }) => {
   const [comment, setcomment] = useState(null);
 
   const [isCheck, setisCheck] = useState(true);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      leave_type();
-    }, []),
-  );
-
   const leave_type = async () => {
     const token = await AsyncStorage.getItem('Token');
+    console.log(token, 'token')
     const config = {
       headers: { Token: token },
     };
-
-    const body = {};
-    // console.log('body1mon----->', body);
+    body = {}
     axios
       .post(`${apiUrl}/secondPhaseApi/leave_type`, body, config)
       .then(response => {
+        console.log(response?.data, 'response.data')
+        setloading(false);
         if (response.data.status == 1) {
-          console.log(response.data, 'response.data')
-          try {
-            setleaveType(response?.data?.data)
-
-          } catch (e) {
-            console.log(e);
-          }
+          setleaveType(response?.data?.data)
         } else {
-          console.log('message-->', response.data.message);
+          setloading(false);
+          alert('message-->', response.data.message);
         }
       })
       .catch(error => {
-        console.log('apply leave');
-        console.log(error);
+        alert(error.request._response);
+        setloading(false)
       });
   };
+
+  const company_id = async () => {
+    setloading(true);
+    const userData = await AsyncStorage.getItem('UserData');
+    const userInfo = JSON.parse(userData);
+    let company_id = userInfo?.company_id;
+    setCompany_id(company_id)
+  }
+
+  console.log(companyid, "idddddd")
+  useFocusEffect(
+    React.useCallback(() => {
+      leave_type();
+      company_id()
+    }, []),
+  );
+
+
   if (leaveType == null) {
-    return <ActivityIndicator size="small" color="#0000ff" />
+    return <Reload />
   }
   const apply_leave = async () => {
+
+
     setloading(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -99,7 +110,7 @@ const ApplyLeave = ({ navigation }) => {
     bodyFormData.append('userid', user.userid);
     bodyFormData.append('leave_balance', leaveBalance);
     bodyFormData.append('region_name', 'Eastern');
-    bodyFormData.append('leavetype', value.value);
+    bodyFormData.append('leavetype', value);
     bodyFormData.append('leave_wfstage_id', 11);
     bodyFormData.append(
       'leave_start_date',
@@ -129,7 +140,7 @@ const ApplyLeave = ({ navigation }) => {
     bodyFormData.append('accept_leave_policy', isCheck ? 1 : 0);
     bodyFormData.append('current_approver_eno', user.employee_number);
     // bodyFormData.append('attachment[]', file_1);
-
+    console.log(bodyFormData, 'bodyFormData')
     axios({
       method: 'post',
       url: `${apiUrl}/secondPhaseApi/apply_for_leave`,
@@ -146,9 +157,11 @@ const ApplyLeave = ({ navigation }) => {
             navigation.navigate('Applied Leaves');
             console.log("Submit data.............", response?.data)
           } catch (e) {
+            setloading(false);
             alert(e);
           }
         } else {
+          setloading(false);
           alert(response.data.message);
         }
       })
@@ -177,9 +190,12 @@ const ApplyLeave = ({ navigation }) => {
       }
     }
   };
-  console.log(leaveType, 'leaveTypeyash')
+
+
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white', padding: 18 }}>
+      <SafeAreaView>
       <ScrollView>
         <View>
           <Text style={styles.input_title}>Leave Type</Text>
@@ -207,66 +223,95 @@ const ApplyLeave = ({ navigation }) => {
           <View style={{ borderWidth: 0.5, backgroundColor: "#000", elevation: 1, opacity: 0.4, }}></View>
         </View>
         <View style={styles.input_top_margin}>
-          <Text style={styles.input_title}>Holiday</Text>
+          {/* <Text style={styles.input_title}>Holiday</Text> */}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity
-              onPress={() => sethalfDay('A')}
-              style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {halfDay == 'A' ? (
-                <Fontisto
-                  name="radio-btn-active"
-                  size={18}
-                  style={styles.radio_icon}
-                />
-              ) : (
-                <Fontisto
-                  name="radio-btn-passive"
-                  size={18}
-                  style={styles.radio_icon}
-                />
-              )}
-              <Text>Morning</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => sethalfDay('P')}
-              style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {halfDay == 'P' ? (
-                <Fontisto
-                  name="radio-btn-active"
-                  size={18}
-                  style={styles.radio_icon}
-                  color="#0321a4"
-                />
-              ) : (
-                <Fontisto
-                  name="radio-btn-passive"
-                  size={18}
-                  color="#0321a4"
-                  style={styles.radio_icon}
-                />
-              )}
-              <Text>Evening</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => sethalfDay('0')}
-              style={{ flexDirection: 'row', alignItems: 'center' }}>
-              {halfDay == '0' ? (
-                <Fontisto
-                  name="radio-btn-active"
-                  size={18}
-                  style={styles.radio_icon}
-                  color="#0321a4"
-                />
-              ) : (
-                <Fontisto
-                  name="radio-btn-passive"
-                  size={18}
-                  color="#0321a4"
-                  style={styles.radio_icon}
-                />
-              )}
-              <Text>None</Text>
-            </TouchableOpacity>
+            {
+              companyid == 56 ?
+                <TouchableOpacity
+                  onPress={() => sethalfDay('0')}
+                  style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  {halfDay == '0' ? (
+                    <Fontisto
+                      name="radio-btn-active"
+                      size={18}
+                      style={styles.radio_icon}
+                      color="#0321a4"
+                    />
+                  ) : (
+                    <Fontisto
+                      name="radio-btn-passive"
+                      size={18}
+                      color="#0321a4"
+                      style={styles.radio_icon}
+                    />
+                  )}
+                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>None</Text>
+                </TouchableOpacity>
+                :
+                <>
+                  <TouchableOpacity
+                    onPress={() => sethalfDay('A')}
+                    style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {halfDay == 'A' ? (
+                      <Fontisto
+                        name="radio-btn-active"
+                        size={18}
+                        style={styles.radio_icon}
+                      />
+                    ) : (
+                      <Fontisto
+                        name="radio-btn-passive"
+                        size={18}
+                        style={styles.radio_icon}
+                      />
+                    )}
+                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Morning</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => sethalfDay('P')}
+                    style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {halfDay == 'P' ? (
+                      <Fontisto
+                        name="radio-btn-active"
+                        size={18}
+                        style={styles.radio_icon}
+                        color="#0321a4"
+                      />
+                    ) : (
+                      <Fontisto
+                        name="radio-btn-passive"
+                        size={18}
+                        color="#0321a4"
+                        style={styles.radio_icon}
+                      />
+                    )}
+                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Evening</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => sethalfDay('0')}
+                    style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {halfDay == '0' ? (
+                      <Fontisto
+                        name="radio-btn-active"
+                        size={18}
+                        style={styles.radio_icon}
+                        color="#0321a4"
+                      />
+                    ) : (
+                      <Fontisto
+                        name="radio-btn-passive"
+                        size={18}
+                        color="#0321a4"
+                        style={styles.radio_icon}
+                      />
+                    )}
+                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>None</Text>
+                  </TouchableOpacity>
+                </>
+            }
+
+
+
           </View>
         </View>
         <View style={styles.input_top_margin}>
@@ -357,7 +402,7 @@ const ApplyLeave = ({ navigation }) => {
               maxLength={25}
               style={styles.input}
               placeholder="Please enter name"
-              placeholderTextColor={theme=='dark'?'#000':'#000'}
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
               onChangeText={setname}
             />
           </View>
@@ -368,7 +413,7 @@ const ApplyLeave = ({ navigation }) => {
               keyboardType="numeric"
               style={styles.input}
               placeholder="Please enter phone number"
-              placeholderTextColor={theme=='dark'?'#000':'#000'}
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
 
               onChangeText={setphone}
             />
@@ -379,7 +424,7 @@ const ApplyLeave = ({ navigation }) => {
               maxLength={50}
               style={styles.input}
               placeholder="Please enter address"
-              placeholderTextColor={theme=='dark'?'#000':'#000'}
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
 
               onChangeText={setaddress}
             />
@@ -390,7 +435,7 @@ const ApplyLeave = ({ navigation }) => {
               multiline
               style={styles.input}
               placeholder="Put your comment here....."
-              placeholderTextColor={theme=='dark'?'#000':'#000'}
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
 
               onChangeText={setcomment}
             />
@@ -429,6 +474,7 @@ const ApplyLeave = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </SafeAreaView>
     </View>
   );
 };
@@ -452,7 +498,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'grey', 
+    borderBottomColor: 'grey',
     color: Themes == 'dark' ? '#000' : '#000'
   },
   radio_icon: {
@@ -476,3 +522,5 @@ const styles = StyleSheet.create({
 
   }
 });
+
+

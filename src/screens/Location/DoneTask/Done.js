@@ -174,10 +174,7 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Customer name:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.customer_name}</Text>
                </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>User id:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.assign}</Text>
-               </View>
+              
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Mobile Number:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.mobile_no}</Text>
@@ -186,10 +183,7 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved_by:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item.approved_by !== '' ? item.approved_by : 'N/A'}</Text>
                </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Employee number:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.employee_number}</Text>
-               </View>
+               
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Visit Address:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.risk_address}</Text>
@@ -237,10 +231,7 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Loan center:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.loan_center}</Text>
                </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Employee number:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.employee_number}</Text>
-               </View>
+               
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Current address:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
@@ -299,12 +290,9 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>update_at:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.update_at}</Text>
                </View>
+               
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Company id:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.company_id}</Text>
-               </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Description:</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Manager remark:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.description}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
@@ -324,12 +312,12 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.product}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Product:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.product}</Text>
-               </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Process name:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.process_name}</Text>
+               </View>
+               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Remark:</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.remark}</Text>
                </View>
              </>
               ) : (

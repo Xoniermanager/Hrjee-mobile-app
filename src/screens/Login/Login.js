@@ -48,10 +48,14 @@ const Login = () => {
         device_id: fcmtoken,
       })
       .then(response => {
-
+        console.log(response?.data, 'lfknjkll')
         if (response?.data?.status == 1) {
           if (response?.data?.data?.login_type === 'web') {
             alert('You are not authorized to use mobile application. Kindly contact admin!')
+            setloading(false);
+          }
+          else if (response?.data?.data?.block == 1) {
+            alert('You have been blocked, Please contact your admin department!')
             setloading(false);
           }
           else {
@@ -109,12 +113,12 @@ const Login = () => {
           }
 
         } else {
-          setloading(false);
           alert('Please enter correct credentials');
+          setloading(false);
         }
       })
       .catch(error => {
-        alert(error.request._response);
+        alert(error.response.data.message);
         setloading(false)
       });
   };
@@ -240,7 +244,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomColor: 'grey',
     color: Themes == 'dark' ? '#000' : '#000',
-    flex:1
+    flex: 1
   },
   btn_style: {
     width: '100%',

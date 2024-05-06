@@ -491,21 +491,6 @@ const Processing = () => {
                   }}>
                   <Text
                     style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    User id:
-                  </Text>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    {item?.assign}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 2,
-                  }}>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
                     Mobile Number:
                   </Text>
                   <Text
@@ -514,21 +499,7 @@ const Processing = () => {
                   </Text>
                 </View>
 
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 2,
-                  }}>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    Employee number:
-                  </Text>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    {item?.employee_number}
-                  </Text>
-                </View>
+            
 
                 <View
                   style={{
@@ -563,7 +534,7 @@ const Processing = () => {
                       color: Themes == 'dark' ? '#000' : '#000',
                       textAlign: 'center',
                     }}>
-                    Risk Address:
+                    Visit Address:
                   </Text>
                   <Text
                     style={{
@@ -700,27 +671,7 @@ const Processing = () => {
                     {item?.loan_center}
                   </Text>
                 </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 2,
-                  }}>
-                  <Text
-                    style={{
-                      color: Themes == 'dark' ? '#000' : '#000',
-                      textAlign: 'center',
-                    }}>
-                    Employee number:
-                  </Text>
-                  <Text
-                    style={{
-                      color: Themes == 'dark' ? '#000' : '#000',
-                      textAlign: 'center',
-                    }}>
-                    {item?.employee_number}
-                  </Text>
-                </View>
+              
 
                 <View
                   style={{
@@ -829,6 +780,7 @@ const Processing = () => {
                     {item?.update_at}
                   </Text>
                 </View>
+             
                 <View
                   style={{
                     flexDirection: 'row',
@@ -837,22 +789,7 @@ const Processing = () => {
                   }}>
                   <Text
                     style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    Company id:
-                  </Text>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    {item?.company_id}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 2,
-                  }}>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    Description:
+                    Manager remark:
                   </Text>
                   <Text
                     style={{color: Themes == 'dark' ? '#000' : '#000'}}>
@@ -904,21 +841,7 @@ const Processing = () => {
                     {item?.pos_amount}
                   </Text>
                 </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 2,
-                  }}>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    Product:
-                  </Text>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    {item?.product}
-                  </Text>
-                </View>
+
                 <View
                   style={{
                     flexDirection: 'row',

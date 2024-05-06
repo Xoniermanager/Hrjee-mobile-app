@@ -191,18 +191,15 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.employee_number}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Address:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Visit Address:</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.risk_address}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Loan no:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.loan_no}</Text>
                </View>
              
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Risk Address:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.risk_address}</Text>
-               </View>
+              
 
 
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
@@ -213,10 +210,7 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Longitude:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.longitude}</Text>
                </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Lat_long_address:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
-               </View>
+             
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Total Amount:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.total_amount}</Text>

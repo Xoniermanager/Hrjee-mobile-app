@@ -17,6 +17,7 @@ import {
 // import React, {useState, useContext} from 'react';
 import React, { useState, useContext, useCallback, useMemo, useRef } from 'react';
 import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import { Root, Popup } from 'popup-ui'
 
 import Entypo from 'react-native-vector-icons/Entypo';
 import Zocial from 'react-native-vector-icons/Zocial';
@@ -141,15 +142,21 @@ const Profile = ({ navigation }) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+          navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -202,11 +209,7 @@ const Profile = ({ navigation }) => {
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+    
         }
       });
   };
@@ -233,13 +236,9 @@ const Profile = ({ navigation }) => {
       .catch(error => {
         // alert(error.request._response);
         setloading(false)
-        if(error.response.status=='401')
+         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+     
         }
       });
   };
@@ -258,252 +257,7 @@ const Profile = ({ navigation }) => {
     );
   };
 
-  function New({ navigation }) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#e3eefb' }}>
-        {get_user_post_api.data && (
-          <FlatList
-            numColumns={3}
-            data={get_user_post_api.data?.data}
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('SinglePost', {
-                    post_id: item.id,
-                    user_id: item.user_id,
-                    cmp_id: item.cmp_id,
-                  })
-                }
-                style={{
-                  borderWidth: 1,
-                  // borderLeftWidth: index % 2 == 0 && 0,
-                  borderColor: 'white',
-                }}>
-                {item.post.split('.').reverse()[0] == 'MP4' ? (
-                  <Image
-                    style={{
-                      width: width / 3,
-                      height: width / 3,
-                      resizeMode: 'stretch',
-                    }}
-                    source={require('../../images/movie-player.png')}
-                  />
-                ) : (
-                  // <Image
-                  //   style={{
-                  //     width: width / 3,
-                  //     height: width / 3,
-                  //   }}
-                  //   source={{uri: item.post}}
-                  // />
 
-                  <ProgressiveImage
-                    defaultImageSource={require('../../images/default-img.png')}
-                    source={{ uri: item.post }}
-                    style={{
-                      width: width / 3,
-                      height: width / 3,
-                    }}
-                    resizeMode="cover"
-                  />
-                )}
-              </TouchableOpacity>
-            )}
-            keyExtractor={item => item.id}
-          />
-        )}
-        {get_user_post_api.data?.data.length == 0 && (
-          <View
-            style={{
-              height: '100%',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Feather name="camera" size={50} />
-              <Text style={{ marginTop: 0, fontSize: 16 }}>No post to show</Text>
-            </View>
-          </View>
-        )}
-        {/* {get_user_post_api.loading && (
-          <View style={styles.loader}>
-            <ActivityIndicator size="small" color="#388aeb" />
-          </View>
-        )} */}
-      </View>
-    );
-  }
-
-  function All({ navigation }) {
-    return (
-      <View style={{ flex: 1, backgroundColor: 'white' }}>
-        {get_user_post_api.data && (
-          <FlatList
-            numColumns={3}
-            data={get_user_post_api.data?.data}
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('SinglePost', {
-                    post_id: item.id,
-                    user_id: item.user_id,
-                    cmp_id: item.cmp_id,
-                  })
-                }
-                style={{
-                  borderWidth: 1,
-                  // borderLeftWidth: index % 2 == 0 && 0,
-                  borderColor: 'white',
-                }}>
-                {item.post.split('.').reverse()[0] == 'MP4' ? (
-                  <Image
-                    style={{
-                      width: width / 3,
-                      height: width / 3,
-                      resizeMode: 'stretch',
-                    }}
-                    source={require('../../images/movie-player.png')}
-                  />
-                ) : (
-                  // <Image
-                  //   style={{
-                  //     width: width / 3,
-                  //     height: width / 3,
-                  //   }}
-                  //   source={{uri: item.post}}
-                  // />
-                  <ProgressiveImage
-                    defaultImageSource={require('../../images/default-img.png')}
-                    source={{ uri: item.post }}
-                    style={{
-                      width: width / 3,
-                      height: width / 3,
-                    }}
-                    resizeMode="cover"
-                  />
-                )}
-              </TouchableOpacity>
-            )}
-            keyExtractor={item => item.id}
-          />
-        )}
-        {get_user_post_api.data?.data.length == 0 && (
-          <View
-            style={{
-              height: '100%',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Feather name="camera" size={50} />
-              <Text style={{ marginTop: 0, fontSize: 16 }}>No post to show</Text>
-            </View>
-          </View>
-        )}
-        {/* {get_user_post_api.loading && (
-          <View style={styles.loader}>
-            <ActivityIndicator size="small" color="#388aeb" />
-          </View>
-        )} */}
-      </View>
-    );
-  }
-
-  function Videos({ navigation }) {
-    let arrVid = [];
-
-    get_user_post_api.data?.data.map(i => {
-      if (i.post.split('.').reverse()[0] == 'MP4') {
-        arrVid.push(i.post);
-      }
-    });
-
-    return (
-      <View style={{ flex: 1, backgroundColor: '#e3eefb' }}>
-        {get_user_post_api.data && (
-          <FlatList
-            numColumns={3}
-            data={get_user_post_api.data?.data}
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('SinglePost', {
-                    post_id: item.id,
-                    user_id: item.user_id,
-                    cmp_id: item.cmp_id,
-                  })
-                }
-                style={{
-                  borderWidth: 1,
-                  // borderLeftWidth: index % 2 == 0 ? 0 : 0,
-                  borderColor: 'white',
-                }}>
-                {item.post.split('.').reverse()[0] == 'MP4' && (
-                  <Image
-                    style={{
-                      width: width / 3,
-                      height: width / 3,
-                      resizeMode: 'stretch',
-                    }}
-                    source={require('../../images/movie-player.png')}
-                  />
-                )}
-              </TouchableOpacity>
-            )}
-            keyExtractor={item => item.id}
-          />
-        )}
-        {arrVid.length == 0 && get_user_post_api.data?.data.length > 0 && (
-          <View
-            style={{
-              height: '100%',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Feather
-                name="video"
-                size={50}
-                onPress={() => handleExpandPress()}
-              />
-              <Text style={{ marginTop: 0, fontSize: 16 }}>
-                No Videos to show
-              </Text>
-            </View>
-          </View>
-        )}
-        {get_user_post_api.data?.data.length == 0 && (
-          <View
-            style={{
-              height: '100%',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Feather name="camera" size={50} />
-              <Text style={{ marginTop: 0, fontSize: 16 }}>No post to show</Text>
-            </View>
-          </View>
-        )}
-      </View>
-    );
-  }
 
   const renderPlaceholder = () => {
     return (
@@ -607,81 +361,16 @@ const Profile = ({ navigation }) => {
     );
   };
 
-  const selectFile = async () => {
-    // Opening Document Picker to select one file
-    try {
-      const res = await DocumentPicker.pick({
-        // Provide which type of file you want user to pick
-        type: [DocumentPicker.types.allFiles],
-      });
-      console.log('res--->', res);
-      setSingleFile(res);
-      setshowUpdateModal(false);
-      // setModalVisibleImgUp(!modalVisibleImgUp);
-    } catch (err) {
-      setSingleFile(null);
-      // Handling any exception (If any)
-      if (DocumentPicker.isCancel(err)) {
-        // If user canceled the document selection
-        alert('Canceled');
-      } else {
-        // For Unknown Error
-        alert('Unknown Error: ' + JSON.stringify(err));
-        throw err;
-      }
-    }
-  };
+ 
 
-  const uploadPost = async () => {
-    setuploading(true);
-    const token = await AsyncStorage.getItem('Token');
-    // Check if any file is selected or not
-    if (singleFile != null) {
-      // If file selected then create FormData
-      const fileToUpload = singleFile;
-      // console.log('fileToUpload->', fileToUpload[0]);
-      const data = new FormData();
-      data.append('user_id', user.userid);
-      data.append('post', fileToUpload[0]);
-      data.append('title', caption);
-      data.append('cmp_id', user.company_id);
-      // Please change file upload URL
-      let res = await fetch(`${apiUrl}/api/add_user_post`, {
-        method: 'post',
-        body: data,
-        headers: {
-          'Content-Type': 'multipart/form-data; ',
-          Token: token,
-        },
-      });
-
-      let responseJson = await res;
-      // console.log('POST--->', responseJson);
-      if (responseJson.status == 200) {
-        setuploading(false);
-        alert('Uploaded Successfully');
-        setModalVisibleImgUp(false);
-        setSingleFile(null);
-        setcaption('');
-        handleClosePress();
-        navigation.navigate('Post', { screen: 'Post' });
-      } else {
-        setuploading(false);
-        // alert(responseJson.message);
-      }
-    } else {
-      setuploading(false);
-      // If no file selected the show alert
-      alert('add image');
-    }
-  };
-
+  
   if (Userdata == null) {
     return <Reload />
   }
 
   return (
     <>
+    <Root>
       {loading && renderPlaceholder()}
       {!loading && (
         <PullToRefresh
@@ -905,6 +594,7 @@ const Profile = ({ navigation }) => {
           </Tab.Navigator>
         </View>
       )} */}
+      </Root>
     </>
   );
 };

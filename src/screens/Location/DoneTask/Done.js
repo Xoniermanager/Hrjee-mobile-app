@@ -13,7 +13,9 @@ import {
   responsiveHeight,
   responsiveScreenWidth,
   responsiveWidth,
+  
 } from 'react-native-responsive-dimensions';
+
 import Themes from '../PendingTask/Pending';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../reusable/apiUrl';
@@ -21,6 +23,7 @@ import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Reload from '../../../../Reload';
+// import { Root, Popup } from 'popup-ui'
 
 const Done = ({navigation}) => {
   const theme = useColorScheme();
@@ -56,10 +59,10 @@ const Done = ({navigation}) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+     
         setloading(false);
         if (error.response.status == '401') {
-          alert(error.response.data.msg);
+      
           AsyncStorage.removeItem('Token');
           AsyncStorage.removeItem('UserData');
           AsyncStorage.removeItem('UserLocation');

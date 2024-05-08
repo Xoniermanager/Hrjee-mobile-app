@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../reusable/apiUrl';
 import axios from 'axios';
 import Empty from '../../../reusable/Empty';
+import { Root, Popup } from 'popup-ui'
 
 const Policies = ({navigation}) => {
   const [loading, setloading] = useState(true);
@@ -52,21 +53,29 @@ const Policies = ({navigation}) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+        
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
 
   return (
     <View style={{flex: 1, padding: 15, backgroundColor: 'white'}}>
+      <Root>
+     
       {loading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <ActivityIndicator size="small" color="#388aeb" />
@@ -86,6 +95,8 @@ const Policies = ({navigation}) => {
         ))
       )}
       {policies.length == 0 && loading == false && <Empty />}
+         
+      </Root>
     </View>
   );
 };

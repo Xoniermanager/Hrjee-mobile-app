@@ -19,6 +19,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 
 const Notifications = ({navigation}) => {
@@ -50,21 +51,43 @@ const Notifications = ({navigation}) => {
             setnotifications(response.data.data);
             response.data.data.length < 1 ? setempty(true) : setempty(false);
           } catch (e) {
-            alert(e);
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:e,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
+          
           }
         } else {
-          alert(response.data.message);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          });
+          
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+        
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -76,6 +99,9 @@ const Notifications = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
+      <Root>
+
+    
       {empty ? (
         <View
           style={{
@@ -146,6 +172,7 @@ const Notifications = ({navigation}) => {
           </Text>
         </TouchableOpacity> */}
       </View>
+      </Root>
     </View>
   );
 };

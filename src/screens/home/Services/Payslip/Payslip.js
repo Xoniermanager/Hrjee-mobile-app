@@ -18,6 +18,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Empty from '../../../../reusable/Empty';
 import Themes from '../../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 const Payslip = ({navigation}) => {
   const theme = useColorScheme();
@@ -78,11 +79,17 @@ const Payslip = ({navigation}) => {
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       
       });
@@ -95,6 +102,9 @@ const Payslip = ({navigation}) => {
 console.log(payslip,'payslip')
   return (
     <>
+    <Root>
+
+    
       {payslip && payslip?.length == 0 && !loading && <Empty />}
 
       {payslip?.length > 0 && (
@@ -142,6 +152,7 @@ console.log(payslip,'payslip')
           <ActivityIndicator size="small" color="#388aeb" />
         </View>
       )}
+      </Root>
     </>
   );
 };

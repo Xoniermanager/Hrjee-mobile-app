@@ -19,6 +19,7 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
+import { Root, Popup } from 'popup-ui'
 
 import Themes from '../../Theme/Theme';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
@@ -90,14 +91,20 @@ const AddPRM = ({ navigation }) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+        
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   }
@@ -129,7 +136,7 @@ const AddPRM = ({ navigation }) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+      
         setloading(false)
         AsyncStorage.removeItem('Token');
         AsyncStorage.removeItem('UserData');
@@ -163,15 +170,21 @@ const AddPRM = ({ navigation }) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
     }
@@ -189,6 +202,9 @@ const AddPRM = ({ navigation }) => {
     <SafeAreaView style={
       styles.container
     }>
+      <Root>
+
+   
       <ScrollView style={{
         backgroundColor:
           '#fff'
@@ -331,6 +347,7 @@ const AddPRM = ({ navigation }) => {
           }}
         />
       </ScrollView>
+      </Root>
     </SafeAreaView>
   );
 };
@@ -577,7 +594,7 @@ const styles = StyleSheet.create({
   //     })
   //     .catch(error => {
 
-  //       alert(error.request._response);
+  //     
   //     });
   // }
   // useEffect(() => {

@@ -16,6 +16,7 @@ import apiUrl from '../../../../src/reusable/apiUrl';
 import axios from 'axios';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 
 const News = ({ navigation }) => {
@@ -89,15 +90,21 @@ const News = ({ navigation }) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+        
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -109,6 +116,8 @@ const News = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
+      <Root>
+    
       {news.length == 0 && loading == false ? (
         <Empty onPress={() => navigation.navigate('home')} />
       ) : loading === false ? (
@@ -160,6 +169,8 @@ const News = ({ navigation }) => {
           <ActivityIndicator size="small" color="#388aeb" />
         </View>
       )}
+          
+          </Root>
     </View>
   );
 };

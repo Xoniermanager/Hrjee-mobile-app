@@ -14,6 +14,7 @@ import DocumentPicker from 'react-native-document-picker'
 import GetLocation from 'react-native-get-location';
 import Reload from '../../../../Reload';
 import { useNavigation } from '@react-navigation/native';
+import { Root, Popup } from 'popup-ui'
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -149,11 +150,11 @@ const Processing = () => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+      
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
+    
         AsyncStorage.removeItem('Token');
         AsyncStorage.removeItem('UserData');
         AsyncStorage.removeItem('UserLocation');
@@ -228,24 +229,41 @@ const Processing = () => {
                     else {
                       // console.log(response?.data, 'yashu')
                       setModalVisible1(false)
-                      alert(response?.data?.message)
+                      Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:response?.data?.message,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide()]
+                      })
+                 
                     }
 
                   })
                   .catch(error => {
-                    // alert(error.request._response);
+                  
                     setloading1(false)
-                    AsyncStorage.removeItem('Token');
-                    AsyncStorage.removeItem('UserData');
-                    AsyncStorage.removeItem('UserLocation');
-                   navigation.navigate('Login');
+                    if (error.response.status == '401') {
+                      Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:error.response.data.msg,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                        AsyncStorage.removeItem('UserData'),
+                        AsyncStorage.removeItem('UserLocation'),
+                       navigation.navigate('Login')]
+                      });
+                    }
                   });
               }
             })
 
             .catch(error => {
               const { code, message } = error;
-              //alert('fadsfsdaf');
+              
               Alert.alert(code, message);
               setModalVisible1(!modalVisible1)
               setRemart('')
@@ -260,22 +278,35 @@ const Processing = () => {
           setCameramodal('')
           setCameramodal1('')
           setDocmodal('')
-          Alert.alert('Location permission denied');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:'Location permission denied',
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          })
+         
           setloading1(false);
 
         }
 
       }
       catch (error) {
-        // alert(err.request._response);
+       
         setloading1(false);
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+        if (error.response.status == '401') {
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       }
     }
@@ -333,34 +364,52 @@ const Processing = () => {
               else {
                 // console.log(response?.data, 'yashu')
                 setModalVisible1(false)
-                alert(response?.data?.message)
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody:response?.data?.message,
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide()]
+                })
+             
               }
 
             })
             .catch(error => {
-              // alert(error.request._response);
+             
               setloading1(false)
-              if(error.response.status=='401')
-              {
-            alert(error.response.data.msg)
-              AsyncStorage.removeItem('Token');
-              AsyncStorage.removeItem('UserData');
-              AsyncStorage.removeItem('UserLocation');
-             navigation.navigate('Login');
+              if (error.response.status == '401') {
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody:error.response.data.msg,
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                  AsyncStorage.removeItem('UserData'),
+                  AsyncStorage.removeItem('UserLocation'),
+                 navigation.navigate('Login')]
+                });
               }
             });
         }
       }
       catch (error) {
-        // alert(err.request._response);
+      
         setloading1(false);
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+        if (error.response.status == '401') {
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       }
     }
@@ -903,7 +952,15 @@ const Processing = () => {
                         transparent={true}
                         visible={modalVisible1}
                         onRequestClose={() => {
-                          Alert.alert('screen has been closed.');
+                          Popup.show({
+                            type: 'Warning',
+                            title: 'Warning',
+                            button: true,
+                            textBody:'screen has been closed.',
+                            buttonText: 'Ok',
+                            callback: () => [Popup.hide()]
+                          })
+                        
                           setModalVisible1(!modalVisible1);
                         }}
                       >

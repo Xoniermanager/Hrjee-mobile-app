@@ -13,7 +13,10 @@ import {
   Alert,
   ActivityIndicator,
   Linking, Pressable, useColorScheme, BackHandler
+  
 } from 'react-native';
+import { Root, Popup } from 'popup-ui'
+
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -205,7 +208,7 @@ function CustomDrawerContent(props) {
               salary: `${response.data.data.total_salary}`,
             });
 
-            console.log('response', response?.data);
+          
 
             var profilePath = response?.data?.data?.image;
             setPhotoPath(profilePath);
@@ -217,26 +220,11 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+
         setloading(false)
-        
-
-
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-      AsyncStorage.removeItem('Token');
-      AsyncStorage.removeItem('UserData');
-      AsyncStorage.removeItem('UserLocation');
-     props.navigation.navigate('Login');
-        }
       });
   };
-  useEffect(() => {
-    get_employee_detail()
-    aboutUs()
-
-  }, [])
+ 
   const get_address = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -257,15 +245,6 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        // alert(error?.request._response);
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-      AsyncStorage.removeItem('Token');
-      AsyncStorage.removeItem('UserData');
-      AsyncStorage.removeItem('UserLocation');
-     props.navigation.navigate('Login');
-        }
       });
   };
   const add_address = async () => {
@@ -300,31 +279,50 @@ function CustomDrawerContent(props) {
                 setshowInput(false);
                 Toast.show('Address added successfully, wait for admin approval');
               } catch (e) {
-                alert(e);
+               
               }
             } else if (response.data.status == 2) {
               setloading(false);
-              alert(response.data.msg);
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:response.data.msg,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              });
+           
             } else {
-              alert(response.data.msg);
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:response.data.msg,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              });
             }
           })
           .catch(error => {
-            // alert(error.request._response);
+          
             setloading(false)
             if(error.response.status=='401')
             {
-          alert(error.response.data.msg)
-          AsyncStorage.removeItem('Token');
-          AsyncStorage.removeItem('UserData');
-          AsyncStorage.removeItem('UserLocation');
-         props.navigation.navigate('Login');
+          
             }
           });
       })
       .catch(error => {
         const { code, message } = error;
-        alert(code, message);
+     
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:message,
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        });
         setloading(false)
       });
   };
@@ -365,66 +363,29 @@ function CustomDrawerContent(props) {
         setloading(false);
         setModalVisible(!modalVisible);
         get_employee_detail();
-        alert(response?.msg)
+      
+        Popup.show({
+          type: 'Success',
+          title: 'Success',
+          button: true,
+          textBody:response?.msg,
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        });
       })
       .catch(err => {
         setloading(false);
-        // alert(err.request._response)
-        if(error.response.status=='401')
+       
+        if(err.response.status=='401')
         {
-      alert(error.response.data.msg)
-      AsyncStorage.removeItem('Token');
-      AsyncStorage.removeItem('UserData');
-      AsyncStorage.removeItem('UserLocation');
-     props.navigation.navigate('Login');
+    
+     
         }
       });
   }
 
 
-  const delete_address = async id => {
-    setloading(true);
-    const token = await AsyncStorage.getItem('Token');
-    const config = {
-      headers: { Token: token },
-    };
-    const body = {
-      location_id: id,
-    };
-
-    // console.log('first--', body);
-
-    axios
-      .post(`${apiUrl}/api/delete_location`, body, config)
-      .then(response => {
-        if (response.data.status == 1) {
-          setloading(false);
-          try {
-            alert(response.data.msg);
-            get_address();
-          } catch (e) {
-            alert(e);
-          }
-        } else if (response.data.status == 2) {
-          setloading(false);
-          alert(response.data.msg);
-        } else {
-          alert(response.data.msg);
-        }
-      })
-      .catch(error => {
-        // alert(error.request._response);
-        setloading(false)
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-      AsyncStorage.removeItem('Token');
-      AsyncStorage.removeItem('UserData');
-      AsyncStorage.removeItem('UserLocation');
-     props.navigation.navigate('Login');
-        }
-      });
-  };
+ 
 
   const update_address = async id => {
     setloading(true);
@@ -457,36 +418,62 @@ function CustomDrawerContent(props) {
               try {
                 setaddressTitle('');
                 setaddress('');
-                alert(response.data.msg);
+                Popup.show({
+                  type: 'Success',
+                  title: 'Success',
+                  button: true,
+                  textBody:response.data.msg,
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide()]
+                });
                 get_address();
                 setshowInput(false);
               } catch (e) {
-                alert(e);
+               
               }
             } else if (response.data.status == 2) {
               setloading(false);
-              alert(response.data.msg);
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:response.data.msg,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              });
             } else {
-              alert(response.data.msg);
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:response.data.msg,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              });
             }
           })
           .catch(error => {
-            // alert(error.request._response);
+            
             setloading(false)
             if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-      AsyncStorage.removeItem('Token');
-      AsyncStorage.removeItem('UserData');
-      AsyncStorage.removeItem('UserLocation');
-     props.navigation.navigate('Login');
+    
+    
         }
           });
       })
       .catch(error => {
         setloading(false);
         const { code, message } = error;
-        alert(code, message);
+     
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:message,
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        });
       });
   };
 
@@ -504,26 +491,44 @@ function CustomDrawerContent(props) {
       .then(response => {
         if (response.data.status == 1) {
           try {
-            alert(response.data.msg);
+            Popup.show({
+              type: 'Success',
+              title: 'Success',
+              button: true,
+              textBody:response.data.msg,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
             get_address();
           } catch (e) {
-            alert(e);
+         
           }
         } else if (response.data.status == 2) {
-          alert(response.data.msg);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          });
         } else {
-          alert(response.data.msg);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          });
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-      AsyncStorage.removeItem('Token');
-      AsyncStorage.removeItem('UserData');
-      AsyncStorage.removeItem('UserLocation');
-     props.navigation.navigate('Login');
+     
+      
         }
       });
   };
@@ -555,15 +560,8 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-      AsyncStorage.removeItem('Token');
-      AsyncStorage.removeItem('UserData');
-      AsyncStorage.removeItem('UserLocation');
-     props.navigation.navigate('Login');
-        }
+        
+       console.log(error)
       });
   };
 
@@ -571,6 +569,7 @@ function CustomDrawerContent(props) {
     if (show == 'PersonalDetails') {
       return (
         <>
+      
           <View style={{ marginHorizontal: 10 }}>
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               <View style={{ position: 'relative' }} >
@@ -1079,6 +1078,8 @@ function CustomDrawerContent(props) {
 
   return (
     <View style={{ flex: 1, }}>
+       <Root>
+          
       <DrawerContentScrollView {...props}>
         <ImageBackground
           source={require('../src/images/drawer-bg-img.webp')}
@@ -1223,6 +1224,8 @@ function CustomDrawerContent(props) {
           </View>
         </View>
       </Modal>
+      </Root>
+
     </View>
   );
 }

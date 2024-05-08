@@ -15,6 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { EssContext } from '../../../../../Context/EssContext';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Themes from '../../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 
 const LeaveDetails = ({ navigation, route }) => {
@@ -54,22 +55,36 @@ const LeaveDetails = ({ navigation, route }) => {
             setleaveDetails(response.data.data);
             setapprovalHist(response.data.data.approval_history);
           } catch (e) {
-            alert(e);
+           
           }
         } else {
-          alert(response.data.message);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          })
+     
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+      
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -99,25 +114,46 @@ const LeaveDetails = ({ navigation, route }) => {
           // console.log('response', response.data);
           if (response.data.status == 1) {
             try {
-              alert(response.data.message);
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:response.data.message,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              })
+             
               navigation.goBack();
             } catch (e) {
-              alert(e);
+              
             }
           } else {
-            alert(response.data.message);
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:response.data.message,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            })
           }
         })
         .catch(error => {
-          // alert(error.request._response);
+         
           setloading(false)
           if(error.response.status=='401')
           {
-        alert(error.response.data.msg)
-          AsyncStorage.removeItem('Token');
-          AsyncStorage.removeItem('UserData');
-          AsyncStorage.removeItem('UserLocation');
-         navigation.navigate('Login');
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:error.response.data.msg,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+              AsyncStorage.removeItem('UserData'),
+              AsyncStorage.removeItem('UserLocation'),
+             navigation.navigate('Login')]
+            });
           }
         })
       : null;
@@ -125,6 +161,8 @@ const LeaveDetails = ({ navigation, route }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#e3eefb' }}>
+      <Root>
+    
       {leaveDetails ? (
         <>
           <PullToRefresh onRefresh={handleRefresh}>
@@ -366,6 +404,8 @@ const LeaveDetails = ({ navigation, route }) => {
           <ActivityIndicator size="small" color="#0043ae" />
         </View>
       )}
+          
+          </Root>
     </View>
   );
 };

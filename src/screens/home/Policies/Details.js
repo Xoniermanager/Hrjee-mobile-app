@@ -18,6 +18,7 @@ import apiUrl from '../../../reusable/apiUrl';
 import axios from 'axios';
 import GlobalStyle from '../../../reusable/GlobalStyle';
 import PullToRefresh from '../../../reusable/PullToRefresh';
+import { Root, Popup } from 'popup-ui'
 
 const Details = ({navigation, route}) => {
   const [loading, setloading] = useState(true);
@@ -79,23 +80,45 @@ const Details = ({navigation, route}) => {
             setpolicyDetail(response.data.data);
           } catch (e) {
             setloading(false);
-            alert(e);
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:e,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
+            
           }
         } else {
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:'some error occured',
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          });
           setloading(false);
-          alert('some error occured');
+       
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+        
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -125,7 +148,14 @@ const Details = ({navigation, route}) => {
     } else {
       policyDetail.attacnment.includes('http')
         ? Linking.openURL(policyDetail.attacnment)
-        : alert('empty url');
+        :     Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:'empty url',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        });
     }
   };
 
@@ -136,6 +166,8 @@ const Details = ({navigation, route}) => {
 
   return (
     <View style={{flex: 1, padding: 10, backgroundColor: 'white'}}>
+      <Root>
+    
       {loading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <ActivityIndicator size="small" color="#388aeb" />
@@ -195,6 +227,8 @@ const Details = ({navigation, route}) => {
       ) : (
         <Text>No data found</Text>
       )}
+          
+          </Root>
     </View>
   );
 };

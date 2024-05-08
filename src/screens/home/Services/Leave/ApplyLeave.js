@@ -23,6 +23,7 @@ import { EssContext } from '../../../../../Context/EssContext';
 import { moderateScale } from 'react-native-size-matters';
 import Themes from '../../../../Theme/Theme';
 import Reload from '../../../../../Reload';
+import { Root, Popup } from 'popup-ui'
 
 const ApplyLeave = ({ navigation }) => {
   const theme = useColorScheme();
@@ -68,19 +69,33 @@ const ApplyLeave = ({ navigation }) => {
           setleaveType(response?.data?.data)
         } else {
           setloading(false);
-          alert('message-->', response.data.message);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          })
+        
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -161,16 +176,32 @@ const ApplyLeave = ({ navigation }) => {
 
         if (response.data.status == 1) {
           try {
-            alert(response.data.message);
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:response.data.message,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            })
+           
             navigation.navigate('Applied Leaves');
             console.log("Submit data.............", response?.data)
           } catch (e) {
             setloading(false);
-            alert(e);
+        
           }
         } else {
           setloading(false);
-          alert(response.data.message);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          })
+         
         }
       })
       .catch(function (error) {
@@ -178,30 +209,67 @@ const ApplyLeave = ({ navigation }) => {
         setloading(false);
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
+
+
 
   const checkEmptyField = () => {
     if (value !== null && name !== null && phone !== null && address !== null) {
       return apply_leave();
     } else {
       if (value == null) {
-        return alert('please select leave type');
+        return   Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:'please select leave type',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
       }
       if (name == null) {
-        return alert('please enter emergency name');
+        return   Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:'please enter emergency name',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
       }
       if (phone == null) {
-        return alert('please enter emergency contact number');
+        return   Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:'please enter emergency contact number',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
       }
       if (address == null) {
-        return alert('please enter emergency address');
+      
+        return   Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:'please enter emergency address',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
       }
     }
   };
@@ -211,6 +279,7 @@ const ApplyLeave = ({ navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: 'white', padding: 18 }}>
       <SafeAreaView>
+        <Root>
       <ScrollView>
         <View>
           <Text style={styles.input_title}>Leave Type</Text>
@@ -489,6 +558,7 @@ const ApplyLeave = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </Root>
       </SafeAreaView>
     </View>
   );

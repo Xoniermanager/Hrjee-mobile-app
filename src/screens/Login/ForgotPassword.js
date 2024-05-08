@@ -14,6 +14,7 @@ import GlobalStyle from '../../reusable/GlobalStyle';
 import axios from 'axios';
 import apiUrl from '../../reusable/apiUrl';
 import Themes from '../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 
 const ForgotPassword = ({ navigation }) => {
@@ -25,6 +26,9 @@ const ForgotPassword = ({ navigation }) => {
 
   const resetPassword = () => {
     setloading(true);
+    const data={
+      email:email
+    }
     if ((email == '')) {
       setEmailError("Please enter email");
       setloading(false);
@@ -35,29 +39,96 @@ const ForgotPassword = ({ navigation }) => {
       setEmailError("Please enter valid email");
     }
     else {
-      axios
-        .post(`${apiUrl}users/reset_password`, {
-          email: email,
-        })
-        .then(response => {
-          setloading(false);
-          if (response.data.status === 1) {
-            alert(response?.data?.message)
-            navigation.navigate('Login')
-          }
-          else {
-            alert(response?.data?.message)
-          }
-        })
-        .catch(error => {
-          alert(error.request._response);
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://app.hrjee.com/users/reset_password',
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Cookie': 'ci_session=ngc399claf516efh767kho1ldnmsf952'
+        },
+        data : data
+      };
+      
+      axios.request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        if (response.data.status== 1) {
+          Popup.show({
+            type: 'Success',
+            title: 'Success',
+            button: true,
+            textBody:response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(), navigation.navigate('Login')]
+          })
+        }
+        else if (response.data.status== 0){
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(), navigation.navigate('Login')]
+          })
+        }
+       
+      })
+      .catch((error) => {
+        console.log(error);
+         Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          })
+          console.log(error)
           setloading(false)
-        });
+      });
+      // axios
+      //   .post(`${apiUrl}users/reset_password`, {
+      //     data,
+      //   })
+      //   .then(response => {
+      //     console.log(response,'response')
+      //     setloading(false);
+      //     if (response.data.status== 1) {
+          //     Popup.show({
+          //   type: 'Success',
+          //   title: 'Success',
+          //   button: true,
+          //   textBody:error.response.data.message,
+          //   buttonText: 'Ok',
+          //   callback: () => [Popup.hide(), navigation.navigate('Login')]
+          // })
+           
+      //     }
+      //     else {
+      //       alert(response?.data?.message)
+      //     }
+      //   })
+      //   .catch(error => {
+          // // Popup.show({
+          // //   type: 'Warning',
+          // //   title: 'Warning',
+          // //   button: true,
+          // //   textBody:error.response.data.message,
+          // //   buttonText: 'Ok',
+          // //   callback: () => [Popup.hide()]
+          // // })
+          // console.log(error)
+          // setloading(false)
+      //   });
     }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
+      <Root>
+      
       <View style={{ padding: 25 }}>
         <View style={{ marginTop: 0 }}>
           <Text style={[{ fontSize: 22, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
@@ -123,6 +194,8 @@ const ForgotPassword = ({ navigation }) => {
           </View>
         </View>
       </View>
+        
+      </Root>
     </SafeAreaView>
   );
 };

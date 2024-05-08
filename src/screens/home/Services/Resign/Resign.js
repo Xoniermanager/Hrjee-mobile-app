@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import apiUrl from '../../../../reusable/apiUrl';
 import Themes from '../Resign/Resign';
+import { Root, Popup } from 'popup-ui'
+import { useNavigation } from '@react-navigation/core';
 
 
 const Resign = () => {
@@ -18,7 +20,8 @@ const Resign = () => {
     const [resigndata, setResignData] = useState('');
     const [loading, setloading] = useState(false);
 
-    const resign = async ({ navigation }) => {
+    const resign = async () => {
+        const navigation=useNavigation()
         const token = await AsyncStorage.getItem('Token');
         const config = {
             headers: { Token: token },
@@ -30,7 +33,15 @@ const Resign = () => {
         setloading(true);
 
         if (resignin == '') {
-            alert('Please enter resion')
+            Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:'Please enter resion',
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              })
+           
             setloading(false);
         } else {
             axios
@@ -41,27 +52,41 @@ const Resign = () => {
                             setloading(false);
                             console.log("resigning.............................", response?.data?.message)
                             setResignData(response?.data)
-                            alert(response?.data?.message)
+                           
                             navigation.navigate('Home')
                         } catch (e) {
                             setloading(false);
-                            alert(e);
+                           
                         }
                     } else {
                         setloading(false);
-                        alert(response?.data?.message)
+                        Popup.show({
+                            type: 'Warning',
+                            title: 'Warning',
+                            button: true,
+                            textBody:response?.data?.message,
+                            buttonText: 'Ok',
+                            callback: () => [Popup.hide()]
+                          })
+                       
                     }
                 })
                 .catch(error => {
-                    // alert(error.request._response);
+                    
                     setloading(false)
                     if(error.response.status=='401')
                     {
-                  alert(error.response.data.msg)
-                    AsyncStorage.removeItem('Token');
-                    AsyncStorage.removeItem('UserData');
-                    AsyncStorage.removeItem('UserLocation');
-                   navigation.navigate('Login');
+                        Popup.show({
+                            type: 'Warning',
+                            title: 'Warning',
+                            button: true,
+                            textBody:error.response.data.msg,
+                            buttonText: 'Ok',
+                            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                            AsyncStorage.removeItem('UserData'),
+                            AsyncStorage.removeItem('UserLocation'),
+                           navigation.navigate('Login')]
+                          });
                     }
                 });
         }
@@ -69,6 +94,8 @@ const Resign = () => {
 
     return (
         <SafeAreaView style={{flex: 1,}}>
+            <Root>
+          
             <View style={styles.container}>
                 <Image style={{ width: 100, height: 100, resizeMode: "contain", alignSelf: "center", marginVertical: 20 }}
                     source={require('../../../../images/resigned.png')}
@@ -99,6 +126,8 @@ const Resign = () => {
                     {/* <Text style={{color:"red", fontSize:18}}>Rejected</Text> */}
                 </View>
             </View>
+                  
+            </Root>
         </SafeAreaView>
     )
 }

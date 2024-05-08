@@ -32,7 +32,7 @@ const Main = () => {
   const [prmData, setPrmData] = useState()
 
   const company_id = async () => {
-    setloading(true);
+ 
     const userData = await AsyncStorage.getItem('UserData');
     const userInfo = JSON.parse(userData);
     let company_id = userInfo?.company_id;

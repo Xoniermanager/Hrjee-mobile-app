@@ -10,6 +10,7 @@ import {
   ScrollView,
   useColorScheme, Linking, Platform, Alert
 } from 'react-native';
+import { Root, Popup } from 'popup-ui'
 import React, { useState, useContext, useEffect } from 'react';
 import GlobalStyle from '../../reusable/GlobalStyle';
 // import { Linking } from 'react-native';
@@ -48,16 +49,43 @@ const Login = () => {
         device_id: fcmtoken,
       })
       .then(response => {
-        console.log(response?.data, 'lfknjkll')
         if (response?.data?.status == 1) {
           if (response?.data?.data?.login_type === 'web') {
-            alert('You are not authorized to use mobile application. Kindly contact admin!')
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(),],
+            });
+            setloading(false);
+          }
+          else if (response?.data?.data?.login_type === null) {
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(),],
+            });
+            // alert('You are not authorized to use mobile application. Kindly contact admin!')
             setloading(false);
           }
           else if (response?.data?.data?.block == 1) {
-            alert('You have been blocked, Please contact your admin department!')
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(),],
+            });
+            // alert('You have been blocked, Please contact your admin department!')
             setloading(false);
           }
+         
           else {
             try {
               setloading(false);
@@ -79,7 +107,7 @@ const Login = () => {
               let options = []
               response?.data?.menu_access?.map((item) => {
                 if (item.menu_name.includes("News Management")) {
-                  console.log("news is ")
+                 
                   options.push({
                     id: 2,
                     name: 'News',
@@ -87,7 +115,7 @@ const Login = () => {
                     moveTo: 'News',
                   })
                 } else if (item.menu_name.includes("Training Management")) {
-                  console.log("training is ")
+                  
                   options.push({
                     id: 6,
                     name: 'Training',
@@ -113,12 +141,28 @@ const Login = () => {
           }
 
         } else {
-          alert('Please enter correct credentials');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody: 'Please enter correct credentials!',
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),],
+          });
+          // alert('Please enter correct credentials');
           setloading(false);
         }
       })
       .catch(error => {
-        alert(error.response.data.message);
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:error.response.data.message,
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
+      
         setloading(false)
       });
   };
@@ -136,6 +180,7 @@ const Login = () => {
   const phoneNumber = '8989777878';
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+         <Root>
       <ScrollView>
         <View style={{ padding: 30 }}>
           <View style={{ marginTop: 5 }}>
@@ -218,6 +263,7 @@ const Login = () => {
           </View>
         </View>
       </ScrollView>
+      </Root>
     </SafeAreaView>
   );
 };

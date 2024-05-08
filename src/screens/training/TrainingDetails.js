@@ -14,6 +14,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
+import { Root, Popup } from 'popup-ui'
 
 const TrainingDetails = ({ navigation, route }) => {
   const [loading, setloading] = useState(false);

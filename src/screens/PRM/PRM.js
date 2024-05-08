@@ -26,6 +26,8 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Reload from '../../../Reload';
+import { Root, Popup } from 'popup-ui'
+import Empty from '../../reusable/Empty';
 
 
 const PRM = () => {
@@ -56,15 +58,21 @@ const PRM = () => {
                 }
             })
             .catch(error => {
-                // alert(error.request._response);
+              
                 setloading(false)
                 if(error.response.status=='401')
                 {
-              alert(error.response.data.msg)
-                AsyncStorage.removeItem('Token');
-                AsyncStorage.removeItem('UserData');
-                AsyncStorage.removeItem('UserLocation');
-               navigation.navigate('Login');
+                    Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:error.response.data.msg,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                        AsyncStorage.removeItem('UserData'),
+                        AsyncStorage.removeItem('UserLocation'),
+                       navigation.navigate('Login')]
+                      });
                 }
             });
     }
@@ -101,15 +109,21 @@ const PRM = () => {
                 }
             })
             .catch(error => {
-                // alert(error.request._response);
+                
                 setloading(false)
                 if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+            Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:error.response.data.msg,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                AsyncStorage.removeItem('UserData'),
+                AsyncStorage.removeItem('UserLocation'),
+               navigation.navigate('Login')]
+              });
         }
             });
     }
@@ -135,16 +149,22 @@ const PRM = () => {
                 })
             })
             .catch(error => {
-                // alert(error);
+              
             
                 setloading(false)
                 if(error.response.status=='401')
                 {
-              alert(error.response.data.msg)
-                AsyncStorage.removeItem('Token');
-                AsyncStorage.removeItem('UserData');
-                AsyncStorage.removeItem('UserLocation');
-               navigation.navigate('Login');
+                    Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:error.response.data.msg,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                        AsyncStorage.removeItem('UserData'),
+                        AsyncStorage.removeItem('UserLocation'),
+                       navigation.navigate('Login')]
+                      });
                 }
             });
     }
@@ -154,7 +174,9 @@ const PRM = () => {
 
 
     return (
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+                <Root>
+               
                 <TouchableOpacity activeOpacity={0.8}
                     style={{
                         backgroundColor: '#0c57d0',
@@ -166,7 +188,7 @@ const PRM = () => {
                     <Text style={{ color: '#fff', fontWeight: "bold", textAlign: "center" }}>+ Add PRM</Text>
                 </TouchableOpacity>
                 {loading ? <ActivityIndicator size='large' color="#0043ae" /> : null}
-
+{prmdata?.length==0?<Empty />:null}
                 <FlatList
                     data={prmdata}
                     keyExtractor={(item, index) => `${item.key}${index}`}
@@ -307,6 +329,8 @@ const PRM = () => {
                             </View>
                         </View>}
                 />
+                     
+                     </Root>
             </ScrollView>
     );
 };
@@ -314,6 +338,8 @@ export default PRM;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor:'#fff'
+
     },
     Dashboard_Text: {
         color: '#37496E',

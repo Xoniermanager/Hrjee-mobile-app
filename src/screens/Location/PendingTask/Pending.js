@@ -15,6 +15,8 @@ import {
   responsiveHeight,
   responsiveScreenWidth,
 } from 'react-native-responsive-dimensions';
+import { Root, Popup } from 'popup-ui'
+
 import Themes from './Pending';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../reusable/apiUrl';
@@ -51,14 +53,20 @@ const Pending = ({ navigation }) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         setloading(false);
         if (error.response.status == '401') {
-          alert(error.response.data.msg);
-          AsyncStorage.removeItem('Token');
-          AsyncStorage.removeItem('UserData');
-          AsyncStorage.removeItem('UserLocation');
-          navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -84,13 +92,19 @@ const Pending = ({ navigation }) => {
         Toast.show('This task is under progress.');
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         if (error.response.status == '401') {
-          alert(error.response.data.msg);
-          AsyncStorage.removeItem('Token');
-          AsyncStorage.removeItem('UserData');
-          AsyncStorage.removeItem('UserLocation');
-          navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });;
         }
       });
   };
@@ -125,6 +139,9 @@ const Pending = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Root>
+
+     
       <PullToRefresh onRefresh={handleRefresh}>
         <View>
           {data?.length > 0 ? null : (
@@ -771,6 +788,7 @@ const Pending = ({ navigation }) => {
           </View>
         </Modal>
       </PullToRefresh>
+      </Root>
     </View>
   );
 };

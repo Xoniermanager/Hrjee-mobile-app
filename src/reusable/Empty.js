@@ -4,7 +4,7 @@ import GlobalStyle from './GlobalStyle';
 
 const Empty = ({navigation, onPress}) => {
   return (
-    <View style={{flex: 1, backgroundColor: 'white', padding: 15}}>
+    <View style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{alignItems: 'center'}}>
         <Image
           style={styles.tinyLogo}

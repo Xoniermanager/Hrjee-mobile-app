@@ -20,6 +20,7 @@ import moment from 'moment';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
+import { Root, Popup } from 'popup-ui'
 
 const SelectAttendence = () => {
   const theme = useColorScheme();
@@ -85,7 +86,15 @@ const SelectAttendence = () => {
 
     if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` > `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
       setloading(false);
-      alert('Till date should muast be greater than the From date ')
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody:'Till date should muast be greater than the From date ',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()]
+      })
+     
     } else {
       axios
         .post(`${apiUrl}/Api/attendance`, body, config)
@@ -97,25 +106,39 @@ const SelectAttendence = () => {
             try {
               setrecentLogs(response.data.content);
             } catch (e) {
-              alert(e);
+            
             }
           } else {
             setloading(false);
             setrecentLogs([]);
-            alert('attendence not found');
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:'attendence not found',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            })
+           
           }
         })
         .catch(error => {
-          // alert(error.request._response);
+        
        
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
         });
     }
@@ -144,23 +167,29 @@ const SelectAttendence = () => {
             console.log(response.data.content);
             setrecentLogs(response.data.content);
           } catch (e) {
-            alert(e);
+           
           }
         } else {
-          // alert(response.data.message);
+         
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
       
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -172,6 +201,7 @@ const SelectAttendence = () => {
 
   return (
     <View style={{ flex: 1, padding: 15, backgroundColor: 'white' }}>
+      <Root>
       <PullToRefresh onRefresh={handleRefresh}>
         <View>
           <Text style={styles.title}>Start Date</Text>
@@ -286,6 +316,7 @@ const SelectAttendence = () => {
           </View>
         </View>
       </PullToRefresh>
+      </Root>
     </View>
   );
 };

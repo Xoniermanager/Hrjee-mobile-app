@@ -13,7 +13,7 @@ import {
   RefreshControl,
   Alert,
   useColorScheme,
-  Platform
+  Platform,Modal
 } from 'react-native';
 import React, {
   useState,
@@ -22,6 +22,7 @@ import React, {
   useRef,
   useCallback,
 } from 'react';
+import { Root, Popup } from 'popup-ui'
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -45,11 +46,12 @@ const { width } = Dimensions.get('window');
 import Empty from '../../reusable/Empty';
 import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import Themes from '../../Theme/Theme';
+import { responsiveHeight } from 'react-native-responsive-dimensions';
 
 
 const Home = ({ navigation }) => {
   const theme = useColorScheme();
-
+  const [modalVisible, setModalVisible] = useState(false)
   const punchInApi = useApi2(attendence.punchIn);
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
@@ -163,8 +165,6 @@ const Home = ({ navigation }) => {
     React.useCallback(() => {
       getActiveLocation();
       check_punchIn();
-      get_training();
-      get_announcement();
       ProfileDetails();
       get_month_logs()
     }, []),
@@ -174,10 +174,9 @@ const Home = ({ navigation }) => {
     // Do something to refresh the data
     getActiveLocation();
     check_punchIn();
-    get_training();
-    get_announcement();
-    get_news();
     get_month_logs();
+    ProfileDetails();
+  
 
   };
 
@@ -189,85 +188,6 @@ const Home = ({ navigation }) => {
     const body = {};
     getActiveLocationApi.request(body, config);
   };
-
-  const get_training = async () => {
-    // setloading(true);
-    const token = await AsyncStorage.getItem('Token');
-    const config = {
-      headers: { Token: token },
-    };
-
-    const body = {};
-    // console.log('body1mon----->', body);
-    axios
-      .post(`${apiUrl}/api/download`, body, config)
-      .then(response => {
-        // console.log('response', response.data);
-        if (response.data.status == 1) {
-          setloading(false);
-          try {
-            // console.log(response.data.content);
-            settraining(response.data.content);
-          } catch (e) {
-            console.log(e);
-          }
-        } else {
-          console.log(response.data.message);
-        }
-      })
-      .catch(error => {
-        setloading(false);
-        // alert(error.request._response);
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
-        }
-      });
-  };
-
-  const get_announcement = async () => {
-    // setloading(true);
-    const token = await AsyncStorage.getItem('Token');
-    const config = {
-      headers: { Token: token },
-    };
-
-    const body = {};
-    // console.log('body1mon----->', body);
-    axios
-      .post(`${apiUrl}/api/announcement`, body, config)
-      .then(response => {
-        console.log('response.', response.data.status);
-        if (response.data.status == 1) {
-          setloading(false);
-          try {
-            // console.log(response.data.content);
-            setannouncements(response.data.content);
-          } catch (e) {
-            console.log(e);
-          }
-        } else {
-          console.log(response.data.message);
-        }
-      })
-      .catch(error => {
-        setloading(false);
-        // alert(error.request._response);
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
-        }
-      });
-  };
-
 
 
   const options = [
@@ -323,29 +243,6 @@ const Home = ({ navigation }) => {
 
   ];
 
-  // menuAccessData && menuAccessData?.map((item) => {
-  //   if (item.name.includes("News")) {
-  //     console.log("news is ")
-  //     options.push({
-  //       id: 2,
-  //       name: 'News',
-  //       location: require('../../images/news.png'),
-  //       moveTo: 'News',
-  //     })
-  //   } else if (item.name.includes("Training")) {
-  //     console.log("training is ")
-  //     options.push({
-  //       id: 6,
-  //       name: 'Training',
-  //       location: require('../../images/training.png'),
-  //       moveTo: 'Training',
-  //     })
-  //   }
-  //   return item;
-  // });
-
-  // console.log("options 2 => ", options);
-
   useEffect(() => {
     let interval = null;
 
@@ -379,7 +276,9 @@ const Home = ({ navigation }) => {
   }, [timerOn,]);
 
   const check_punchIn = async () => {
+    // setloading(true)
     get_month_logs()
+    setModalVisible(true)
     settimerOn(false);
     const token = await AsyncStorage.getItem('Token');
     const userData = await AsyncStorage.getItem('UserData');
@@ -389,12 +288,11 @@ const Home = ({ navigation }) => {
     const config = {
       headers: { Token: token },
     };
-    get_recent_logs();
+   
     const body = {};
     axios
       .post(`${apiUrl}/api/today_attendance`, body, config)
       .then(function (response) {
-        setloading(false);
         if (response.data.status == 1) {
           const data = response.data.data;
           if (data.in_time != '' && data.out_location_id == null) {
@@ -403,11 +301,15 @@ const Home = ({ navigation }) => {
             setlocationOut(data.out_location_id);
             settimerOn(true);
             setloading(false);
+    setModalVisible(false)
+
           } else {
             if (data.in_time != '' && data.out_location_id != '') {
               // after punch out
               setloading(false);
               setpunchIn(false);
+    setModalVisible(false)
+
               setinTime(data.in_time);
               setlocationOut(data.out_location_id);
               settimerOn(false);
@@ -434,21 +336,32 @@ const Home = ({ navigation }) => {
         } else {
           setloading(false);
           setinTime(null);
-          setlocationOut(null);
+    setModalVisible(false)
+    setlocationOut(null);
           setactivityTime(null);
           setloading(false);
         }
       })
       .catch(function (error) {
         setloading(false);
-        // alert(error.request._response);
+       
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
+     
+        
+    setModalVisible(false)
+
         }
       });
   };
@@ -520,38 +433,74 @@ const Home = ({ navigation }) => {
               }
             })
             .catch(function (error) {
-              // alert(error.request._response);
+            
               if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
             });
         } else {
           //console.log('dis=-----',dis);
           if (lat == null || lat == '') {
-            alert('Location not find');
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:'Location not find',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
+          
             setloading(false);
             return;
           } else if (long == null || long == '') {
-            alert('Location not find');
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:'Location not find',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
             setloading(false);
             return;
           } else if (
             activeLocation.latitude == null ||
             activeLocation.latitude == ''
           ) {
-            alert('Please set active location');
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:'Please set active location',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
+           
             setloading(false);
             return;
           } else if (
             activeLocation.longitude == null ||
             activeLocation.longitude == ''
           ) {
-            alert('Please set active location');
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:'Please set active location',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
             setloading(false);
             return;
           }
@@ -581,25 +530,47 @@ const Home = ({ navigation }) => {
                 console.log(error);
                 if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
               });
           } else {
-            alert('You are not in the radius');
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:'You are not in the radius',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
+           
             setloading(false);
           }
         }
-        get_recent_logs();
+     
 
       })
       .catch(error => {
         setloading(false);
         const { code, message } = error;
-        Alert.alert(code, message);
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:message,
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        });
+       
       });
   };
 
@@ -627,8 +598,6 @@ const Home = ({ navigation }) => {
               setloading(false);
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
-              //alert('dsfsdf',long);
-
               setcurrentLocation({
                 long: long,
                 lat: lat,
@@ -664,48 +633,90 @@ const Home = ({ navigation }) => {
                 axios
                   .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
                   .then(function (response) {
-                    //alert('punch in', response.data);
                     if (response.data.status == 1) {
                       check_punchIn();
+                      setloading(false)
                     } else {
-                      alert(response.data.message);
+                      Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:response.data.message,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide()]
+                      });
+                      
                       setloading(false);
                     }
                   })
                   .catch(function (error) {
                     setloading(false);
-                    // alert(error.request._response);
                     if(error.response.status=='401')
                     {
-                  alert(error.response.data.msg)
-                    AsyncStorage.removeItem('Token');
-                    AsyncStorage.removeItem('UserData');
-                    AsyncStorage.removeItem('UserLocation');
-                   navigation.navigate('Login');
+                      Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:error.response.data.msg,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                        AsyncStorage.removeItem('UserData'),
+                        AsyncStorage.removeItem('UserLocation'),
+                       navigation.navigate('Login')]
+                      });
                     }
                   });
               } else {
 
                 if (lat == null || lat == '') {
-                  alert('Location not find');
+                  Popup.show({
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody:'Location not find',
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()]
+                  });
+                 
                   setloading(false);
                   return;
                 } else if (long == null || long == '') {
-                  alert('Location not find');
+                  Popup.show({
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody:'Location not find',
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()]
+                  });
                   setloading(false);
                   return;
                 } else if (
                   activeLocation.latitude == null ||
                   activeLocation.latitude == ''
                 ) {
-                  alert('Please set active location');
+                  Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:'Please set active location',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
                   setloading(false);
                   return;
                 } else if (
                   activeLocation.longitude == null ||
                   activeLocation.longitude == ''
                 ) {
-                  alert('Please set active location');
+                  Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:'Please set active location',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
                   setloading(false);
                   return;
                 }
@@ -731,37 +742,76 @@ const Home = ({ navigation }) => {
                     .then(function (response) {
                       if (response.data.status == 1) {
                         check_punchIn();
+                        setloading(false)
                       } else {
-                        alert(response.data.message)
+                        Popup.show({
+                          type: 'Warning',
+                          title: 'Warning',
+                          button: true,
+                          textBody:response.data.message,
+                          buttonText: 'Ok',
+                          callback: () => [Popup.hide()]
+                        });
+                     
                         setloading(false);
                       }
                     })
                     .catch(function (error) {
                       setloading(false);
-                      // alert(error.request._response);
+                    
                       if(error.response.status=='401')
                       {
-                    alert(error.response.data.msg)
-                      AsyncStorage.removeItem('Token');
-                      AsyncStorage.removeItem('UserData');
-                      AsyncStorage.removeItem('UserLocation');
-                     navigation.navigate('Login');
+                        Popup.show({
+                          type: 'Warning',
+                          title: 'Warning',
+                          button: true,
+                          textBody:error.response.data.msg,
+                          buttonText: 'Ok',
+                          callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                          AsyncStorage.removeItem('UserData'),
+                          AsyncStorage.removeItem('UserLocation'),
+                         navigation.navigate('Login')]
+                        });
                       }
                     });
                 } else {
-                  alert('You are not in the radius');
+                  Popup.show({
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody:'You are not in the radius',
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()]
+                  });
+                
                   setloading(false);
                 }
               }
-              get_recent_logs();
+            
             })
             .catch(error => {
               const { code, message } = error;
-              Alert.alert(code, message);
+           
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:message,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              });
               setloading(false);
             });
         } else {
-          Alert.alert('Location permission denied');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:'Location permission denied',
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          });
+         
           setloading(false);
         }
       } catch (err) {
@@ -784,7 +834,7 @@ const Home = ({ navigation }) => {
             setloading(false);
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
-            //alert('dsfsdf',long);
+           
 
             setcurrentLocation({
               long: long,
@@ -821,48 +871,92 @@ const Home = ({ navigation }) => {
               axios
                 .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
                 .then(function (response) {
-                  //alert('punch in', response.data);
+                  
                   if (response.data.status == 1) {
                     check_punchIn();
                   } else {
-                    alert(response.data.message);
+                    Popup.show({
+                      type: 'Warning',
+                      title: 'Warning',
+                      button: true,
+                      textBody:response.data.message,
+                      buttonText: 'Ok',
+                      callback: () => [Popup.hide()]
+                    });
+                  
                     setloading(false);
                   }
                 })
                 .catch(function (error) {
                   setloading(false);
-                  // alert(error.request._response);
+               
                   if(error.response.status=='401')
                   {
-                alert(error.response.data.msg)
-                  AsyncStorage.removeItem('Token');
-                  AsyncStorage.removeItem('UserData');
-                  AsyncStorage.removeItem('UserLocation');
-                 navigation.navigate('Login');
+                    Popup.show({
+                      type: 'Warning',
+                      title: 'Warning',
+                      button: true,
+                      textBody:error.response.data.msg,
+                      buttonText: 'Ok',
+                      callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                      AsyncStorage.removeItem('UserData'),
+                      AsyncStorage.removeItem('UserLocation'),
+                     navigation.navigate('Login')]
+                    });
                   }
                 });
             } else {
 
               if (lat == null || lat == '') {
-                alert('Location not find');
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody:'Location not find',
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide()]
+                });
+             
                 setloading(false);
                 return;
               } else if (long == null || long == '') {
-                alert('Location not find');
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody:'Location not find',
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide()]
+                });
                 setloading(false);
                 return;
               } else if (
                 activeLocation.latitude == null ||
                 activeLocation.latitude == ''
               ) {
-                alert('Please set active location');
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody:'Please set active location',
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide()]
+                });
+                
                 setloading(false);
                 return;
               } else if (
                 activeLocation.longitude == null ||
                 activeLocation.longitude == ''
               ) {
-                alert('Please set active location');
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody:'Please set active location',
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide()]
+                });
                 setloading(false);
                 return;
               }
@@ -882,42 +976,73 @@ const Home = ({ navigation }) => {
                   longitude: long,
                   login_type: 'mobile'
                 };
-                console.log('logitute-----', body)
+               
                 axios
                   .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
                   .then(function (response) {
                     if (response.data.status == 1) {
                       check_punchIn();
                     } else {
-                      alert(response.data.message)
+                      Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:response.data.message,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide()]
+                      });
+                    
                       setloading(false);
                     }
                   })
                   .catch(function (error) {
                     setloading(false);
-                    // alert(error.request._response);
+                  
                     if(error.response.status=='401')
                     {
-                  alert(error.response.data.msg)
-                    AsyncStorage.removeItem('Token');
-                    AsyncStorage.removeItem('UserData');
-                    AsyncStorage.removeItem('UserLocation');
-                   navigation.navigate('Login');
+                      Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:error.response.data.msg,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                        AsyncStorage.removeItem('UserData'),
+                        AsyncStorage.removeItem('UserLocation'),
+                       navigation.navigate('Login')]
+                      });
                     }
                   });
               } else {
-                alert('You are not in the radius');
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody:'You are not in the radius',
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide()]
+                });
+              
+               
                 setloading(false);
               }
             }
-            get_recent_logs();
+          
           })
           .catch(error => {
             const { code, message } = error;
-            Alert.alert(code, message);
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:message,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
+            
             setloading(false);
           });
-        get_recent_logs();
+       
       }
 
       catch (err) {
@@ -925,23 +1050,8 @@ const Home = ({ navigation }) => {
         console.warn(err);
       }
     }
-
-    // alert(officetiming?.office_timing + `${d.getHours()}:${d.getMinutes()} AM`);
-    // if (`${d.getHours()}:${d.getMinutes()} AM` >= officetiming?.office_timing) {
-
-    //console.log('sdvsdvgsfg---');
-
-
-
-    // } else {
-    //   Alert.alert('At the moment, you do not have the eligibility to clock in.')
-    // }
   };
 
-
-  // const res = options.filter(v => menuAccessData && menuAccessData.some(g => g.menu_id == v.id));
-
-  // console.log(res, 'pyar')
 
   const renderItem = ({ item }) =>
 
@@ -986,185 +1096,6 @@ const Home = ({ navigation }) => {
       </TouchableOpacity>
     );
 
-  const navigateTo = item => {
-    const url = item.download_video;
-    let urlSplitArr = item.download_video.split('.');
-    let extension = urlSplitArr[2];
-
-    if (
-      url.indexOf('pdf') !== -1 ||
-      url.indexOf('doc') !== -1 ||
-      url.indexOf('docx') !== -1 ||
-      url.indexOf('jpg') !== -1 ||
-      url.indexOf('jpeg') !== -1 ||
-      url.indexOf('png') !== -1 ||
-      url.indexOf('gif') !== -1
-    ) {
-      navigation.navigate('Doc Details', {
-        type: 'pdf',
-        photo: item.download_icon,
-        title: item.title,
-        long_description: item.description,
-        url: item.download_video,
-      });
-    } else if (
-      url.indexOf('mp4') !== -1 ||
-      url.indexOf('avi') !== -1 ||
-      url.indexOf('mov') !== -1 ||
-      url.indexOf('wmv') !== -1 ||
-      url.indexOf('flv') !== -1
-    ) {
-      navigation.navigate('Video', {
-        type: 'video',
-        thumbnail: item.download_icon,
-        title: item.title,
-        long_description: item.description,
-        url: item.download_video,
-        training: training.filter(item => {
-          let urlSplitArr = item.download_video.split('.');
-          let extension = urlSplitArr[2];
-          return extension == 'mp4';
-        }),
-      });
-    } else if (
-      url.indexOf('youtube.com') !== -1 ||
-      url.indexOf('youtu.be') !== -1
-    ) {
-      navigation.navigate('Doc Details', {
-        type: 'youtube',
-        photo: item.download_icon,
-        title: item.title,
-        long_description: item.description,
-        url: item.download_video,
-      });
-    } else if (
-      url.indexOf(
-        'https://xoniertechnologies.com/ess_portal/assets/uploads/announcement/attacnment/0',
-      ) !== -1
-    ) {
-      alert('file does not exist!');
-    }
-  };
-
-  const announcementNavigate = item => {
-    const url = item.attacnment;
-    let urlSplitArr = item.attacnment.split('.');
-    let extension = urlSplitArr[2];
-
-    if (
-      url.indexOf('pdf') !== -1 ||
-      url.indexOf('doc') !== -1 ||
-      url.indexOf('docx') !== -1 ||
-      url.indexOf('jpg') !== -1 ||
-      url.indexOf('jpeg') !== -1 ||
-      url.indexOf('png') !== -1 ||
-      url.indexOf('gif') !== -1
-    ) {
-      navigation.navigate('Doc Details', {
-        type: 'pdf',
-        photo: item.filename,
-        title: item.title,
-        short_description: item.short_description,
-        long_description: item.long_description,
-        url: item.attacnment,
-      });
-    } else if (
-      url.indexOf('mp4') !== -1 ||
-      url.indexOf('avi') !== -1 ||
-      url.indexOf('mov') !== -1 ||
-      url.indexOf('wmv') !== -1 ||
-      url.indexOf('flv') !== -1
-    ) {
-      navigation.navigate('Video', {
-        type: 'video',
-        thumbnail: item.filename,
-        title: item.title,
-        short_description: item.short_description,
-        long_description: item.long_description,
-        url: item.attacnment,
-        announcement: announcements.filter(item => {
-          let urlSplitArr = item.attacnment.split('.');
-          let extension = urlSplitArr[2];
-          return extension == 'mp4';
-        }),
-      });
-    } else if (
-      url.indexOf('youtube.com') !== -1 ||
-      url.indexOf('youtu.be') !== -1
-    ) {
-      navigation.navigate('Doc Details', {
-        type: 'youtube',
-        photo: item.filename,
-        title: item.title,
-        short_description: item.short_description,
-        long_description: item.long_description,
-        url: item.attacnment,
-      });
-    } else if (url.indexOf('uploads/announcement/attacnment/0') !== -1) {
-      alert('file does not exist!');
-    }
-  };
-
-  const renderTraining = ({ item }) => (
-    <TouchableOpacity onPress={() => navigateTo(item)}>
-      <ImageBackground
-        style={styles.options1}
-        source={{ uri: item.download_icon }}
-        imageStyle={{ borderRadius: 5 }}>
-        <LinearGradient
-          colors={['#00000000', '#000000']}
-          style={{
-            height: 160,
-            width: 130,
-            borderRadius: 5,
-          }}>
-          <Text
-            style={{
-              color: 'white',
-              position: 'absolute',
-              bottom: 10,
-              left: 10,
-              fontSize: 17,
-              fontWeight: '600',
-            }}>
-            {item.title}
-          </Text>
-        </LinearGradient>
-      </ImageBackground>
-    </TouchableOpacity>
-  );
-
-  const renderAnnouncements = ({ item }) => (
-    <TouchableOpacity onPress={() => announcementNavigate(item)}>
-      <ImageBackground
-        style={styles.options}
-        source={{ uri: item.filename }}
-        imageStyle={{ borderRadius: 5 }}>
-        <LinearGradient
-          colors={['#00000000', '#000000']}
-          style={{
-            height: 160,
-            width: 130,
-            borderRadius: 5,
-          }}>
-          <Text
-            style={{
-              color: 'white',
-              position: 'absolute',
-              bottom: 10,
-              left: 5,
-              right: 5,
-              fontSize: 15,
-              fontWeight: '600',
-              textAlign: 'center',
-            }}>
-            {item.title.slice(0, 15)}..
-          </Text>
-        </LinearGradient>
-      </ImageBackground>
-    </TouchableOpacity>
-  );
-
   const ProfileDetails = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -1188,67 +1119,18 @@ const Home = ({ navigation }) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+      
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+   
+      console.log("first")
         }
       });
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      (async () => {
-        get_news();
-        // setUserdata({...Userdata, location: JSON.parse(location)});
-      })();
-    }, []),
-  );
 
-  const get_news = async () => {
-    const token = await AsyncStorage.getItem('Token');
-    const userData = await AsyncStorage.getItem('UserData');
-    // const u = JSON.parse(userData);
 
-    setuser(JSON.parse(userData));
-    // console.log('userData-->', u.userid);
-    const config = {
-      headers: { Token: token },
-    };
-    axios
-      .post(`${apiUrl}/api/newit`, {}, config)
-      .then(response => {
-        if (response.data.status == 1) {
-          try {
-            setloading(false);
-            setnews(response.data.content);
-          } catch (e) {
-            setloading(false);
-            console.log(e);
-          }
-        } else {
-          setloading(false);
-
-          console.log(response.data.msg);
-        }
-      })
-      .catch(error => {
-        // alert(error.request._response);
-        setloading(false);
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
-        }
-      });
-  };
+  
 
   // Recent Login Data start
   const getAtendenceApi = useApi(attendence.getAttendance);
@@ -1258,27 +1140,43 @@ const Home = ({ navigation }) => {
   const [location, setlocation] = useState();
   const [recentLogs, setrecentLogs] = useState([]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getActiveLocation();
-      check_punchIn();
-    }, []),
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     getActiveLocation();
+  //     check_punchIn();
+  //   }, []),
+  // );
 
   useEffect(() => {
     if (punchInApi.data != null) {
       // console.log('punchInApi.data--->', punchInApi.data);
       check_punchIn();
-      alert(punchInApi.data.message);
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody:punchInApi.data.message,
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()]
+      });
+   
     }
-    get_recent_logs()
+   
   }, [punchInApi.loading]);
 
   useEffect(() => {
     if (punchOutApi.data != null) {
       // console.log('punchOutApi.data--->', punchOutApi.data);
       check_punchIn();
-      alert(punchOutApi.data.message);
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody:punchOutApi.data.message,
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()]
+      });
+    
     }
   }, [punchOutApi.loading]);
 
@@ -1396,58 +1294,6 @@ const Home = ({ navigation }) => {
     }, 1500);
   }, [getActiveLocationApi.loading]);
 
-  const get_recent_logs = async () => {
-    const token = await AsyncStorage.getItem('Token');
-
-    let menuAccessData = await AsyncStorage.get('menu')
-    const config = {
-      headers: { Token: token },
-    };
-    const date = new Date('2022-12-08');
-    body = {
-      start_date: `${startDate.getFullYear()}-${startDate.getMonth() + 1
-        }-${startDate.getDate()}`,
-
-      end_date: `${endDate.getFullYear()}-${endDate.getMonth() + 1
-        }-${endDate.getDate()}`,
-    };
-
-    if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` > `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
-      alert('Till date should muast be greater than the From date ')
-      setloading(false);
-    } else {
-      axios
-        .post(`${apiUrl}/Api/attendance`, body, config)
-        .then(response => {
-          console.log('addtendance response......................................', response);
-          if (response.data.status == 1) {
-            setloading(false);
-            try {
-              setrecentLogs(response.data.content);
-            } catch (e) {
-              alert(e);
-            }
-          } else {
-            setrecentLogs([]);
-            alert('attendence not found');
-            setloading(false);
-          }
-        })
-        .catch(error => {
-          // alert(error.request._response);
-          setloading(false);
-          if(error.response.status=='401')
-          {
-        alert(error.response.data.msg)
-          AsyncStorage.removeItem('Token');
-          AsyncStorage.removeItem('UserData');
-          AsyncStorage.removeItem('UserLocation');
-         navigation.navigate('Login');
-          }
-        });
-    }
-  };
-
   const get_month_logs = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -1464,32 +1310,29 @@ const Home = ({ navigation }) => {
     axios
       .post(`${apiUrl}/Api/attendance`, body, config)
       .then(response => {
-        console.log('response', response.data);
+        // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
+            console.log(response.data.content,'Month logs')
             setrecentLogs(response.data.content);
           } catch (e) {
-            alert(e);
+          
           }
         } else {
-          // alert(response.data.message);
+          
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+      
         setloading(false);
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+     
         }
       });
   };
 
-  //Recent Login Data end
+  
 
 
 
@@ -1497,6 +1340,7 @@ const Home = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e3eefb' }}>
+      <Root>
       <PullToRefresh onRefresh={handleRefresh}>
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: "row", alignItems: 'center', justifyContent: "space-between" }}>
@@ -1841,7 +1685,19 @@ const Home = ({ navigation }) => {
 
 
         </View>
+
       </PullToRefresh>
+      {modalVisible && <View style={{ width: '100%', height: '100%', zIndex: 99, backgroundColor: 'rgba(255,255,255,0.8)', position: 'absolute', flex: 1 }}></View>}
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={modalVisible}
+      >
+        <View style={{ width:80, height: 80, borderRadius: 10, alignSelf: 'center', marginTop: responsiveHeight(50) }}>
+          <ActivityIndicator size='large' color="#0528A5" />
+        </View>
+      </Modal>
+      </Root>
     </SafeAreaView>
   );
 

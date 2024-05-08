@@ -15,6 +15,7 @@ import axios from 'axios';
 import {useFocusEffect} from '@react-navigation/native';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Themes from '../../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 const Holidays = ({navigation}) => {
   const theme = useColorScheme();
@@ -60,21 +61,34 @@ const Holidays = ({navigation}) => {
             // console.log(response.data.data);
             setholidays(response.data.data);
           } catch (e) {
-            alert(e);
+         
           }
         } else {
-          alert(response.data.message);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          })
+         
         }
       })
       .catch(error => {
-        // alert(error.request._response);
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -94,6 +108,7 @@ const Holidays = ({navigation}) => {
         padding: 15,
         paddingBottom: 0,
       }}>
+        <Root>
       <PullToRefresh onRefresh={handleRefresh}>
         <Calendar
           theme={{
@@ -131,6 +146,7 @@ const Holidays = ({navigation}) => {
           )}
         </View>
       </PullToRefresh>
+      </Root>
     </View>
   );
 };

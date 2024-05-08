@@ -53,7 +53,15 @@ const DocumentDetails = ({route}) => {
         // Here you can perform any of your completion tasks
       })
       .catch(error => {
-        alert(error.request._response);
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:error.request._response,
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
+     
         setloading(false)
       });
   };

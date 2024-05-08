@@ -20,6 +20,7 @@ import axios from 'axios';
 import { EssContext } from '../../../../../Context/EssContext';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Themes from '../../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 const LeaveList = ({ navigation }) => {
   const theme = useColorScheme();
@@ -64,7 +65,7 @@ const LeaveList = ({ navigation }) => {
             setleaveListFilter(response.data.data);
             setempty(false);
 
-            // response.data.data.length < 1 ? setempty(true) : setempty(false);
+           
           } catch (e) {
             console.log(e);
           }
@@ -75,15 +76,21 @@ const LeaveList = ({ navigation }) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -111,22 +118,35 @@ const LeaveList = ({ navigation }) => {
             setleaveList();
             get_leaves();
           } catch (e) {
-            alert(e);
+        
           }
         } else {
-          alert(response.data.message);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          })
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+     
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -172,6 +192,9 @@ const LeaveList = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{flex: 1,}}>
+      <Root>
+
+     
       <View style={{ flex:1, backgroundColor: '#e3eefb' }}>
         {empty ? (
           <View
@@ -373,6 +396,7 @@ const LeaveList = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+      </Root>
     </SafeAreaView>
   );
 };

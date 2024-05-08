@@ -17,6 +17,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 
 const Support = ({navigation}) => {
@@ -66,21 +67,29 @@ const Support = ({navigation}) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
 
   return (
     <>
+    <Root>
+   
       {empty && !loading && (
         <View
           style={{
@@ -180,6 +189,8 @@ const Support = ({navigation}) => {
           <ActivityIndicator size="small" color="#388aeb" />
         </View>
       )}
+         
+    </Root>
     </>
   );
 };

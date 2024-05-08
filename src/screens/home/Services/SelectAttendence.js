@@ -19,7 +19,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
-import { responsiveWidth } from 'react-native-responsive-dimensions';
+import { responsiveFontSize, responsiveWidth } from 'react-native-responsive-dimensions';
 import { Root, Popup } from 'popup-ui'
 
 const SelectAttendence = () => {
@@ -289,6 +289,8 @@ const SelectAttendence = () => {
               borderWidth: 1,
               borderColor: 'grey',
               borderRadius: 5,
+        
+
             }}>
             <View
               style={[
@@ -306,9 +308,9 @@ const SelectAttendence = () => {
                     styles.display_row,
                     { borderTopWidth: 1, borderTopColor: 'grey' },
                   ]}>
-                  <Text style={{color: Themes == 'dark' ? '#000' : '#000' }}>{i.TR_DATE}</Text>
+                  <Text style={{color: Themes == 'dark' ? '#000' : '#000',fontSize:responsiveFontSize(1.5) }}>{i.TR_DATE}</Text>
                   {
-                    (datetime != i.TR_DATE) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000', }}> {i.PRESENT_HOURS}</Text> : (i.location_id == null) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>NA</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}> {i.PRESENT_HOURS} </Text>
+                    (datetime != i.TR_DATE) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000',fontSize:responsiveFontSize(1.5),marginRight:15 }}> {i.PRESENT_HOURS}</Text> : (i.location_id == null) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000',fontSize:responsiveFontSize(1.5),marginRight:15 }}>NA</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' ,fontSize:responsiveFontSize(1.5),marginRight:15}}> {i.PRESENT_HOURS} </Text>
                   }
                 </View>
               ))
@@ -329,6 +331,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 15,
+    width:responsiveWidth(92),
+    alignSelf:'center'
   },
   heading: {
     fontSize: 17, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000'

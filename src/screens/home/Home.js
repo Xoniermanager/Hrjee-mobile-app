@@ -46,7 +46,7 @@ const { width } = Dimensions.get('window');
 import Empty from '../../reusable/Empty';
 import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import Themes from '../../Theme/Theme';
-import { responsiveHeight } from 'react-native-responsive-dimensions';
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 
 
 const Home = ({ navigation }) => {
@@ -1556,7 +1556,7 @@ const Home = ({ navigation }) => {
                     <Text style={styles.weekDay}>
                       {days[new Date(i.TR_DATE).getDay()]}
                     </Text>
-                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.TR_DATE}</Text>
+                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000',}}>{i.TR_DATE}</Text>
                   </View>
                   <View style={{ alignItems: 'center' }}>
                     <AntDesign
@@ -1780,7 +1780,9 @@ const styles = StyleSheet.create({
   view_txt: { color: '#702963', fontWeight: 'bold' },
   weekDay: { fontSize: 19, fontWeight: '600', marginBottom: 5, color: Themes == 'dark' ? '#000' : '#000' },
   recent_log_box: {
+    width:responsiveWidth(96),
     marginTop: 15,
+    alignSelf:'center',
     padding: 10,
     borderWidth: 1,
     borderColor: GlobalStyle.blueDark,

@@ -277,8 +277,8 @@ const ApplyLeave = ({ navigation }) => {
 
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white', padding: 18 }}>
-      <SafeAreaView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 10 }}>
+     
         <Root>
       <ScrollView>
         <View>
@@ -559,8 +559,8 @@ const ApplyLeave = ({ navigation }) => {
         </View>
       </ScrollView>
       </Root>
-      </SafeAreaView>
-    </View>
+      
+    </SafeAreaView>
   );
 };
 

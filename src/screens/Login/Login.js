@@ -41,130 +41,166 @@ const Login = () => {
   };
 
   const login = () => {
-    setloading(true);
-    axios
-      .post(`${apiUrl}/users/login`, {
-        email: email,
-        password: password,
-        device_id: fcmtoken,
-      })
-      .then(response => {
-        if (response?.data?.status == 1) {
-          if (response?.data?.data?.login_type === 'web') {
-            Popup.show({
-              type: 'Warning',
-              title: 'Warning',
-              button: true,
-              textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
-              buttonText: 'Ok',
-              callback: () => [Popup.hide(),],
-            });
-            setloading(false);
-          }
-          else if (response?.data?.data?.login_type === null) {
-            Popup.show({
-              type: 'Warning',
-              title: 'Warning',
-              button: true,
-              textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
-              buttonText: 'Ok',
-              callback: () => [Popup.hide(),],
-            });
-            // alert('You are not authorized to use mobile application. Kindly contact admin!')
-            setloading(false);
-          }
-          else if (response?.data?.data?.block == 1) {
-            Popup.show({
-              type: 'Warning',
-              title: 'Warning',
-              button: true,
-              textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
-              buttonText: 'Ok',
-              callback: () => [Popup.hide(),],
-            });
-            // alert('You have been blocked, Please contact your admin department!')
-            setloading(false);
-          }
-         
-          else {
-            try {
-              setloading(false);
-              // console.log('token####>', response.data.token);
-              AsyncStorage.setItem('Token', response.data.token);
-              AsyncStorage.setItem(
-                'UserData',
-                JSON.stringify(response.data.data),
-              );
-              setuser(response.data.data);
-              AsyncStorage.setItem(
-                'UserLocation',
-                JSON.stringify(response.data.location),
-              );
-              setlocation(response.data.location);
-              AsyncStorage.setItem(
-                'PRMData', (response.data.data?.prm_assign),
-              );
-              let options = []
-              response?.data?.menu_access?.map((item) => {
-                if (item.menu_name.includes("News Management")) {
-                 
-                  options.push({
-                    id: 2,
-                    name: 'News',
-                    location: require('../../images/news.png'),
-                    moveTo: 'News',
-                  })
-                } else if (item.menu_name.includes("Training Management")) {
-                  
-                  options.push({
-                    id: 6,
-                    name: 'Training',
-                    location: require('../../images/training.png'),
-                    moveTo: 'Training',
-                  })
-                }
-                return item;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email.trim() === '' || password.trim() === '') {
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody: 'Please enter some text',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide(),],
+      });
+     
+     
+    } else if (!emailRegex.test(email)) {
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody: 'Invalid email address',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide(),],
+      });
+  
+    } else if (password.length < 6) {
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody: 'Password must be at least 6 characters',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide(),],
+      });
+    
+    }
+    else{
+      setloading(true);
+      axios
+        .post(`${apiUrl}/users/login`, {
+          email: email,
+          password: password,
+          device_id: fcmtoken,
+        })
+        .then(response => {
+          if (response?.data?.status == 1) {
+            if (response?.data?.data?.login_type === 'web') {
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
+                buttonText: 'Ok',
+                callback: () => [Popup.hide(),],
               });
-              // console.log(options,'option')
-              AsyncStorage.setItem(
-                'menu', JSON.stringify(options),
-              );
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Main' }],
-              });
-
-            } catch (e) {
               setloading(false);
-              alert(e);
             }
+            else if (response?.data?.data?.login_type === null) {
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
+                buttonText: 'Ok',
+                callback: () => [Popup.hide(),],
+              });
+              // alert('You are not authorized to use mobile application. Kindly contact admin!')
+              setloading(false);
+            }
+            else if (response?.data?.data?.block == 1) {
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
+                buttonText: 'Ok',
+                callback: () => [Popup.hide(),],
+              });
+              // alert('You have been blocked, Please contact your admin department!')
+              setloading(false);
+            }
+           
+            else {
+              try {
+                setloading(false);
+                // console.log('token####>', response.data.token);
+                AsyncStorage.setItem('Token', response.data.token);
+                AsyncStorage.setItem(
+                  'UserData',
+                  JSON.stringify(response.data.data),
+                );
+                setuser(response.data.data);
+                AsyncStorage.setItem(
+                  'UserLocation',
+                  JSON.stringify(response.data.location),
+                );
+                setlocation(response.data.location);
+                AsyncStorage.setItem(
+                  'PRMData', (response.data.data?.prm_assign),
+                );
+                let options = []
+                response?.data?.menu_access?.map((item) => {
+                  if (item.menu_name.includes("News Management")) {
+                   
+                    options.push({
+                      id: 2,
+                      name: 'News',
+                      location: require('../../images/news.png'),
+                      moveTo: 'News',
+                    })
+                  } else if (item.menu_name.includes("Training Management")) {
+                    
+                    options.push({
+                      id: 6,
+                      name: 'Training',
+                      location: require('../../images/training.png'),
+                      moveTo: 'Training',
+                    })
+                  }
+                  return item;
+                });
+                // console.log(options,'option')
+                AsyncStorage.setItem(
+                  'menu', JSON.stringify(options),
+                );
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Main' }],
+                });
+  
+              } catch (e) {
+                setloading(false);
+                alert(e);
+              }
+            }
+  
+          } else {
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody: 'Please enter correct credentials!',
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(),],
+            });
+            // alert('Please enter correct credentials');
+            setloading(false);
           }
-
-        } else {
+        })
+        .catch(error => {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody: 'Please enter correct credentials!',
+            textBody:error.response.data.message,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(),],
-          });
-          // alert('Please enter correct credentials');
-          setloading(false);
-        }
-      })
-      .catch(error => {
-        Popup.show({
-          type: 'Warning',
-          title: 'Warning',
-          button: true,
-          textBody:error.response.data.message,
-          buttonText: 'Ok',
-          callback: () => [Popup.hide()]
-        })
-      
-        setloading(false)
-      });
+            callback: () => [Popup.hide()]
+          })
+        
+          setloading(false)
+        });
+    }
+  
   };
 
   // async function getFCMToken() {
@@ -201,14 +237,14 @@ const Login = () => {
             />
 
             <View style={styles.input_top_margin}>
-              <Text style={styles.input_title}>Employee Id</Text>
+              <Text style={styles.input_title}>Employee Email/Id</Text>
               <View style={{
                 flexDirection: "row", borderBottomWidth: 1,
                 justifyContent: "space-between"
               }}>
                 <TextInput
                   style={styles.input}
-                  placeholder="xyz@gmail.com"
+                  placeholder="username@gmail.com"
                   placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
                   onChangeText={text => setemail(text.toLowerCase())}
                 />
@@ -246,7 +282,7 @@ const Login = () => {
                   fontSize: 15,
                   marginRight: 10,
                 }}>
-                Sign In
+                Login
               </Text>
               {loading ? <ActivityIndicator size={'large'} color={"#fff"} /> : null}
             </TouchableOpacity>

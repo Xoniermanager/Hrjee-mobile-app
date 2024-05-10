@@ -87,15 +87,12 @@ const Document = ({navigation}) => {
         }
       });
   };
-
-  console.log('doc--->', doc);
-
   return (
     <>
       {doc && !loading && (
         <SafeAreaView  style={{flex: 1,}}>
           <Root>
-        <View style={{flex: 1, backgroundColor: '#e3eefb', padding: 15}}>
+        <View style={{ backgroundColor: '#e3eefb', padding: 15}}>
           <PullToRefresh onRefresh={handleRefresh}>
             {doc?.map((i, index) => (
               <TouchableOpacity

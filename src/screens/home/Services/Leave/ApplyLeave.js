@@ -116,10 +116,12 @@ const ApplyLeave = ({ navigation }) => {
     }, []),
   );
 
-
+console.log(leaveType,'leaveType')
   if (leaveType == null) {
     return <Reload />
   }
+console.log(leaveType,'leaveType')
+
   const apply_leave = async () => {
 
 
@@ -277,8 +279,8 @@ const ApplyLeave = ({ navigation }) => {
 
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white', padding: 18 }}>
-      <SafeAreaView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 18 }}>
+    
         <Root>
       <ScrollView>
         <View>
@@ -559,8 +561,8 @@ const ApplyLeave = ({ navigation }) => {
         </View>
       </ScrollView>
       </Root>
-      </SafeAreaView>
-    </View>
+   
+    </SafeAreaView>
   );
 };
 

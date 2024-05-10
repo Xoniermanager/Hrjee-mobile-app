@@ -30,13 +30,27 @@ const ForgotPassword = ({ navigation }) => {
       email:email
     }
     if ((email == '')) {
-      setEmailError("Please enter email");
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody: 'Please enter some text',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide(),],
+      });
       setloading(false);
     } else if ((!email.toLowerCase().match(
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     ))) {
       setloading(false);
-      setEmailError("Please enter valid email");
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody: 'Invalid email address',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()],
+      });
     }
     else {
       let config = {
@@ -64,13 +78,14 @@ const ForgotPassword = ({ navigation }) => {
           })
         }
         else if (response.data.status== 0){
+          setloading(false)
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
             textBody:response.data.message,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(), navigation.navigate('Login')]
+            callback: () => [Popup.hide(),]
           })
         }
        
@@ -126,7 +141,7 @@ const ForgotPassword = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white',  }}>
       <Root>
       
       <View style={{ padding: 25 }}>
@@ -157,7 +172,7 @@ const ForgotPassword = ({ navigation }) => {
               <Text style={styles.input_title}>Email</Text>
               <TextInput
                 style={styles.input}
-                placeholder="abc@gmail.com"
+                placeholder="username@gmail.com"
                 placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
                 onChangeText={text => setemail(text.toLowerCase())}
                 onChange={() => setEmailError(null)}

@@ -283,6 +283,7 @@ const Home = ({ navigation }) => {
     const token = await AsyncStorage.getItem('Token');
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
+    console.log(token,'token')
     setuser(JSON.parse(userData));
     // setlocation(JSON.parse(UserLocation));
     const config = {
@@ -1302,7 +1303,7 @@ const Home = ({ navigation }) => {
 
     var startOfWeek = moment().startOf('month').toDate();
     var endOfWeek = moment().endOf('month').toDate();
-
+console.log(startOfWeek,endOfWeek,'endOfWeek')
     const body = {
       start_date: startOfWeek,
       end_date: endOfWeek,
@@ -1534,7 +1535,7 @@ const Home = ({ navigation }) => {
                           <Text style={styles.purple_txt}>{fullTime}</Text>
                         </View>
                         <Text style={{ color: 'red', marginTop: 10 }}>
-                          Total time elapsed
+                          Total Time Elapsed
                         </Text>
                       </>
                     )}
@@ -1558,6 +1559,7 @@ const Home = ({ navigation }) => {
                     </Text>
                     <Text style={{ color: Themes == 'dark' ? '#000' : '#000',}}>{i.TR_DATE}</Text>
                   </View>
+                
                   <View style={{ alignItems: 'center' }}>
                     <AntDesign
                       name="clockcircleo"

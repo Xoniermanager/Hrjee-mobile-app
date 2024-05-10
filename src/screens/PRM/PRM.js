@@ -9,7 +9,8 @@ import {
     Image,
     TextInput,
     useColorScheme, ActivityIndicator,
-    FlatList
+    FlatList,
+    Modal
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -40,7 +41,8 @@ const PRM = () => {
     const navigation = useNavigation();
     const [loading, setloading] = useState(false);
     const [active, setSetActive] = useState(-1)
-
+    const [modalVisible, setModalVisible] = useState(false);
+    const [dataItem,setDataItem]=useState()
 
     const get_employee_detail = async () => {
         setloading(true)
@@ -87,7 +89,7 @@ const PRM = () => {
     if (prmdata == null) {
         return <Reload />
     }
-    const prm_delete = async (item) => {
+    const prm_delete = async () => {
         setloading(true)
         const token = await AsyncStorage.getItem('Token');
         const config = {
@@ -98,7 +100,7 @@ const PRM = () => {
         };
         let data = new FormData();
 
-        data.append('prm_request_id', item?.id);
+        data.append('prm_request_id', dataItem?.id);
         console.log(data)
         axios
             .post(`${apiUrl}/SecondPhaseApi/delete_prm_request`, data, config)
@@ -106,11 +108,14 @@ const PRM = () => {
                 setloading(false)
                 if (response?.data?.status == 1) {
                     get_employee_detail()
+                    setModalVisible(false)
                 }
             })
             .catch(error => {
                 
                 setloading(false)
+                setModalVisible(false)
+
                 if(error.response.status=='401')
         {
             Popup.show({
@@ -179,7 +184,7 @@ const PRM = () => {
                
                 <TouchableOpacity activeOpacity={0.8}
                     style={{
-                        backgroundColor: '#0c57d0',
+                        backgroundColor: '#1E558D',
                         borderRadius: 10,
                         alignSelf: "flex-end", justifyContent: "center", width: responsiveWidth(30),
                         height: responsiveHeight(6), marginRight: 8, marginTop: 8
@@ -194,141 +199,143 @@ const PRM = () => {
                     keyExtractor={(item, index) => `${item.key}${index}`}
                     renderItem={({ item, index }) =>
                         <View style={styles.Card_Box} key={index}>
-                            <View style={{
-                                flexDirection: "row",
-                                justifyContent: "flex-end",
-                                marginVertical: 5
-                            }}>
-                                <TouchableOpacity onPress={() => prm_delete(item)}>
-                                    <AntDesign
+                        <View
+                          style={{
+                            width: responsiveWidth(95),
+                            height: responsiveHeight(2),
+                            backgroundColor: '#1E558D',
+                            borderTopLeftRadius: 10,
+                            borderTopRightRadius: 10,
+                            justifyContent: 'center',
+                          }}></View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text style={styles.card_textleft}>S.No</Text>
+                          <Text style={styles.card_text}>{index + 1}</Text>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text style={styles.card_textleft}>Employee Name</Text>
+                          <Text style={styles.card_text}>{item?.employee_name}</Text>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text style={styles.card_textleft}>Employee Number</Text>
+                          <Text style={styles.card_text}>{item?.employee_number}</Text>
+                        </View>
+                     
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text style={styles.card_textleft}>Category Name:</Text>
+                          <Text style={styles.card_text}>{item?.category_name}</Text>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text style={styles.card_textleft}> Payment Date:</Text>
+                          <Text style={styles.card_text}>{item?.payment_date}</Text>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text style={styles.card_textleft}>Remark</Text>
+                          <Text style={styles.card_text}>{item?.remark}</Text>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}>
+                          <Text style={styles.card_textleft}>Amount</Text>
+                          <Text style={styles.card_text}>{item?.amount}</Text>
+                        </View>
+                     
+                        <View style={{flexDirection:'row',alignItems:"center",justifyContent:'space-around',marginVertical:20}}>
+                         <TouchableOpacity onPress={() => [setModalVisible(true),setDataItem(item)]} style={{width:100,height:30,borderRadius:10,backgroundColor:'#1E558D',justifyContent:'center',alignItems:'center'}}>
+                                    {/* <AntDesign
                                         name="delete"
                                         style={{
                                             fontSize: 25,
                                             color: '#000',
                                             marginRight: 10
                                         }}
-                                    />
+                                    /> */}
+                                    <Text style={{color:'#fff'}}>Delete</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => Post_edit_category(item)}>
-                                    <AntDesign
-                                        name="edit"
-                                        style={{
-                                            fontSize: 25,
-                                            color: '#000',
-                                            marginRight: 10
-                                        }}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            <>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                    }}>
-                                    <Text style={styles.card_textleft}>Employee Name</Text>
-                                    <Text style={styles.card_text}>{item?.employee_name}</Text>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                    }}>
-                                    <Text style={styles.card_textleft}>Employee Number</Text>
-                                    <Text style={styles.card_text}>{item?.employee_number}</Text>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                    }}>
-                                    <Text style={styles.card_textleft}>Category Name</Text>
-                                    <Text style={styles.card_text}>{item?.category_name}</Text>
-                                </View>
-
-                            </>
-                            {
-                                active === index &&
-                                <>
-
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                        }}>
-                                        <Text style={styles.card_textleft}>Role</Text>
-                                        <Text style={styles.card_text}>{item?.role}</Text>
-                                    </View>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                        }}>
-                                        <Text style={styles.card_textleft}>Payment Date</Text>
-                                        <Text style={styles.card_text}>{item?.payment_date}</Text>
-                                    </View>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between', 
-                                        }}>
-                                        <Text style={styles.card_textleft}>Remark:</Text>
-                                        <Text numberOfLines={1} style={styles.card_text}>{item?.remark}</Text>
-                                    </View>
-                                </>
-                            }
-
-                            <TouchableOpacity
-                                style={{
-                                    marginVertical: 5,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                                onPress={() =>
-                                    navigation.navigate('AdminsterMedicineDeatils', item)
-                                }>
-
-                            </TouchableOpacity>
-                            <View style={{
-
-                            }}>
-                                <TouchableOpacity key={index} onPress={() => handleToggle(index)}>
-
-                                    {active ?
-                                        <SimpleLineIcons
-                                            name="arrow-up"
-                                            style={{
-                                                fontSize: 25,
-                                                color: '#000',
-                                                alignSelf: "flex-end",
-                                                marginRight: 10,
-                                                marginBottom: 5
-                                            }}
-                                        />
-                                        :
-                                        <SimpleLineIcons
-                                            name="arrow-down"
-                                            style={{
-                                                fontSize: 25,
-                                                color: '#000',
-                                                alignSelf: "flex-end",
-                                                marginRight: 10,
-                                                marginBottom: 5
-                                            }}
-                                        />
-                                    }
-
+                                <TouchableOpacity onPress={() => Post_edit_category(item)} style={{width:100,height:30,borderRadius:10,backgroundColor:'#1E558D',justifyContent:'center',alignItems:'center'}}>
+                                <Text style={{color:'#fff'}}>Edit</Text>
 
                                 </TouchableOpacity>
-                            </View>
-                        </View>}
+                       
+                        </View>
+                        <View
+                          style={{
+                            width: responsiveWidth(95),
+                            height: responsiveHeight(2),
+                            backgroundColor: '#1E558D',
+                            borderBottomLeftRadius: 10,
+                            borderBottomRightRadius: 10,
+                            justifyContent: 'center',
+                            bottom: 0,
+                            position: 'absolute',
+                          }}></View>
+                      </View>
+                }
                 />
+                   {modalVisible && <View style={{ width: '100%', height: '100%', zIndex: 99, backgroundColor: 'rgba(0,0,0,0.3)', position: 'absolute', flex: 1 }}></View>}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+        alert('Modal has been closed.');
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={{width:responsiveWidth(95),
+                    backgroundColor:"#fff",alignSelf:"center",
+                   marginVertical:responsiveHeight(30),borderRadius:10,
+                   padding:10
+                    
+        }}>
+
+                    <Text style={{fontSize:17,fontWeight:'400',color:'#000',
+                    marginTop:10,alignSelf:'center'
+                }}>
+                     Are you sure you want to delete this item?
+                    </Text>
+                   <View style={{flexDirection:"row",justifyContent:"center",alignItems:"center",}}>
+                   <TouchableOpacity style={styles.Download} onPress={()=>setModalVisible(false)}>
+        <Text  style={{color:'#fff'}}>Cancel</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.Download} onPress={()=>prm_delete()}>
+        <Text  style={{color:'#fff'}}>Confirm</Text>
+      </TouchableOpacity>
+                   </View>
+        </View>
+      </Modal>
                      
                      </Root>
             </ScrollView>
@@ -396,7 +403,7 @@ const styles = StyleSheet.create({
         color: '#37496E',
         marginRight: 20,
         textAlign:"justify",
-        width: responsiveWidth(50)
+        // width: responsiveWidth(50)
     },
     card_textleft: {
         fontSize: responsiveFontSize(1.9),
@@ -404,6 +411,18 @@ const styles = StyleSheet.create({
         color: '#37496E',
         marginLeft: 20,
     },
+    Download:{
+        width: 150,
+        height: 45,
+        backgroundColor: '#1E558D',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius:5,
+        
+        marginTop: 15,
+        alignSelf:'flex-end',
+        marginRight:15
+      },
 });
 
 

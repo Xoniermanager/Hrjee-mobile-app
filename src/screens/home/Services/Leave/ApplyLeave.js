@@ -123,61 +123,77 @@ console.log(leaveType,'leaveType')
 console.log(leaveType,'leaveType')
 
   const apply_leave = async () => {
-
-
-    setloading(true);
-    const token = await AsyncStorage.getItem('Token');
-    const config = {
-      headers: { Token: token },
-    };
-
-    var bodyFormData = new FormData();
-    bodyFormData.append('userid', user.userid);
-    bodyFormData.append('leave_balance', leaveBalance);
-    bodyFormData.append('region_name', 'Eastern');
-    bodyFormData.append('leavetype', value);
-    bodyFormData.append('leave_wfstage_id', 11);
-    bodyFormData.append(
-      'leave_start_date',
-      `${startDate.getFullYear() +
-      '-' +
-      (startDate.getMonth() + 1) +
-      '-' +
-      startDate.getDate()
-      }`,
-    );
-    bodyFormData.append(
-      'leave_end_date',
-      `${endDate.getFullYear() +
-      '-' +
-      (endDate.getMonth() + 1) +
-      '-' +
-      endDate.getDate()
-      }`,
-    );
-    bodyFormData.append('morning_evening', halfDay);
-    bodyFormData.append('notes', comment);
-    bodyFormData.append('guaranter_id', user.employee_number);
-    bodyFormData.append('emergency_contact_name', name);
-    bodyFormData.append('emergency_contact_phone', phone);
-    bodyFormData.append('emergency_contact_address', address);
-    bodyFormData.append('exit_entry_visa_reqd', 1);
-    bodyFormData.append('accept_leave_policy', isCheck ? 1 : 0);
-    bodyFormData.append('current_approver_eno', user.employee_number);
-    // bodyFormData.append('attachment[]', file_1);
-    console.log(bodyFormData, 'bodyFormData')
-    axios({
-      method: 'post',
-      url: `${apiUrl}/secondPhaseApi/apply_for_leave`,
-      data: bodyFormData,
-      headers: { 'Content-Type': 'multipart/form-data', Token: token },
-    })
-      .then(function (response) {
-        //handle success
-        setloading(false);
-
-        if (response.data.status == 1) {
-          try {
+    if(startDate.valueOf()>endDate.valueOf()){
+      setloading(true);
+      const token = await AsyncStorage.getItem('Token');
+      const config = {
+        headers: { Token: token },
+      };
+  
+      var bodyFormData = new FormData();
+      bodyFormData.append('userid', user.userid);
+      bodyFormData.append('leave_balance', leaveBalance);
+      bodyFormData.append('region_name', 'Eastern');
+      bodyFormData.append('leavetype', value);
+      bodyFormData.append('leave_wfstage_id', 11);
+      bodyFormData.append(
+        'leave_start_date',
+        `${startDate.getFullYear() +
+        '-' +
+        (startDate.getMonth() + 1) +
+        '-' +
+        startDate.getDate()
+        }`,
+      );
+      bodyFormData.append(
+        'leave_end_date',
+        `${endDate.getFullYear() +
+        '-' +
+        (endDate.getMonth() + 1) +
+        '-' +
+        endDate.getDate()
+        }`,
+      );
+      bodyFormData.append('morning_evening', halfDay);
+      bodyFormData.append('notes', comment);
+      bodyFormData.append('guaranter_id', user.employee_number);
+      bodyFormData.append('emergency_contact_name', name);
+      bodyFormData.append('emergency_contact_phone', phone);
+      bodyFormData.append('emergency_contact_address', address);
+      bodyFormData.append('exit_entry_visa_reqd', 1);
+      bodyFormData.append('accept_leave_policy', isCheck ? 1 : 0);
+      bodyFormData.append('current_approver_eno', user.employee_number);
+      // bodyFormData.append('attachment[]', file_1);
+      console.log(bodyFormData, 'bodyFormData')
+      axios({
+        method: 'post',
+        url: `${apiUrl}/secondPhaseApi/apply_for_leave`,
+        data: bodyFormData,
+        headers: { 'Content-Type': 'multipart/form-data', Token: token },
+      })
+        .then(function (response) {
+          //handle success
+          setloading(false);
+  
+          if (response.data.status == 1) {
+            try {
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:response.data.message,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              })
+             
+              navigation.navigate('Applied Leaves');
+              console.log("Submit data.............", response?.data)
+            } catch (e) {
+              setloading(false);
+          
+            }
+          } else {
+            setloading(false);
             Popup.show({
               type: 'Warning',
               title: 'Warning',
@@ -187,43 +203,39 @@ console.log(leaveType,'leaveType')
               callback: () => [Popup.hide()]
             })
            
-            navigation.navigate('Applied Leaves');
-            console.log("Submit data.............", response?.data)
-          } catch (e) {
-            setloading(false);
-        
           }
-        } else {
+        })
+        .catch(function (error) {
+          //handle error
           setloading(false);
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:response.data.message,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide()]
-          })
-         
-        }
-      })
-      .catch(function (error) {
-        //handle error
-        setloading(false);
-        if(error.response.status=='401')
-        {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
-          });
-        }
+          if(error.response.status=='401')
+          {
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:error.response.data.msg,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+              AsyncStorage.removeItem('UserData'),
+              AsyncStorage.removeItem('UserLocation'),
+             navigation.navigate('Login')]
+            });
+          }
+        });
+    }
+    else{
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody:'',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()]
       });
+    }
+
+   
   };
 
 
@@ -561,7 +573,7 @@ console.log(leaveType,'leaveType')
         </View>
       </ScrollView>
       </Root>
-   
+     
     </SafeAreaView>
   );
 };

@@ -47,6 +47,7 @@ const LeaveList = ({ navigation }) => {
   const get_leaves = async () => {
     setloading(true);
     const token = await AsyncStorage.getItem('Token');
+   
     const config = {
       headers: { Token: token },
     };
@@ -56,7 +57,7 @@ const LeaveList = ({ navigation }) => {
     axios
       .post(`${apiUrl}/secondPhaseApi/leave_summary_by_userid`, body, config)
       .then(response => {
-        // console.log('response', response.data);
+        console.log('response', response.data);
         if (response.data.status == 1) {
           setloading(false);
           try {
@@ -358,6 +359,7 @@ const LeaveList = ({ navigation }) => {
                         onPress={() =>
                           navigation.navigate('Leave Details', {
                             leave_id: i.leaveid,
+                            current_status:i.leave_wfstage_name
                           })
                         }
                         name="rightcircle"

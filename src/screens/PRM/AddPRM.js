@@ -366,7 +366,7 @@ const currentDate=new Date()
           style={{
             width: 150,
             height: 40,
-            backgroundColor: '#1E558D',
+            backgroundColor: '#0043ae',
             borderRadius: 10,
             justifyContent: 'center',
             alignItems: 'center',

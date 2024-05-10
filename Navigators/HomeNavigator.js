@@ -149,7 +149,7 @@ function MyStack() {
                     title:'Add PRM',
                     headerBackTitleVisible: false,
                     headerStyle: {
-                      backgroundColor:'#1E558D',
+                      backgroundColor:'#0043ae',
                     },
                     headerTintColor: '#fff',
                     headerTitleStyle: {
@@ -306,7 +306,7 @@ function MyStack() {
                   title:'Add PRM ',
                   headerBackTitleVisible: false,
                   headerStyle: {
-                    backgroundColor:'#1E558D',
+                    backgroundColor:'#0043ae',
                   },
                   headerTintColor: '#fff',
                   headerTitleStyle: {

@@ -121,7 +121,7 @@ const Main = () => {
           title:'PRM List',
           headerBackTitleVisible: false,
           headerStyle: {
-            backgroundColor:'#1E558D',
+            backgroundColor:'#0043ae',
             
           },
           headerTintColor: '#fff',

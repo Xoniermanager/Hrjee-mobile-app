@@ -184,7 +184,7 @@ const PRM = () => {
                
                 <TouchableOpacity activeOpacity={0.8}
                     style={{
-                        backgroundColor: '#1E558D',
+                        backgroundColor: '#0043ae',
                         borderRadius: 10,
                         alignSelf: "flex-end", justifyContent: "center", width: responsiveWidth(30),
                         height: responsiveHeight(6), marginRight: 8, marginTop: 8
@@ -203,7 +203,7 @@ const PRM = () => {
                           style={{
                             width: responsiveWidth(95),
                             height: responsiveHeight(2),
-                            backgroundColor: '#1E558D',
+                            backgroundColor: '#0043ae',
                             borderTopLeftRadius: 10,
                             borderTopRightRadius: 10,
                             justifyContent: 'center',
@@ -274,7 +274,7 @@ const PRM = () => {
                         </View>
                      
                         <View style={{flexDirection:'row',alignItems:"center",justifyContent:'space-around',marginVertical:20}}>
-                         <TouchableOpacity onPress={() => [setModalVisible(true),setDataItem(item)]} style={{width:100,height:30,borderRadius:10,backgroundColor:'#1E558D',justifyContent:'center',alignItems:'center'}}>
+                         <TouchableOpacity onPress={() => [setModalVisible(true),setDataItem(item)]} style={{width:100,height:30,borderRadius:10,backgroundColor:'#0043ae',justifyContent:'center',alignItems:'center'}}>
                                     {/* <AntDesign
                                         name="delete"
                                         style={{
@@ -285,7 +285,7 @@ const PRM = () => {
                                     /> */}
                                     <Text style={{color:'#fff'}}>Delete</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => Post_edit_category(item)} style={{width:100,height:30,borderRadius:10,backgroundColor:'#1E558D',justifyContent:'center',alignItems:'center'}}>
+                                <TouchableOpacity onPress={() => Post_edit_category(item)} style={{width:100,height:30,borderRadius:10,backgroundColor:'#0043ae',justifyContent:'center',alignItems:'center'}}>
                                 <Text style={{color:'#fff'}}>Edit</Text>
 
                                 </TouchableOpacity>
@@ -295,7 +295,7 @@ const PRM = () => {
                           style={{
                             width: responsiveWidth(95),
                             height: responsiveHeight(2),
-                            backgroundColor: '#1E558D',
+                            backgroundColor: '#0043ae',
                             borderBottomLeftRadius: 10,
                             borderBottomRightRadius: 10,
                             justifyContent: 'center',
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     Download:{
         width: 150,
         height: 45,
-        backgroundColor: '#1E558D',
+        backgroundColor: '#0043ae',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius:5,

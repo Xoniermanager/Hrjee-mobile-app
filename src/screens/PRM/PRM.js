@@ -10,7 +10,8 @@ import {
     TextInput,
     useColorScheme, ActivityIndicator,
     FlatList,
-    Modal
+    Modal,  PermissionsAndroid,
+    Platform,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -29,7 +30,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Reload from '../../../Reload';
 import { Root, Popup } from 'popup-ui'
 import Empty from '../../reusable/Empty';
-
+import RNFetchBlob from 'rn-fetch-blob';
 
 const PRM = () => {
    
@@ -43,7 +44,7 @@ const PRM = () => {
     const [active, setSetActive] = useState(-1)
     const [modalVisible, setModalVisible] = useState(false);
     const [dataItem,setDataItem]=useState()
-
+    const [show,setShow]=useState(false)
     const get_employee_detail = async () => {
         setloading(true)
         const token = await AsyncStorage.getItem('Token');
@@ -177,9 +178,97 @@ const PRM = () => {
         setSetActive(index === active ? -1 : index)
     }
 
+    const historyDownload = (item) => {
+        if(item?.uploade_document!=null){
+            setShow(true)
+          if (Platform.OS === 'ios' || Platform.OS == 'android') {
+            downloadHistory(item);
+          } else {
+            try {
+              PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                {
+                  title: 'storage title',
+                  message: 'storage_permission',
+                },
+              ).then(granted => {
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                  console.log('Storage Permission Granted.');
+                  setShow(false)
 
+                  downloadHistory(item);
+                } else {
+                    Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody:'storage_permission',
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide()]
+                      });
+                      setShow(false)
+                
+                }
+              });
+            } catch (err) {
+              //To handle permission related issue
+              console.log('error', err);
+            setloading(false)
+
+            }
+          }
+        }
+        else {
+            Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:'No record found!',
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              });
+              setShow(false)
+        }
+       
+     
+    };
+    const downloadHistory = async (item) => {
+      const {config, fs} = RNFetchBlob;
+      let PictureDir = fs.dirs.PictureDir;
+      console.log(PictureDir, 'PictureDir');
+      let date = new Date();
+      let options = {
+        fileCache: true,
+        addAndroidDownloads: {
+          //Related to the Android only
+          useDownloadManager: true,
+          notification: true,
+          path:
+            PictureDir +
+            '/Report_Download' +
+            Math.floor(date.getTime() + date.getSeconds() / 2),
+          description: 'Risk Report Download',
+        },
+      };
+      config(options)
+        .fetch('GET', item?.uploade_document)
+        .then(res => {
+          //Showing alert after successful downloading
+          console.log('res -> ', JSON.stringify(res));
+          Popup.show({
+            type: 'Success',
+            title: 'Success',
+            button: true,
+            textBody:'Report Downloaded Successfully.',
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          });
+          setShow(false)
+         
+        });
+    };
     return (
-            <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+            <SafeAreaView showsVerticalScrollIndicator={false} style={styles.container}>
                 <Root>
                
                 <TouchableOpacity activeOpacity={0.8}
@@ -285,6 +374,17 @@ const PRM = () => {
                                     /> */}
                                     <Text style={{color:'#fff'}}>Delete</Text>
                                 </TouchableOpacity>
+                                <TouchableOpacity onPress={() =>historyDownload(item)} style={{width:100,height:30,borderRadius:10,backgroundColor:'#0043ae',justifyContent:'center',alignItems:'center'}}>
+                                    {/* <AntDesign
+                                        name="delete"
+                                        style={{
+                                            fontSize: 25,
+                                            color: '#000',
+                                            marginRight: 10
+                                        }}
+                                    /> */}
+                                   {show? <ActivityIndicator size="small" color="#fff" />: <Text style={{color:'#fff'}}>View Report</Text>}
+                                </TouchableOpacity>
                                 <TouchableOpacity onPress={() => Post_edit_category(item)} style={{width:100,height:30,borderRadius:10,backgroundColor:'#0043ae',justifyContent:'center',alignItems:'center'}}>
                                 <Text style={{color:'#fff'}}>Edit</Text>
 
@@ -338,7 +438,7 @@ const PRM = () => {
       </Modal>
                      
                      </Root>
-            </ScrollView>
+            </SafeAreaView>
     );
 };
 export default PRM;

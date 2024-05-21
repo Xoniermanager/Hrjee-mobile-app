@@ -34,7 +34,8 @@ const Done = ({navigation}) => {
   const [showMore, setShowMore] = useState(false);
   const [currentDisplayedTask, setCurrentDisplayedTask] = useState(null);
   const [loading, setloading] = useState(false);
-
+  const [filterData,setFilterData]=useState()
+  const [searchItem,setSearchItem]=useState()
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       get_employee_detail();
@@ -61,13 +62,13 @@ const Done = ({navigation}) => {
       .catch(error => {
      
         setloading(false);
-        if (error.response.status == '401') {
+        // if (error.response.status == '401') {
       
-          AsyncStorage.removeItem('Token');
-          AsyncStorage.removeItem('UserData');
-          AsyncStorage.removeItem('UserLocation');
-          navigation.navigate('Login');
-        }
+        //   AsyncStorage.removeItem('Token');
+        //   AsyncStorage.removeItem('UserData');
+        //   AsyncStorage.removeItem('UserLocation');
+        //   navigation.navigate('Login');
+        // }
       });
   };
   const update_show_hide = async (task_id, show) => {
@@ -91,9 +92,19 @@ const Done = ({navigation}) => {
   if (data == null) {
     return <Reload />;
   }
-
+  const onSearchList = async (prev) => {
+    const filtered = data?.filter(item =>
+      item.mobile_no.toLowerCase().includes(prev.toLowerCase()),
+    );
+    if (prev === '') {
+      setFilterData('')
+      return setUserdata(data);
+    }
+    setFilterData(filtered);
+};
   return (
     <View style={styles.container}>
+      
       {data?.length > 0 ? null : (
         <View
           style={{
@@ -112,9 +123,17 @@ const Done = ({navigation}) => {
           </Text>
         </View>
       )}
-
+<View style={{width:responsiveScreenWidth(96),height:responsiveHeight(5),borderRadius:10,borderWidth:0.5,shadowColor: '#000',alignSelf:'center',marginVertical:10}
+    }>
+  <TextInput
+  placeholder='Search by pin code...'
+  value={searchItem}
+  onChangeText={(prev)=>onSearchList(prev)}
+ 
+  />
+</View>
       <FlatList
-        data={data}
+        data={filterData?filterData: data}
         renderItem={({item, index}) => (
           <>
             <View activeOpacity={0.2} style={styles.maincard}>

@@ -15,6 +15,8 @@ import GetLocation from 'react-native-get-location';
 import Reload from '../../../../Reload';
 import { useNavigation } from '@react-navigation/native';
 import { Root, Popup } from 'popup-ui'
+import Toast from 'react-native-simple-toast';
+
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -44,6 +46,9 @@ const Processing = () => {
   const [showMore, setShowMore] = useState(false);
   const [currentDisplayedTask, setCurrentDisplayedTask] = useState(null);
   const [showAddress, setShowAddress] = useState(0)
+  const [filterData,setFilterData]=useState()
+  const [searchItem,setSearchItem]=useState()
+
   // choose from front camera  for profile Images////////
 
   const takePhotoFromCamera = () => {
@@ -152,14 +157,14 @@ const Processing = () => {
       .catch(error => {
       
         setloading(false)
-        if(error.response.status=='401')
-        {
+      //   if(error.response.status=='401')
+      //   {
     
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
-        }
+      //   AsyncStorage.removeItem('Token');
+      //   AsyncStorage.removeItem('UserData');
+      //   AsyncStorage.removeItem('UserLocation');
+      //  navigation.navigate('Login');
+      //   }
       });
   };
   // console.log(fileResponse,'123')
@@ -212,19 +217,21 @@ const Processing = () => {
               } else if (photo == null) {
                 setPhotoError('Please Upload the Image');
               }
-              else if (fileResponse.length == 0) {
-                setDocumentError('Please Upload the Document');
-              } else {
+             else {
                 axios
                   .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
                   .then(response => {
+                    console.log(response?.data?.status,'response?.data?.status')
                     if (response?.data?.status == 1) {
-                      get_employee_detail()
-                      setModalVisible1(false)
-                      setRemart('')
-                      setCameramodal('')
+                      setModalVisible1(false),
+                      Toast.show(response?.data?.message);
+
+                      get_employee_detail(),
+                         
+                      setRemart(''),
+                      setCameramodal(''),
                       setCameramodal1('')
-                      setDocmodal('')
+
                     }
                     else {
                       // console.log(response?.data, 'yashu')
@@ -242,7 +249,7 @@ const Processing = () => {
 
                   })
                   .catch(error => {
-                  
+                  console.log(error.response.data)
                     setloading1(false)
                     if (error.response.status == '401') {
                       Popup.show({
@@ -263,7 +270,7 @@ const Processing = () => {
 
             .catch(error => {
               const { code, message } = error;
-              
+              console.log(message,'message')
               Alert.alert(code, message);
               setModalVisible1(!modalVisible1)
               setRemart('')
@@ -295,19 +302,19 @@ const Processing = () => {
       catch (error) {
        
         setloading1(false);
-        if (error.response.status == '401') {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
-          });
-        }
+        // if (error.response.status == '401') {
+        //   Popup.show({
+        //     type: 'Warning',
+        //     title: 'Warning',
+        //     button: true,
+        //     textBody:error.response.data.msg,
+        //     buttonText: 'Ok',
+        //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+        //     AsyncStorage.removeItem('UserData'),
+        //     AsyncStorage.removeItem('UserLocation'),
+        //    navigation.navigate('Login')]
+        //   });
+        // }
       }
     }
     else {
@@ -344,22 +351,20 @@ const Processing = () => {
         } else if (photo == null) {
           setPhotoError('Please Upload the Image');
         }
-        else if (fileResponse.length == 0) {
-          setDocumentError('Please Upload the Document');
-        } else {
+       else {
           setloading1(true);
           axios
             .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
             .then(response => {
 
               if (response?.data?.status == 1) {
-                // console.log("response statsu ---------", response?.data)
-                get_employee_detail()
-                setModalVisible1(false)
-                setRemart('')
-                setCameramodal('')
+                Toast.show(response?.data?.message)
+                get_employee_detail(),
+                setModalVisible1(false),
+                setRemart(''),
+                setCameramodal(''),
                 setCameramodal1('')
-                setDocmodal('')
+                // console.log("response statsu ---------", response?.data)
               }
               else {
                 // console.log(response?.data, 'yashu')
@@ -379,38 +384,38 @@ const Processing = () => {
             .catch(error => {
              
               setloading1(false)
-              if (error.response.status == '401') {
-                Popup.show({
-                  type: 'Warning',
-                  title: 'Warning',
-                  button: true,
-                  textBody:error.response.data.msg,
-                  buttonText: 'Ok',
-                  callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-                  AsyncStorage.removeItem('UserData'),
-                  AsyncStorage.removeItem('UserLocation'),
-                 navigation.navigate('Login')]
-                });
-              }
+              // if (error.response.status == '401') {
+              //   Popup.show({
+              //     type: 'Warning',
+              //     title: 'Warning',
+              //     button: true,
+              //     textBody:error.response.data.msg,
+              //     buttonText: 'Ok',
+              //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+              //     AsyncStorage.removeItem('UserData'),
+              //     AsyncStorage.removeItem('UserLocation'),
+              //    navigation.navigate('Login')]
+              //   });
+              // }
             });
         }
       }
       catch (error) {
       
         setloading1(false);
-        if (error.response.status == '401') {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
-          });
-        }
+        // if (error.response.status == '401') {
+        //   Popup.show({
+        //     type: 'Warning',
+        //     title: 'Warning',
+        //     button: true,
+        //     textBody:error.response.data.msg,
+        //     buttonText: 'Ok',
+        //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+        //     AsyncStorage.removeItem('UserData'),
+        //     AsyncStorage.removeItem('UserLocation'),
+        //    navigation.navigate('Login')]
+        //   });
+        // }
       }
     }
 
@@ -449,9 +454,28 @@ const Processing = () => {
   if (data == null) {
     return <Reload />
   }
-
+  const onSearchList = async (prev) => {
+    const filtered = data?.filter(item =>
+      item.mobile_no.toLowerCase().includes(prev.toLowerCase()),
+    );
+    if (prev === '') {
+      setFilterData('')
+      return setUserdata(data);
+    }
+    setFilterData(filtered);
+};
   return (
     <View style={styles.container}>
+      <Root>
+      <View style={{width:responsiveScreenWidth(96),height:responsiveHeight(5),borderRadius:10,borderWidth:0.5,shadowColor: '#000',alignSelf:'center',marginVertical:10}
+    }>
+  <TextInput
+  placeholder='Search by pin code...'
+  value={searchItem}
+  onChangeText={(prev)=>onSearchList(prev)}
+ 
+  />
+</View>
       {data?.length > 0 ? null :
         <View style={{ justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
           <Text style={{ marginTop: responsiveHeight(30), textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
@@ -459,7 +483,7 @@ const Processing = () => {
       }
 
       <FlatList
-        data={data}
+        data={filterData?filterData:data}
         renderItem={({ item, index }) =>
           <>
             <View activeOpacity={0.2} style={styles.maincard}>
@@ -977,6 +1001,7 @@ const Processing = () => {
                                 placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
                                 style={{ color: Themes == 'dark' ? '#000' : '#000', borderWidth: 1, borderRadius: 10, textAlignVertical: 'top', padding: 5 }}
                                 multiline={true}
+                                autoFocusOnLoad = {true}
                                 numberOfLines={4}
                                 onChangeText={(text) => [setRemart(text), setLocation(location + 1)]}
                                 onChange={() => setRemarkError(null)}
@@ -990,7 +1015,7 @@ const Processing = () => {
                               ) : null}
                             </View>
                             <View style={{ margin: 20, alignSelf: "center" }}>
-                              <Pressable onPress={takePhotoFromCamera}>
+                              <Pressable onPress={()=>takePhotoFromCamera()}>
                                 <View style={styles.takepic}>
                                   <Text style={styles.takepictext}>PICK FROM CAMERA</Text>
                                   {
@@ -1006,7 +1031,7 @@ const Processing = () => {
                                   }
                                 </View>
                               </Pressable>
-                              <TouchableOpacity onPress={choosePhotoFromLibrary}>
+                              <TouchableOpacity onPress={()=>choosePhotoFromLibrary()}>
 
                                 <View style={styles.takepic1}>
                                   <Text style={styles.takepictext}>PICK FROM GALLERY</Text>
@@ -1031,7 +1056,7 @@ const Processing = () => {
                                   textAlign: 'center', fontSize: 13, marginTop: 5
                                 }}>{photoError}</Text>
                               ) : null}
-                              <Pressable onPress={chooseDocumentLibrary}>
+                              <Pressable onPress={()=>chooseDocumentLibrary()}>
                                 <View style={styles.takepic1}>
                                   <Text style={styles.takepictext}>PICK Document</Text>
                                   {
@@ -1048,20 +1073,14 @@ const Processing = () => {
                                 </View>
                               </Pressable>
 
-                              {documentError ? (
-                                <Text style={{
-                                  color: 'red',
-                                  marginBottom: 8,
-                                  textAlign: 'center', fontSize: 13, marginTop: 5
-                                }}>{documentError}</Text>
-                              ) : null}
+                           
                             </View>
                             <View style={{ flexDirection: "row", alignSelf: "center" }}>
                               {loading1 ?
                                 <>
                                   <Pressable disabled={true}
                                     style={[styles.button, styles.buttonSubmit]}
-                                    onPress={() => tast_status_update(item)}
+                                 
                                   >
                                     <Text style={[{ textAlign: "center", }, { color: Themes == 'dark' ? '#000' : '#000' }]}>Submit</Text>
                                     <ActivityIndicator marginHorizontal={8} size='small' color="#000" />
@@ -1099,7 +1118,7 @@ const Processing = () => {
 
         }
       />
-
+   </Root>
     </View>
   )
 }

@@ -8,6 +8,7 @@ import {
   View,
   useColorScheme,
   Modal,
+  TextInput,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import GlobalStyle from '../../../reusable/GlobalStyle';
@@ -36,6 +37,8 @@ const Pending = ({ navigation }) => {
   const [loading, setloading] = useState(false);
   const [ind, setInd] = useState();
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchItem,setSearchItem]=useState()
+  const [filterData,setFilterData]=useState()
 
   const get_employee_detail = async () => {
     setloading(true);
@@ -68,6 +71,16 @@ const Pending = ({ navigation }) => {
            navigation.navigate('Login')]
           });
         }
+        else  if (error.response.status == '400') {
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          });
+        }
       });
   };
   const tast_status_update = async item => {
@@ -89,6 +102,7 @@ const Pending = ({ navigation }) => {
         get_employee_detail();
         setShow(response?.data);
         setModalVisible(false);
+        console.log(response,',bdvvkjkbjkvwb')
         Toast.show('This task is under progress.');
       })
       .catch(error => {
@@ -131,6 +145,16 @@ const Pending = ({ navigation }) => {
   if (data == null) {
     return <Reload />;
   }
+  const onSearchList = async (prev) => {
+      const filtered = data?.filter(item =>
+        item.mobile_no.toLowerCase().includes(prev.toLowerCase()),
+      );
+      if (prev === '') {
+        setFilterData('')
+        return setUserdata(data);
+      }
+      setFilterData(filtered);
+  };
 
   const handleRefresh = async () => {
     // Do something to refresh the data
@@ -140,7 +164,15 @@ const Pending = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Root>
-
+<View style={{width:responsiveScreenWidth(96),height:responsiveHeight(5),borderRadius:10,borderWidth:0.5,shadowColor: '#000',alignSelf:'center',marginVertical:10}
+    }>
+  <TextInput
+  placeholder='Search by pin code...'
+  value={searchItem}
+  onChangeText={(prev)=>onSearchList(prev)}
+ 
+  />
+</View>
      
       <PullToRefresh onRefresh={handleRefresh}>
         <View>
@@ -164,7 +196,7 @@ const Pending = ({ navigation }) => {
           )}
 
           <FlatList
-            data={data}
+            data={filterData?filterData: data}
             renderItem={({ item, index }) => (
               <>
                 <View activeOpacity={0.2} style={styles.maincard}>

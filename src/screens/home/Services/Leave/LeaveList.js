@@ -228,7 +228,7 @@ const LeaveList = ({ navigation }) => {
                     style={{ marginLeft: 5 }}
                   />
                 </TouchableOpacity>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={[
                     styles.tag,
                     { backgroundColor: tag == 'earned' ? '#0043ae' : '#0043ae50' },
@@ -269,7 +269,7 @@ const LeaveList = ({ navigation }) => {
                     color="white"
                     style={{ marginLeft: 5 }}
                   />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
               {leaveList?.length > 0 ? (
                 leaveList.map((i, index) => (

@@ -45,6 +45,7 @@ const PRM = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [dataItem,setDataItem]=useState()
     const [show,setShow]=useState(false)
+    const [ind,setInd]=useState()
     const get_employee_detail = async () => {
         setloading(true)
         const token = await AsyncStorage.getItem('Token');
@@ -374,7 +375,7 @@ const PRM = () => {
                                     /> */}
                                     <Text style={{color:'#fff'}}>Delete</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() =>historyDownload(item)} style={{width:100,height:30,borderRadius:10,backgroundColor:'#0043ae',justifyContent:'center',alignItems:'center'}}>
+                                <TouchableOpacity onPress={() =>[historyDownload(item),setInd(index)]} style={{width:100,height:30,borderRadius:10,backgroundColor:'#0043ae',justifyContent:'center',alignItems:'center'}}>
                                     {/* <AntDesign
                                         name="delete"
                                         style={{
@@ -383,13 +384,13 @@ const PRM = () => {
                                             marginRight: 10
                                         }}
                                     /> */}
-                                   {show? <ActivityIndicator size="small" color="#fff" />: <Text style={{color:'#fff'}}>View Report</Text>}
+                                   {show && ind==index? <ActivityIndicator size="small" color="#fff" />: <Text style={{color:'#fff'}}>View Report</Text>}
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => Post_edit_category(item)} style={{width:100,height:30,borderRadius:10,backgroundColor:'#0043ae',justifyContent:'center',alignItems:'center'}}>
                                 <Text style={{color:'#fff'}}>Edit</Text>
 
                                 </TouchableOpacity>
-                       
+                           
                         </View>
                         <View
                           style={{

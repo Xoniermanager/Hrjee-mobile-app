@@ -13,7 +13,8 @@ import {
   RefreshControl,
   Alert,
   useColorScheme,
-  Platform,Modal
+  Platform,
+  Modal,
 } from 'react-native';
 import React, {
   useState,
@@ -22,42 +23,45 @@ import React, {
   useRef,
   useCallback,
 } from 'react';
-import { Root, Popup } from 'popup-ui'
+import {Root, Popup} from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import apiUrl from '../../reusable/apiUrl';
 import axios from 'axios';
-import { EssContext } from '../../../Context/EssContext';
-import { PermissionsAndroid } from 'react-native';
+import {EssContext} from '../../../Context/EssContext';
+import {PermissionsAndroid} from 'react-native';
 import useApi from '../../../api/useApi';
 import attendence from '../../../api/attendence';
 import GetLocation from 'react-native-get-location';
-import { getDistance } from 'geolib';
+import {getDistance} from 'geolib';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 // import messaging from '@react-native-firebas e/messaging';
 import Empty from '../../reusable/Empty';
-import { NavigationContainer, useIsFocused } from '@react-navigation/native';
+import {NavigationContainer, useIsFocused} from '@react-navigation/native';
 import Themes from '../../Theme/Theme';
-import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from 'react-native-responsive-dimensions';
 
-
-const Home = ({ navigation }) => {
+const Home = ({navigation}) => {
   const theme = useColorScheme();
-  const [modalVisible, setModalVisible] = useState(false)
+  const [modalVisible, setModalVisible] = useState(false);
   const punchInApi = useApi2(attendence.punchIn);
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
 
-  const { setuser } = useContext(EssContext);
+  const {setuser} = useContext(EssContext);
   const [news, setnews] = useState([]);
   const [user, setuser1] = useState(null);
   const [inTime, setinTime] = useState(null);
@@ -70,7 +74,7 @@ const Home = ({ navigation }) => {
   const [announcements, setannouncements] = useState([]);
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
-  const [show, setShow] = useState(true)
+  const [show, setShow] = useState(true);
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -118,14 +122,17 @@ const Home = ({ navigation }) => {
   ];
 
   const d = new Date();
-  var mon = ((d.getMonth() + 1) <= 9) ? ('0' + (d.getMonth() + 1)) : (d.getMonth() + 1);
+  var mon = d.getMonth() + 1 <= 9 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1;
 
-  var day = (d.getDate() <= 9) ? ('0' + d.getDate()) : d.getDate();
+  var day = d.getDate() <= 9 ? '0' + d.getDate() : d.getDate();
 
   const datetime = d.getFullYear() + '-' + mon + '-' + day;
-  const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours()  + ":" + d.getMinutes();
+  const hours =
+    d.getHours() < 10
+      ? `0${d.getHours()}`
+      : d.getHours() + ':' + d.getMinutes();
 
-  const [menuAccessData, setMenuAccessData] = useState()
+  const [menuAccessData, setMenuAccessData] = useState();
 
   // console.log("menuAccessData", menuAccessData)
   // AsyncStorage.getItem('menu').then(res => {
@@ -133,14 +140,12 @@ const Home = ({ navigation }) => {
   //   console.log(JSON.parse(res))
   // });
 
-
-
   useEffect(() => {
     const getData = async () => {
       AsyncStorage.getItem('UserData').then(res => {
         setuser1(JSON.parse(res));
         setuser(JSON.parse(res));
-        setOfficeTiming(JSON.parse(res))
+        setOfficeTiming(JSON.parse(res));
       });
     };
     getData();
@@ -166,7 +171,7 @@ const Home = ({ navigation }) => {
       getActiveLocation();
       check_punchIn();
       ProfileDetails();
-      get_month_logs()
+      get_month_logs();
     }, []),
   );
 
@@ -176,19 +181,16 @@ const Home = ({ navigation }) => {
     check_punchIn();
     get_month_logs();
     ProfileDetails();
-  
-
   };
 
   const getActiveLocation = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: { Token: token },
+      headers: {Token: token},
     };
     const body = {};
     getActiveLocationApi.request(body, config);
   };
-
 
   const options = [
     {
@@ -202,7 +204,6 @@ const Home = ({ navigation }) => {
       name: 'Attendance',
       location: require('../../images/attendence.jpeg'),
       moveTo: 'Select Attendance',
-
     },
     {
       id: 2,
@@ -240,7 +241,6 @@ const Home = ({ navigation }) => {
       location: require('../../images/account.jpeg'),
       moveTo: 'Profile',
     },
-
   ];
 
   useEffect(() => {
@@ -273,23 +273,23 @@ const Home = ({ navigation }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [timerOn,]);
+  }, [timerOn]);
 
   const check_punchIn = async () => {
     // setloading(true)
-    get_month_logs()
-    setModalVisible(true)
+    get_month_logs();
+    setModalVisible(true);
     settimerOn(false);
     const token = await AsyncStorage.getItem('Token');
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
-    console.log(token,'token')
+    console.log(token, 'token');
     setuser(JSON.parse(userData));
     // setlocation(JSON.parse(UserLocation));
     const config = {
-      headers: { Token: token },
+      headers: {Token: token},
     };
-   
+
     const body = {};
     axios
       .post(`${apiUrl}/api/today_attendance`, body, config)
@@ -302,14 +302,13 @@ const Home = ({ navigation }) => {
             setlocationOut(data.out_location_id);
             settimerOn(true);
             setloading(false);
-    setModalVisible(false)
-
+            setModalVisible(false);
           } else {
             if (data.in_time != '' && data.out_location_id != '') {
               // after punch out
               setloading(false);
               setpunchIn(false);
-    setModalVisible(false)
+              setModalVisible(false);
 
               setinTime(data.in_time);
               setlocationOut(data.out_location_id);
@@ -332,37 +331,35 @@ const Home = ({ navigation }) => {
               setfullTime(time);
             }
           }
-
-
         } else {
           setloading(false);
           setinTime(null);
-    setModalVisible(false)
-    setlocationOut(null);
+          setModalVisible(false);
+          setlocationOut(null);
           setactivityTime(null);
           setloading(false);
         }
       })
       .catch(function (error) {
         setloading(false);
-       
-        if(error.response.status=='401')
-        {
+
+        if (error.response.status == '401') {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:error.response.data.msg,
+            textBody: error.response.data.msg,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
+            callback: () => [
+              Popup.hide(),
+              AsyncStorage.removeItem('Token'),
+              AsyncStorage.removeItem('UserData'),
+              AsyncStorage.removeItem('UserLocation'),
+              navigation.navigate('Login'),
+            ],
           });
-     
-        
-    setModalVisible(false)
 
+          setModalVisible(false);
         }
       });
   };
@@ -377,15 +374,15 @@ const Home = ({ navigation }) => {
           // onPress: handleCancelButtonPress,
           style: 'cancel',
         },
-        { text: 'OK', onPress: () => punch_out() },
+        {text: 'OK', onPress: () => punch_out()},
       ],
-      { cancelable: false },
+      {cancelable: false},
     );
   };
 
   const punch_out = async () => {
     setloading(true);
-    get_month_logs()
+    get_month_logs();
     const userData = await AsyncStorage.getItem('UserData');
     const userInfo = JSON.parse(userData);
     let company_id = userInfo?.company_id;
@@ -403,7 +400,7 @@ const Home = ({ navigation }) => {
         });
 
         var dis = getDistance(
-          { latitude: lat, longitude: long },
+          {latitude: lat, longitude: long},
           {
             latitude: activeLocation.latitude,
             longitude: activeLocation.longitude,
@@ -413,7 +410,7 @@ const Home = ({ navigation }) => {
         if (company_id == 56 || company_id == 89 || company_id == 92) {
           const token = await AsyncStorage.getItem('Token');
           const config = {
-            headers: { Token: token },
+            headers: {Token: token},
           };
           const body = {
             user_id: user.userid,
@@ -423,7 +420,7 @@ const Home = ({ navigation }) => {
             latitude: lat,
             longitude: long,
           };
-          console.log("body=>", body)
+          console.log('body=>', body);
           axios
             .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
             .then(function (response) {
@@ -434,21 +431,22 @@ const Home = ({ navigation }) => {
               }
             })
             .catch(function (error) {
-            
-              if(error.response.status=='401')
-        {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
-          });
-        }
+              if (error.response.status == '401') {
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody: error.response.data.msg,
+                  buttonText: 'Ok',
+                  callback: () => [
+                    Popup.hide(),
+                    AsyncStorage.removeItem('Token'),
+                    AsyncStorage.removeItem('UserData'),
+                    AsyncStorage.removeItem('UserLocation'),
+                    navigation.navigate('Login'),
+                  ],
+                });
+              }
             });
         } else {
           //console.log('dis=-----',dis);
@@ -457,11 +455,11 @@ const Home = ({ navigation }) => {
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:'Location not find',
+              textBody: 'Location not find',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()]
+              callback: () => [Popup.hide()],
             });
-          
+
             setloading(false);
             return;
           } else if (long == null || long == '') {
@@ -469,9 +467,9 @@ const Home = ({ navigation }) => {
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:'Location not find',
+              textBody: 'Location not find',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()]
+              callback: () => [Popup.hide()],
             });
             setloading(false);
             return;
@@ -483,11 +481,11 @@ const Home = ({ navigation }) => {
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:'Please set active location',
+              textBody: 'Please set active location',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()]
+              callback: () => [Popup.hide()],
             });
-           
+
             setloading(false);
             return;
           } else if (
@@ -498,9 +496,9 @@ const Home = ({ navigation }) => {
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:'Please set active location',
+              textBody: 'Please set active location',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()]
+              callback: () => [Popup.hide()],
             });
             setloading(false);
             return;
@@ -508,7 +506,7 @@ const Home = ({ navigation }) => {
           if (dis <= 4000) {
             const token = await AsyncStorage.getItem('Token');
             const config = {
-              headers: { Token: token },
+              headers: {Token: token},
             };
             const body = {
               user_id: user.userid,
@@ -519,7 +517,11 @@ const Home = ({ navigation }) => {
               longitude: long,
             };
             axios
-              .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
+              .post(
+                `${apiUrl}/secondPhaseApi/mark_attendance_out`,
+                body,
+                config,
+              )
               .then(function (response) {
                 if (response.data.status == 1) {
                   check_punchIn();
@@ -529,64 +531,59 @@ const Home = ({ navigation }) => {
               })
               .catch(function (error) {
                 console.log(error);
-                if(error.response.status=='401')
-        {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
-          });
-        }
+                if (error.response.status == '401') {
+                  Popup.show({
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody: error.response.data.msg,
+                    buttonText: 'Ok',
+                    callback: () => [
+                      Popup.hide(),
+                      AsyncStorage.removeItem('Token'),
+                      AsyncStorage.removeItem('UserData'),
+                      AsyncStorage.removeItem('UserLocation'),
+                      navigation.navigate('Login'),
+                    ],
+                  });
+                }
               });
           } else {
             Popup.show({
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:'You are not in the radius',
+              textBody: 'You are not in the radius',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()]
+              callback: () => [Popup.hide()],
             });
-           
+
             setloading(false);
           }
         }
-     
-
       })
       .catch(error => {
         setloading(false);
-        const { code, message } = error;
+        const {code, message} = error;
         Popup.show({
           type: 'Warning',
           title: 'Warning',
           button: true,
-          textBody:message,
+          textBody: message,
           buttonText: 'Ok',
-          callback: () => [Popup.hide()]
+          callback: () => [Popup.hide()],
         });
-       
       });
   };
-
-  // console.log("night.............",  (officetiming?.office_timing + `${d.getHours()}:${d.getMinutes()} AM`))
-
-
   const punch_in = async () => {
-    setloading(true)
+    setloading(true);
     if (Platform.OS == 'android') {
       try {
         const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          GetLocation.getCurrentPosition({})
+          GetLocation.getCurrentPosition({});
           const userData = await AsyncStorage.getItem('UserData');
           const userInfo = JSON.parse(userData);
           let company_id = userInfo?.company_id;
@@ -604,15 +601,13 @@ const Home = ({ navigation }) => {
                 lat: lat,
               });
 
-
               var dis = getDistance(
-                { latitude: lat, longitude: long },
+                {latitude: lat, longitude: long},
                 {
                   latitude: activeLocation.latitude,
                   longitude: activeLocation.longitude,
                 },
               );
-
 
               if (company_id == 56 || company_id == 89 || company_id == 92) {
                 const token = await AsyncStorage.getItem('Token');
@@ -620,65 +615,69 @@ const Home = ({ navigation }) => {
                 const userInfo = JSON.parse(userData);
 
                 const config = {
-                  headers: { Token: token },
+                  headers: {Token: token},
                 };
                 const body = {
                   email: userInfo.email,
                   location_id: activeLocation.location_id,
                   latitude: lat,
                   longitude: long,
-                  login_type: 'mobile'
+                  login_type: 'mobile',
                 };
 
-
                 axios
-                  .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+                  .post(
+                    `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                    body,
+                    config,
+                  )
                   .then(function (response) {
                     if (response.data.status == 1) {
                       check_punchIn();
-                      setloading(false)
+                      setloading(false);
                     } else {
                       Popup.show({
                         type: 'Warning',
                         title: 'Warning',
                         button: true,
-                        textBody:response.data.message,
+                        textBody: response.data.message,
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
+                        callback: () => [Popup.hide()],
                       });
-                      
+
                       setloading(false);
                     }
                   })
                   .catch(function (error) {
                     setloading(false);
-                    if(error.response.status=='401')
-                    {
+                    if (error.response.status == '401') {
                       Popup.show({
                         type: 'Warning',
                         title: 'Warning',
                         button: true,
-                        textBody:error.response.data.msg,
+                        textBody: error.response.data.msg,
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-                        AsyncStorage.removeItem('UserData'),
-                        AsyncStorage.removeItem('UserLocation'),
-                       navigation.navigate('Login')]
+                        callback: () => [
+                          Popup.hide(),
+                          AsyncStorage.removeItem('Token'),
+                          AsyncStorage.removeItem('UserData'),
+                          AsyncStorage.removeItem('UserLocation'),
+                          navigation.navigate('Login'),
+                        ],
                       });
                     }
                   });
               } else {
-
                 if (lat == null || lat == '') {
                   Popup.show({
                     type: 'Warning',
                     title: 'Warning',
                     button: true,
-                    textBody:'Location not find',
+                    textBody: 'Location not find',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()]
+                    callback: () => [Popup.hide()],
                   });
-                 
+
                   setloading(false);
                   return;
                 } else if (long == null || long == '') {
@@ -686,9 +685,9 @@ const Home = ({ navigation }) => {
                     type: 'Warning',
                     title: 'Warning',
                     button: true,
-                    textBody:'Location not find',
+                    textBody: 'Location not find',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()]
+                    callback: () => [Popup.hide()],
                   });
                   setloading(false);
                   return;
@@ -697,13 +696,13 @@ const Home = ({ navigation }) => {
                   activeLocation.latitude == ''
                 ) {
                   Popup.show({
-              type: 'Warning',
-              title: 'Warning',
-              button: true,
-              textBody:'Please set active location',
-              buttonText: 'Ok',
-              callback: () => [Popup.hide()]
-            });
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody: 'Please set active location',
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()],
+                  });
                   setloading(false);
                   return;
                 } else if (
@@ -711,13 +710,13 @@ const Home = ({ navigation }) => {
                   activeLocation.longitude == ''
                 ) {
                   Popup.show({
-              type: 'Warning',
-              title: 'Warning',
-              button: true,
-              textBody:'Please set active location',
-              buttonText: 'Ok',
-              callback: () => [Popup.hide()]
-            });
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody: 'Please set active location',
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()],
+                  });
                   setloading(false);
                   return;
                 }
@@ -728,50 +727,56 @@ const Home = ({ navigation }) => {
                   const userInfo = JSON.parse(userData);
 
                   const config = {
-                    headers: { Token: token },
+                    headers: {Token: token},
                   };
                   const body = {
                     email: userInfo.email,
                     location_id: activeLocation.location_id,
                     latitude: lat,
                     longitude: long,
-                    login_type: 'mobile'
+                    login_type: 'mobile',
                   };
-                  console.log('logitute-----', body)
+                  console.log('logitute-----', body);
                   axios
-                    .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+                    .post(
+                      `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                      body,
+                      config,
+                    )
                     .then(function (response) {
                       if (response.data.status == 1) {
                         check_punchIn();
-                        setloading(false)
+                        setloading(false);
                       } else {
                         Popup.show({
                           type: 'Warning',
                           title: 'Warning',
                           button: true,
-                          textBody:response.data.message,
+                          textBody: response.data.message,
                           buttonText: 'Ok',
-                          callback: () => [Popup.hide()]
+                          callback: () => [Popup.hide()],
                         });
-                     
+
                         setloading(false);
                       }
                     })
                     .catch(function (error) {
                       setloading(false);
-                    
-                      if(error.response.status=='401')
-                      {
+
+                      if (error.response.status == '401') {
                         Popup.show({
                           type: 'Warning',
                           title: 'Warning',
                           button: true,
-                          textBody:error.response.data.msg,
+                          textBody: error.response.data.msg,
                           buttonText: 'Ok',
-                          callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-                          AsyncStorage.removeItem('UserData'),
-                          AsyncStorage.removeItem('UserLocation'),
-                         navigation.navigate('Login')]
+                          callback: () => [
+                            Popup.hide(),
+                            AsyncStorage.removeItem('Token'),
+                            AsyncStorage.removeItem('UserData'),
+                            AsyncStorage.removeItem('UserLocation'),
+                            navigation.navigate('Login'),
+                          ],
                         });
                       }
                     });
@@ -780,26 +785,25 @@ const Home = ({ navigation }) => {
                     type: 'Warning',
                     title: 'Warning',
                     button: true,
-                    textBody:'You are not in the radius',
+                    textBody: 'You are not in the radius',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()]
+                    callback: () => [Popup.hide()],
                   });
-                
+
                   setloading(false);
                 }
               }
-            
             })
             .catch(error => {
-              const { code, message } = error;
-           
+              const {code, message} = error;
+
               Popup.show({
                 type: 'Warning',
                 title: 'Warning',
                 button: true,
-                textBody:message,
+                textBody: message,
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()]
+                callback: () => [Popup.hide()],
               });
               setloading(false);
             });
@@ -808,21 +812,20 @@ const Home = ({ navigation }) => {
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:'Location permission denied',
+            textBody: 'Location permission denied',
             buttonText: 'Ok',
-            callback: () => [Popup.hide()]
+            callback: () => [Popup.hide()],
           });
-         
+
           setloading(false);
         }
       } catch (err) {
         setloading(false);
         console.warn(err);
       }
-    }
-    else {
+    } else {
       try {
-        GetLocation.getCurrentPosition({})
+        GetLocation.getCurrentPosition({});
         const userData = await AsyncStorage.getItem('UserData');
         const userInfo = JSON.parse(userData);
         let company_id = userInfo?.company_id;
@@ -835,22 +838,19 @@ const Home = ({ navigation }) => {
             setloading(false);
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
-           
 
             setcurrentLocation({
               long: long,
               lat: lat,
             });
 
-
             var dis = getDistance(
-              { latitude: lat, longitude: long },
+              {latitude: lat, longitude: long},
               {
                 latitude: activeLocation.latitude,
                 longitude: activeLocation.longitude,
               },
             );
-
 
             if (company_id == 56 || company_id == 89 || company_id == 92) {
               const token = await AsyncStorage.getItem('Token');
@@ -858,21 +858,23 @@ const Home = ({ navigation }) => {
               const userInfo = JSON.parse(userData);
 
               const config = {
-                headers: { Token: token },
+                headers: {Token: token},
               };
               const body = {
                 email: userInfo.email,
                 location_id: activeLocation.location_id,
                 latitude: lat,
                 longitude: long,
-                login_type: 'mobile'
+                login_type: 'mobile',
               };
 
-
               axios
-                .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+                .post(
+                  `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                  body,
+                  config,
+                )
                 .then(function (response) {
-                  
                   if (response.data.status == 1) {
                     check_punchIn();
                   } else {
@@ -880,44 +882,45 @@ const Home = ({ navigation }) => {
                       type: 'Warning',
                       title: 'Warning',
                       button: true,
-                      textBody:response.data.message,
+                      textBody: response.data.message,
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()]
+                      callback: () => [Popup.hide()],
                     });
-                  
+
                     setloading(false);
                   }
                 })
                 .catch(function (error) {
                   setloading(false);
-               
-                  if(error.response.status=='401')
-                  {
+
+                  if (error.response.status == '401') {
                     Popup.show({
                       type: 'Warning',
                       title: 'Warning',
                       button: true,
-                      textBody:error.response.data.msg,
+                      textBody: error.response.data.msg,
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-                      AsyncStorage.removeItem('UserData'),
-                      AsyncStorage.removeItem('UserLocation'),
-                     navigation.navigate('Login')]
+                      callback: () => [
+                        Popup.hide(),
+                        AsyncStorage.removeItem('Token'),
+                        AsyncStorage.removeItem('UserData'),
+                        AsyncStorage.removeItem('UserLocation'),
+                        navigation.navigate('Login'),
+                      ],
                     });
                   }
                 });
             } else {
-
               if (lat == null || lat == '') {
                 Popup.show({
                   type: 'Warning',
                   title: 'Warning',
                   button: true,
-                  textBody:'Location not find',
+                  textBody: 'Location not find',
                   buttonText: 'Ok',
-                  callback: () => [Popup.hide()]
+                  callback: () => [Popup.hide()],
                 });
-             
+
                 setloading(false);
                 return;
               } else if (long == null || long == '') {
@@ -925,9 +928,9 @@ const Home = ({ navigation }) => {
                   type: 'Warning',
                   title: 'Warning',
                   button: true,
-                  textBody:'Location not find',
+                  textBody: 'Location not find',
                   buttonText: 'Ok',
-                  callback: () => [Popup.hide()]
+                  callback: () => [Popup.hide()],
                 });
                 setloading(false);
                 return;
@@ -939,11 +942,11 @@ const Home = ({ navigation }) => {
                   type: 'Warning',
                   title: 'Warning',
                   button: true,
-                  textBody:'Please set active location',
+                  textBody: 'Please set active location',
                   buttonText: 'Ok',
-                  callback: () => [Popup.hide()]
+                  callback: () => [Popup.hide()],
                 });
-                
+
                 setloading(false);
                 return;
               } else if (
@@ -954,9 +957,9 @@ const Home = ({ navigation }) => {
                   type: 'Warning',
                   title: 'Warning',
                   button: true,
-                  textBody:'Please set active location',
+                  textBody: 'Please set active location',
                   buttonText: 'Ok',
-                  callback: () => [Popup.hide()]
+                  callback: () => [Popup.hide()],
                 });
                 setloading(false);
                 return;
@@ -968,18 +971,22 @@ const Home = ({ navigation }) => {
                 const userInfo = JSON.parse(userData);
 
                 const config = {
-                  headers: { Token: token },
+                  headers: {Token: token},
                 };
                 const body = {
                   email: userInfo.email,
                   location_id: activeLocation.location_id,
                   latitude: lat,
                   longitude: long,
-                  login_type: 'mobile'
+                  login_type: 'mobile',
                 };
-               
+
                 axios
-                  .post(`${apiUrl}/secondPhaseApi/mark_attendance_in`, body, config)
+                  .post(
+                    `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                    body,
+                    config,
+                  )
                   .then(function (response) {
                     if (response.data.status == 1) {
                       check_punchIn();
@@ -988,29 +995,31 @@ const Home = ({ navigation }) => {
                         type: 'Warning',
                         title: 'Warning',
                         button: true,
-                        textBody:response.data.message,
+                        textBody: response.data.message,
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
+                        callback: () => [Popup.hide()],
                       });
-                    
+
                       setloading(false);
                     }
                   })
                   .catch(function (error) {
                     setloading(false);
-                  
-                    if(error.response.status=='401')
-                    {
+
+                    if (error.response.status == '401') {
                       Popup.show({
                         type: 'Warning',
                         title: 'Warning',
                         button: true,
-                        textBody:error.response.data.msg,
+                        textBody: error.response.data.msg,
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-                        AsyncStorage.removeItem('UserData'),
-                        AsyncStorage.removeItem('UserLocation'),
-                       navigation.navigate('Login')]
+                        callback: () => [
+                          Popup.hide(),
+                          AsyncStorage.removeItem('Token'),
+                          AsyncStorage.removeItem('UserData'),
+                          AsyncStorage.removeItem('UserLocation'),
+                          navigation.navigate('Login'),
+                        ],
                       });
                     }
                   });
@@ -1019,61 +1028,52 @@ const Home = ({ navigation }) => {
                   type: 'Warning',
                   title: 'Warning',
                   button: true,
-                  textBody:'You are not in the radius',
+                  textBody: 'You are not in the radius',
                   buttonText: 'Ok',
-                  callback: () => [Popup.hide()]
+                  callback: () => [Popup.hide()],
                 });
-              
-               
+
                 setloading(false);
               }
             }
-          
           })
           .catch(error => {
-            const { code, message } = error;
+            const {code, message} = error;
             Popup.show({
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:message,
+              textBody: message,
               buttonText: 'Ok',
-              callback: () => [Popup.hide()]
+              callback: () => [Popup.hide()],
             });
-            
+
             setloading(false);
           });
-       
-      }
-
-      catch (err) {
+      } catch (err) {
         setloading(false);
         console.warn(err);
       }
     }
   };
 
-
-  const renderItem = ({ item }) =>
-
+  const renderItem = ({item}) =>
     // console.log("A.......", item)
     // let x = item?.id;
-    // console.log(x); 
-
-
+    // console.log(x);
 
     item?.id === 0 ||
     item?.id === 8 || (
       <TouchableOpacity
         onPress={() =>
           item.id == 0
-            ? navigation.navigate('Post', { screen: 'Post' })
+            ? navigation.navigate('Post', {screen: 'Post'})
             : navigation.navigate(item.moveTo)
         }>
         <ImageBackground
           style={styles.options1}
           source={item?.location}
-          imageStyle={{ borderRadius: 5 }}>
+          imageStyle={{borderRadius: 5}}>
           <LinearGradient
             colors={['#00000000', '#000000']}
             style={{
@@ -1088,7 +1088,7 @@ const Home = ({ navigation }) => {
                 bottom: 5,
                 fontSize: 17,
                 fontWeight: '600',
-                alignSelf: "center",
+                alignSelf: 'center',
               }}>
               {item?.name}
             </Text>
@@ -1100,7 +1100,7 @@ const Home = ({ navigation }) => {
   const ProfileDetails = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: { Token: token },
+      headers: {Token: token},
     };
     axios
       .post(`${apiUrl}/api/get_employee_detail`, {}, config)
@@ -1120,33 +1120,17 @@ const Home = ({ navigation }) => {
         }
       })
       .catch(error => {
-      
-        if(error.response.status=='401')
-        {
-   
-      console.log("first")
+        if (error.response.status == '401') {
+          console.log('first');
         }
       });
   };
 
-
-
-  
-
-  // Recent Login Data start
   const getAtendenceApi = useApi(attendence.getAttendance);
-
 
   const [locationStatus, setLocationStatus] = useState('');
   const [location, setlocation] = useState();
   const [recentLogs, setrecentLogs] = useState([]);
-
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     getActiveLocation();
-  //     check_punchIn();
-  //   }, []),
-  // );
 
   useEffect(() => {
     if (punchInApi.data != null) {
@@ -1156,13 +1140,11 @@ const Home = ({ navigation }) => {
         type: 'Warning',
         title: 'Warning',
         button: true,
-        textBody:punchInApi.data.message,
+        textBody: punchInApi.data.message,
         buttonText: 'Ok',
-        callback: () => [Popup.hide()]
+        callback: () => [Popup.hide()],
       });
-   
     }
-   
   }, [punchInApi.loading]);
 
   useEffect(() => {
@@ -1173,11 +1155,10 @@ const Home = ({ navigation }) => {
         type: 'Warning',
         title: 'Warning',
         button: true,
-        textBody:punchOutApi.data.message,
+        textBody: punchOutApi.data.message,
         buttonText: 'Ok',
-        callback: () => [Popup.hide()]
+        callback: () => [Popup.hide()],
       });
-    
     }
   }, [punchOutApi.loading]);
 
@@ -1211,7 +1192,7 @@ const Home = ({ navigation }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [timerOn,]);
+  }, [timerOn]);
 
   useEffect(() => {
     setTimeout(function () {
@@ -1298,180 +1279,224 @@ const Home = ({ navigation }) => {
   const get_month_logs = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: { Token: token },
+      headers: {Token: token},
     };
 
     var startOfWeek = moment().startOf('month').toDate();
     var endOfWeek = moment().endOf('month').toDate();
-console.log(startOfWeek,endOfWeek,'endOfWeek')
+    console.log(startOfWeek, endOfWeek, 'endOfWeek');
     const body = {
       start_date: startOfWeek,
       end_date: endOfWeek,
     };
+    console.log(body, 'body');
     axios
       .post(`${apiUrl}/Api/attendance`, body, config)
       .then(response => {
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log(response.data.content,'Month logs')
+            console.log(response.data.content, 'Month logs');
             setrecentLogs(response.data.content);
-          } catch (e) {
-          
-          }
+          } catch (e) {}
         } else {
-          
         }
       })
       .catch(error => {
-      
         setloading(false);
-        if(error.response.status=='401')
-        {
-     
+        if (error.response.status == '401') {
         }
       });
   };
 
-  
-
-
-
-
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e3eefb' }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#e3eefb'}}>
       <Root>
-      <PullToRefresh onRefresh={handleRefresh}>
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: "row", alignItems: 'center', justifyContent: "space-between" }}>
+        <PullToRefresh onRefresh={handleRefresh}>
+          <View style={{flex: 1}}>
             <View
               style={{
                 flexDirection: 'row',
-                // justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: 10,
-              }}>
-              <Image
-                style={styles.tinyLogo}
-                // source={require('../../images/profile_pic.webp')}
-                source={
-                  Userdata?.image
-                    ? { uri: Userdata.image }
-                    : require('../../images/profile_pic.webp')
-                }
-              />
-              <Text numberOfLines={1} style={[{ fontSize: 18, fontWeight: 'bold', marginLeft: 2 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                Hi,{user?.FULL_NAME}!
-              </Text>
-            </View>
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications')}
-              style={{
-              }}>
-              <Ionicons
-                name="notifications-outline"
-                style={{
-                  fontSize: 35,
-                  color: '#000',
-                  marginRight: 10,
-                }}
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={{}}>
-            <FlatList
-              horizontal
-              data={options}
-              renderItem={renderItem}
-              keyExtractor={item => item?.id}
-            />
-          </View>
-          <View style={{ padding: 15, marginTop: 5 }}>
-            <View
-              style={{
-                flexDirection: 'row',
                 justifyContent: 'space-between',
-                alignItems: 'center',
               }}>
-              <Text style={[{ fontSize: 18, fontWeight: '700' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                E-Attendance
-              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  // justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: 10,
+                }}>
+                <Image
+                  style={styles.tinyLogo}
+                  // source={require('../../images/profile_pic.webp')}
+                  source={
+                    Userdata?.image
+                      ? {uri: Userdata.image}
+                      : require('../../images/profile_pic.webp')
+                  }
+                />
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    {fontSize: 18, fontWeight: 'bold', marginLeft: 2},
+                    {color: Themes == 'dark' ? '#000' : '#000'},
+                  ]}>
+                  Hi,{user?.FULL_NAME}!
+                </Text>
+              </View>
               <TouchableOpacity
-                onPress={() => navigation.navigate('Select Attendance')}>
-                <Text style={[styles.purple_txt, { color: Themes == 'dark' ? '#000' : '#000' }]}>View History</Text>
+                onPress={() => navigation.navigate('Notifications')}
+                style={{}}>
+                <Ionicons
+                  name="notifications-outline"
+                  style={{
+                    fontSize: 35,
+                    color: '#000',
+                    marginRight: 10,
+                  }}
+                />
               </TouchableOpacity>
             </View>
-            <View style={{ marginTop: 15, borderRadius: 15 }}>
+            <View style={{}}>
+              <FlatList
+                horizontal
+                data={options}
+                renderItem={renderItem}
+                keyExtractor={item => item?.id}
+              />
+            </View>
+            <View style={{padding: 15, marginTop: 5}}>
               <View
-              // style={{ width: '100%', borderRadius: 15, overflow: 'hidden', }}
-              // source={require('../../images/gradient.gif')}
-              // imageStyle={{ borderRadius: 15,  }}
-              >
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={[
+                    {fontSize: 18, fontWeight: '700'},
+                    {color: Themes == 'dark' ? '#000' : '#000'},
+                  ]}>
+                  E-Attendance
+                </Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Select Attendance')}>
+                  <Text
+                    style={[
+                      styles.purple_txt,
+                      {color: Themes == 'dark' ? '#000' : '#000'},
+                    ]}>
+                    View History
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={{marginTop: 15, borderRadius: 15}}>
                 <View
-                  style={{
-                    backgroundColor: 'white',
-                    margin: 8,
-                    padding: 15,
-                    borderRadius: 20,
-                    flexDirection: 'row',
-                    borderWidth: 12,
-                    borderColor: "#172B85"
-                  }}>
+                // style={{ width: '100%', borderRadius: 15, overflow: 'hidden', }}
+                // source={require('../../images/gradient.gif')}
+                // imageStyle={{ borderRadius: 15,  }}
+                >
                   <View
                     style={{
-                      width: '35%',
-                      // backgroundColor: 'pink',
-                      borderRightWidth: 0.5,
-                      borderRightColor: 'grey',
-                      alignItems: 'center',
+                      backgroundColor: 'white',
+                      margin: 8,
+                      padding: 15,
+                      borderRadius: 20,
+                      flexDirection: 'row',
+                      borderWidth: 12,
+                      borderColor: '#172B85',
                     }}>
-                    <View style={{ alignItems: 'center' }}>
-                      <Text
-                        style={{
-                          color: 'grey',
-                          fontSize: 15,
-                          fontWeight: '500',
-                        }}>
-                        {days[d.getDay()]}
-                      </Text>
-                      <Text style={[{ fontSize: 18, fontWeight: '600' }, { color: Themes == 'dark' ? '#818181' : '#818181' }]}>
-                        {d.getDate() + ' ' + monthNames[d.getMonth()]}
-                      </Text>
-                      <Text
-                        style={{
-                          color: 'grey',
-                          fontSize: 15,
-                          fontWeight: '500',
-                        }}>
-                        {d.getFullYear()}
-                      </Text>
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      width: '65%',
-                      alignItems: 'center',
-                    }}>
-                    {inTime && !locationOut && (
-                      <>
-                        <View
+                    <View
+                      style={{
+                        width: '35%',
+                        // backgroundColor: 'pink',
+                        borderRightWidth: 0.5,
+                        borderRightColor: 'grey',
+                        alignItems: 'center',
+                      }}>
+                      <View style={{alignItems: 'center'}}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
+                            color: 'grey',
+                            fontSize: 15,
+                            fontWeight: '500',
                           }}>
-                          <AntDesign
-                            name="rightcircle"
+                          {days[d.getDay()]}
+                        </Text>
+                        <Text
+                          style={[
+                            {fontSize: 18, fontWeight: '600'},
+                            {color: Themes == 'dark' ? '#818181' : '#818181'},
+                          ]}>
+                          {d.getDate() + ' ' + monthNames[d.getMonth()]}
+                        </Text>
+                        <Text
+                          style={{
+                            color: 'grey',
+                            fontSize: 15,
+                            fontWeight: '500',
+                          }}>
+                          {d.getFullYear()}
+                        </Text>
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        width: '65%',
+                        alignItems: 'center',
+                      }}>
+                      {inTime && !locationOut && (
+                        <>
+                          <View
                             style={{
-                              fontSize: 23,
-                              color: '#0e664e',
-                              marginRight: 10,
-                            }}
-                          />
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{activityTime}</Text>
-                          
-                        </View>
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                            }}>
+                            <AntDesign
+                              name="rightcircle"
+                              style={{
+                                fontSize: 23,
+                                color: '#0e664e',
+                                marginRight: 10,
+                              }}
+                            />
+                            <Text
+                              style={{
+                                color: Themes == 'dark' ? '#000' : '#000',
+                              }}>
+                              {activityTime}
+                            </Text>
+                          </View>
+                          <TouchableOpacity
+                            onPress={showAlert}
+                            style={{
+                              padding: 10,
+                              paddingHorizontal: 20,
+                              backgroundColor: '#0043ae',
+                              marginTop: 10,
+                              borderRadius: 5,
+                              flexDirection: 'row',
+                            }}>
+                            <Text
+                              style={{
+                                fontSize: 16,
+                                fontWeight: '600',
+                                color: 'white',
+                                marginRight: 10,
+                              }}>
+                              Punch Out
+                            </Text>
+                            {loading ? (
+                              <ActivityIndicator color="white" />
+                            ) : null}
+                          </TouchableOpacity>
+                        </>
+                      )}
+
+                      {!inTime && !locationOut && (
                         <TouchableOpacity
-                          onPress={showAlert}
+                          onPress={() => punch_in()}
                           style={{
                             padding: 10,
                             paddingHorizontal: 20,
@@ -1487,102 +1512,115 @@ console.log(startOfWeek,endOfWeek,'endOfWeek')
                               color: 'white',
                               marginRight: 10,
                             }}>
-                            Punch Out
+                            Punch In
                           </Text>
                           {loading ? <ActivityIndicator color="white" /> : null}
                         </TouchableOpacity>
-                      </>
-                    )}
-
-                    {!inTime && !locationOut && (
-                      <TouchableOpacity
-                        onPress={() => punch_in()}
-                        style={{
-                          padding: 10,
-                          paddingHorizontal: 20,
-                          backgroundColor: '#0043ae',
-                          marginTop: 10,
-                          borderRadius: 5,
-                          flexDirection: 'row',
-                        }}>
-                        <Text
-                          style={{
-                            fontSize: 16,
-                            fontWeight: '600',
-                            color: 'white',
-                            marginRight: 10,
-                          }}>
-                          Punch In
-                        </Text>
-                        {loading ? <ActivityIndicator color="white" /> : null}
-                      </TouchableOpacity>
-                    )}
-                    {inTime && locationOut && (
-                      <>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                          }}>
-                          <AntDesign
-                            name="rightcircle"
+                      )}
+                      {inTime && locationOut && (
+                        <>
+                          <View
                             style={{
-                              fontSize: 23,
-                              color: '#0e664e',
-                              marginRight: 10,
-                            }}
-                          />
-                          <Text style={styles.purple_txt}>{fullTime}</Text>
-                        </View>
-                        <Text style={{ color: 'red', marginTop: 10 }}>
-                          Total Time Elapsed
-                        </Text>
-                      </>
-                    )}
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                            }}>
+                            <AntDesign
+                              name="rightcircle"
+                              style={{
+                                fontSize: 23,
+                                color: '#0e664e',
+                                marginRight: 10,
+                              }}
+                            />
+                            <Text style={styles.purple_txt}>{fullTime}</Text>
+                          </View>
+                          <Text style={{color: 'red', marginTop: 10}}>
+                            Total Time Elapsed
+                          </Text>
+                        </>
+                      )}
+                    </View>
                   </View>
                 </View>
-
-
               </View>
             </View>
-          </View>
 
-          <View style={{ marginTop: 10, marginHorizontal: 10 }}>
-            <Text style={[{ fontSize: 18, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>Recent Logs</Text>
+            <View style={{marginTop: 10, marginHorizontal: 10}}>
+              <Text
+                style={[
+                  {fontSize: 18, fontWeight: '600'},
+                  {color: Themes == 'dark' ? '#000' : '#000'},
+                ]}>
+                Recent Logs
+              </Text>
 
-            {recentLogs.length > 0
-              ? recentLogs.map((i, index) => (
-                <View key={index} style={styles.recent_log_box}>
-                  <View>
-                    <Text style={styles.weekDay}>
-                      {days[new Date(i.TR_DATE).getDay()]}
-                    </Text>
-                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000',}}>{i.TR_DATE}</Text>
-                  </View>
-                
-                  <View style={{ alignItems: 'center' }}>
-                    <AntDesign
-                      name="clockcircleo"
-                      size={20}
-                      style={[{ marginBottom: 5 }, { color: Themes == 'dark' ? '#000' : '#000' }]}
-                    />
-                    {/* <Text>{datetime}, {i.TR_DATE}, {i.location_id ? 'yes' : 'no'}, {i.PRESENT_HOURS}, {hours}, {hours >= '19:00' ? 'yes' : 'no'}</Text> */}
-                    {
-                      ((datetime == i.TR_DATE && i.location_id) || (datetime > i.TR_DATE)) ?
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text>
-                      : hours >= '19:00' ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{i.PRESENT_HOURS}</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>NA</Text>
-                    }
-                  </View>
-                </View>
-              ))
-              :
-              <Text style={{ textAlign: "center", color: Themes == 'dark' ? '#000' : '#000' }}>No found data</Text>
-            }
-          </View>
+              {recentLogs.length > 0 ? (
+                recentLogs.map((i, index) => {
+                  const time = new Date(i?.punch_in_time);
+                  const getTime = time.toLocaleTimeString();
+                  // console.log(getTime)
+                  return (
+                    <View key={index} style={styles.recent_log_box}>
+                      <View>
+                        <Text style={styles.weekDay}>
+                          {days[new Date(i.TR_DATE).getDay()]}
+                        </Text>
+                        <Text
+                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                          {i.TR_DATE}
+                        </Text>
+                      </View>
+                      <View>
+                        <Text style={styles.weekDay}>Punch In Time</Text>
+                        <Text
+                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                          {getTime}
+                        </Text>
+                      </View>
 
+                      <View style={{alignItems: 'center'}}>
+                        <AntDesign
+                          name="clockcircleo"
+                          size={20}
+                          style={[
+                            {marginBottom: 5},
+                            {color: Themes == 'dark' ? '#000' : '#000'},
+                          ]}
+                        />
+                        {/* <Text>{datetime}, {i.TR_DATE}, {i.location_id ? 'yes' : 'no'}, {i.PRESENT_HOURS}, {hours}, {hours >= '19:00' ? 'yes' : 'no'}</Text> */}
+                        {(datetime == i.TR_DATE && i.location_id) ||
+                        datetime > i.TR_DATE ? (
+                          <Text
+                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            {i.PRESENT_HOURS}
+                          </Text>
+                        ) : hours >= '19:00' ? (
+                          <Text
+                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            {i.PRESENT_HOURS}
+                          </Text>
+                        ) : (
+                          <Text
+                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            NA
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  );
+                })
+              ) : (
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: Themes == 'dark' ? '#000' : '#000',
+                  }}>
+                  No found data
+                </Text>
+              )}
+            </View>
 
-
-          {/* <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
+            {/* <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
             {news.length == 0 && loading == false ? (
               <Empty onPress={() => navigation.navigate('home')} />
             ) : loading === false ? (
@@ -1636,7 +1674,7 @@ console.log(startOfWeek,endOfWeek,'endOfWeek')
             )}
           </View> */}
 
-          {/* <View>
+            {/* <View>
             <View
               style={{
                 flexDirection: 'row',
@@ -1683,26 +1721,34 @@ console.log(startOfWeek,endOfWeek,'endOfWeek')
               keyExtractor={item => item.create_date}
             />
           </View> */}
-
-
-
-        </View>
-
-      </PullToRefresh>
-      {modalVisible && <View style={{ width: '100%', height: '100%', zIndex: 99, backgroundColor: 'rgba(255,255,255,0.8)', position: 'absolute', flex: 1 }}></View>}
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={modalVisible}
-      >
-        <View style={{ width:80, height: 80, borderRadius: 10, alignSelf: 'center', marginTop: responsiveHeight(50) }}>
-          <ActivityIndicator size='large' color="#0528A5" />
-        </View>
-      </Modal>
+          </View>
+        </PullToRefresh>
+        {modalVisible && (
+          <View
+            style={{
+              width: '100%',
+              height: '100%',
+              zIndex: 99,
+              backgroundColor: 'rgba(255,255,255,0.8)',
+              position: 'absolute',
+              flex: 1,
+            }}></View>
+        )}
+        <Modal animationType="none" transparent={true} visible={modalVisible}>
+          <View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 10,
+              alignSelf: 'center',
+              marginTop: responsiveHeight(50),
+            }}>
+            <ActivityIndicator size="large" color="#0528A5" />
+          </View>
+        </Modal>
       </Root>
     </SafeAreaView>
   );
-
 };
 
 export default Home;
@@ -1721,11 +1767,11 @@ const styles = StyleSheet.create({
     width: 180,
     height: 100,
     borderRadius: 10,
-    resizeMode: "contain",
+    resizeMode: 'contain',
     // marginRight: 20,
     borderWidth: 1,
     borderColor: '#000',
-    marginHorizontal: 5
+    marginHorizontal: 5,
     // backgroundColor: 'pink',
   },
   options: {
@@ -1743,7 +1789,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     resizeMode: 'cover',
     marginHorizontal: 2,
-    borderRadius: 10
+    borderRadius: 10,
   },
   tinyLogo: {
     width: 70,
@@ -1776,15 +1822,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#d3e3fd30',
     borderColor: '#0c57d0',
   },
-  heading: { fontWeight: '700', fontSize: 16 },
-  heading_grey: { fontSize: 14, color: 'grey', fontWeight: '300' },
-  add_txt: { fontSize: 14, color: '#efad37', fontWeight: '600' },
-  view_txt: { color: '#702963', fontWeight: 'bold' },
-  weekDay: { fontSize: 19, fontWeight: '600', marginBottom: 5, color: Themes == 'dark' ? '#000' : '#000' },
+  heading: {fontWeight: '700', fontSize: 16},
+  heading_grey: {fontSize: 14, color: 'grey', fontWeight: '300'},
+  add_txt: {fontSize: 14, color: '#efad37', fontWeight: '600'},
+  view_txt: {color: '#702963', fontWeight: 'bold'},
+  weekDay: {
+    fontSize: 19,
+    fontWeight: '600',
+    marginBottom: 5,
+    color: Themes == 'dark' ? '#000' : '#000',
+  },
   recent_log_box: {
-    width:responsiveWidth(96),
+    width: responsiveWidth(96),
     marginTop: 15,
-    alignSelf:'center',
+    alignSelf: 'center',
     padding: 10,
     borderWidth: 1,
     borderColor: GlobalStyle.blueDark,
@@ -1792,7 +1843,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white', color: Themes == 'dark' ? '#000' : '#000'
+    backgroundColor: 'white',
+    color: Themes == 'dark' ? '#000' : '#000',
   },
   emptyContainer: {
     width: '100%',
@@ -1800,14 +1852,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: { fontSize: 16, marginVertical: 10, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000' },
+  title: {
+    fontSize: 16,
+    marginVertical: 10,
+    fontWeight: '600',
+    color: Themes == 'dark' ? '#000' : '#000',
+  },
   display_row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 15,
   },
   heading: {
-    fontSize: 17, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000'
+    fontSize: 17,
+    fontWeight: '600',
+    color: Themes == 'dark' ? '#000' : '#000',
   },
   btn_style: {
     marginTop: 30,
@@ -1827,7 +1886,3 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
   },
 });
-
-
-
-

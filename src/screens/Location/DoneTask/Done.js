@@ -186,10 +186,7 @@ const Done = ({navigation}) => {
               </View>
               {currentDisplayedTask && currentDisplayedTask == item?.task_id ? (
                <>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.task_id}</Text>
-               </View>
+             
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Dept id:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.dept_id}</Text>
@@ -429,19 +426,7 @@ const Done = ({navigation}) => {
              </>
               ) : (
                 <>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginBottom: 2,
-                    }}>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      Task id:
-                    </Text>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      {item?.task_id}
-                    </Text>
-                  </View>
+              
                   <View
                     style={{
                       flexDirection: 'row',

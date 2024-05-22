@@ -512,21 +512,7 @@ const Processing = () => {
               {
                 currentDisplayedTask && currentDisplayedTask == item?.task_id ?
                 <>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 2,
-                  }}>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    Task id:
-                  </Text>
-                  <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                    {item?.task_id}
-                  </Text>
-                </View>
+              
                 <View
                   style={{
                     flexDirection: 'row',
@@ -1034,10 +1020,7 @@ const Processing = () => {
 
                   :
                   <>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.task_id}</Text>
-                    </View>
+                   
                     <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Customer name:</Text>
                       <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.customer_name}</Text>

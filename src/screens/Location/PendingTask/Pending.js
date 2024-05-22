@@ -168,6 +168,8 @@ const Pending = ({ navigation }) => {
     }>
   <TextInput
   placeholder='Search by pin code...'
+  placeholderTextColor={ Themes == 'dark' ? '#000' : '#000'}
+  style={{ color: Themes == 'dark' ? '#000' : '#000',}}
   value={searchItem}
   onChangeText={(prev)=>onSearchList(prev)}
  
@@ -248,21 +250,7 @@ const Pending = ({ navigation }) => {
                   {currentDisplayedTask &&
                     currentDisplayedTask == item?.task_id ? (
                     <>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          Task id:
-                        </Text>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.task_id}
-                        </Text>
-                      </View>
+                    
                       <View
                         style={{
                           flexDirection: 'row',
@@ -791,21 +779,7 @@ const Pending = ({ navigation }) => {
                     </>
                   ) : (
                     <>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          Task id:
-                        </Text>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.task_id}
-                        </Text>
-                      </View>
+                      
 
                       <View
                         style={{
@@ -837,21 +811,7 @@ const Pending = ({ navigation }) => {
                           {item?.approved_by}
                         </Text>
                       </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          Created Date:
-                        </Text>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.create_at}
-                        </Text>
-                      </View>
+                    
                     </>
                   )}
                 </View>

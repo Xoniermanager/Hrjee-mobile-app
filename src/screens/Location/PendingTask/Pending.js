@@ -281,21 +281,8 @@ const Pending = ({ navigation }) => {
                           {item?.customer_name}
                         </Text>
                       </View>
-                      {/* <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                          User id:
-                        </Text>
-                        <Text
-                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                          {item?.assign}
-                        </Text>
-                      </View> */}
+                  
+
                       <View
                         style={{
                           flexDirection: 'row',
@@ -312,21 +299,7 @@ const Pending = ({ navigation }) => {
                         </Text>
                       </View>
 
-                      {/* <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                          Employee number:
-                        </Text>
-                        <Text
-                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                          {item?.employee_number}
-                        </Text>
-                      </View> */}
+                  
 
                       <View
                         style={{
@@ -608,21 +581,7 @@ const Pending = ({ navigation }) => {
                           {item?.legal_status}
                         </Text>
                       </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          Created Date:
-                        </Text>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.create_at}
-                        </Text>
-                      </View>
+                    
 
                       <View
                         style={{
@@ -779,8 +738,63 @@ const Pending = ({ navigation }) => {
                     </>
                   ) : (
                     <>
-                      
-
+                        <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Loan no:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.loan_no}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Customer name:
+                        </Text>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.customer_name}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Pincode:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.pincode}
+                        </Text>
+                      </View>
                       <View
                         style={{
                           flexDirection: 'row',
@@ -796,6 +810,7 @@ const Pending = ({ navigation }) => {
                           {item?.mobile_no}
                         </Text>
                       </View>
+                     
                       <View
                         style={{
                           flexDirection: 'row',
@@ -804,11 +819,11 @@ const Pending = ({ navigation }) => {
                         }}>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          Approved by:
+                          Created Date:
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.approved_by}
+                          {item?.create_at}
                         </Text>
                       </View>
                     

@@ -1,7 +1,7 @@
 import { FlatList, StyleSheet, ActivityIndicator, TextInput, Text, PermissionsAndroid, TouchableOpacity, View, Alert, Dimensions, useColorScheme, Modal, Pressable, Platform } from 'react-native'
 import React, { useEffect, useState, useCallback } from 'react'
 import GlobalStyle from '../../../reusable/GlobalStyle';
-import { responsiveHeight, responsiveScreenWidth, responsiveWidth } from 'react-native-responsive-dimensions'
+import { responsiveFontSize, responsiveHeight, responsiveScreenWidth, responsiveWidth } from 'react-native-responsive-dimensions'
 import Themes from '../PendingTask/Pending';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../reusable/apiUrl'
@@ -16,7 +16,8 @@ import Reload from '../../../../Reload';
 import { useNavigation } from '@react-navigation/native';
 import { Root, Popup } from 'popup-ui'
 import Toast from 'react-native-simple-toast';
-
+import {getDistance} from 'geolib';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -48,6 +49,18 @@ const Processing = () => {
   const [showAddress, setShowAddress] = useState(0)
   const [filterData,setFilterData]=useState()
   const [searchItem,setSearchItem]=useState()
+  const [disposition,setDisposition] =useState(null)
+  const [isFocus, setIsFocus] = useState(false);
+  const [value, setValue] = useState(null);
+  const [codeName,setCodeName]=useState()
+  const [coordinates, setCoordinates] = useState(null);
+  const [error, setError] = useState('');
+
+
+
+  const row=[{id:1,title:'abc'},{
+    id:2,title:'xyz'
+  }]
 
   // choose from front camera  for profile Images////////
 
@@ -126,11 +139,13 @@ const Processing = () => {
   }, [showAddress])
   const latitude = currentLocation?.lat;
   const longitude = currentLocation?.long;
+  console.log(currentLocation,'currentLocation')
   const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
   const getAddress = async () => {
     axios.get(urlAddress).then(res => {
 
       setAddress(res.data?.results[0].formatted_address)
+      console.log(res.data?.results[0].formatted_address,'res.data?.results[0].formatted_address')
     })
   }
 
@@ -167,267 +182,44 @@ const Processing = () => {
       //   }
       });
   };
-  // console.log(fileResponse,'123')
-  const tast_status_update = async (item) => {
-    setloading1(true);
-    setShowAddress(showAddress + 1)
-    if (Platform.OS == 'android') {
-      try {
 
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+// Disposition_Code
 
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          GetLocation.getCurrentPosition({})
-          GetLocation.getCurrentPosition({
-            enableHighAccuracy: true,
-            timeout: 15000,
-          })
-            .then(async location => {
-              setloading1(false);
-
-              const updatedStatus = (parseInt(item?.status) + parseInt(1));
-              const token = await AsyncStorage.getItem('Token');
-              const config = {
-                headers: {
-                  Token: token,
-                  'Content-Type': 'multipart/form-data'
-                },
-              };
-              let data = new FormData();
-              data.append('task_id', iD?.task_id);
-              data.append('remark', remark);
-              data.append('latitude', latitude);
-              data.append('longitude', longitude);
-
-              data.append('image', fileResponse[0]);
-              data.append('status', updatedStatus);
-              var selfie_image = {
-                uri: photo?.path,
-                type: photo?.mime,
-                name: photo?.modificationDate + '.' + 'jpg',
-              };
-              data.append('selfie_image', selfie_image);
-              data.append('lat_long_address', address);
-
-              if (remark.trim() === '') {
-                setRemarkError('Please enter some text');
-
-              } else if (photo == null) {
-                setPhotoError('Please Upload the Image');
-              }
-             else {
-                axios
-                  .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
-                  .then(response => {
-                    console.log(response?.data?.status,'response?.data?.status')
-                    if (response?.data?.status == 1) {
-                      setModalVisible1(false),
-                      Toast.show(response?.data?.message);
-
-                      get_employee_detail(),
-                         
-                      setRemart(''),
-                      setCameramodal(''),
-                      setCameramodal1('')
-
-                    }
-                    else {
-                      // console.log(response?.data, 'yashu')
-                      setModalVisible1(false)
-                      Popup.show({
-                        type: 'Warning',
-                        title: 'Warning',
-                        button: true,
-                        textBody:response?.data?.message,
-                        buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
-                      })
-                 
-                    }
-
-                  })
-                  .catch(error => {
-                  console.log(error.response.data)
-                    setloading1(false)
-                    if (error.response.status == '401') {
-                      Popup.show({
-                        type: 'Warning',
-                        title: 'Warning',
-                        button: true,
-                        textBody:error.response.data.msg,
-                        buttonText: 'Ok',
-                        callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-                        AsyncStorage.removeItem('UserData'),
-                        AsyncStorage.removeItem('UserLocation'),
-                       navigation.navigate('Login')]
-                      });
-                    }
-                  });
-              }
-            })
-
-            .catch(error => {
-              const { code, message } = error;
-              console.log(message,'message')
-              Alert.alert(code, message);
-              setModalVisible1(!modalVisible1)
-              setRemart('')
-              setCameramodal('')
-              setCameramodal1('')
-              setDocmodal('')
-              setloading1(false);
-            });
-        } else {
-          setModalVisible1(!modalVisible1)
-          setRemart('')
-          setCameramodal('')
-          setCameramodal1('')
-          setDocmodal('')
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:'Location permission denied',
-            buttonText: 'Ok',
-            callback: () => [Popup.hide()]
-          })
-         
-          setloading1(false);
-
-        }
-
-      }
-      catch (error) {
-       
-        setloading1(false);
-        // if (error.response.status == '401') {
-        //   Popup.show({
-        //     type: 'Warning',
-        //     title: 'Warning',
-        //     button: true,
-        //     textBody:error.response.data.msg,
-        //     buttonText: 'Ok',
-        //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-        //     AsyncStorage.removeItem('UserData'),
-        //     AsyncStorage.removeItem('UserLocation'),
-        //    navigation.navigate('Login')]
-        //   });
-        // }
-      }
+const Disposition_Code = async () => {
+  setloading(true)
+  const token = await AsyncStorage.getItem('Token');
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'https://hrjee.xonierconnect.com/SecondPhaseApi/disposition_codes',
+    headers: { 
+      'token':token, 
+      'Cookie': 'ci_session=ea0e3f97bd97f4488613b1397707387c3c8c9c43'
     }
-    else {
-      try {
-        setloading1(false);
-        const updatedStatus = (parseInt(item?.status) + parseInt(1));
-        const token = await AsyncStorage.getItem('Token');
-        const config = {
-          headers: {
-            Token: token,
-            'Content-Type': 'multipart/form-data'
-          },
-        };
-        let data = new FormData();
-        data.append('task_id', item?.task_id);
-        data.append('remark', remark);
-        data.append('latitude', latitude);
-        data.append('longitude', longitude);
-
-        data.append('image', fileResponse[0]);
-        data.append('status', updatedStatus);
-        var selfie_image = {
-          uri: photo?.path,
-          type: photo?.mime,
-          name: photo?.modificationDate + '.' + 'jpg',
-        };
-        data.append('selfie_image', selfie_image);
-        data.append('lat_long_address', address);
-
-        // console.log("body = > ", data)
-        if (remark.trim() === '') {
-          setRemarkError('Please enter some text');
-
-        } else if (photo == null) {
-          setPhotoError('Please Upload the Image');
-        }
-       else {
-          setloading1(true);
-          axios
-            .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
-            .then(response => {
-
-              if (response?.data?.status == 1) {
-                Toast.show(response?.data?.message)
-                get_employee_detail(),
-                setModalVisible1(false),
-                setRemart(''),
-                setCameramodal(''),
-                setCameramodal1('')
-                // console.log("response statsu ---------", response?.data)
-              }
-              else {
-                // console.log(response?.data, 'yashu')
-                setModalVisible1(false)
-                Popup.show({
-                  type: 'Warning',
-                  title: 'Warning',
-                  button: true,
-                  textBody:response?.data?.message,
-                  buttonText: 'Ok',
-                  callback: () => [Popup.hide()]
-                })
-             
-              }
-
-            })
-            .catch(error => {
-             
-              setloading1(false)
-              // if (error.response.status == '401') {
-              //   Popup.show({
-              //     type: 'Warning',
-              //     title: 'Warning',
-              //     button: true,
-              //     textBody:error.response.data.msg,
-              //     buttonText: 'Ok',
-              //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-              //     AsyncStorage.removeItem('UserData'),
-              //     AsyncStorage.removeItem('UserLocation'),
-              //    navigation.navigate('Login')]
-              //   });
-              // }
-            });
-        }
-      }
-      catch (error) {
-      
-        setloading1(false);
-        // if (error.response.status == '401') {
-        //   Popup.show({
-        //     type: 'Warning',
-        //     title: 'Warning',
-        //     button: true,
-        //     textBody:error.response.data.msg,
-        //     buttonText: 'Ok',
-        //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-        //     AsyncStorage.removeItem('UserData'),
-        //     AsyncStorage.removeItem('UserLocation'),
-        //    navigation.navigate('Login')]
-        //   });
-        // }
-      }
-    }
-
-
-
   };
+  
+  axios.request(config)
+  .then((response) => {
+   
+    setDisposition(response?.data?.data)
+  })
+  .catch((error) => {
+    console.log(error.response.data.msg,'yashu');
+  });
+  
+};
+        useEffect(()=>{
+          Disposition_Code()
+        },[])
+
+
   useEffect(() => {
     getAddress()
   }, [location])
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
+   
       get_employee_detail()
     });
 
@@ -451,9 +243,29 @@ const Processing = () => {
   const data = Userdata && Userdata.filter((item, index) => {
     return item.status == 1
   })
+
   if (data == null) {
     return <Reload />
   }
+  
+  const getCoordinates = async (address) => {
+    const apiKey = 'AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg'; // Replace with your Google Maps API key
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+
+    try {
+      const response = await axios.get(url);
+      if (response.data.status === 'OK') {
+        const location = response?.data?.results[0]?.geometry.location;
+        setCoordinates(location);
+        console.log(location,'location')
+        setError('');
+      } else {
+        setError('Address not found');
+      }
+    } catch (err) {
+      setError('Error fetching data');
+    }
+  };
   const onSearchList = async (prev) => {
     const filtered = data?.filter(item =>
       item.pincode.toLowerCase().includes(prev.toLowerCase()) ||   item.city.toLowerCase().includes(prev.toLowerCase()) ||   item.state.toLowerCase().includes(prev.toLowerCase()) || item.customer_name.toLowerCase().includes(prev.toLowerCase()) ||  item.loan_no.toLowerCase().includes(prev.toLowerCase()),
@@ -465,6 +277,288 @@ const Processing = () => {
     }
     setFilterData(filtered);
 };
+const tast_status_update = async (item) => {
+  setloading1(true);
+  setShowAddress(showAddress + 1)
+  var dis = getDistance(
+    {latitude: currentLocation?.lat, longitude: currentLocation?.long},
+    {
+      latitude: coordinates?.lat,
+      longitude: coordinates?.lng,
+    },
+  );
+      if(dis<=500){
+  if (Platform.OS == 'android') {
+    try {
+
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        GetLocation.getCurrentPosition({})
+        GetLocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 15000,
+        })
+          .then(async location => {
+            setloading1(false);
+
+            const updatedStatus = (parseInt(item?.status) + parseInt(1));
+            const token = await AsyncStorage.getItem('Token');
+            const config = {
+              headers: {
+                Token: token,
+                'Content-Type': 'multipart/form-data'
+              },
+            };
+            let data = new FormData();
+            data.append('task_id', iD?.task_id);
+            data.append('remark', remark);
+            data.append('latitude', latitude);
+            data.append('longitude', longitude);
+
+            data.append('image', fileResponse[0]);
+            data.append('status', updatedStatus);
+            data.append('disposition_code', codeName);
+            var selfie_image = {
+              uri: photo?.path,
+              type: photo?.mime,
+              name: photo?.modificationDate + '.' + 'jpg',
+            };
+            data.append('selfie_image', selfie_image);
+            data.append('lat_long_address', address);
+
+            if (remark.trim() === '') {
+              setRemarkError('Please enter some text');
+
+            } else if (photo == null) {
+              setPhotoError('Please Upload the Image');
+            }
+           else {
+              axios
+                .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
+                .then(response => {
+               
+                  if (response?.data?.status == 1) {
+                    setModalVisible1(false),
+                    Toast.show(response?.data?.message);
+
+                    get_employee_detail(),
+                       
+                    setRemart(''),
+                    setCameramodal(''),
+                    setCameramodal1('')
+
+                  }
+                  else {
+                    // console.log(response?.data, 'yashu')
+                    setModalVisible1(false)
+                    Popup.show({
+                      type: 'Warning',
+                      title: 'Warning',
+                      button: true,
+                      textBody:response?.data?.message,
+                      buttonText: 'Ok',
+                      callback: () => [Popup.hide()]
+                    })
+               
+                  }
+
+                })
+                .catch(error => {
+              
+                  setloading1(false)
+                  if (error.response.status == '401') {
+                    Popup.show({
+                      type: 'Warning',
+                      title: 'Warning',
+                      button: true,
+                      textBody:error.response.data.msg,
+                      buttonText: 'Ok',
+                      callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                      AsyncStorage.removeItem('UserData'),
+                      AsyncStorage.removeItem('UserLocation'),
+                     navigation.navigate('Login')]
+                    });
+                  }
+                });
+            }
+          })
+
+          .catch(error => {
+            const { code, message } = error;
+            console.log(message,'message')
+            Alert.alert(code, message);
+            setModalVisible1(!modalVisible1)
+            setRemart('')
+            setCameramodal('')
+            setCameramodal1('')
+            setDocmodal('')
+            setloading1(false);
+          });
+      } else {
+        setModalVisible1(!modalVisible1)
+        setRemart('')
+        setCameramodal('')
+        setCameramodal1('')
+        setDocmodal('')
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:'Location permission denied',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
+       
+        setloading1(false);
+
+      }
+
+    }
+    catch (error) {
+     
+      setloading1(false);
+      // if (error.response.status == '401') {
+      //   Popup.show({
+      //     type: 'Warning',
+      //     title: 'Warning',
+      //     button: true,
+      //     textBody:error.response.data.msg,
+      //     buttonText: 'Ok',
+      //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+      //     AsyncStorage.removeItem('UserData'),
+      //     AsyncStorage.removeItem('UserLocation'),
+      //    navigation.navigate('Login')]
+      //   });
+      // }
+    }
+  }
+  else {
+    try {
+      setloading1(false);
+      const updatedStatus = (parseInt(item?.status) + parseInt(1));
+      const token = await AsyncStorage.getItem('Token');
+      const config = {
+        headers: {
+          Token: token,
+          'Content-Type': 'multipart/form-data'
+        },
+      };
+      let data = new FormData();
+      data.append('task_id', item?.task_id);
+      data.append('remark', remark);
+      data.append('latitude', latitude);
+      data.append('longitude', longitude);
+
+      data.append('image', fileResponse[0]);
+      data.append('status', updatedStatus);
+      data.append('disposition_code', codeName);
+
+      var selfie_image = {
+        uri: photo?.path,
+        type: photo?.mime,
+        name: photo?.modificationDate + '.' + 'jpg',
+      };
+      data.append('selfie_image', selfie_image);
+      data.append('lat_long_address', address);
+
+      // console.log("body = > ", data)
+      if (remark.trim() === '') {
+        setRemarkError('Please enter some text');
+
+      } else if (photo == null) {
+        setPhotoError('Please Upload the Image');
+      }
+     else {
+        setloading1(true);
+        axios
+          .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
+          .then(response => {
+
+            if (response?.data?.status == 1) {
+              Toast.show(response?.data?.message)
+              get_employee_detail(),
+              setModalVisible1(false),
+              setRemart(''),
+              setCameramodal(''),
+              setCameramodal1('')
+              // console.log("response statsu ---------", response?.data)
+            }
+            else {
+              // console.log(response?.data, 'yashu')
+              setModalVisible1(false)
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:response?.data?.message,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              })
+           
+            }
+
+          })
+          .catch(error => {
+           
+            setloading1(false)
+            // if (error.response.status == '401') {
+            //   Popup.show({
+            //     type: 'Warning',
+            //     title: 'Warning',
+            //     button: true,
+            //     textBody:error.response.data.msg,
+            //     buttonText: 'Ok',
+            //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            //     AsyncStorage.removeItem('UserData'),
+            //     AsyncStorage.removeItem('UserLocation'),
+            //    navigation.navigate('Login')]
+            //   });
+            // }
+          });
+      }
+    }
+    catch (error) {
+    
+      setloading1(false);
+      // if (error.response.status == '401') {
+      //   Popup.show({
+      //     type: 'Warning',
+      //     title: 'Warning',
+      //     button: true,
+      //     textBody:error.response.data.msg,
+      //     buttonText: 'Ok',
+      //     callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+      //     AsyncStorage.removeItem('UserData'),
+      //     AsyncStorage.removeItem('UserLocation'),
+      //    navigation.navigate('Login')]
+      //   });
+      // }
+    }
+  }
+      }
+      else {
+        setloading1(false)
+        setModalVisible1(false)
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody: 'You are not in the radius',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()],
+        });
+
+        setloading(false);
+      }
+
+
+};
+
+
+
   return (
     <View style={styles.container}>
       <Root>
@@ -472,6 +566,8 @@ const Processing = () => {
     }>
   <TextInput
   placeholder='Search by pin code...'
+  placeholderTextColor={ Themes == 'dark' ? '#000' : '#000'}
+  style={{ color: Themes == 'dark' ? '#000' : '#000',}}
   value={searchItem}
   onChangeText={(prev)=>onSearchList(prev)}
  
@@ -490,7 +586,7 @@ const Processing = () => {
             <View activeOpacity={0.2} style={styles.maincard}>
 
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignContent: "center", alignItems: "center" }}>
-                <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1), setID(item)]}>
+                <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1), setID(item),getCoordinates(item?.risk_address),getAddress()]}>
                   <Text style={{ color: Themes == 'dark' ? '#fff' : '#fff', fontWeight: "bold", fontSize: 16, padding: 5 }}>Update</Text>
                 </TouchableOpacity>
 
@@ -583,27 +679,7 @@ const Processing = () => {
                   </Text>
                 </View>
 
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 2,
-                  }}>
-                  <Text
-                    style={{
-                      color: Themes == 'dark' ? '#000' : '#000',
-                      textAlign: 'center',
-                    }}>
-                    Visit Address:
-                  </Text>
-                  <Text
-                    style={{
-                      color: Themes == 'dark' ? '#000' : '#000',
-                      textAlign: 'center',
-                    }}>
-                    {item?.risk_address}
-                  </Text>
-                </View>
+               
                 <View
                         style={{
                           flexDirection: 'row',
@@ -1021,22 +1097,94 @@ const Processing = () => {
                   :
                   <>
                    
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Customer name:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.customer_name}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Mobile Number:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.mobile_no}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved by:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.approved_by}</Text>
-                    </View>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Created Date:</Text>
-                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.create_at}</Text>
-                    </View>
+                   <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Loan no:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.loan_no}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Customer name:
+                        </Text>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.customer_name}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Pincode:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.pincode}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Mobile Number:
+                        </Text>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.mobile_no}
+                        </Text>
+                      </View>
+                     
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Created Date:
+                        </Text>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.create_at}
+                        </Text>
+                      </View>
 
                     <View style={styles.centeredView}>
                       <Modal
@@ -1141,7 +1289,27 @@ const Processing = () => {
                                 </View>
                               </Pressable>
 
-                           
+                              <Dropdown
+          style={[styles.dropdown,{ borderBottomLeftRadius:isFocus?0:8,borderBottomRightRadius:isFocus?0:8}]}
+          placeholderStyle={{ color: Themes == 'dark' ? '#fff' : '#fff',textAlign:'center'}}
+          selectedTextStyle={[styles.selectedTextStyle, { color: Themes == 'dark' ? '#fff' : '#fff' }]}
+          data={row}
+          maxHeight={300}
+          labelField="title"
+          valueField="id"
+          placeholder={!isFocus ? 'Disposition codes' : 'codes'}
+          iconStyle={styles.iconStyle}
+          value={value}
+          itemTextStyle={{ color: Themes == 'dark' ? '#000' : '#000' ,textAlign:'center',}}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            setValue(item?.id);
+            setCodeName(item.title)
+            setIsFocus(false);
+          
+          }}
+          />
                             </View>
                             <View style={{ flexDirection: "row", alignSelf: "center" }}>
                               {loading1 ?
@@ -1296,5 +1464,41 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  dropdown: {
+    height: 50,
+    borderColor: 'gray',
+    borderWidth: 0.5,
+
+    paddingHorizontal: 8,
+    marginTop:5,
+    width: responsiveWidth(75),
+    alignSelf: 'center',
+    backgroundColor:'#75CFC5',
+    borderTopLeftRadius:8,
+    borderTopRightRadius:8,
+   
+  
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: responsiveFontSize(1.7),
+    textAlign:'center'
+  
+  },
+  selectedTextStyle: {
+    fontSize: responsiveFontSize(1.9),
+    color:'#fff',
+    textAlign:'center'
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+    tintColor:'#fff'
   },
 })

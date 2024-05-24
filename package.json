@@ -27,6 +27,7 @@
     "react-native": "0.73.4",
     "react-native-calendars": "^1.1303.0",
     "react-native-date-picker": "^4.3.6",
+    "react-native-device-info": "^11.1.0",
     "react-native-document-picker": "^9.1.1",
     "react-native-element-dropdown": "^2.10.1",
     "react-native-exit-app": "^2.0.0",

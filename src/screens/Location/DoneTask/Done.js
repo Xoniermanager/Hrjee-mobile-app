@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   View,
   useColorScheme,
+  TextInput
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import GlobalStyle from '../../../reusable/GlobalStyle';
@@ -94,7 +95,8 @@ const Done = ({navigation}) => {
   }
   const onSearchList = async (prev) => {
     const filtered = data?.filter(item =>
-      item.mobile_no.toLowerCase().includes(prev.toLowerCase()),
+      item.pincode.toLowerCase().includes(prev.toLowerCase()) ||   item.city.toLowerCase().includes(prev.toLowerCase()) ||   item.state.toLowerCase().includes(prev.toLowerCase()) || item.customer_name.toLowerCase().includes(prev.toLowerCase()) ||  item.loan_no.toLowerCase().includes(prev.toLowerCase()),
+
     );
     if (prev === '') {
       setFilterData('')
@@ -104,7 +106,17 @@ const Done = ({navigation}) => {
 };
   return (
     <View style={styles.container}>
-      
+      <View style={{width:responsiveScreenWidth(96),height:responsiveHeight(5),borderRadius:10,borderWidth:0.5,shadowColor: '#000',alignSelf:'center',marginVertical:10}
+    }>
+  <TextInput
+  placeholder='Search by pin code...'
+  placeholderTextColor={ Themes == 'dark' ? '#000' : '#000'}
+  style={{ color: Themes == 'dark' ? '#000' : '#000',}}
+  value={searchItem}
+  onChangeText={(prev)=>onSearchList(prev)}
+ 
+  />
+</View>
       {data?.length > 0 ? null : (
         <View
           style={{
@@ -123,15 +135,7 @@ const Done = ({navigation}) => {
           </Text>
         </View>
       )}
-<View style={{width:responsiveScreenWidth(96),height:responsiveHeight(5),borderRadius:10,borderWidth:0.5,shadowColor: '#000',alignSelf:'center',marginVertical:10}
-    }>
-  <TextInput
-  placeholder='Search by pin code...'
-  value={searchItem}
-  onChangeText={(prev)=>onSearchList(prev)}
- 
-  />
-</View>
+
       <FlatList
         data={filterData?filterData: data}
         renderItem={({item, index}) => (
@@ -184,10 +188,7 @@ const Done = ({navigation}) => {
               </View>
               {currentDisplayedTask && currentDisplayedTask == item?.task_id ? (
                <>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task id:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.task_id}</Text>
-               </View>
+             
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Dept id:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.dept_id}</Text>
@@ -201,20 +202,101 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Mobile Number:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.mobile_no}</Text>
                </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Approved_by:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item.approved_by !== '' ? item.approved_by : 'N/A'}</Text>
-               </View>
+           
                
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Visit Address:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.risk_address}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" , width:responsiveWidth(70),
+                               textAlign:'right'}}>{item?.risk_address}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Loan no:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.loan_no}</Text>
                </View>
-             
+               <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Visit Address:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.risk_address}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          State:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.state}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          City:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.city}
+                        </Text>
+                      </View>
+               <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Pincode:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.pincode}
+                        </Text>
+                      </View>
               
 
 
@@ -256,11 +338,13 @@ const Done = ({navigation}) => {
                
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Current address:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" , width:responsiveWidth(60),
+                               textAlign:'right'}}>{item?.lat_long_address}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Remark:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.remark}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" , width:responsiveWidth(70),
+                               textAlign:'right'}}>{item?.remark}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Proparty address:</Text>
@@ -300,10 +384,7 @@ const Done = ({navigation}) => {
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Asign:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.assign}</Text>
                </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Task asign id:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.task_asign_id}</Text>
-               </View>
+              
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Assign by:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.assign_by}</Text>
@@ -315,7 +396,8 @@ const Done = ({navigation}) => {
                
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Manager remark:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.description}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' , width:responsiveWidth(60),
+                               textAlign:'right'}}>{item?.description}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Location coordinates:</Text>
@@ -331,84 +413,106 @@ const Done = ({navigation}) => {
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Product:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.product}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', width:responsiveWidth(70),
+                               textAlign:'right' }}>{item?.product}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Process name:</Text>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.process_name}</Text>
                </View>
-               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Remark:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.remark}</Text>
-               </View>
+              
              </>
               ) : (
                 <>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginBottom: 2,
-                    }}>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      Task id:
-                    </Text>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      {item?.task_id}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginBottom: 2,
-                    }}>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      Customer name:
-                    </Text>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      {item?.customer_name}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginBottom: 2,
-                    }}>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      Mobile Number:
-                    </Text>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      {item?.mobile_no}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginBottom: 2,
-                    }}>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      Approved by:
-                    </Text>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      {item?.approved_by}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginBottom: 2,
-                    }}>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      Created Date:
-                    </Text>
-                    <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                      {item?.create_at}
-                    </Text>
-                  </View>
+              
+              <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Loan no:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.loan_no}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Customer name:
+                        </Text>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.customer_name}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Pincode:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.pincode}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Mobile Number:
+                        </Text>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.mobile_no}
+                        </Text>
+                      </View>
+                     
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Created Date:
+                        </Text>
+                        <Text
+                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.create_at}
+                        </Text>
+                      </View>
                 </>
               )}
             </View>

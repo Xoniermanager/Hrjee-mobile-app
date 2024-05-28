@@ -53,6 +53,7 @@
     "react-native-version-check": "^3.4.7",
     "react-native-video": "^5.2.1",
     "react-native-video-player": "^0.14.0",
+    "rn-fetch-blob": "^0.12.0",
     "sp-react-native-in-app-updates": "^1.4.0"
   },
   "devDependencies": {

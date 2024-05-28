@@ -24,6 +24,7 @@ import Services from '../src/screens/home/Services/Services';
 import LocationList from '../src/screens/Location/LocationList';
 import Home from '../src/screens/home/Home';
 import PRM from '../src/screens/PRM/PRM';
+import { responsiveWidth } from 'react-native-responsive-dimensions';
 
 const Tab = createBottomTabNavigator();
 
@@ -90,27 +91,7 @@ const Main = () => {
         name="Payslip"
         component={Payslip}
       />
-      {/* <>
-        {
-          companyid == 56 ?
-            <Tab.Screen
-              options={{
-                unmountOnBlur: true,
-                tabBarIcon: ({ color }) => (
-                  <AntDesign
-                    name="appstore-o"
-                    style={{ fontSize: 23, color: color }}
-                  />
-                ),
-              }}
-              name="Services"
-              component={Services}
-            />
-            :
-            null
 
-        }
-      </> */}
       <Tab.Screen
         options={{
           unmountOnBlur: true,
@@ -137,10 +118,24 @@ const Main = () => {
       {prmData == 0 ? null : <Tab.Screen
         options={{
           unmountOnBlur: true,
+          title:'PRM List',
+          headerBackTitleVisible: false,
+          headerStyle: {
+            backgroundColor:'#0043ae',
+            
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            marginLeft:responsiveWidth(35)
+            
+          },
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="payment" style={{ fontSize: 23, color: color }} />
           ),
         }}
+
+      
         name="PRM"
         component={PRM}
       />}

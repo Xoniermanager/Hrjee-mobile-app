@@ -35,7 +35,7 @@ const ApplyLeave = ({ navigation }) => {
   const [halfDay, sethalfDay] = useState('0');
 
   const [leaveType, setleaveType] = useState(null);
-  console.log("leaveType..........................", leaveType)
+
 
   const [startopen, setstartopen] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
@@ -55,7 +55,7 @@ const ApplyLeave = ({ navigation }) => {
   const [isCheck, setisCheck] = useState(true);
   const leave_type = async () => {
     const token = await AsyncStorage.getItem('Token');
-    console.log(token, 'token')
+    
     const config = {
       headers: { Token: token },
     };
@@ -63,7 +63,7 @@ const ApplyLeave = ({ navigation }) => {
     axios
       .post(`${apiUrl}/secondPhaseApi/leave_type`, body, config)
       .then(response => {
-        console.log(response?.data, 'response.data')
+       
         setloading(false);
         if (response.data.status == 1) {
           setleaveType(response?.data?.data)
@@ -108,7 +108,7 @@ const ApplyLeave = ({ navigation }) => {
     setCompany_id(company_id)
   }
 
-  console.log(companyid, "idddddd")
+
   useFocusEffect(
     React.useCallback(() => {
       leave_type();
@@ -116,68 +116,86 @@ const ApplyLeave = ({ navigation }) => {
     }, []),
   );
 
-console.log(leaveType,'leaveType')
+
   if (leaveType == null) {
     return <Reload />
   }
-console.log(leaveType,'leaveType')
+
 
   const apply_leave = async () => {
+    if(startDate.valueOf()<endDate.valueOf()){
+      setloading(true);
+      const token = await AsyncStorage.getItem('Token');
+      const config = {
+        headers: { Token: token },
+      };
+  
+      var bodyFormData = new FormData();
+      bodyFormData.append('userid', user.userid);
+      bodyFormData.append('leave_balance', leaveBalance);
+      bodyFormData.append('region_name', 'Eastern');
+      bodyFormData.append('leavetype', value);
+      bodyFormData.append('leave_wfstage_id', 11);
+      bodyFormData.append(
+        'leave_start_date',
+        `${startDate.getFullYear() +
+        '-' +
+        (startDate.getMonth() + 1) +
+        '-' +
+        startDate.getDate()
+        }`,
+      );
+      bodyFormData.append(
+        'leave_end_date',
+        `${endDate.getFullYear() +
+        '-' +
+        (endDate.getMonth() + 1) +
+        '-' +
+        endDate.getDate()
+        }`,
+      );
+      bodyFormData.append('morning_evening', halfDay);
+      bodyFormData.append('notes', comment);
+      bodyFormData.append('guaranter_id', user.employee_number);
+      bodyFormData.append('emergency_contact_name', name);
+      bodyFormData.append('emergency_contact_phone', phone);
+      bodyFormData.append('emergency_contact_address', address);
+      bodyFormData.append('exit_entry_visa_reqd', 1);
+      bodyFormData.append('accept_leave_policy', isCheck ? 1 : 0);
+      bodyFormData.append('current_approver_eno', user.employee_number);
+    
+      axios({
+        method: 'post',
+        url: `${apiUrl}/secondPhaseApi/apply_for_leave`,
+        data: bodyFormData,
+        headers: { 'Content-Type': 'multipart/form-data', Token: token },
+      })
+        .then(function (response) {
+          //handle success
+          setloading(false);
+        
+  
+          if (response.data.status == 1) {
+            try {
 
-
-    setloading(true);
-    const token = await AsyncStorage.getItem('Token');
-    const config = {
-      headers: { Token: token },
-    };
-
-    var bodyFormData = new FormData();
-    bodyFormData.append('userid', user.userid);
-    bodyFormData.append('leave_balance', leaveBalance);
-    bodyFormData.append('region_name', 'Eastern');
-    bodyFormData.append('leavetype', value);
-    bodyFormData.append('leave_wfstage_id', 11);
-    bodyFormData.append(
-      'leave_start_date',
-      `${startDate.getFullYear() +
-      '-' +
-      (startDate.getMonth() + 1) +
-      '-' +
-      startDate.getDate()
-      }`,
-    );
-    bodyFormData.append(
-      'leave_end_date',
-      `${endDate.getFullYear() +
-      '-' +
-      (endDate.getMonth() + 1) +
-      '-' +
-      endDate.getDate()
-      }`,
-    );
-    bodyFormData.append('morning_evening', halfDay);
-    bodyFormData.append('notes', comment);
-    bodyFormData.append('guaranter_id', user.employee_number);
-    bodyFormData.append('emergency_contact_name', name);
-    bodyFormData.append('emergency_contact_phone', phone);
-    bodyFormData.append('emergency_contact_address', address);
-    bodyFormData.append('exit_entry_visa_reqd', 1);
-    bodyFormData.append('accept_leave_policy', isCheck ? 1 : 0);
-    bodyFormData.append('current_approver_eno', user.employee_number);
-    // bodyFormData.append('attachment[]', file_1);
-    console.log(bodyFormData, 'bodyFormData')
-    axios({
-      method: 'post',
-      url: `${apiUrl}/secondPhaseApi/apply_for_leave`,
-      data: bodyFormData,
-      headers: { 'Content-Type': 'multipart/form-data', Token: token },
-    })
-      .then(function (response) {
-        //handle success
-        setloading(false);
-
-        if (response.data.status == 1) {
-          try {
+              // console.log("Submit data.............", response?.data)
+              Popup.show({
+                type: 'Success',
+                title: 'Success',
+                button: true,
+                textBody:response.data.message,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide(),  navigation.navigate('Applied Leaves')]
+              })
+             
+            
+            } catch (e) {
+              setloading(false);
+          
+            }
+          } else {
+            setloading(false);
+            console.log(response,'198')
             Popup.show({
               type: 'Warning',
               title: 'Warning',
@@ -187,43 +205,40 @@ console.log(leaveType,'leaveType')
               callback: () => [Popup.hide()]
             })
            
-            navigation.navigate('Applied Leaves');
-            console.log("Submit data.............", response?.data)
-          } catch (e) {
-            setloading(false);
-        
           }
-        } else {
+        })
+        .catch(function (error) {
+          //handle error
           setloading(false);
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:response.data.message,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide()]
-          })
-         
-        }
-      })
-      .catch(function (error) {
-        //handle error
-        setloading(false);
-        if(error.response.status=='401')
-        {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
-          });
-        }
+          console.log(error.response.data.msg,'error.response.data.msg')
+          if(error.response.status=='401')
+          {
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:error.response.data.msg,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+              AsyncStorage.removeItem('UserData'),
+              AsyncStorage.removeItem('UserLocation'),
+             navigation.navigate('Login')]
+            });
+          }
+        });
+    }
+    else{
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody:'End date greater then start date',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()]
       });
+    }
+
+   
   };
 
 
@@ -293,7 +308,7 @@ console.log(leaveType,'leaveType')
             onChange={item => {
               setValue(item.id);
               setleaveBalance(item.balance_leave)
-              console.log(item, 'item')
+           
               setIsFocus(false);
             }}
             style={styles.dropdown}

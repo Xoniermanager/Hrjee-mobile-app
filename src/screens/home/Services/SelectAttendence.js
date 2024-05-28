@@ -68,84 +68,91 @@ const SelectAttendence = () => {
   const hours = d.getHours() + ":" + d.getMinutes();
 
   const get_recent_logs = async () => {
-    setloading(true);
-    const token = await AsyncStorage.getItem('Token');
-    const config = {
-      headers: { Token: token },
-    };
-    const date = new Date('2022-12-08');
-    console.log('****', days[date.getDay()]);
-    const body = {
-      start_date: `${startDate.getFullYear()}-${startDate.getMonth() + 1
-        }-${startDate.getDate()}`,
-
-      end_date: `${endDate.getFullYear()}-${endDate.getMonth() + 1
-        }-${endDate.getDate()}`,
-    };
-    console.log("body=>", body)
-
-    if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` > `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
-      setloading(false);
-      Popup.show({
-        type: 'Warning',
-        title: 'Warning',
-        button: true,
-        textBody:'Till date should muast be greater than the From date ',
-        buttonText: 'Ok',
-        callback: () => [Popup.hide()]
-      })
-     
-    } else {
-      axios
-        .post(`${apiUrl}/Api/attendance`, body, config)
-        .then(response => {
-          console.log('addtendance response......................................', response.data);
-          if (response.data.status == 1) {
+ 
+       
+    
+          setloading(true);
+          const token = await AsyncStorage.getItem('Token');
+          const config = {
+            headers: { Token: token },
+          };
+          const date = new Date();
+          console.log('****', days[date.getDay()]);
+          const body = {
+            start_date: `${startDate.getFullYear()}-${startDate.getMonth() + 1
+              }-${startDate.getDate()}`,
+      
+            end_date: `${endDate.getFullYear()}-${endDate.getMonth() + 1
+              }-${endDate.getDate()}`,
+          };
+          console.log("body=>", body)
+      
+          if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` > `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
             setloading(false);
-
-            try {
-              setrecentLogs(response.data.content);
-            } catch (e) {
-            
-            }
-          } else {
-            setloading(false);
-            setrecentLogs([]);
             Popup.show({
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:'attendence not found',
+              textBody:'Till date should muast be greater than the From date ',
               buttonText: 'Ok',
               callback: () => [Popup.hide()]
             })
            
+          } else {
+            axios
+              .post(`${apiUrl}/Api/attendance`, body, config)
+              .then(response => {
+                console.log('addtendance response......................................', response.data);
+                if (response.data.status == 1) {
+                  setloading(false);
+      
+                  try {
+                    setrecentLogs(response.data.content);
+                  } catch (e) {
+                  
+                  }
+                } else {
+                  setloading(false);
+                  setrecentLogs([]);
+                  Popup.show({
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody:'attendence not found',
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()]
+                  })
+                 
+                }
+              })
+              .catch(error => {
+              
+             
+              setloading(false)
+              if(error.response.status=='401')
+              {
+                Popup.show({
+                  type: 'Warning',
+                  title: 'Warning',
+                  button: true,
+                  textBody:error.response.data.msg,
+                  buttonText: 'Ok',
+                  callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                  AsyncStorage.removeItem('UserData'),
+                  AsyncStorage.removeItem('UserLocation'),
+                 navigation.navigate('Login')]
+                });
+              }
+              });
           }
-        })
-        .catch(error => {
-        
-       
-        setloading(false)
-        if(error.response.status=='401')
-        {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
-          });
-        }
-        });
-    }
+      
+
+   
   };
 
   const get_month_logs = async () => {
     const token = await AsyncStorage.getItem('Token');
+    console.log(token,'token')
     const config = {
       headers: { Token: token },
     };
@@ -227,7 +234,7 @@ const SelectAttendence = () => {
             onConfirm={date => {
               setstartopen(false);
               setStartDate(date);
-              setEndDate(new Date(Date.UTC(2023, date.getUTCMonth() + 1, 1)));
+              setEndDate(new Date(Date.UTC(2024, date.getUTCMonth() + 1, 1)));
             }}
             onCancel={() => {
               setstartopen(false);
@@ -298,10 +305,16 @@ const SelectAttendence = () => {
                 { backgroundColor: GlobalStyle.blueLight },
               ]}>
               <Text style={styles.heading}>Date</Text>
+              <Text style={styles.heading}>  Punch In Time</Text>
+
               <Text style={styles.heading}>No. of Hours</Text>
             </View>
             {recentLogs
-              ? recentLogs.map((i, index) => (
+              ? recentLogs.map((i, index) => 
+            {
+              const time =new Date(i?.punch_in_time)
+                const getTime=time.toLocaleTimeString()
+              return   (
                 <View
                   key={index}
                   style={[
@@ -309,11 +322,14 @@ const SelectAttendence = () => {
                     { borderTopWidth: 1, borderTopColor: 'grey' },
                   ]}>
                   <Text style={{color: Themes == 'dark' ? '#000' : '#000',fontSize:responsiveFontSize(1.5) }}>{i.TR_DATE}</Text>
+                  <Text style={{color: Themes == 'dark' ? '#000' : '#000',fontSize:responsiveFontSize(1.5) }}>{getTime}</Text>
+
                   {
                     (datetime != i.TR_DATE) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000',fontSize:responsiveFontSize(1.5),marginRight:15 }}> {i.PRESENT_HOURS}</Text> : (i.location_id == null) ? <Text style={{ color: Themes == 'dark' ? '#000' : '#000',fontSize:responsiveFontSize(1.5),marginRight:15 }}>NA</Text> : <Text style={{ color: Themes == 'dark' ? '#000' : '#000' ,fontSize:responsiveFontSize(1.5),marginRight:15}}> {i.PRESENT_HOURS} </Text>
                   }
                 </View>
-              ))
+              )
+            })
               : null}
           </View>
         </View>

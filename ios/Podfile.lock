@@ -1143,6 +1143,8 @@ PODS:
     - React-perflogger (= 0.73.4)
   - ReactNativeGetLocation (4.0.1):
     - React-Core
+  - rn-fetch-blob (0.12.0):
+    - React-Core
   - RNCAsyncStorage (1.22.0):
     - React-Core
   - RNExitApp (2.0.0):
@@ -1263,6 +1265,7 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeGetLocation (from `../node_modules/react-native-get-location`)
+  - rn-fetch-blob (from `../../../node_modules/rn-fetch-blob`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNExitApp (from `../node_modules/react-native-exit-app`)
   - RNFileViewer (from `../node_modules/react-native-file-viewer`)
@@ -1411,6 +1414,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeGetLocation:
     :path: "../node_modules/react-native-get-location"
+  rn-fetch-blob:
+    :path: "../../../node_modules/rn-fetch-blob"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNExitApp:
@@ -1502,6 +1507,7 @@ SPEC CHECKSUMS:
   React-utils: 6e5ad394416482ae21831050928ae27348f83487
   ReactCommon: 840a955d37b7f3358554d819446bffcf624b2522
   ReactNativeGetLocation: b4379a01dff72507d9abce5f4d569b98abef7761
+  rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNCAsyncStorage: c43e6d71e13bb4748503797784839e0fbbf89d56
   RNExitApp: 00036cabe7bacbb413d276d5520bf74ba39afa6a
   RNFileViewer: ce7ca3ac370e18554d35d6355cffd7c30437c592

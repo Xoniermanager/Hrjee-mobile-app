@@ -22,11 +22,11 @@ const LeaveDetails = ({ navigation, route }) => {
   const theme = useColorScheme();
 
   const { user } = useContext(EssContext);
-
+console.log(route,'mr')
   const [leaveDetails, setleaveDetails] = useState();
   const [approvalHist, setapprovalHist] = useState([]);
 
-  console.log("leaveDetails=>", leaveDetails)
+  // console.log("leaveDetails=>", leaveDetails)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -389,9 +389,9 @@ const LeaveDetails = ({ navigation, route }) => {
               flexDirection: 'row',
               justifyContent: 'space-between',
             }}>
-            <TouchableOpacity onPress={() => cancelLeave()} style={styles.btn}>
+          { route.params.current_status=='Approved-mgr'?null: <TouchableOpacity onPress={() => cancelLeave()} style={styles.btn}>
               <Text style={{ color: 'white', fontWeight: '700' }}>Cancel</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>}
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               style={styles.btn}>

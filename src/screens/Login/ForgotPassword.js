@@ -156,7 +156,7 @@ const ForgotPassword = ({ navigation }) => {
               color: 'grey',
               marginTop: 5,
             }}>
-            Help us find your account
+           Help us to reset your password
           </Text>
           <View style={{ alignItems: 'center' }}>
             <Image

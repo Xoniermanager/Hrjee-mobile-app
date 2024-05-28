@@ -206,7 +206,8 @@ const Done = ({navigation}) => {
                
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Visit Address:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.risk_address}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" , width:responsiveWidth(70),
+                               textAlign:'right'}}>{item?.risk_address}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Loan no:</Text>
@@ -337,11 +338,13 @@ const Done = ({navigation}) => {
                
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Current address:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.lat_long_address}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" , width:responsiveWidth(60),
+                               textAlign:'right'}}>{item?.lat_long_address}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>Remark:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" }}>{item?.remark}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', textAlign: "center" , width:responsiveWidth(70),
+                               textAlign:'right'}}>{item?.remark}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Proparty address:</Text>
@@ -393,7 +396,8 @@ const Done = ({navigation}) => {
                
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Manager remark:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.description}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' , width:responsiveWidth(60),
+                               textAlign:'right'}}>{item?.description}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Location coordinates:</Text>
@@ -409,7 +413,8 @@ const Done = ({navigation}) => {
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Product:</Text>
-                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{item?.product}</Text>
+                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000', width:responsiveWidth(70),
+                               textAlign:'right' }}>{item?.product}</Text>
                </View>
                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 2 }}>
                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Process name:</Text>

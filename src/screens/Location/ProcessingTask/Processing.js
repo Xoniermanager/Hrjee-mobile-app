@@ -620,7 +620,8 @@ const tast_status_update = async (item) => {
                     Dept id:
                   </Text>
                   <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    style={{color: Themes == 'dark' ? '#000' : '#000',   width:responsiveWidth(70),
+                    textAlign:'right'}}>
                     {item?.dept_id}
                   </Text>
                 </View>
@@ -635,7 +636,7 @@ const tast_status_update = async (item) => {
                     Customer name:
                   </Text>
                   <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    style={{color: Themes == 'dark' ? '#000' : '#000',}}>
                     {item?.customer_name}
                   </Text>
                 </View>
@@ -696,7 +697,8 @@ const tast_status_update = async (item) => {
                         <Text
                           style={{
                             color: Themes == 'dark' ? '#000' : '#000',
-                            textAlign: 'center',
+                               width:responsiveWidth(70),
+                               textAlign:'right'
                           }}>
                           {item?.risk_address}
                         </Text>
@@ -886,7 +888,9 @@ const tast_status_update = async (item) => {
                   <Text
                     style={{
                       color: Themes == 'dark' ? '#000' : '#000',
-                      textAlign: 'center',
+                      
+                      width:responsiveWidth(70),
+                               textAlign:'right'
                     }}>
                     {item?.loan_center}
                   </Text>
@@ -1012,7 +1016,8 @@ const tast_status_update = async (item) => {
                     Manager remark:
                   </Text>
                   <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    style={{color: Themes == 'dark' ? '#000' : '#000', width:responsiveWidth(60),
+                    textAlign:'right'}}>
                     {item?.description}
                   </Text>
                 </View>
@@ -1073,7 +1078,8 @@ const tast_status_update = async (item) => {
                     Product:
                   </Text>
                   <Text
-                    style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                    style={{color: Themes == 'dark' ? '#000' : '#000', width:responsiveWidth(70),
+                    textAlign:'right'}}>
                     {item?.product}
                   </Text>
                 </View>
@@ -1292,8 +1298,10 @@ const tast_status_update = async (item) => {
                               <Dropdown
           style={[styles.dropdown,{ borderBottomLeftRadius:isFocus?0:8,borderBottomRightRadius:isFocus?0:8}]}
           placeholderStyle={{ color: Themes == 'dark' ? '#fff' : '#fff',textAlign:'center'}}
+          itemContainerStyle={{height:60}}
+          containerStyle={{height:responsiveHeight(20)}}
           selectedTextStyle={[styles.selectedTextStyle, { color: Themes == 'dark' ? '#fff' : '#fff' }]}
-          data={row}
+          data={disposition}
           maxHeight={300}
           labelField="title"
           valueField="id"
@@ -1466,7 +1474,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dropdown: {
-    height: 50,
+    height:responsiveHeight(6),
     borderColor: 'gray',
     borderWidth: 0.5,
 

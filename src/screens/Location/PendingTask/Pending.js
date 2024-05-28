@@ -15,6 +15,7 @@ import GlobalStyle from '../../../reusable/GlobalStyle';
 import {
   responsiveHeight,
   responsiveScreenWidth,
+  responsiveWidth,
 } from 'react-native-responsive-dimensions';
 import { Root, Popup } from 'popup-ui'
 
@@ -339,7 +340,8 @@ const Pending = ({ navigation }) => {
                         <Text
                           style={{
                             color: Themes == 'dark' ? '#000' : '#000',
-                            textAlign: 'center',
+                            width:responsiveWidth(70),
+                            textAlign:'right'
                           }}>
                           {item?.risk_address}
                         </Text>
@@ -547,7 +549,8 @@ const Pending = ({ navigation }) => {
                           Proparty address:
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000', width:responsiveWidth(60),
+                          textAlign:'right' }}>
                           {item?.proparty_address}
                         </Text>
                       </View>
@@ -641,7 +644,8 @@ const Pending = ({ navigation }) => {
                           Manager remark:
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000', width:responsiveWidth(60),
+                          textAlign:'right' }}>
                           {item?.description}
                         </Text>
                       </View>
@@ -671,7 +675,8 @@ const Pending = ({ navigation }) => {
                           Home address:
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000',width:responsiveWidth(60),
+                          textAlign:'right' }}>
                           {item?.home_address}
                         </Text>
                       </View>

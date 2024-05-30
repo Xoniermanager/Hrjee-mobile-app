@@ -37,6 +37,7 @@ import {PermissionsAndroid} from 'react-native';
 import useApi from '../../../api/useApi';
 import attendence from '../../../api/attendence';
 import GetLocation from 'react-native-get-location';
+import Geolocation from '@react-native-community/geolocation';
 import {getDistance} from 'geolib';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
@@ -52,6 +53,7 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
+import {SocketContext} from '../../tracking/SocketContext';
 
 const Home = ({navigation}) => {
   const theme = useColorScheme();
@@ -60,6 +62,7 @@ const Home = ({navigation}) => {
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
+  const {sendLocation} = useContext(SocketContext);
 
   const {setuser} = useContext(EssContext);
   const [news, setnews] = useState([]);
@@ -577,6 +580,7 @@ const Home = ({navigation}) => {
   };
   const punch_in = async () => {
     setloading(true);
+
     if (Platform.OS == 'android') {
       try {
         const granted = await PermissionsAndroid.request(
@@ -596,6 +600,13 @@ const Home = ({navigation}) => {
               setloading(false);
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
+              sendLocation({
+                userId: userInfo?.userid,
+                location: {
+                  longitude: long,
+                  latitude: lat,
+                },
+              });
               setcurrentLocation({
                 long: long,
                 lat: lat,
@@ -838,7 +849,13 @@ const Home = ({navigation}) => {
             setloading(false);
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
-
+            sendLocation({
+              userId: userInfo?.userid,
+              location: {
+                longitude: long,
+                latitude: lat,
+              },
+            });
             setcurrentLocation({
               long: long,
               lat: lat,
@@ -1056,6 +1073,70 @@ const Home = ({navigation}) => {
       }
     }
   };
+
+  const sendLocationUpdate = (position, userId = 1) => {
+    const locationData = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+
+    console.log('send data', {userId, location: locationData});
+
+    sendLocation({userId, location: locationData});
+  };
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      0.5 -
+      Math.cos(dLat) / 2 +
+      (Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        (1 - Math.cos(dLon))) /
+        2;
+
+    return R * 2 * Math.asin(Math.sqrt(a));
+  };
+
+  //  This is used send location socketContext page Starting ..................................
+
+  const [currentPosition, setCurrentPosition] = useState(null);
+  const [previousPosition, setPreviousPosition] = useState(null);
+  const distanceThreshold = 0.001;
+
+  useEffect(() => {
+    const watchId = Geolocation.watchPosition(
+      position => {
+        // Save current position as previous position before updating
+        if (previousPosition) {
+          const distance = calculateDistance(
+            previousPosition.coords.latitude,
+            previousPosition.coords.longitude,
+            position.coords.latitude,
+            position.coords.longitude,
+          );
+
+          if (distance >= distanceThreshold) {
+            sendLocationUpdate(position);
+            setPreviousPosition(currentPosition);
+          }
+        } else {
+          sendLocationUpdate(position);
+          setPreviousPosition(currentPosition);
+        }
+        setCurrentPosition(position);
+      },
+      error => console.log(error),
+      {enableHighAccuracy: true, distanceFilter: 1, interval: 5000},
+    );
+
+    // Clean up the watchPosition when the component unmounts
+    return () => Geolocation.clearWatch(watchId);
+  }, [currentPosition]);
+
+  //  This is used send location socketContext page Ending ..................................
 
   const renderItem = ({item}) =>
     // console.log("A.......", item)
@@ -1748,6 +1829,17 @@ const Home = ({navigation}) => {
         </Modal>
       </Root>
     </SafeAreaView>
+
+    // <View>
+    //   <Text>
+    //     Current Position:{' '}
+    //     {currentPosition ? JSON.stringify(currentPosition) : 'Fetching...'}
+    //   </Text>
+    //   <Text>
+    //     Previous Position:{' '}
+    //     {previousPosition ? JSON.stringify(previousPosition) : 'N/A'}
+    //   </Text>
+    // </View>
   );
 };
 

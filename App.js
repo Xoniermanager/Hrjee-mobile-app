@@ -1,36 +1,44 @@
-import { StyleSheet, Text, View, Modal, Image, Linking, Platform, Alert, BackHandler } from 'react-native';
-import React, { useEffect, useContext, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { EssProvider, EssContext } from './Context/EssContext';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Modal,
+  Image,
+  Linking,
+  Platform,
+  Alert,
+  BackHandler,
+} from 'react-native';
+import React, {useEffect, useContext, useState} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {EssProvider, EssContext} from './Context/EssContext';
 import SplashScreen from 'react-native-splash-screen';
 import NetInfo from '@react-native-community/netinfo';
 import VersionCheck from 'react-native-version-check';
 import RNExitApp from 'react-native-exit-app';
-import Main, { H } from './Navigators/Main';
+import Main, {H} from './Navigators/Main';
 import HomeNavigator from './Navigators/HomeNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SocketProvider } from './src/tracking/SocketContext';
 
-const App = ({ navigation }) => {
-
+const App = ({navigation}) => {
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hide();
     }, 1000);
-    
   }, []);
 
-  const update=async()=>{
+  const update = async () => {
     Linking.openURL(
       Platform.OS === 'ios'
         ? 'http://itunes.apple.com/lookup?bundleId=com.appHRjee'
-        : 'https://play.google.com/store/apps/details?id=com.HRjee'
+        : 'https://play.google.com/store/apps/details?id=com.HRjee',
     );
     await AsyncStorage.removeItem('Token');
     await AsyncStorage.removeItem('UserData');
     await AsyncStorage.removeItem('UserLocation');
     RNExitApp.exitApp();
-  }
-
+  };
 
   useEffect(() => {
     const checkAppVersion = async () => {
@@ -40,7 +48,7 @@ const App = ({ navigation }) => {
           ignoreErrors: true,
         });
         const currentVersion = VersionCheck.getCurrentVersion();
-        console.log(latestVersion, currentVersion)
+        console.log(latestVersion, currentVersion);
         if (latestVersion > currentVersion) {
           Alert.alert(
             'Update Required',
@@ -49,12 +57,11 @@ const App = ({ navigation }) => {
               {
                 text: 'Update Now',
                 onPress: () => {
-                  update()
+                  update();
                 },
               },
-            
             ],
-            { cancelable: false }
+            {cancelable: false},
           );
         } else {
           // App is up-to-date, proceed with the app
@@ -66,71 +73,68 @@ const App = ({ navigation }) => {
     };
 
     checkAppVersion();
-
-
   }, []);
 
-  const [isConnected, setIsConnected] = useState("")
+  const [isConnected, setIsConnected] = useState('');
   const [isModalVisiblebeneficial, setModalVisiblebeneficial] = useState(false);
 
   const ModalOpen = () => {
-    setModalVisiblebeneficial(!isModalVisiblebeneficial)
-  }
+    setModalVisiblebeneficial(!isModalVisiblebeneficial);
+  };
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
-      setIsConnected(state.isConnected ? "true" : "false")
+      setIsConnected(state.isConnected ? 'true' : 'false');
       //  alert(state.isConnected)
       if (state.isConnected == false) {
-        ModalOpen()
+        ModalOpen();
         return;
       }
-
     });
     return () => {
       unsubscribe();
-    }
-  }, [])
+    };
+  }, []);
 
   return (
-
     <>
-      {
-        isConnected == "true" &&
-
+      {isConnected == 'true' && (
         <>
-          <EssProvider>
-            <NavigationContainer>
-              <HomeNavigator />
-            </NavigationContainer>
-          </EssProvider>
+          <SocketProvider>
+            <EssProvider>
+              <NavigationContainer>
+                <HomeNavigator />
+              </NavigationContainer>
+            </EssProvider>
+          </SocketProvider>
         </>
-      }
+      )}
 
-      {
-        isConnected == "false" &&
-        <Modal isVisible={isModalVisiblebeneficial}
-          animationType="slide"
-        >
-          <View style={{ flex: 1, justifyContent: "center", backgroundColor: "#fff" }}>
-            <Text style={{ fontSize: 12, fontWeight: "500", color: "#0D2BD3", textAlign: "center", }}>Please check your internet connection </Text>
+      {isConnected == 'false' && (
+        <Modal isVisible={isModalVisiblebeneficial} animationType="slide">
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              backgroundColor: '#fff',
+            }}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: '500',
+                color: '#0D2BD3',
+                textAlign: 'center',
+              }}>
+              Please check your internet connection{' '}
+            </Text>
             <Image
-              style={{ width: 80, height: 80, alignSelf: "center", margin: 5 }}
+              style={{width: 80, height: 80, alignSelf: 'center', margin: 5}}
               source={require('./src/images/internet.jpeg')}
             />
           </View>
         </Modal>
-      }
-
+      )}
     </>
-
-
-
-
-
-
-
-
   );
 };
 
@@ -144,47 +148,47 @@ const styles = StyleSheet.create({});
 // import VersionCheck from 'react-native-version-check';
 
 // const App = () => {
-  // useEffect(() => {
-  //   const checkAppVersion = async () => {
-  //     try {
-  //       const latestVersion = await VersionCheck.getLatestVersion({
-  //         packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
-  //         ignoreErrors: true,
-  //       });
+// useEffect(() => {
+//   const checkAppVersion = async () => {
+//     try {
+//       const latestVersion = await VersionCheck.getLatestVersion({
+//         packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
+//         ignoreErrors: true,
+//       });
 
-  //       const currentVersion = VersionCheck.getCurrentVersion();
-  //       console.log(currentVersion, latestVersion, 'currentVersion')
+//       const currentVersion = VersionCheck.getCurrentVersion();
+//       console.log(currentVersion, latestVersion, 'currentVersion')
 
-  //       if (latestVersion >= currentVersion) {
-  //         Alert.alert(
-  //           'Update Required',
-  //           'A new version of the app is available. Please update to continue using the app.',
-  //           [
-  //             {
-  //               text: 'Update Now',
-  //               onPress: () => {
-  //                 Linking.openURL(
-  //                   Platform.OS === 'ios'
-  //                     ? 'http://itunes.apple.com/lookup?bundleId=com.appHRjee'
-  //                     : 'https://play.google.com/store/apps/details?id=com.HRjee'
-  //                 );
-  //               },
-  //             },
-            
-  //           ],
-  //           { cancelable: false }
-  //         );
-  //       } else {
-  //         // App is up-to-date, proceed with the app
-  //       }
-  //     } catch (error) {
-  //       // Handle error while checking app version
-  //       console.error('Error checking app version:', error);
-  //     }
-  //   };
+//       if (latestVersion >= currentVersion) {
+//         Alert.alert(
+//           'Update Required',
+//           'A new version of the app is available. Please update to continue using the app.',
+//           [
+//             {
+//               text: 'Update Now',
+//               onPress: () => {
+//                 Linking.openURL(
+//                   Platform.OS === 'ios'
+//                     ? 'http://itunes.apple.com/lookup?bundleId=com.appHRjee'
+//                     : 'https://play.google.com/store/apps/details?id=com.HRjee'
+//                 );
+//               },
+//             },
 
-  //   checkAppVersion();
-  // }, []);
+//           ],
+//           { cancelable: false }
+//         );
+//       } else {
+//         // App is up-to-date, proceed with the app
+//       }
+//     } catch (error) {
+//       // Handle error while checking app version
+//       console.error('Error checking app version:', error);
+//     }
+//   };
+
+//   checkAppVersion();
+// }, []);
 
 //   // Render your app components here
 // };

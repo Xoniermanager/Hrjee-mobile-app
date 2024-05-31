@@ -20,6 +20,7 @@ const SocketProvider = ({ children }) => {
     // }, []);
 
     const sendLocation = (location) => {
+        alert('Hit emit function')
         console.log("location......", location)
         socket.emit('sendLocation', location);
     };

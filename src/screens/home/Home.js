@@ -599,17 +599,17 @@ const Home = ({ navigation }) => {
               setloading(false);
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
-              /*
-                            // { Live tracking starting}
-                            sendLocation({
-                              userId: userInfo?.userid,
-                              location: {
-                                longitude: long,
-                                latitude: lat,
-                              },
-                            });
-                            // { Live tracking ending }
-              */
+
+              // { Live tracking starting}
+              sendLocation({
+                userId: userInfo?.userid,
+                location: {
+                  longitude: long,
+                  latitude: lat,
+                },
+              });
+              // { Live tracking ending }
+
               setcurrentLocation({
                 long: long,
                 lat: lat,
@@ -852,17 +852,17 @@ const Home = ({ navigation }) => {
             setloading(false);
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
-            /*
-                        // { Live tracking starting}
-                        sendLocation({
-                          userId: userInfo?.userid,
-                          location: {
-                            longitude: long,
-                            latitude: lat,
-                          },
-                        });
-                        // { Live tracking starting}
-            */
+
+            // { Live tracking starting}
+            sendLocation({
+              userId: userInfo?.userid,
+              location: {
+                longitude: long,
+                latitude: lat,
+              },
+            });
+            // { Live tracking starting}
+
             setcurrentLocation({
               long: long,
               lat: lat,
@@ -1081,23 +1081,73 @@ const Home = ({ navigation }) => {
     }
   };
 
-  /* 
+
+  const punch = async () => {
+    setloading(true);
+
+    if (Platform.OS == 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          GetLocation.getCurrentPosition({});
+          const userData = await AsyncStorage.getItem('UserData');
+          const userInfo = JSON.parse(userData);
+          let company_id = userInfo?.company_id;
+
+          GetLocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 15000,
+          })
+            .then(async location => {
+              setloading(false);
+              var lat = parseFloat(location.latitude);
+              var long = parseFloat(location.longitude);
+
+              // { Live tracking starting}
+              sendLocation({
+                userId: userInfo?.userid,
+                location: {
+                  longitude: long,
+                  latitude: lat,
+                },
+              });
+              // { Live tracking ending }
+
+              setcurrentLocation({
+                long: long,
+                lat: lat,
+              });
+            })
+        }
+      } catch (err) {
+        setloading(false);
+        console.warn(err);
+      }
+    }
+  };
+
 
   //  This is used send live tracking location socketContext page Starting ..................................
- 
+
   const [currentPosition, setCurrentPosition] = useState(null);
   const [previousPosition, setPreviousPosition] = useState(null);
-  const distanceThreshold = 0.0003;
 
-  const sendLocationUpdate = async (position, userId = userInfo) => {
+  console.log(currentPosition, previousPosition, "200023")
+  const distanceThreshold = 0.0000;
+
+  const sendLocationUpdate = async (position, user_id) => {
     const locationData = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
     };
 
-    console.log('send data', { userId, location: locationData });
+    console.log('send data', { user_id, location: locationData });
+    alert(JSON.stringify(position));
+    alert(user_id);
 
-    sendLocation({ userId, location: locationData });
+    sendLocation({ user_id, location: locationData });
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -1115,9 +1165,11 @@ const Home = ({ navigation }) => {
     return R * 2 * Math.asin(Math.sqrt(a));
   };
 
-  useEffect(async () => {
+
+  const doSomething = async () => {
     const userData = await AsyncStorage.getItem('UserData');
-    const userInfo = JSON.parse(userData?.userid);
+    const userInfo = JSON.parse(userData);
+    const user_id = userInfo?.userid
     const watchId = Geolocation.watchPosition(
       position => {
         // Save current position as previous position before updating
@@ -1130,11 +1182,11 @@ const Home = ({ navigation }) => {
           );
 
           if (distance >= distanceThreshold) {
-            sendLocationUpdate(position, userInfo);
+            sendLocationUpdate(position, user_id);
             setPreviousPosition(currentPosition);
           }
         } else {
-          sendLocationUpdate(position, userInfo);
+          sendLocationUpdate(position, user_id);
           setPreviousPosition(currentPosition);
         }
         setCurrentPosition(position);
@@ -1145,11 +1197,15 @@ const Home = ({ navigation }) => {
 
     // Clean up the watchPosition when the component unmounts
     return () => Geolocation.clearWatch(watchId);
+  }
+
+  useEffect(() => {
+    doSomething();
   }, [currentPosition]);
 
   //  This is used send live tracking location socketContext page Ending ..................................
 
-  */
+
 
   const renderItem = ({ item }) =>
     // console.log("A.......", item)
@@ -1563,7 +1619,8 @@ const Home = ({ navigation }) => {
                             </Text>
                           </View>
                           <TouchableOpacity
-                            onPress={showAlert}
+                            // onPress={showAlert}
+                            onPress={() => punch()}
                             style={{
                               padding: 10,
                               paddingHorizontal: 20,
@@ -1590,7 +1647,7 @@ const Home = ({ navigation }) => {
 
                       {!inTime && !locationOut && (
                         <TouchableOpacity
-                          onPress={() => punch_in()}
+                          // onPress={() => punch_in()}
                           style={{
                             padding: 10,
                             paddingHorizontal: 20,

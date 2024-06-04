@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 
 const SocketContext = createContext();
 
-const socket = io('http://app.hrjee.com:6370');
+const socket = io('https://app.hrjee.com:6370');
 
 const SocketProvider = ({ children }) => {
     // const [locationData, setLocationData] = useState({});
@@ -20,8 +20,6 @@ const SocketProvider = ({ children }) => {
     // }, []);
 
     const sendLocation = (location) => {
-        alert('Hit emit function')
-        console.log("location......", location)
         socket.emit('sendLocation', location);
     };
 

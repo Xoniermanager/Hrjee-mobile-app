@@ -9,7 +9,7 @@ import {
   useColorScheme,
   SafeAreaView
 } from 'react-native';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import DatePicker from 'react-native-date-picker';
@@ -24,6 +24,8 @@ import { moderateScale } from 'react-native-size-matters';
 import Themes from '../../../../Theme/Theme';
 import Reload from '../../../../../Reload';
 import { Root, Popup } from 'popup-ui'
+import { RadioButton, RadioButtonGroup } from 'react-native-paper';
+
 
 const ApplyLeave = ({ navigation }) => {
   const theme = useColorScheme();
@@ -33,29 +35,39 @@ const ApplyLeave = ({ navigation }) => {
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const [halfDay, sethalfDay] = useState('0');
-
+  const [choosedata, setChooseData] = useState('Self');
+  const [checked, setChecked] = useState('first');
   const [leaveType, setleaveType] = useState(null);
-
-
   const [startopen, setstartopen] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
-
   const [endopen, setendopen] = useState(false);
   const [endDate, setEndDate] = useState(new Date());
-
   const [leaveBalance, setleaveBalance] = useState(0);
   const [companyid, setCompany_id] = useState('');
-
-
+  const [comment, setcomment] = useState(null);
   const [name, setname] = useState(null);
   const [phone, setphone] = useState(null);
-  const [address, setaddress] = useState(null);
-  const [comment, setcomment] = useState(null);
+  const [address, setaddress] = useState(null)
+
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    comment: '',
+  });
+
+  const handleFieldChange = (name, value) => {
+    setForm({
+      ...form,
+      [name]: value
+    })
+  };
+
 
   const [isCheck, setisCheck] = useState(true);
   const leave_type = async () => {
     const token = await AsyncStorage.getItem('Token');
-    
+
     const config = {
       headers: { Token: token },
     };
@@ -63,7 +75,6 @@ const ApplyLeave = ({ navigation }) => {
     axios
       .post(`${apiUrl}/secondPhaseApi/leave_type`, body, config)
       .then(response => {
-       
         setloading(false);
         if (response.data.status == 1) {
           setleaveType(response?.data?.data)
@@ -73,28 +84,27 @@ const ApplyLeave = ({ navigation }) => {
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:response.data.message,
+            textBody: response.data.message,
             buttonText: 'Ok',
             callback: () => [Popup.hide()]
           })
-        
+
         }
       })
       .catch(error => {
-       
+
         setloading(false)
-        if(error.response.status=='401')
-        {
+        if (error.response.status == '401') {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:error.response.data.msg,
+            textBody: error.response.data.msg,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
             AsyncStorage.removeItem('UserData'),
             AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
+            navigation.navigate('Login')]
           });
         }
       });
@@ -108,11 +118,43 @@ const ApplyLeave = ({ navigation }) => {
     setCompany_id(company_id)
   }
 
+  const get_employee_detail = async () => {
+    setloading(true)
+    const token = await AsyncStorage.getItem('Token');
+    const config = {
+      headers: { Token: token },
+    };
+    axios
+      .post(`${apiUrl}/api/get_employee_detail`, {}, config)
+      .then(response => {
+        setloading(false)
+        if (response.data.status === 1) {
+          try {
+            setForm({
+              name: response?.data?.data?.FULL_NAME,
+              phone: response?.data?.data?.mobile_no,
+              address: response?.data?.data?.permanent_address,
+            })
+            // get_employee_detail();
+          } catch (e) {
+            setloading(false)
+          }
+        } else {
+          setloading(false)
+          console.log('some error occured');
+        }
+      })
+      .catch(error => {
+        alert(error.request._response);
+        setloading(false)
+      });
+  };
 
   useFocusEffect(
     React.useCallback(() => {
       leave_type();
       company_id()
+      get_employee_detail()
     }, []),
   );
 
@@ -123,13 +165,13 @@ const ApplyLeave = ({ navigation }) => {
 
 
   const apply_leave = async () => {
-    if(startDate.valueOf()<endDate.valueOf()){
+    if (startDate.valueOf() < endDate.valueOf()) {
       setloading(true);
       const token = await AsyncStorage.getItem('Token');
       const config = {
         headers: { Token: token },
       };
-  
+
       var bodyFormData = new FormData();
       bodyFormData.append('userid', user.userid);
       bodyFormData.append('leave_balance', leaveBalance);
@@ -157,13 +199,14 @@ const ApplyLeave = ({ navigation }) => {
       bodyFormData.append('morning_evening', halfDay);
       bodyFormData.append('notes', comment);
       bodyFormData.append('guaranter_id', user.employee_number);
-      bodyFormData.append('emergency_contact_name', name);
-      bodyFormData.append('emergency_contact_phone', phone);
-      bodyFormData.append('emergency_contact_address', address);
+      bodyFormData.append('emergency_contact_name', form.name);
+      bodyFormData.append('emergency_contact_phone', form.phone);
+      bodyFormData.append('emergency_contact_address', form.address);
       bodyFormData.append('exit_entry_visa_reqd', 1);
       bodyFormData.append('accept_leave_policy', isCheck ? 1 : 0);
       bodyFormData.append('current_approver_eno', user.employee_number);
-    
+
+
       axios({
         method: 'post',
         url: `${apiUrl}/secondPhaseApi/apply_for_leave`,
@@ -173,117 +216,115 @@ const ApplyLeave = ({ navigation }) => {
         .then(function (response) {
           //handle success
           setloading(false);
-        
-  
           if (response.data.status == 1) {
             try {
 
-              // console.log("Submit data.............", response?.data)
               Popup.show({
                 type: 'Success',
                 title: 'Success',
                 button: true,
-                textBody:response.data.message,
+                textBody: response.data.message,
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(),  navigation.navigate('Applied Leaves')]
+                callback: () => [Popup.hide(), navigation.navigate('Leave Applied List')]
               })
-             
-            
+
+
             } catch (e) {
               setloading(false);
-          
+
             }
           } else {
             setloading(false);
-            console.log(response,'198')
             Popup.show({
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:response.data.message,
+              textBody: response.data.message,
               buttonText: 'Ok',
               callback: () => [Popup.hide()]
             })
-           
+
           }
         })
         .catch(function (error) {
           //handle error
           setloading(false);
-          console.log(error.response.data.msg,'error.response.data.msg')
-          if(error.response.status=='401')
-          {
+          if (error.response.status == '401') {
             Popup.show({
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:error.response.data.msg,
+              textBody: error.response.data.msg,
               buttonText: 'Ok',
-              callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+              callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
               AsyncStorage.removeItem('UserData'),
               AsyncStorage.removeItem('UserLocation'),
-             navigation.navigate('Login')]
+              navigation.navigate('Login')]
             });
           }
         });
     }
-    else{
+    else {
       Popup.show({
         type: 'Warning',
         title: 'Warning',
         button: true,
-        textBody:'End date greater then start date',
+        textBody: 'End date greater then start date',
         buttonText: 'Ok',
         callback: () => [Popup.hide()]
       });
     }
 
-   
+
   };
+
+  // useEffect(()=> {
+  //   get_employee_detail()
+  // },[])
 
 
 
   const checkEmptyField = () => {
-    if (value !== null && name !== null && phone !== null && address !== null) {
+    if (value !== null && form.name !== null && form.phone !== null && form.address !== null) {
       return apply_leave();
     } else {
       if (value == null) {
-        return   Popup.show({
+        return Popup.show({
           type: 'Warning',
           title: 'Warning',
           button: true,
-          textBody:'please select leave type',
+          textBody: 'please select leave type',
           buttonText: 'Ok',
           callback: () => [Popup.hide()]
         })
       }
-      if (name == null) {
-        return   Popup.show({
+      if (form.name == null) {
+        return Popup.show({
           type: 'Warning',
           title: 'Warning',
           button: true,
-          textBody:'please enter emergency name',
+          textBody: 'please enter emergency name',
           buttonText: 'Ok',
           callback: () => [Popup.hide()]
         })
       }
-      if (phone == null) {
-        return   Popup.show({
+      if (form.phone == null) {
+        return Popup.show({
           type: 'Warning',
           title: 'Warning',
           button: true,
-          textBody:'please enter emergency contact number',
+          textBody: 'please enter emergency contact number',
           buttonText: 'Ok',
           callback: () => [Popup.hide()]
         })
       }
-      if (address == null) {
-      
-        return   Popup.show({
+      if (form.address == null) {
+
+        return Popup.show({
           type: 'Warning',
           title: 'Warning',
           button: true,
-          textBody:'please enter emergency address',
+          textBody: 'please enter emergency address',
           buttonText: 'Ok',
           callback: () => [Popup.hide()]
         })
@@ -294,100 +335,40 @@ const ApplyLeave = ({ navigation }) => {
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 18 }}>
-    
-        <Root>
-      <ScrollView>
-        <View>
-          <Text style={styles.input_title}>Leave Type</Text>
-          <Dropdown
-            data={leaveType}
-            labelField="leave_type"
-            valueField="id"
-            value={value}
-            onChange={item => {
-              setValue(item.id);
-              setleaveBalance(item.balance_leave)
-           
-              setIsFocus(false);
-            }}
-            style={styles.dropdown}
-            placeholder="Select Type"
-            placeholderStyle={styles.placeholderStyle}
-            itemTextStyle={{ color: Themes == 'dark' ? '#000' : '#000' }}
-            selectedTextStyle={{ color: Themes == 'dark' ? '#000' : '#000' }}
-          />
-        </View>
-        <View style={styles.input_top_margin}>
-          <Text style={styles.input_title}>Leave Balance</Text>
-          <Text style={[{ marginLeft: 10, marginBottom: 10, marginTop: 5 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>{leaveBalance != 0 ? leaveBalance : 0}</Text>
-          <View style={{ borderWidth: 0.5, backgroundColor: "#000", elevation: 1, opacity: 0.4, }}></View>
-        </View>
-        <View style={styles.input_top_margin}>
-          {/* <Text style={styles.input_title}>Holiday</Text> */}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            {
-              companyid == 56 ?
-                <TouchableOpacity
-                  onPress={() => sethalfDay('0')}
-                  style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  {halfDay == '0' ? (
-                    <Fontisto
-                      name="radio-btn-active"
-                      size={18}
-                      style={styles.radio_icon}
-                      color="#0321a4"
-                    />
-                  ) : (
-                    <Fontisto
-                      name="radio-btn-passive"
-                      size={18}
-                      color="#0321a4"
-                      style={styles.radio_icon}
-                    />
-                  )}
-                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>None</Text>
-                </TouchableOpacity>
-                :
-                <>
-                  <TouchableOpacity
-                    onPress={() => sethalfDay('A')}
-                    style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    {halfDay == 'A' ? (
-                      <Fontisto
-                        name="radio-btn-active"
-                        size={18}
-                        style={styles.radio_icon}
-                      />
-                    ) : (
-                      <Fontisto
-                        name="radio-btn-passive"
-                        size={18}
-                        style={styles.radio_icon}
-                      />
-                    )}
-                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Morning</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => sethalfDay('P')}
-                    style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    {halfDay == 'P' ? (
-                      <Fontisto
-                        name="radio-btn-active"
-                        size={18}
-                        style={styles.radio_icon}
-                        color="#0321a4"
-                      />
-                    ) : (
-                      <Fontisto
-                        name="radio-btn-passive"
-                        size={18}
-                        color="#0321a4"
-                        style={styles.radio_icon}
-                      />
-                    )}
-                    <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Evening</Text>
-                  </TouchableOpacity>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding:18 }}>
+
+      <Root>
+        <ScrollView style={{marginHorizontal:5}}>
+          <View>
+            <Text style={styles.input_title}>Leave Type</Text>
+            <Dropdown
+              data={leaveType}
+              labelField="leave_type"
+              valueField="id"
+              value={value}
+              onChange={item => {
+                setValue(item.id);
+                setleaveBalance(item.balance_leave)
+
+                setIsFocus(false);
+              }}
+              style={styles.dropdown}
+              placeholder="Select Type"
+              placeholderStyle={styles.placeholderStyle}
+              itemTextStyle={{ color: Themes == 'dark' ? '#000' : '#000' }}
+              selectedTextStyle={{ color: Themes == 'dark' ? '#000' : '#000' }}
+            />
+          </View>
+          <View style={styles.input_top_margin}>
+            <Text style={styles.input_title}>Leave Balance</Text>
+            <Text style={[{ marginLeft: 10, marginBottom: 10, marginTop: 5 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>{leaveBalance != 0 ? leaveBalance : 0}</Text>
+            <View style={{ borderWidth: 0.5, backgroundColor: "#000", elevation: 1, opacity: 0.4, }}></View>
+          </View>
+          <View style={styles.input_top_margin}>
+            {/* <Text style={styles.input_title}>Holiday</Text> */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              {
+                companyid == 56 ?
                   <TouchableOpacity
                     onPress={() => sethalfDay('0')}
                     style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -408,56 +389,77 @@ const ApplyLeave = ({ navigation }) => {
                     )}
                     <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>None</Text>
                   </TouchableOpacity>
-                </>
-            }
+                  :
+                  <>
+                    <TouchableOpacity
+                      onPress={() => sethalfDay('A')}
+                      style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      {halfDay == 'A' ? (
+                        <Fontisto
+                          name="radio-btn-active"
+                          size={18}
+                          style={styles.radio_icon}
+                        />
+                      ) : (
+                        <Fontisto
+                          name="radio-btn-passive"
+                          size={18}
+                          style={styles.radio_icon}
+                        />
+                      )}
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Morning</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => sethalfDay('P')}
+                      style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      {halfDay == 'P' ? (
+                        <Fontisto
+                          name="radio-btn-active"
+                          size={18}
+                          style={styles.radio_icon}
+                          color="#0321a4"
+                        />
+                      ) : (
+                        <Fontisto
+                          name="radio-btn-passive"
+                          size={18}
+                          color="#0321a4"
+                          style={styles.radio_icon}
+                        />
+                      )}
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Evening</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => sethalfDay('0')}
+                      style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      {halfDay == '0' ? (
+                        <Fontisto
+                          name="radio-btn-active"
+                          size={18}
+                          style={styles.radio_icon}
+                          color="#0321a4"
+                        />
+                      ) : (
+                        <Fontisto
+                          name="radio-btn-passive"
+                          size={18}
+                          color="#0321a4"
+                          style={styles.radio_icon}
+                        />
+                      )}
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>None</Text>
+                    </TouchableOpacity>
+                  </>
+              }
 
 
 
+            </View>
           </View>
-        </View>
-        <View style={styles.input_top_margin}>
-          <Text style={styles.input_title}>Start Date</Text>
-          <TouchableOpacity
-            onPress={() => setstartopen(true)} //
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              padding: 15,
-              borderRadius: 5,
-              borderBottomWidth: 1,
-              borderBottomColor: 'grey',
-            }}>
-            <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{new Date(startDate).toISOString().substring(0, 10)}</Text>
-            <AntDesign
-              name="calendar"
-              size={20}
-              style={styles.radio_icon}
-              color="#0321a4"
-            />
-          </TouchableOpacity>
-          <DatePicker
-            textColor="#000000"
-            backgroundColor="#FFFFFF"
-            theme="light"
-            modal
-            // minimumDate={new Date()}
-            open={startopen}
-            date={startDate}
-            mode="date"
-            onConfirm={date => {
-              setstartopen(false);
-              setStartDate(date);
-            }}
-            onCancel={() => {
-              setstartopen(false);
-            }}
-          />
-        </View>
-        {halfDay === '0' ? (
           <View style={styles.input_top_margin}>
-            <Text style={styles.input_title}>End Date</Text>
+            <Text style={styles.input_title}>Start Date</Text>
             <TouchableOpacity
-              onPress={() => setendopen(true)} //
+              onPress={() => setstartopen(true)} //
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
@@ -466,7 +468,7 @@ const ApplyLeave = ({ navigation }) => {
                 borderBottomWidth: 1,
                 borderBottomColor: 'grey',
               }}>
-              <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{new Date(endDate).toISOString().substring(0, 10)}</Text>
+              <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{new Date(startDate).toISOString().substring(0, 10)}</Text>
               <AntDesign
                 name="calendar"
                 size={20}
@@ -477,107 +479,285 @@ const ApplyLeave = ({ navigation }) => {
             <DatePicker
               textColor="#000000"
               backgroundColor="#FFFFFF"
+              theme="light"
               modal
               // minimumDate={new Date()}
-              open={endopen}
-              date={endDate}
-              theme='light'
+              open={startopen}
+              date={startDate}
               mode="date"
               onConfirm={date => {
-                setendopen(false);
-                setEndDate(date);
+                setstartopen(false);
+                setStartDate(date);
               }}
               onCancel={() => {
-                setendopen(false);
+                setstartopen(false);
               }}
             />
           </View>
-        ) : null}
-        <View style={styles.input_top_margin}>
-          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-            Emergency Contacts
-          </Text>
-          <View style={styles.input_top_margin}>
-            <Text style={styles.input_title}>Name</Text>
-            <TextInput
-              maxLength={25}
-              style={styles.input}
-              placeholder="Please enter name"
-              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-              onChangeText={setname}
-            />
-          </View>
-          <View style={styles.input_top_margin}>
-            <Text style={styles.input_title}>Phone number</Text>
-            <TextInput
-              maxLength={10}
-              keyboardType="numeric"
-              style={styles.input}
-              placeholder="Please enter phone number"
-              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-
-              onChangeText={setphone}
-            />
-          </View>
-          <View style={styles.input_top_margin}>
-            <Text style={styles.input_title}>Address</Text>
-            <TextInput
-              maxLength={50}
-              style={styles.input}
-              placeholder="Please enter address"
-              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-
-              onChangeText={setaddress}
-            />
-          </View>
-          <View style={styles.input_top_margin}>
-            <Text style={styles.input_title}>Comment</Text>
-            <TextInput
-              multiline
-              style={styles.input}
-              placeholder="Put your comment here....."
-              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-
-              onChangeText={setcomment}
-            />
-          </View>
-          <TouchableOpacity
-            onPress={() => setisCheck(!isCheck)}
-            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
-            {isCheck ? (
-              <Fontisto
-                name="checkbox-active"
-                size={18}
-                style={styles.radio_icon}
+          {halfDay === '0' ? (
+            <View style={styles.input_top_margin}>
+              <Text style={styles.input_title}>End Date</Text>
+              <TouchableOpacity
+                onPress={() => setendopen(true)} //
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  padding: 15,
+                  borderRadius: 5,
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'grey',
+                }}>
+                <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{new Date(endDate).toISOString().substring(0, 10)}</Text>
+                <AntDesign
+                  name="calendar"
+                  size={20}
+                  style={styles.radio_icon}
+                  color="#0321a4"
+                />
+              </TouchableOpacity>
+              <DatePicker
+                textColor="#000000"
+                backgroundColor="#FFFFFF"
+                modal
+                // minimumDate={new Date()}
+                open={endopen}
+                date={endDate}
+                theme='light'
+                mode="date"
+                onConfirm={date => {
+                  setendopen(false);
+                  setEndDate(date);
+                }}
+                onCancel={() => {
+                  setendopen(false);
+                }}
               />
-            ) : (
-              <Fontisto
-                name="checkbox-passive"
-                size={18}
-                style={styles.radio_icon}
-              />
-            )}
-            <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Accept leave policy.</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.btn_style, { flexDirection: 'row' }]}
-            onPress={checkEmptyField}>
-            <Text
-              style={{
-                color: 'white',
-                fontWeight: '600',
-                fontSize: 15,
-                marginRight: 10,
-              }}>
-              Submit
+            </View>
+          ) : null}
+          <View style={styles.input_top_margin}>
+            <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+              Emergency Contacts
             </Text>
-            {loading ? <ActivityIndicator /> : null}
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            <View style={{ flexDirection: 'row', marginVertical: 10 }}>
+
+              <TouchableOpacity
+                onPress={() => setChooseData('Self')}
+                style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {choosedata == 'Self' ? (
+                  <Fontisto
+                    name="radio-btn-active"
+                    size={18}
+                    style={styles.radio_icon}
+                  />
+                ) : (
+                  <Fontisto
+                    name="radio-btn-passive"
+                    size={18}
+                    style={styles.radio_icon}
+                  />
+                )}
+                <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Self</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setChooseData('Other')}
+                style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>
+                {choosedata == 'Other' ? (
+                  <Fontisto
+                    name="radio-btn-active"
+                    size={18}
+                    style={styles.radio_icon}
+                    color="#0321a4"
+                  />
+
+                ) : (
+                  <Fontisto
+                    name="radio-btn-passive"
+                    size={18}
+                    color="#0321a4"
+                    style={styles.radio_icon}
+                  />
+                )}
+                <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Other</Text>
+              </TouchableOpacity>
+            </View>
+            {choosedata === 'Self' ?
+              <>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Name</Text>
+                  <TextInput
+                    maxLength={25}
+                    style={styles.input}
+                    placeholder="Please enter name"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    value={form.name}
+                    onChangeText={value => {
+                      handleFieldChange('name', value);
+                    }}
+                  />
+                </View>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Phone number</Text>
+                  <TextInput
+                    maxLength={10}
+                    keyboardType="numeric"
+                    style={styles.input}
+                    placeholder="Please enter phone number"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    value={form.phone}
+                    onChangeText={value => {
+                      handleFieldChange('phone', value);
+                    }}
+                  />
+                </View>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Address</Text>
+                  <TextInput
+                    maxLength={50}
+                    style={styles.input}
+                    placeholder="Please enter address"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    value={form.address}
+                    onChangeText={value => {
+                      handleFieldChange('address', value);
+                    }} />
+                </View>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Comment</Text>
+                  <TextInput
+                    multiline
+                    style={styles.input}
+                    placeholder="Put your comment here....."
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+
+                    onChangeText={setcomment}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => setisCheck(!isCheck)}
+                  style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+                  {isCheck ? (
+                    <Fontisto
+                      name="checkbox-active"
+                      size={18}
+                      style={styles.radio_icon}
+                    />
+                  ) : (
+                    <Fontisto
+                      name="checkbox-passive"
+                      size={18}
+                      style={styles.radio_icon}
+                    />
+                  )}
+                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Accept leave policy.</Text>
+                </TouchableOpacity>
+              </>
+
+              :
+              <>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Name</Text>
+                  <TextInput
+                    maxLength={25}
+                    style={styles.input}
+                    placeholder="Please enter name"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    value={name}
+                    onChangeText={setname}
+                  />
+                </View>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Phone number</Text>
+                  <TextInput
+                    maxLength={10}
+                    keyboardType="numeric"
+                    style={styles.input}
+                    placeholder="Please enter phone number"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    value={phone}
+                    onChangeText={setphone}
+                  />
+                </View>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Address</Text>
+                  <TextInput
+                    maxLength={50}
+                    style={styles.input}
+                    placeholder="Please enter address"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    value={address}
+                    onChangeText={setaddress}
+                  />
+                </View>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Comment</Text>
+                  <TextInput
+                    multiline
+                    style={styles.input}
+                    placeholder="Put your comment here....."
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    onChangeText={setcomment}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => setisCheck(!isCheck)}
+                  style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+                  {isCheck ? (
+                    <Fontisto
+                      name="checkbox-active"
+                      size={18}
+                      style={styles.radio_icon}
+                    />
+                  ) : (
+                    <Fontisto
+                      name="checkbox-passive"
+                      size={18}
+                      style={styles.radio_icon}
+                    />
+                  )}
+                  <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Accept leave policy.</Text>
+                </TouchableOpacity>
+              </>
+            }
+            {
+              form.length > 0 ?
+                < TouchableOpacity
+                  style={[styles.btn_style, { flexDirection: 'row' }]}
+                  onPress={checkEmptyField}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: 15,
+                      marginRight: 10,
+                    }}>
+                    SUBMIT
+                  </Text>
+                  {loading ? <ActivityIndicator /> : null}
+                </TouchableOpacity>
+                :
+                < TouchableOpacity
+                  style={[styles.btn_style, { flexDirection: 'row' }]}
+                  onPress={checkEmptyField}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: 15,
+                      marginRight: 10,
+                    }}>
+                    Apply
+                  </Text>
+                  {loading ? <ActivityIndicator /> : null}
+                </TouchableOpacity>
+            }
+
+
+
+          </View>
+        </ScrollView>
       </Root>
-     
-    </SafeAreaView>
+
+    </SafeAreaView >
   );
 };
 
@@ -622,7 +802,11 @@ const styles = StyleSheet.create({
   selectedTextStyle: {
     fontSize: 16, color: Themes == 'dark' ? '#000' : '#000'
 
-  }
+  },
+
+  radioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
 });
-
-

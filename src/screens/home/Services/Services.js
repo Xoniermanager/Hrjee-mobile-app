@@ -16,7 +16,7 @@ const navigation=useNavigation()
       />
       <Button
         label={'Leave'}
-        onPress={() => navigation.navigate('Applied Leaves')}
+        onPress={() => navigation.navigate('Leave Applied List')}
       />
       <Button
         label={'Holidays'}
@@ -31,7 +31,7 @@ const navigation=useNavigation()
         onPress={() => navigation.navigate('Document')}
       />
       {/* <Button label={'Forms'} onPress={() => navigation.navigate('Forms')} /> */}
-      <Button label={'Resign'} onPress={() => navigation.navigate('Resign')} />
+      <Button label={'Resign'} onPress={() => navigation.navigate('Resign Content')} />
 
     </View>
   );

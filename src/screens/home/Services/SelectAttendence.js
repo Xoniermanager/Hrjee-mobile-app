@@ -36,11 +36,9 @@ const SelectAttendence = () => {
 
   const [recentLogs, setrecentLogs] = useState([]);
 
-  console.log(recentLogs, "202")
 
   const [loading, setloading] = useState(false);
 
-  console.log('date------>', startDate, endDate);
 
   const days = [
     'Sunday',
@@ -77,7 +75,6 @@ const SelectAttendence = () => {
             headers: { Token: token },
           };
           const date = new Date();
-          console.log('****', days[date.getDay()]);
           const body = {
             start_date: `${startDate.getFullYear()}-${startDate.getMonth() + 1
               }-${startDate.getDate()}`,
@@ -85,7 +82,6 @@ const SelectAttendence = () => {
             end_date: `${endDate.getFullYear()}-${endDate.getMonth() + 1
               }-${endDate.getDate()}`,
           };
-          console.log("body=>", body)
       
           if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` > `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
             setloading(false);
@@ -93,7 +89,7 @@ const SelectAttendence = () => {
               type: 'Warning',
               title: 'Warning',
               button: true,
-              textBody:'Till date should muast be greater than the From date ',
+              textBody:'Till date should must be greater than the From date ',
               buttonText: 'Ok',
               callback: () => [Popup.hide()]
             })
@@ -102,7 +98,6 @@ const SelectAttendence = () => {
             axios
               .post(`${apiUrl}/Api/attendance`, body, config)
               .then(response => {
-                console.log('addtendance response......................................', response.data);
                 if (response.data.status == 1) {
                   setloading(false);
       
@@ -152,7 +147,6 @@ const SelectAttendence = () => {
 
   const get_month_logs = async () => {
     const token = await AsyncStorage.getItem('Token');
-    console.log(token,'token')
     const config = {
       headers: { Token: token },
     };
@@ -164,14 +158,11 @@ const SelectAttendence = () => {
       start_date: startOfWeek,
       end_date: endOfWeek,
     };
-    console.log('body1mon----->', startOfWeek, endOfWeek);
     axios
       .post(`${apiUrl}/Api/attendance`, body, config)
       .then(response => {
-        console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log(response.data.content);
             setrecentLogs(response.data.content);
           } catch (e) {
            

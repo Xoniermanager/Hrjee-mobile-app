@@ -41,7 +41,6 @@ const Policies = ({navigation}) => {
         if (response.data.status === 1) {
           try {
             setloading(false);
-            console.log(response.data.content);
             setpolicies(response.data.content);
           } catch (e) {
             setloading(false);

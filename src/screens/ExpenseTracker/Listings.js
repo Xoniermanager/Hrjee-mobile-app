@@ -107,7 +107,6 @@ const Listings = ({navigation, route}) => {
     getExpensesFunc();
   };
 
-  console.log('response-->', getAllExpense.data);
 
   return (
     <View style={{flex: 1, backgroundColor: '#e3eefb'}}>

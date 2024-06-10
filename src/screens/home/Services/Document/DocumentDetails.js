@@ -15,7 +15,6 @@ import GlobalStyle from '../../../../reusable/GlobalStyle';
 import {useFocusEffect} from '@react-navigation/native';
 
 const DocumentDetails = ({route}) => {
-  console.log('doc-->', route.params.doc);
 
   const [loading, setloading] = useState(false);
 
@@ -28,7 +27,6 @@ const DocumentDetails = ({route}) => {
   const openDoc = () => {
     setloading(true);
     const url = route.params.doc;
-    console.log(url);
 
     // this will split the whole url.
     const f2 = url.split('/');

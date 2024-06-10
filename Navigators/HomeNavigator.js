@@ -143,7 +143,7 @@ function MyStack() {
                 name="Select Attendance"
                 component={SelectAttendence}
               />
-              <Stack.Screen name="Applied Leaves" component={LeaveList} />
+              <Stack.Screen name="Leave Applied List" component={LeaveList} />
               <Stack.Screen name="AddPRM" component={AddPRM} 
                    options={{
                     title:'Add PRM',
@@ -173,7 +173,7 @@ function MyStack() {
               />
               <Stack.Screen name="Apply Leave" component={ApplyLeave} />
               <Stack.Screen name="Holidays" component={Holidays} />
-              <Stack.Screen name="Resign" component={Resign} />
+              <Stack.Screen name="Resign Content" component={Resign} />
               <Stack.Screen name="Payslip" component={Payslip} />
               <Stack.Screen name="Document" component={Document} />
               <Stack.Screen name="News Detail" component={NewsDetails} />
@@ -295,10 +295,10 @@ function MyStack() {
               <Stack.Screen name="LeavePolicy" component={LeavePolicy} />
               <Stack.Screen name="Details" component={Details} />
               <Stack.Screen
-                name="Select Attendance"
+                name="Select Attendance" 
                 component={SelectAttendence}
               />
-              <Stack.Screen name="Applied Leaves" component={LeaveList} />
+              <Stack.Screen name="Leave Applied List" component={LeaveList} />
               <Stack.Screen name="Apply Leave" component={ApplyLeave} />
               <Stack.Screen name="Holidays" component={Holidays} />
               <Stack.Screen name="AddPRM" component={AddPRM} 
@@ -328,7 +328,7 @@ function MyStack() {
                 },
               }}
                />
-              <Stack.Screen name="Resign" component={Resign} />
+              <Stack.Screen name="Resign Content" component={Resign} />
               <Stack.Screen name="Payslip" component={Payslip} />
               <Stack.Screen name="Document" component={Document} />
               <Stack.Screen name="News Detail" component={NewsDetails} />

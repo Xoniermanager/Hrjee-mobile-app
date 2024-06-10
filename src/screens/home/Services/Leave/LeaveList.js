@@ -57,11 +57,9 @@ const LeaveList = ({ navigation }) => {
     axios
       .post(`${apiUrl}/secondPhaseApi/leave_summary_by_userid`, body, config)
       .then(response => {
-        console.log('response', response.data);
         if (response.data.status == 1) {
           setloading(false);
           try {
-            console.log(response.data.data);
             setleaveList(response.data.data);
             setleaveListFilter(response.data.data);
             setempty(false);
@@ -73,7 +71,6 @@ const LeaveList = ({ navigation }) => {
         } else {
           setloading(false);
           setempty(true);
-          console.log(response.data.message);
         }
       })
       .catch(error => {
@@ -313,7 +310,7 @@ const LeaveList = ({ navigation }) => {
                     </View>
 
                     <View style={{ marginTop: 10 }}>
-                      <Text style={{ fontSize: 14 }}>{i.notes}</Text>
+                      <Text style={{ fontSize: 14 }}>{i?.notes == null || i?.notes=='' || i?.notes=='null'?'N/A': i?.notes }</Text>
                     </View>
                     <View
                       style={{

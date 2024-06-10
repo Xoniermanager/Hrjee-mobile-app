@@ -37,7 +37,6 @@ const BusinessCard = ({ navigation }) => {
   useFocusEffect(
     React.useCallback(() => {
       if (getDetailsApi.data?.data) {
-        console.log('date===', getDetailsApi.data);
         setinputVal({
           user_id: user.userid,
           emp_no: getDetailsApi.data.data.emp_no,
@@ -121,7 +120,6 @@ const BusinessCard = ({ navigation }) => {
       requested_by: inputVal.requested_by,
       card_date: dateTxt.txt1 == 'select date' ? '' : dateTxt.txt1,
     };
-    console.log('bdy-->', body);
     const config = {
       headers: { Token: token },
     };

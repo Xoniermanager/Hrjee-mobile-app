@@ -307,7 +307,6 @@ const Home = ({ navigation }) => {
             setModalVisible(false);
           } else {
             if (data.in_time != '' && data.out_location_id != '') {
-              // after punch out
               setloading(false);
               setpunchIn(false);
               setModalVisible(false);
@@ -532,7 +531,6 @@ const Home = ({ navigation }) => {
                 }
               })
               .catch(function (error) {
-                console.log(error);
                 if (error.response.status == '401') {
                   Popup.show({
                     type: 'Warning',
@@ -600,15 +598,18 @@ const Home = ({ navigation }) => {
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
 
+              /* 
               // { Live tracking starting}
-              sendLocation({
-                userId: userInfo?.userid,
-                location: {
-                  longitude: long,
-                  latitude: lat,
-                },
-              });
-              // { Live tracking ending }
+                            sendLocation({
+                              userId: userInfo?.userid,
+                              location: {
+                                longitude: long,
+                                latitude: lat,
+                              },
+                            });
+                            // { Live tracking ending }
+              */
+
 
               setcurrentLocation({
                 long: long,
@@ -835,7 +836,6 @@ const Home = ({ navigation }) => {
         }
       } catch (err) {
         setloading(false);
-        console.warn(err);
       }
     } else {
       try {
@@ -853,7 +853,8 @@ const Home = ({ navigation }) => {
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
 
-            // { Live tracking starting}
+            /* 
+                        // { Live tracking starting}
             sendLocation({
               userId: userInfo?.userid,
               location: {
@@ -862,6 +863,7 @@ const Home = ({ navigation }) => {
               },
             });
             // { Live tracking starting}
+            */
 
             setcurrentLocation({
               long: long,
@@ -1081,131 +1083,141 @@ const Home = ({ navigation }) => {
     }
   };
 
-
-  const punch = async () => {
-    setloading(true);
-
-    if (Platform.OS == 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          GetLocation.getCurrentPosition({});
-          const userData = await AsyncStorage.getItem('UserData');
-          const userInfo = JSON.parse(userData);
-          let company_id = userInfo?.company_id;
-
-          GetLocation.getCurrentPosition({
-            enableHighAccuracy: true,
-            timeout: 15000,
-          })
-            .then(async location => {
-              setloading(false);
-              var lat = parseFloat(location.latitude);
-              var long = parseFloat(location.longitude);
-
-              // { Live tracking starting}
-              sendLocation({
-                userId: userInfo?.userid,
-                location: {
-                  longitude: long,
-                  latitude: lat,
-                },
-              });
-              // { Live tracking ending }
-
-              setcurrentLocation({
-                long: long,
-                lat: lat,
-              });
-            })
-        }
-      } catch (err) {
-        setloading(false);
-        console.warn(err);
-      }
-    }
-  };
-
-
-  //  This is used send live tracking location socketContext page Starting ..................................
-
-  const [currentPosition, setCurrentPosition] = useState(null);
-  const [previousPosition, setPreviousPosition] = useState(null);
-
-  console.log(currentPosition, previousPosition, "200023")
-  const distanceThreshold = 0.0000;
-
-  const sendLocationUpdate = async (position, user_id) => {
-    const locationData = {
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-    };
-
-    console.log('send data', { user_id, location: locationData });
-    alert(JSON.stringify(position));
-    alert(user_id);
-
-    sendLocation({ user_id, location: locationData });
-  };
-
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Radius of the Earth in kilometers
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      0.5 -
-      Math.cos(dLat) / 2 +
-      (Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        (1 - Math.cos(dLon))) /
-      2;
-
-    return R * 2 * Math.asin(Math.sqrt(a));
-  };
-
-
-  const doSomething = async () => {
-    const userData = await AsyncStorage.getItem('UserData');
-    const userInfo = JSON.parse(userData);
-    const user_id = userInfo?.userid
-    const watchId = Geolocation.watchPosition(
-      position => {
-        // Save current position as previous position before updating
-        if (previousPosition) {
-          const distance = calculateDistance(
-            previousPosition.coords.latitude,
-            previousPosition.coords.longitude,
-            position.coords.latitude,
-            position.coords.longitude,
+  /*
+  
+    //  This is used send live tracking location socketContext page Starting ..................................
+  
+    const punch = async () => {
+      setloading(true);
+  
+      if (Platform.OS == 'android') {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           );
-
-          if (distance >= distanceThreshold) {
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            GetLocation.getCurrentPosition({});
+            const userData = await AsyncStorage.getItem('UserData');
+            const userInfo = JSON.parse(userData);
+            let company_id = userInfo?.company_id;
+  
+            GetLocation.getCurrentPosition({
+              enableHighAccuracy: true,
+              timeout: 15000,
+            })
+              .then(async location => {
+                setloading(false);
+                var lat = parseFloat(location.latitude);
+                var long = parseFloat(location.longitude);
+  
+                // { Live tracking starting}
+                sendLocation({
+                  userId: userInfo?.userid,
+                  location: {
+                    longitude: long,
+                    latitude: lat,
+                  },
+                });
+                // { Live tracking ending }
+  
+                setcurrentLocation({
+                  long: long,
+                  lat: lat,
+                });
+              })
+          }
+        } catch (err) {
+          setloading(false);
+          console.warn(err);
+        }
+      }
+    };
+  
+    const [currentPosition, setCurrentPosition] = useState(null);
+    const [previousPosition, setPreviousPosition] = useState(null);
+  
+    const distanceThreshold = 0.0000;
+  
+    const sendLocationUpdate = async (position, user_id) => {
+      // const locationData = {
+      //   latitude: position.coords.latitude,
+      //   longitude: position.coords.longitude,
+      // };
+  
+      // console.log('send data', { user_id, location: locationData })
+  
+      alert(JSON.stringify(latitude, longitude))
+      alert(JSON.stringify(user_id))
+  
+      // sendLocation({ user_id, location: locationData });
+  
+  
+      sendLocation({
+        userId: user_id,
+        location: {
+          longitude: latitude,
+          latitude: longitude,
+        },
+      });
+  
+    };
+  
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+      const R = 6371; // Radius of the Earth in kilometers
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const a =
+        0.5 -
+        Math.cos(dLat) / 2 +
+        (Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          (1 - Math.cos(dLon))) /
+        2;
+  
+      return R * 2 * Math.asin(Math.sqrt(a));
+    };
+  
+  
+    const doSomething = async () => {
+      const userData = await AsyncStorage.getItem('UserData');
+      const userInfo = JSON.parse(userData);
+      const user_id = userInfo?.userid
+      const watchId = Geolocation.watchPosition(
+        position => {
+          // Save current position as previous position before updating
+          if (previousPosition) {
+            const distance = calculateDistance(
+              previousPosition.coords.latitude,
+              previousPosition.coords.longitude,
+              position.coords.latitude,
+              position.coords.longitude,
+            );
+  
+            if (distance >= distanceThreshold) {
+              sendLocationUpdate(position, user_id);
+              setPreviousPosition(currentPosition);
+            }
+          } else {
             sendLocationUpdate(position, user_id);
             setPreviousPosition(currentPosition);
           }
-        } else {
-          sendLocationUpdate(position, user_id);
-          setPreviousPosition(currentPosition);
-        }
-        setCurrentPosition(position);
-      },
-      error => console.log(error),
-      { enableHighAccuracy: true, distanceFilter: 1, interval: 5000 },
-    );
-
-    // Clean up the watchPosition when the component unmounts
-    return () => Geolocation.clearWatch(watchId);
-  }
-
-  useEffect(() => {
-    doSomething();
-  }, [currentPosition]);
-
-  //  This is used send live tracking location socketContext page Ending ..................................
-
-
+          setCurrentPosition(position);
+        },
+        error => console.log(error),
+        { enableHighAccuracy: true, distanceFilter: 1, interval: 5000 },
+      );
+  
+      // Clean up the watchPosition when the component unmounts
+      return () => Geolocation.clearWatch(watchId);
+    }
+  
+    useEffect(() => {
+      doSomething();
+    }, [currentPosition]);
+  
+    //  This is used send live tracking location socketContext page Ending ..................................
+  
+  */
 
   const renderItem = ({ item }) =>
     // console.log("A.......", item)
@@ -1535,7 +1547,7 @@ const Home = ({ navigation }) => {
                   <Text
                     style={[
                       styles.purple_txt,
-                      { color: Themes == 'dark' ? '#000' : '#000' },
+                      { color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" },
                     ]}>
                     View History
                   </Text>
@@ -1568,24 +1580,28 @@ const Home = ({ navigation }) => {
                       <View style={{ alignItems: 'center' }}>
                         <Text
                           style={{
-                            color: 'grey',
+                            color: '#000',
                             fontSize: 15,
-                            fontWeight: '500',
+                            fontWeight: '800',
                           }}>
                           {days[d.getDay()]}
                         </Text>
                         <Text
                           style={[
-                            { fontSize: 18, fontWeight: '600' },
-                            { color: Themes == 'dark' ? '#818181' : '#818181' },
+                            {
+                              color: '#000',
+                              fontSize: 15,
+                              fontWeight: '800',
+                            },
+                            { color: Themes == 'dark' ? '#000' : '#000' },
                           ]}>
                           {d.getDate() + ' ' + monthNames[d.getMonth()]}
                         </Text>
                         <Text
                           style={{
-                            color: 'grey',
+                            color: '#000',
                             fontSize: 15,
-                            fontWeight: '500',
+                            fontWeight: '800',
                           }}>
                           {d.getFullYear()}
                         </Text>
@@ -1613,14 +1629,13 @@ const Home = ({ navigation }) => {
                             />
                             <Text
                               style={{
-                                color: Themes == 'dark' ? '#000' : '#000',
+                                color: Themes == 'dark' ? '#000' : '#000', fontSize: 15, fontWeight: "bold"
                               }}>
                               {activityTime}
                             </Text>
                           </View>
                           <TouchableOpacity
-                            // onPress={showAlert}
-                            onPress={() => punch()}
+                            onPress={showAlert}
                             style={{
                               padding: 10,
                               paddingHorizontal: 20,
@@ -1647,7 +1662,8 @@ const Home = ({ navigation }) => {
 
                       {!inTime && !locationOut && (
                         <TouchableOpacity
-                          // onPress={() => punch_in()}
+                          // onPress={() => punch()}
+                          onPress={() => punch_in()}
                           style={{
                             padding: 10,
                             paddingHorizontal: 20,
@@ -1717,14 +1733,14 @@ const Home = ({ navigation }) => {
                           {days[new Date(i.TR_DATE).getDay()]}
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
                           {i.TR_DATE}
                         </Text>
                       </View>
                       <View>
                         <Text style={styles.weekDay}>Punch In Time</Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
                           {getTime}
                         </Text>
                       </View>
@@ -1735,24 +1751,24 @@ const Home = ({ navigation }) => {
                           size={20}
                           style={[
                             { marginBottom: 5 },
-                            { color: Themes == 'dark' ? '#000' : '#000' },
+                            { color: Themes == 'dark' ? '#000' : '#000', },
                           ]}
                         />
                         {/* <Text>{datetime}, {i.TR_DATE}, {i.location_id ? 'yes' : 'no'}, {i.PRESENT_HOURS}, {hours}, {hours >= '19:00' ? 'yes' : 'no'}</Text> */}
                         {(datetime == i.TR_DATE && i.location_id) ||
                           datetime > i.TR_DATE ? (
                           <Text
-                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
                             {i.PRESENT_HOURS}
                           </Text>
                         ) : hours >= '19:00' ? (
                           <Text
-                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
                             {i.PRESENT_HOURS}
                           </Text>
                         ) : (
                           <Text
-                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
                             NA
                           </Text>
                         )}
@@ -1899,17 +1915,6 @@ const Home = ({ navigation }) => {
         </Modal>
       </Root>
     </SafeAreaView>
-
-    // <View>
-    //   <Text>
-    //     Current Position:{' '}
-    //     {currentPosition ? JSON.stringify(currentPosition) : 'Fetching...'}
-    //   </Text>
-    //   <Text>
-    //     Previous Position:{' '}
-    //     {previousPosition ? JSON.stringify(previousPosition) : 'N/A'}
-    //   </Text>
-    // </View>
   );
 };
 

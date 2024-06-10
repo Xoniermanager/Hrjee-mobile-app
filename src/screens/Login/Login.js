@@ -35,34 +35,24 @@ const Login = () => {
   const [password, setpassword] = useState('');
   const [loading, setloading] = useState(false);
   const [fcmtoken, setfcmtoken] = useState();
+  const [addrequest, setAddRequest] = useState();
   const [showPassword, setShowPassword] = useState(false);
+
+
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
   const login = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email.trim() === '' || password.trim() === '') {
       Popup.show({
         type: 'Warning',
         title: 'Warning',
         button: true,
-        textBody: 'Please enter some text',
+        textBody: 'Please enter employee/email and password',
         buttonText: 'Ok',
         callback: () => [Popup.hide(),],
       });
-     
-     
-    } else if (!emailRegex.test(email)) {
-      Popup.show({
-        type: 'Warning',
-        title: 'Warning',
-        button: true,
-        textBody: 'Invalid email address',
-        buttonText: 'Ok',
-        callback: () => [Popup.hide(),],
-      });
-  
     } else if (password.length < 6) {
       Popup.show({
         type: 'Warning',
@@ -72,9 +62,9 @@ const Login = () => {
         buttonText: 'Ok',
         callback: () => [Popup.hide(),],
       });
-    
+
     }
-    else{
+    else {
       setloading(true);
       axios
         .post(`${apiUrl}/users/login`, {
@@ -84,6 +74,7 @@ const Login = () => {
         })
         .then(response => {
           if (response?.data?.status == 1) {
+
             if (response?.data?.data?.login_type === 'web') {
               Popup.show({
                 type: 'Warning',
@@ -119,11 +110,11 @@ const Login = () => {
               // alert('You have been blocked, Please contact your admin department!')
               setloading(false);
             }
-           
+
             else {
               try {
                 setloading(false);
-                // console.log('token####>', response.data.token);
+                  
                 AsyncStorage.setItem('Token', response.data.token);
                 AsyncStorage.setItem(
                   'UserData',
@@ -141,7 +132,7 @@ const Login = () => {
                 let options = []
                 response?.data?.menu_access?.map((item) => {
                   if (item.menu_name.includes("News Management")) {
-                   
+
                     options.push({
                       id: 2,
                       name: 'News',
@@ -149,7 +140,7 @@ const Login = () => {
                       moveTo: 'News',
                     })
                   } else if (item.menu_name.includes("Training Management")) {
-                    
+
                     options.push({
                       id: 6,
                       name: 'Training',
@@ -159,7 +150,13 @@ const Login = () => {
                   }
                   return item;
                 });
-                // console.log(options,'option')
+
+                const filteredData = response?.data?.menu_access?.filter(item => item.menu_name == "Address Request");
+                  setAddRequest(filteredData);
+
+                  AsyncStorage.setItem(
+                    'AddRequest', JSON.stringify(filteredData[0]?.menu_name),
+                  );
                 AsyncStorage.setItem(
                   'menu', JSON.stringify(options),
                 );
@@ -167,13 +164,15 @@ const Login = () => {
                   index: 0,
                   routes: [{ name: 'Main' }],
                 });
-  
+
+             
+
               } catch (e) {
                 setloading(false);
                 alert(e);
               }
             }
-  
+
           } else {
             Popup.show({
               type: 'Warning',
@@ -192,15 +191,15 @@ const Login = () => {
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:error.response.data.message,
+            textBody: error.response.data.message,
             buttonText: 'Ok',
             callback: () => [Popup.hide()]
           })
-        
+
           setloading(false)
         });
     }
-  
+
   };
 
   // async function getFCMToken() {
@@ -216,89 +215,89 @@ const Login = () => {
   const phoneNumber = '8989777878';
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-         <Root>
-      <ScrollView>
-        <View style={{ padding: 30 }}>
-          <View style={{ marginTop: 5 }}>
-            {/* <Text style={{fontSize: 22, fontWeight: '700'}}>Sign In</Text>
+      <Root>
+        <ScrollView>
+          <View style={{ padding: 30 }}>
+            <View style={{ marginTop: 5 }}>
+              {/* <Text style={{fontSize: 22, fontWeight: '700'}}>Sign In</Text>
             <Text style={{fontSize: 14, marginTop: 5}}>
               Hi there! Nice to see you again.
             </Text> */}
-            <Image
-              style={{
-                resizeMode: 'contain',
-                alignSelf: 'center',
-                height: responsiveHeight(35),
-                width: responsiveWidth(55),
-                marginTop: responsiveHeight(0)
-
-              }}
-              source={require('../../images/logo.png')}
-            />
-
-            <View style={styles.input_top_margin}>
-              <Text style={styles.input_title}>Employee Email/Id</Text>
-              <View style={{
-                flexDirection: "row", borderBottomWidth: 1,
-                justifyContent: "space-between"
-              }}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="username@gmail.com"
-                  placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-                  onChangeText={text => setemail(text.toLowerCase())}
-                />
-
-              </View>
-
-            </View>
-            <View style={styles.input_top_margin}>
-              <Text style={styles.input_title}>Password</Text>
-              <View style={{
-                flexDirection: "row", borderBottomWidth: 1,
-                justifyContent: "space-between"
-              }}>
-                <TextInput
-                  style={styles.input}
-                  secureTextEntry={!showPassword}
-                  placeholder="**********"
-                  placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-                  onChangeText={text => setpassword(text.toLowerCase())}
-                />
-                <MaterialCommunityIcons
-                  name={!showPassword ? 'eye-off' : 'eye'}
-                  size={24}
-                  color="#000"
-                  style={{ alignSelf: 'center' }}
-                  onPress={toggleShowPassword}
-                />
-              </View>
-            </View>
-            <TouchableOpacity style={[styles.btn_style]} onPress={() => login()}>
-              <Text
+              <Image
                 style={{
-                  color: 'white',
-                  fontWeight: '600',
-                  fontSize: 15,
-                  marginRight: 10,
+                  resizeMode: 'contain',
+                  alignSelf: 'center',
+                  height: responsiveHeight(35),
+                  width: responsiveWidth(55),
+                  marginTop: responsiveHeight(0)
+
+                }}
+                source={require('../../images/logo.png')}
+              />
+
+              <View style={styles.input_top_margin}>
+                <Text style={styles.input_title}>Employee Email/Id</Text>
+                <View style={{
+                  flexDirection: "row", borderBottomWidth: 1,
+                  justifyContent: "space-between"
                 }}>
-                Login
-              </Text>
-              {loading ? <ActivityIndicator size={'large'} color={"#fff"} /> : null}
-            </TouchableOpacity>
-            <View style={{ alignItems: 'center', marginTop: 40 }}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Forgot Password')}>
-                <Text style={styles.text}>Forgot Password?</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="username@gmail.com"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    onChangeText={text => setemail(text.toLowerCase())}
+                  />
+
+                </View>
+
+              </View>
+              <View style={styles.input_top_margin}>
+                <Text style={styles.input_title}>Password</Text>
+                <View style={{
+                  flexDirection: "row", borderBottomWidth: 1,
+                  justifyContent: "space-between"
+                }}>
+                  <TextInput
+                    style={styles.input}
+                    secureTextEntry={!showPassword}
+                    placeholder="**********"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    onChangeText={text => setpassword(text.toLowerCase())}
+                  />
+                  <MaterialCommunityIcons
+                    name={!showPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color="#000"
+                    style={{ alignSelf: 'center' }}
+                    onPress={toggleShowPassword}
+                  />
+                </View>
+              </View>
+              <TouchableOpacity style={[styles.btn_style]} onPress={() => login()}>
+                <Text
+                  style={{
+                    color: 'white',
+                    fontWeight: '600',
+                    fontSize: 15,
+                    marginRight: 10,
+                  }}>
+                  Login
+                </Text>
+                {loading ? <ActivityIndicator size={'large'} color={"#fff"} /> : null}
               </TouchableOpacity>
-              {/* <TouchableOpacity
+              <View style={{ alignItems: 'center', marginTop: 40 }}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Forgot Password')}>
+                  <Text style={styles.text}>Forgot Password?</Text>
+                </TouchableOpacity>
+                {/* <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
                 <Text style={styles.text}>Contact HR for any login issue</Text>
               </TouchableOpacity> */}
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
       </Root>
     </SafeAreaView>
   );

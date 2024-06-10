@@ -62,15 +62,12 @@ const Payslip = ({navigation}) => {
         if (response.data.status == 1) {
           try {
             setloading(false);
-            console.log('---->', response.data.content);
             setpayslip(response.data.content);
           } catch (e) {
             setloading(false);
-            console.log(e);
           }
         } else {
           setloading(false);
-          console.log(response.data);
         }
       })
       .catch(error => {
@@ -99,7 +96,6 @@ const Payslip = ({navigation}) => {
     // Do something to refresh the data
     get_payslip();
   };
-console.log(payslip,'payslip')
   return (
     <>
     <Root>
@@ -112,7 +108,7 @@ console.log(payslip,'payslip')
           <PullToRefresh onRefresh={handleRefresh}>
             {payslip?.map((i, index) => (
               <TouchableOpacity
-                onPress={() => navigation.navigate('Doc', {url: i.slip_url})}
+                onPress={() => navigation.navigate('Doc', {url: i.doc})}
                 
                 key={index}
                 style={[

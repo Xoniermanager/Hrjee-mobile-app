@@ -66,7 +66,6 @@ const ForgotPassword = ({ navigation }) => {
       
       axios.request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
         if (response.data.status== 1) {
           Popup.show({
             type: 'Success',

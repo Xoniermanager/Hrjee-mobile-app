@@ -54,11 +54,9 @@ const AddPRM = ({ navigation }) => {
   const [amountError, setAmountError] = useState()
 
 const currentDate=new Date()
-  console.log("respnse...............................", prmcategorydata)
 
   useEffect(()=> {
-    console.log("useeffect1", route?.params?.item)
-    console.log("useeffect2", route?.params?.item?.remark)
+
     if(route?.params?.item){
       setReason(route?.params?.item?.remark);
       setStartDate(new Date(route?.params?.item?.payment_date));
@@ -77,7 +75,6 @@ const currentDate=new Date()
       });
       setFileResponse(response);
       setDocumentError(null)
-      console.log(response)
     } catch (err) {
       console.warn(err);
     }
@@ -90,7 +87,6 @@ const currentDate=new Date()
     axios
       .get(`${apiUrl}/SecondPhaseApi/get_prm_category_all`, config)
       .then(response => {
-        console.log("response..............", response?.data?.data)
         if (response?.data?.status == 1) {
          setPRM_category_data(response?.data?.data)
         }
@@ -228,7 +224,6 @@ const currentDate=new Date()
   if (prmcategorydata == null) {
     return <Reload />
   }
-  console.log(prmcategorydata, 'prmcategorydata')
   return (
     <SafeAreaView style={
       styles.container
@@ -303,11 +298,11 @@ const currentDate=new Date()
             { color: Themes == 'dark' ? '#000' : '#000' }
 
           ]}>
-          Remark
+          Comment
         </Text>
         <TextInput
           value={reason}
-          placeholder="Remark..."
+          placeholder="Comments"
           placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
           style={styles.input_Text}
           onChangeText={prev => setReason(prev)}

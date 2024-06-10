@@ -345,7 +345,6 @@ const LoanRequest = ({navigation, route}) => {
         date: dateText.text8 == 'select date' ? '' : dateText.text8,
       },
     };
-    console.log(body);
     const config = {
       headers: {Token: token},
     };

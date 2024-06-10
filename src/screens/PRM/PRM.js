@@ -58,7 +58,6 @@ const PRM = () => {
                 setloading(false)
                 if (response?.data?.status == 1) {
                     setPRMdata(response?.data?.data);
-                    console.log(response.data, 'ghfhjsfk')
                 }
             })
             .catch(error => {
@@ -103,7 +102,6 @@ const PRM = () => {
         let data = new FormData();
 
         data.append('prm_request_id', dataItem?.id);
-        console.log(data)
         axios
             .post(`${apiUrl}/SecondPhaseApi/delete_prm_request`, data, config)
             .then(response => {
@@ -194,7 +192,6 @@ const PRM = () => {
                 },
               ).then(granted => {
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                  console.log('Storage Permission Granted.');
                   setShow(false)
 
                   downloadHistory(item);
@@ -213,7 +210,6 @@ const PRM = () => {
               });
             } catch (err) {
               //To handle permission related issue
-              console.log('error', err);
             setloading(false)
 
             }
@@ -236,7 +232,6 @@ const PRM = () => {
     const downloadHistory = async (item) => {
       const {config, fs} = RNFetchBlob;
       let PictureDir = fs.dirs.PictureDir;
-      console.log(PictureDir, 'PictureDir');
       let date = new Date();
       let options = {
         fileCache: true,
@@ -255,7 +250,6 @@ const PRM = () => {
         .fetch('GET', item?.uploade_document)
         .then(res => {
           //Showing alert after successful downloading
-          console.log('res -> ', JSON.stringify(res));
           Popup.show({
             type: 'Success',
             title: 'Success',
@@ -350,7 +344,7 @@ const PRM = () => {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                           }}>
-                          <Text style={styles.card_textleft}>Remark</Text>
+                          <Text style={styles.card_textleft}>Comments</Text>
                           <Text style={styles.card_text}>{item?.remark}</Text>
                         </View>
                         <View

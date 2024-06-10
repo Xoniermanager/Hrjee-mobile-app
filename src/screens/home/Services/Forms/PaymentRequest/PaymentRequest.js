@@ -152,7 +152,6 @@ const PaymentRequest = ({navigation, route}) => {
       department: inputVal.department,
       signature: inputVal.signature,
     };
-    console.log(body);
     const config = {
       headers: {Token: token},
     };
@@ -196,7 +195,6 @@ const PaymentRequest = ({navigation, route}) => {
       department: inputVal.department,
       signature: inputVal.signature,
     };
-    console.log(body);
     const config = {
       headers: {Token: token},
     };

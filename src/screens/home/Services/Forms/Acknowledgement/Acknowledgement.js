@@ -35,7 +35,6 @@ const Acknowledgement = ({navigation}) => {
   useFocusEffect(
     React.useCallback(() => {
       if (getDetailsApi.data?.status == 1) {
-        console.log('first--->', getDetailsApi.data);
         const signature = JSON.parse(getDetailsApi.data.data.signature);
         setinputVal({
           user_id: getDetailsApi.data.data.user_id,
@@ -105,7 +104,6 @@ const Acknowledgement = ({navigation}) => {
         signature: signature.signature,
       },
     };
-    console.log('bdy-->', body);
     const config = {
       headers: {Token: token},
     };

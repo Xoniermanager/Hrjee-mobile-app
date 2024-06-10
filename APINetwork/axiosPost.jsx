@@ -18,7 +18,7 @@ const axiosPost=async(url,data,token,form)=>{
       return(response)
     })
     .catch(function (error) {
-      console.log(error,'error')
+      // console.log(error,'error')
       return (error)
     });
 

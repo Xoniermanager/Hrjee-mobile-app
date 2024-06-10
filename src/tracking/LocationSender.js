@@ -16,7 +16,6 @@ const LocationSender = () => {
             longitude: position.coords.longitude
         };
 
-        console.log('send data', {userId, location: locationData});
 
         sendLocation({userId, location: locationData});
     };
@@ -42,7 +41,6 @@ const LocationSender = () => {
                 position.coords.longitude
             );
 
-            console.log(distance, distanceThreshold);
 
             if (distance >= distanceThreshold) {
                 sendLocationUpdate(position);
@@ -61,7 +59,6 @@ const LocationSender = () => {
 
     useEffect(() => {
         if (navigator.geolocation) {
-            console.log("Geolocation is supported by this browser.");
             navigator.geolocation.watchPosition(handlePositionChange, handleError, {
                 enableHighAccuracy: true,
                 maximumAge: 0,

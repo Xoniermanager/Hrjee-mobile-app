@@ -13,7 +13,7 @@ import {
   Alert,
   ActivityIndicator,
   Linking, Pressable, useColorScheme, BackHandler
-  
+
 } from 'react-native';
 import { Root, Popup } from 'popup-ui'
 
@@ -51,7 +51,7 @@ import Zocial from 'react-native-vector-icons/Zocial';
 import ImagePicker from 'react-native-image-crop-picker';
 import { moderateScale } from 'react-native-size-matters';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
-
+import Toast from 'react-native-simple-toast';
 import DatePicker from 'react-native-date-picker';
 import { RadioButton } from 'react-native-paper';
 import Themes from '../src/Theme/Theme';
@@ -92,7 +92,6 @@ function CustomDrawerContent(props) {
   const [showInput, setshowInput] = useState(false);
   const [addressTitle, setaddressTitle] = useState('');
   const [loading, setloading] = useState(false);
-  const [address, setaddress] = useState('');
   const [showUpdate, setshowUpdate] = useState(false);
   const [updateId, setupdateId] = useState('');
   const [activeItem, setActiveItem] = useState('');
@@ -103,9 +102,42 @@ function CustomDrawerContent(props) {
   const [photo, setPhoto] = useState(null);
   const [photoPath, setPhotoPath] = useState(null);
   const [contectdata, setContectData] = useState([]);
+  const [addrequest, setAddressRequest] = useState([]);
+  const [address, setaddress] = useState('');
+  const [manuallylocation, setManuallyLocation] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    handleGetLocation()
+  }, [address])
+
+  const handleGetLocation = () => {
+    const apiKey = 'AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg'; // Replace with your Google Maps API key
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+
+    axios.get(url)
+      .then(response => {
+        if (response.data.status === 'OK') {
+          const { lat, lng } = response.data.results[0].geometry.location;
+          setManuallyLocation({ latitude: lat, longitude: lng });
+          setError(null);
+        } else {
+          setError('Location not found');
+          setManuallyLocation(null);
+        }
+      })
+      .catch(err => {
+        setError('Error fetching location');
+        setManuallyLocation(null);
+      });
+  };
+
+  AsyncStorage.getItem("AddRequest").then(res => {
+    setAddressRequest(JSON.parse(res));
+  });
 
   // choose from front camera  for profile Images////////
-
+  // console.log("object", addrequest)
 
   // choose from front camera  for profile Images////////
 
@@ -166,8 +198,6 @@ function CustomDrawerContent(props) {
     }, []),
   );
 
-
-
   const get_employee_detail = async () => {
 
 
@@ -208,7 +238,7 @@ function CustomDrawerContent(props) {
               salary: `${response.data.data.total_salary}`,
             });
 
-          
+
 
             var profilePath = response?.data?.data?.image;
             setPhotoPath(profilePath);
@@ -224,7 +254,7 @@ function CustomDrawerContent(props) {
         setloading(false)
       });
   };
- 
+
   const get_address = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -254,8 +284,8 @@ function CustomDrawerContent(props) {
       timeout: 15000,
     })
       .then(async location => {
-        var lat = parseFloat(location.latitude);
-        var long = parseFloat(location.longitude);
+        var lat = parseFloat(manuallylocation.latitude);
+        var long = parseFloat(manuallylocation.longitude);
         setloading(true);
         const token = await AsyncStorage.getItem('Token');
         const config = {
@@ -270,6 +300,7 @@ function CustomDrawerContent(props) {
         axios
           .post(`${apiUrl}/api/add_user_location`, body, config)
           .then(response => {
+            Toast.show(response?.data?.msg);
             setloading(false);
             if (response.data.status == 1) {
               try {
@@ -278,8 +309,8 @@ function CustomDrawerContent(props) {
                 get_address();
                 setshowInput(false);
                 Toast.show('Address added successfully, wait for admin approval');
-              } catch (e) {
-               
+              } catch (error) {
+                console.log(error.request._response)
               }
             } else if (response.data.status == 2) {
               setloading(false);
@@ -287,43 +318,72 @@ function CustomDrawerContent(props) {
                 type: 'Warning',
                 title: 'Warning',
                 button: true,
-                textBody:response.data.msg,
+                textBody: response.data.msg,
                 buttonText: 'Ok',
                 callback: () => [Popup.hide()]
               });
-           
+
             } else {
               Popup.show({
                 type: 'Warning',
                 title: 'Warning',
                 button: true,
-                textBody:response.data.msg,
+                textBody: response.data.msg,
                 buttonText: 'Ok',
                 callback: () => [Popup.hide()]
               });
             }
           })
           .catch(error => {
-          
             setloading(false)
-            if(error.response.status=='401')
-            {
-          
-            }
+            Toast.show(error.request._response)
           });
       })
       .catch(error => {
         const { code, message } = error;
-     
         Popup.show({
           type: 'Warning',
           title: 'Warning',
           button: true,
-          textBody:message,
+          textBody: message,
           buttonText: 'Ok',
           callback: () => [Popup.hide()]
         });
         setloading(false)
+      });
+  };
+
+  const delete_address = async id => {
+    setloading(true);
+    const token = await AsyncStorage.getItem('Token');
+    const config = {
+      headers: { Token: token },
+    };
+    const body = {
+      location_id: id,
+    };
+
+    axios
+      .post(`${apiUrl}/api/delete_location`, body, config)
+      .then(response => {
+        if (response.data.status == 1) {
+          setloading(false);
+          try {
+            alert(response.data.msg);
+            get_address();
+          } catch (e) {
+            alert(e);
+          }
+        } else if (response.data.status == 2) {
+          setloading(false);
+          alert(response.data.msg);
+        } else {
+          alert(response.data.msg);
+        }
+      })
+      .catch(error => {
+        setloading(false);
+        alert(error);
       });
   };
 
@@ -363,29 +423,25 @@ function CustomDrawerContent(props) {
         setloading(false);
         setModalVisible(!modalVisible);
         get_employee_detail();
-      
+
         Popup.show({
           type: 'Success',
           title: 'Success',
           button: true,
-          textBody:response?.msg,
+          textBody: response?.msg,
           buttonText: 'Ok',
           callback: () => [Popup.hide()]
         });
       })
       .catch(err => {
         setloading(false);
-       
-        if(err.response.status=='401')
-        {
-    
-     
+
+        if (err.response.status == '401') {
+
+
         }
       });
   }
-
-
- 
 
   const update_address = async id => {
     setloading(true);
@@ -394,8 +450,8 @@ function CustomDrawerContent(props) {
       timeout: 15000,
     })
       .then(async location => {
-        var lat = parseFloat(location.latitude);
-        var long = parseFloat(location.longitude);
+        var lat = parseFloat(manuallylocation.latitude);
+        var long = parseFloat(manuallylocation.longitude);
         setloading(true);
         const token = await AsyncStorage.getItem('Token');
         const config = {
@@ -408,11 +464,11 @@ function CustomDrawerContent(props) {
           latitude: lat,
           longitude: long,
         };
-        console.log('update adrs-->>', body);
         axios
           .post(`${apiUrl}/api/update_user_location`, body, config)
           .then(response => {
             setloading(false);
+            Toast.show(response?.data?.msg);
             if (response.data.status == 1) {
               setloading(false);
               try {
@@ -422,14 +478,14 @@ function CustomDrawerContent(props) {
                   type: 'Success',
                   title: 'Success',
                   button: true,
-                  textBody:response.data.msg,
+                  textBody: response.data.msg,
                   buttonText: 'Ok',
                   callback: () => [Popup.hide()]
                 });
                 get_address();
                 setshowInput(false);
-              } catch (e) {
-               
+              } catch (error) {
+                console.log(error.request._response)
               }
             } else if (response.data.status == 2) {
               setloading(false);
@@ -437,7 +493,7 @@ function CustomDrawerContent(props) {
                 type: 'Warning',
                 title: 'Warning',
                 button: true,
-                textBody:response.data.msg,
+                textBody: response.data.msg,
                 buttonText: 'Ok',
                 callback: () => [Popup.hide()]
               });
@@ -446,31 +502,29 @@ function CustomDrawerContent(props) {
                 type: 'Warning',
                 title: 'Warning',
                 button: true,
-                textBody:response.data.msg,
+                textBody: response.data.msg,
                 buttonText: 'Ok',
                 callback: () => [Popup.hide()]
               });
             }
           })
           .catch(error => {
-            
             setloading(false)
-            if(error.response.status=='401')
-        {
-    
-    
-        }
+            if (error.response.status == '401') {
+
+
+            }
           });
       })
       .catch(error => {
         setloading(false);
         const { code, message } = error;
-     
+
         Popup.show({
           type: 'Warning',
           title: 'Warning',
           button: true,
-          textBody:message,
+          textBody: message,
           buttonText: 'Ok',
           callback: () => [Popup.hide()]
         });
@@ -495,20 +549,20 @@ function CustomDrawerContent(props) {
               type: 'Success',
               title: 'Success',
               button: true,
-              textBody:response.data.msg,
+              textBody: response.data.msg,
               buttonText: 'Ok',
               callback: () => [Popup.hide()]
             });
             get_address();
           } catch (e) {
-         
+
           }
         } else if (response.data.status == 2) {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:response.data.msg,
+            textBody: response.data.msg,
             buttonText: 'Ok',
             callback: () => [Popup.hide()]
           });
@@ -517,18 +571,17 @@ function CustomDrawerContent(props) {
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:response.data.msg,
+            textBody: response.data.msg,
             buttonText: 'Ok',
             callback: () => [Popup.hide()]
           });
         }
       })
       .catch(error => {
-       
-        if(error.response.status=='401')
-        {
-     
-      
+
+        if (error.response.status == '401') {
+
+
         }
       });
   };
@@ -560,8 +613,8 @@ function CustomDrawerContent(props) {
         }
       })
       .catch(error => {
-        
-       console.log(error)
+
+        console.log(error)
       });
   };
 
@@ -569,7 +622,7 @@ function CustomDrawerContent(props) {
     if (show == 'PersonalDetails') {
       return (
         <>
-      
+
           <View style={{ marginHorizontal: 10 }}>
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               <View style={{ position: 'relative' }} >
@@ -847,12 +900,12 @@ function CustomDrawerContent(props) {
       );
     } else if (show == 'OfficeAddress') {
       return (
-        <View>
+        <View style={{marginHorizontal: 15}}>
           {location
             ? location.map(
               (i, index) =>
                 i.location_id != 209 && (
-                  <View
+                  <TouchableOpacity
                     Key={index}
                     onPress={() =>
                       makeActive(i.location_id, i.location_name, i.address1)
@@ -863,7 +916,6 @@ function CustomDrawerContent(props) {
                       borderWidth: 1,
                       borderRadius: 5,
                       borderColor: 'grey',
-                      marginHorizontal: 10
                     }}>
                     <View
                       style={{
@@ -891,43 +943,50 @@ function CustomDrawerContent(props) {
                             }}>
                             {i.address1}
                           </Text>
-                          {/* <View
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              marginTop: 15,
-                            }}>
-                            <TouchableOpacity
-                              style={{ marginRight: 20 }}
-                              onPress={() => delete_address(i.location_id)}>
-                              <Text
+                          {
+                            addrequest && addrequest == "Address Request" ?
+                              <View
                                 style={{
-                                  color: GlobalStyle.blueDark,
-                                  fontWeight: 'bold',
-                                  fontSize: 16,
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  marginTop: 15,
                                 }}>
-                                Delete
-                              </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              style={{}}
-                              onPress={() => {
-                                setshowInput(true),
-                                  setshowUpdate(true),
-                                  setupdateId(i.location_id);
-                                setaddressTitle(i.location_name);
-                                setaddress(i.address1);
-                              }}>
-                              <Text
-                                style={{
-                                  color: GlobalStyle.blueDark,
-                                  fontWeight: 'bold',
-                                  fontSize: 16,
-                                }}>
-                                Edit
-                              </Text>
-                            </TouchableOpacity>
-                          </View> */}
+                                <TouchableOpacity
+                                  style={{ marginRight: 20 }}
+                                  onPress={() => delete_address(i.location_id)}>
+                                  <Text
+                                    style={{
+                                      color: GlobalStyle.blueDark,
+                                      fontWeight: 'bold',
+                                      fontSize: 16,
+                                    }}>
+                                    Delete
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                  style={{}}
+                                  onPress={() => {
+                                    setshowInput(true),
+                                      setshowUpdate(true),
+                                      setupdateId(i.location_id);
+                                    setaddressTitle(i.location_name);
+                                    setaddress(i.address1);
+                                  }}>
+                                  <Text
+                                    style={{
+                                      color: GlobalStyle.blueDark,
+                                      fontWeight: 'bold',
+                                      fontSize: 16,
+                                    }}>
+                                    Edit
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                              :
+                              null
+                          }
+
+
                         </View>
                       </View>
                       {i.active_status == 1 ? (
@@ -956,7 +1015,7 @@ function CustomDrawerContent(props) {
                         />
                       )}
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ),
             )
             : null}
@@ -992,6 +1051,16 @@ function CustomDrawerContent(props) {
                   onChangeText={setaddress}
                   value={address}
                 />
+                {manuallylocation && (
+                  <Text style={styles.locationText}>
+                    Latitude: {manuallylocation.latitude}, Longitude: {manuallylocation.longitude}
+                  </Text>
+                )}
+                {error && (
+                  <Text style={styles.errorText}>
+                    {error}
+                  </Text>
+                )}
               </View>
             </View>
           ) : null}
@@ -1008,7 +1077,7 @@ function CustomDrawerContent(props) {
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                onPress={add_address}
+                onPress={()=> add_address()}
                 style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
                 <Text
                   style={{ color: 'white', fontWeight: 'bold', marginRight: 5 }}>
@@ -1017,9 +1086,33 @@ function CustomDrawerContent(props) {
                 {loading ? <ActivityIndicator color="white" /> : null}
               </TouchableOpacity>
             )
-          ) : (
-            <></>
-          )}
+          ) :
+            (
+              <>
+                {
+                  addrequest && addrequest == "Address Request" ?
+                    <TouchableOpacity
+                      onPress={() => {
+                        setshowInput(true),
+                          setshowUpdate(false),
+                          setaddressTitle(''),
+                          setaddress('');
+                        alert(
+                          'Please add address by physically being present at that address',
+                        );
+                      }}
+                      style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
+                      <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                        Add new address
+                      </Text>
+                    </TouchableOpacity>
+                    :
+                    null
+                }
+
+              </>
+
+            )}
         </View>
       );
     }
@@ -1067,163 +1160,164 @@ function CustomDrawerContent(props) {
     await AsyncStorage.removeItem('Token');
     await AsyncStorage.removeItem('UserData');
     await AsyncStorage.removeItem('UserLocation');
+    await AsyncStorage.removeItem('AddRequest');
     props.navigation.closeDrawer();
     props.navigation.navigate('Login');
 
 
 
-   
+
   };
 
 
   return (
     <View style={{ flex: 1, }}>
-       <Root>
-          
-      <DrawerContentScrollView {...props}>
-        <ImageBackground
-          source={require('../src/images/drawer-bg-img.webp')}
-          style={{ padding: 10, marginBottom: 8 }}>
-          <Image
-            source={
-              Userdata.image
-                ? { uri: Userdata.image }
-                : require('../src/images/profile_pic.webp')
+      <Root>
+
+        <DrawerContentScrollView {...props}>
+          <ImageBackground
+            source={require('../src/images/drawer-bg-img.webp')}
+            style={{ padding: 10, marginBottom: 8 }}>
+            <Image
+              source={
+                Userdata.image
+                  ? { uri: Userdata.image }
+                  : require('../src/images/profile_pic.webp')
+              }
+              resizeMode="cover"
+              style={{
+                height: 80,
+                width: 80,
+                borderRadius: 50,
+                borderWidth: 1,
+                borderColor: 'white',
+              }}
+            />
+            <View style={{ marginTop: 5 }}>
+              <Text
+                style={[styles.profileFont, { fontSize: 20, fontWeight: 'bold' }]}>
+                {Userdata.name}
+              </Text>
+
+              <View style={{ flexDirection: 'row' }}>
+                <Zocial
+                  name="email"
+                  size={17}
+                  color="white"
+                  style={{ marginRight: 5 }}
+                />
+                <Text style={styles.profileFont}>{Userdata.email}</Text>
+              </View>
+            </View>
+          </ImageBackground>
+          <DrawerItemList {...props} />
+          <DrawerItem
+            label="Personal Details"
+            icon={color => (
+              <MaterialCommunityIcons
+                name="card-account-details-star-outline"
+                size={18}
+                color="#000"
+              />
+            )}
+            onPress={() => handleItemPress('PersonalDetails')}
+            style={
+              isItemActive('PersonalDetails')
+                ? { backgroundColor: '#F5F5F5' }
+                : null
             }
-            resizeMode="cover"
-            style={{
-              height: 80,
-              width: 80,
-              borderRadius: 50,
-              borderWidth: 1,
-              borderColor: 'white',
-            }}
+            activeTintColor={'red'}
           />
-          <View style={{ marginTop: 5 }}>
-            <Text
-              style={[styles.profileFont, { fontSize: 20, fontWeight: 'bold' }]}>
-              {Userdata.name}
-            </Text>
-
-            <View style={{ flexDirection: 'row' }}>
-              <Zocial
-                name="email"
-                size={17}
-                color="white"
-                style={{ marginRight: 5 }}
+          <DrawerItem
+            label="Company Details"
+            icon={color => (
+              <MaterialCommunityIcons
+                name="card-account-details-outline"
+                size={18}
+                color="#000"
               />
-              <Text style={styles.profileFont}>{Userdata.email}</Text>
+            )}
+            onPress={() => handleItemPress('CompanyDetails')}
+            style={
+              isItemActive('CompanyDetails') ? { backgroundColor: '#F5F5F5' } : null
+            }
+            activeTintColor={'red'}
+          />
+
+          <DrawerItem
+            label="Office Address"
+            icon={color => <Feather name="map-pin" size={18} color="#000"
+            />}
+            onPress={() => handleItemPress('OfficeAddress')}
+            style={
+              isItemActive('OfficeAddress') ? { backgroundColor: '#F5F5F5' } : null
+            }
+            activeTintColor={'red'}
+          />
+          <DrawerItem
+            label="Contact us"
+            icon={color => (
+              <MaterialCommunityIcons
+                name="information-outline"
+                size={25}
+                color="#000"
+              />
+            )}
+            onPress={() => handleItemPress('Aboutus')}
+            style={
+              isItemActive('Aboutus') ? { backgroundColor: '#F5F5F5' } : null
+            }
+            activeTintColor={'red'}
+          />
+          <DrawerItem
+            label="Logout"
+            icon={color => <AntDesign name="logout" size={18} color="#000"
+            />}
+            onPress={() => {
+              setActiveItem('Logout');
+              Alert.alert('', 'Are you sure you want to logout?', [
+                {
+                  text: 'Cancel',
+                  onPress: () => setActiveItem(''),
+                  style: 'cancel',
+                },
+                { text: 'OK', onPress: () => logout() },
+              ]);
+            }}
+            style={isItemActive('Logout') ? { backgroundColor: '#F5F5F5' } : null}
+          />
+        </DrawerContentScrollView>
+        <Modal
+          visible={isModalVisible}
+          animationType="slide"
+          onRequestClose={handleModalClose}>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'red' }}>
+            <Text>This is a modal!</Text>
+            <TouchableOpacity onPress={handleModalClose}>
+              <Text style={{ color: 'red', marginTop: 16 }}>Close Modal</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+        <Modal animationType="slide" transparent={true} visible={modalVisible}>
+          <View style={styles.centeredView}>
+            <View style={[styles.modalView]}>
+              <View style={{ alignItems: 'flex-end' }}>
+                <AntDesign
+                  name="close"
+                  size={22}
+                  style={{
+                    marginTop: location?.length > 5 ? 20 : 10,
+                    marginRight: 10
+                  }}
+                  color="red"
+                  onPress={() => handleItemPress('')}
+                // onPress={() => setModalVisible(!modalVisible)}
+                />
+              </View>
+              <ScrollView showsVerticalScrollIndicator={false}>{renderDetails(show)}</ScrollView>
             </View>
           </View>
-        </ImageBackground>
-        <DrawerItemList {...props} />
-        <DrawerItem
-          label="Personal Details"
-          icon={color => (
-            <MaterialCommunityIcons
-              name="card-account-details-star-outline"
-              size={18}
-              color="#000"
-            />
-          )}
-          onPress={() => handleItemPress('PersonalDetails')}
-          style={
-            isItemActive('PersonalDetails')
-              ? { backgroundColor: '#F5F5F5' }
-              : null
-          }
-          activeTintColor={'red'}
-        />
-        <DrawerItem
-          label="Company Details"
-          icon={color => (
-            <MaterialCommunityIcons
-              name="card-account-details-outline"
-              size={18}
-              color="#000"
-            />
-          )}
-          onPress={() => handleItemPress('CompanyDetails')}
-          style={
-            isItemActive('CompanyDetails') ? { backgroundColor: '#F5F5F5' } : null
-          }
-          activeTintColor={'red'}
-        />
-
-        <DrawerItem
-          label="Office Address"
-          icon={color => <Feather name="map-pin" size={18} color="#000"
-          />}
-          onPress={() => handleItemPress('OfficeAddress')}
-          style={
-            isItemActive('OfficeAddress') ? { backgroundColor: '#F5F5F5' } : null
-          }
-          activeTintColor={'red'}
-        />
-        <DrawerItem
-          label="Contact us"
-          icon={color => (
-            <MaterialCommunityIcons
-              name="information-outline"
-              size={25}
-              color="#000"
-            />
-          )}
-          onPress={() => handleItemPress('Aboutus')}
-          style={
-            isItemActive('Aboutus') ? { backgroundColor: '#F5F5F5' } : null
-          }
-          activeTintColor={'red'}
-        />
-        <DrawerItem
-          label="Logout"
-          icon={color => <AntDesign name="logout" size={18} color="#000"
-          />}
-          onPress={() => {
-            setActiveItem('Logout');
-            Alert.alert('', 'Are you sure you want to logout?', [
-              {
-                text: 'Cancel',
-                onPress: () => setActiveItem(''),
-                style: 'cancel',
-              },
-              { text: 'OK', onPress: () => logout() },
-            ]);
-          }}
-          style={isItemActive('Logout') ? { backgroundColor: '#F5F5F5' } : null}
-        />
-      </DrawerContentScrollView>
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        onRequestClose={handleModalClose}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'red' }}>
-          <Text>This is a modal!</Text>
-          <TouchableOpacity onPress={handleModalClose}>
-            <Text style={{ color: 'red', marginTop: 16 }}>Close Modal</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-      <Modal animationType="slide" transparent={true} visible={modalVisible}>
-        <View style={styles.centeredView}>
-          <View style={[styles.modalView]}>
-            <View style={{ alignItems: 'flex-end' }}>
-              <AntDesign
-                name="close"
-                size={22}
-                style={{
-                  marginTop: location?.length > 5 ? 20 : 10,
-                  marginRight: 10
-                }}
-                color="red"
-                onPress={() => handleItemPress('')}
-              // onPress={() => setModalVisible(!modalVisible)}
-              />
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>{renderDetails(show)}</ScrollView>
-          </View>
-        </View>
-      </Modal>
+        </Modal>
       </Root>
 
     </View>
@@ -1416,5 +1510,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
     marginTop: 10,
-  }
+  },
+  locationText: {
+    marginTop: 16,
+    fontSize: 16,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: 'red',
+  },
 });

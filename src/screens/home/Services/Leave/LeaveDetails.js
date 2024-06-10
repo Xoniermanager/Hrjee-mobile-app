@@ -22,7 +22,6 @@ const LeaveDetails = ({ navigation, route }) => {
   const theme = useColorScheme();
 
   const { user } = useContext(EssContext);
-console.log(route,'mr')
   const [leaveDetails, setleaveDetails] = useState();
   const [approvalHist, setapprovalHist] = useState([]);
 

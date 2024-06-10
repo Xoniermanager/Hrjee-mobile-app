@@ -35,7 +35,6 @@ const InternalPolicy = ({navigation}) => {
   useFocusEffect(
     React.useCallback(() => {
       if (getDetailsApi.data?.status == 1) {
-        console.log('first--->', getDetailsApi.data);
         const signature = JSON.parse(getDetailsApi.data.data.signature);
         setinputVal({
           user_id: user.userid,
@@ -69,7 +68,6 @@ const InternalPolicy = ({navigation}) => {
   const submitForm = async () => {
     const token = await AsyncStorage.getItem('Token');
     const body = inputVal;
-    console.log('bdy-->', body);
     const config = {
       headers: {Token: token},
     };

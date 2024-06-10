@@ -55,7 +55,6 @@ const Holidays = ({navigation}) => {
     axios
       .post(`${apiUrl}/secondPhaseApi/holiday_list`, body, config)
       .then(response => {
-        console.log('response', response.data);
         if (response.data.status === 1) {
           try {
             // console.log(response.data.data);
@@ -116,7 +115,6 @@ const Holidays = ({navigation}) => {
             selectedDayBackgroundColor: GlobalStyle.blueDark,
           }}
           onMonthChange={month => {
-            console.log('month changed', month.month);
             setselectedMonth(month.month);
           }}
         />

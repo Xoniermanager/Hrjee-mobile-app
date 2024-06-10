@@ -103,7 +103,6 @@ const Pending = ({ navigation }) => {
         get_employee_detail();
         setShow(response?.data);
         setModalVisible(false);
-        console.log(response,',bdvvkjkbjkvwb')
         Toast.show('This task is under progress.');
       })
       .catch(error => {
@@ -142,7 +141,6 @@ const Pending = ({ navigation }) => {
     Userdata.filter((item, index) => {
       return item.status == 0;
     });
-          console.log(data,'data')
   if (data == null) {
     return <Reload />;
   }
@@ -586,7 +584,7 @@ const Pending = ({ navigation }) => {
                       </View>
                     
 
-                      <View
+                      {/* <View
                         style={{
                           flexDirection: 'row',
                           justifyContent: 'space-between',
@@ -616,8 +614,8 @@ const Pending = ({ navigation }) => {
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                           {item?.assign_by}
                         </Text>
-                      </View>
-                      <View
+                      </View> */}
+                      {/* <View
                         style={{
                           flexDirection: 'row',
                           justifyContent: 'space-between',
@@ -631,7 +629,7 @@ const Pending = ({ navigation }) => {
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                           {item?.update_at}
                         </Text>
-                      </View>
+                      </View> */}
 
                       <View
                         style={{

@@ -62,7 +62,6 @@ const DocDetails = ({navigation, route}) => {
   const openDoc = () => {
     setloading(true);
     const url = route.params.url;
-    console.log(url);
 
     // this will split the whole url.
     const f2 = url.split('/');

@@ -42,7 +42,6 @@ const TalkToUs = ({ navigation }) => {
       subject: subject,
       comment: comment,
     };
-    console.log('body1mon----->', body);
     if (subject && comment) {
       setloading(true);
       axios
@@ -66,7 +65,6 @@ const TalkToUs = ({ navigation }) => {
             }
           } else {
             setloading(false);
-            console.log(response.data);
           }
         })
         .catch(error => {

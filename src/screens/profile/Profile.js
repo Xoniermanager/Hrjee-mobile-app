@@ -89,7 +89,6 @@ const Profile = ({ navigation }) => {
     salary: '',
     location: {},
   });
-  console.log(Userdata, "2002")
   const [loading, setloading] = useState(false);
   const [location, setlocation] = useState();
   const [showInput, setshowInput] = useState(false);
@@ -102,7 +101,6 @@ const Profile = ({ navigation }) => {
   const [caption, setcaption] = useState('');
   const [leavedata, setLeaveData] = useState([]);
   const [photoPath, setPhotoPath] = useState(null);
-
 
 
   const handleRefresh = async () => {
@@ -142,20 +140,19 @@ const Profile = ({ navigation }) => {
         }
       })
       .catch(error => {
-       
+
         setloading(false)
-        if(error.response.status=='401')
-        {
+        if (error.response.status == '401') {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:error.response.data.msg,
+            textBody: error.response.data.msg,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
             AsyncStorage.removeItem('UserData'),
             AsyncStorage.removeItem('UserLocation'),
-          navigation.navigate('Login')]
+            navigation.navigate('Login')]
           });
         }
       });
@@ -171,7 +168,6 @@ const Profile = ({ navigation }) => {
     axios
       .post(`${apiUrl}/api/get_employee_detail`, {}, config)
       .then(response => {
-        console.log("responseprofile.............", response?.data?.data)
         setloading(false)
         if (response.data.status === 1) {
           try {
@@ -197,19 +193,16 @@ const Profile = ({ navigation }) => {
             // get_employee_detail();
           } catch (e) {
             setloading(false)
-            console.log("dddd.......", e);
           }
         } else {
           setloading(false)
-          console.log('some error occured');
         }
       })
       .catch(error => {
         // alert(error.request._response);
         setloading(false)
-        if(error.response.status=='401')
-        {
-    
+        if (error.response.status == '401') {
+
         }
       });
   };
@@ -224,10 +217,8 @@ const Profile = ({ navigation }) => {
       .then(response => {
         if (response.data.status === 1) {
           try {
-            console.log(response.data.data);
             setlocation(response.data.data);
           } catch (e) {
-            console.log(e);
           }
         } else {
           console.log('some error occured');
@@ -236,9 +227,8 @@ const Profile = ({ navigation }) => {
       .catch(error => {
         // alert(error.request._response);
         setloading(false)
-         if(error.response.status=='401')
-        {
-     
+        if (error.response.status == '401') {
+
         }
       });
   };
@@ -361,38 +351,38 @@ const Profile = ({ navigation }) => {
     );
   };
 
- 
 
-  
+
+
   if (Userdata == null) {
     return <Reload />
   }
 
   return (
     <>
-    <Root>
-      {loading && renderPlaceholder()}
-      {!loading && (
-        <PullToRefresh
-          onRefresh={handleRefresh}
-          style={{ flex: 1, backgroundColor: '#e3eefb' }}>
-          <View
-            style={{
-              padding: 15,
-              backgroundColor: GlobalStyle.blueDark,
-            }}>
+      <Root>
+        {loading && renderPlaceholder()}
+        {!loading && (
+          <PullToRefresh
+            onRefresh={handleRefresh}
+            style={{ flex: 1, backgroundColor: '#e3eefb' }}>
             <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row' }}>
-                <Image
-                  style={styles.tinyLogo}
-                  source={
-                    Userdata.image
-                      ? { uri: Userdata.image }
-                      : require('../../images/profile_pic.webp')
-                  }
-                />
-                {/* {
+              style={{
+                padding: 15,
+                backgroundColor: GlobalStyle.blueDark,
+              }}>
+              <View
+                style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row' }}>
+                  <Image
+                    style={styles.tinyLogo}
+                    source={
+                      Userdata.image
+                        ? { uri: Userdata.image }
+                        : require('../../images/profile_pic.webp')
+                    }
+                  />
+                  {/* {
                   photoPath ?
                     <Image
                       source={{ uri: photoPath }}
@@ -404,183 +394,231 @@ const Profile = ({ navigation }) => {
                       style={styles.tinyLogo}
                     />
                 } */}
-                <View>
-                  <Text
-                    style={[
-                      styles.profileFont,
-                      { fontSize: 20, fontWeight: 'bold',  },
-                    ]}>
-                    {Userdata.name}
-                  </Text>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Entypo
-                      name="location-pin"
-                      size={17}
-                      color="white"
-                      style={{ marginRight: 5 }}
-                    />
-                    <Text style={styles.profileFont}>
-                      {Userdata.permanentAddress}
+                  <View>
+                    <Text
+                      style={[
+                        styles.profileFont,
+                        { fontSize: 20, fontWeight: 'bold', },
+                      ]}>
+                      {Userdata.name}
                     </Text>
-                  </View>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Entypo
-                      name="phone"
-                      size={17}
-                      color="white"
-                      style={{ marginRight: 5 }}
-                    />
-                    <Text style={styles.profileFont}>{Userdata.phone}</Text>
-                  </View>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Zocial
-                      name="email"
-                      size={17}
-                      color="white"
-                      style={{ marginRight: 5 }}
-                    />
-                    <Text style={styles.profileFont}>{Userdata.email}</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                      <Entypo
+                        name="location-pin"
+                        size={17}
+                        color="white"
+                        style={{ marginRight: 5 }}
+                      />
+                      <>
+                        {
+                          Userdata?.permanentAddress == "null" ?
+                            <Text style={styles.profileFont}>
+                              {Userdata?.permanentAddress == "null" ? 'N/A' : Userdata.permanentAddress}
+                            </Text>
+                            :
+                            <Text style={styles.profileFont}>
+                              {Userdata?.permanentAddress == "" ? 'N/A' : Userdata.permanentAddress}
+                            </Text>
+                        }
+                      </>
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
+                      <Entypo
+                        name="phone"
+                        size={17}
+                        color="white"
+                        style={{ marginRight: 5 }}
+                      />
+                      <>
+                        {
+                          Userdata.phone == "null" ?
+                            <Text style={styles.profileFont}>{Userdata.phone == "null" ? 'N/A' : Userdata.phone}</Text>
+                            :
+                            <Text style={styles.profileFont}>{Userdata.phone == "" ? 'N/A' : Userdata.phone}</Text>
+                        }
+                      </>
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
+                      <Zocial
+                        name="email"
+                        size={17}
+                        color="white"
+                        style={{ marginRight: 5 }}
+                      />
+                      {
+                        <>
+                          {
+                            Userdata.email == "null" ?
+                              <Text style={styles.profileFont}>{Userdata.email == "null" ? 'N/A' : Userdata.email}</Text>
+                              :
+                              <Text style={styles.profileFont}>{Userdata.email ? Userdata.email : 'N/p'}</Text>
+                          }
+                        </>
+                      }
+
+                    </View>
                   </View>
                 </View>
-              </View>
-              {/* <Feather
+                {/* <Feather
                 name="menu"
                 size={25}
                 color="white"
                 onPress={() => handleExpandPress()}
               /> */}
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginTop: 10,
-                paddingTop: 10,
-                borderTopWidth: 0.5,
-                borderColor: 'white',
-              }}>
-              <Text style={[styles.profileFont, { fontWeight: '600' }]}>
-                At work for: {Userdata.atWorkfor}
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginTop: 10,
-                paddingTop: 10,
-                borderTopWidth: 0.5,
-                borderColor: 'white',
-              }}>
-              <View style={{ alignItems: 'center' }}>
-                <ImageBackground
-                  style={styles.options}
-                  source={require('../../images/attendence.jpeg')}
-                  imageStyle={{ borderRadius: 50 }}>
-                  <View
-                    style={{
-                      height: 65,
-                      width: 65,
-                      borderRadius: 50,
-                      backgroundColor: '#ffffff95',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
-                    <Text style={{ fontSize: 20, fontWeight: '600' }}>
-                      {Userdata.attendence}
-                    </Text>
-                  </View>
-                </ImageBackground>
-                <Text
-                  style={{
-                    marginTop: 5,
-                    fontSize: 14,
-                    fontWeight: '600',
-                    color: 'white',
-                  }}>
-                  Attendence
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  marginTop: 10,
+                  paddingTop: 10,
+                  borderTopWidth: 0.5,
+                  borderColor: 'white',
+                }}>
+                <Text style={[styles.profileFont, { fontWeight: '600' }]}>
+                  At work for: {Userdata.atWorkfor}
                 </Text>
               </View>
-
-              {
-                leavedata?.map((elements, index) => {
-                  const total = parseInt(elements.taken_leave) + parseInt(elements.balance_leave);
-
-                  return (
-                    <View key={index} style={{ alignItems: 'center' }}>
-                      <ImageBackground
-                        style={styles.options}
-                        source={require('../../images/job_leave.jpeg')}
-                        imageStyle={{ borderRadius: 50 }}>
-                        <View
-                          style={{
-                            height: 65,
-                            width: 65,
-                            borderRadius: 50,
-                            backgroundColor: '#ffffff95',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexDirection: "row"
-                          }}>
-                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                            {elements.balance_leave}
-                          </Text>
-                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                            /
-                          </Text>
-                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                            {total}
-                          </Text>
-                        </View>
-                      </ImageBackground>
-                      <Text
-                        style={{
-                          marginTop: 5,
-                          fontSize: 14,
-                          fontWeight: '600',
-                          color: 'white',
-                        }}>
-                        Leave
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  marginTop: 10,
+                  paddingTop: 10,
+                  borderTopWidth: 0.5,
+                  borderColor: 'white',
+                }}>
+                <View style={{ alignItems: 'center' }}>
+                  <ImageBackground
+                    style={styles.options}
+                    source={require('../../images/attendence.jpeg')}
+                    imageStyle={{ borderRadius: 50 }}>
+                    <View
+                      style={{
+                        height: 65,
+                        width: 65,
+                        borderRadius: 50,
+                        backgroundColor: '#ffffff95',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                        {Userdata.attendence}
                       </Text>
                     </View>
-                  )
-                })
-              }
-              <View style={{ alignItems: 'center' }}>
-                <ImageBackground
-                  style={styles.options}
-                  source={require('../../images/awards.jpeg')}
-                  imageStyle={{ borderRadius: 50 }}>
-                  <View
+                  </ImageBackground>
+                  <Text
                     style={{
-                      height: 65,
-                      width: 65,
-                      borderRadius: 50,
-                      backgroundColor: '#ffffff95',
-                      justifyContent: 'center',
-                      alignItems: 'center',
+                      marginTop: 5,
+                      fontSize: 14,
+                      fontWeight: '600',
+                      color: 'white',
                     }}>
-                    <Text style={{ fontSize: 20, fontWeight: '600' }}>
-                      {Userdata.awards}
-                    </Text>
-                  </View>
-                </ImageBackground>
-                <Text
-                  style={{
-                    marginTop: 5,
-                    fontSize: 14,
-                    fontWeight: '600',
-                    color: 'white',
-                  }}>
-                  Awards
-                </Text>
+                    Attendence
+                  </Text>
+                </View>
+
+
+                <View style={{ alignItems: 'center' }}>
+                  <ImageBackground
+                    style={styles.options}
+                    source={require('../../images/job_leave.jpeg')}
+                    imageStyle={{ borderRadius: 50 }}>
+                    {
+                      // console.log("object", leavedata)
+                      leavedata?.length!=0?leavedata?.map((elements, index) => {
+                        const total = parseInt(elements.taken_leave) + parseInt(elements.balance_leave);
+                        return (
+                          <View key={index}
+                            style={{
+                              height: 65,
+                              width: 65,
+                              borderRadius: 50,
+                              backgroundColor: '#ffffff95',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              flexDirection: "row"
+                            }}>
+                            <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                              {elements.balance_leave }
+                            </Text>
+                            <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                              /
+                            </Text>
+                            <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                              {total}
+                            </Text>
+                          </View>
+                        )
+                      }):
+                      <View
+                      style={{
+                        height: 65,
+                        width: 65,
+                        borderRadius: 50,
+                        backgroundColor: '#ffffff95',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: "row"
+                      }}>
+                      <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                        {'0' }
+                      </Text>
+                      <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                        /
+                      </Text>
+                      <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                        {'0'}
+                      </Text>
+                    </View>
+                    }
+                  </ImageBackground>
+                  <Text
+                    style={{
+                      marginTop: 5,
+                      fontSize: 14,
+                      fontWeight: '600',
+                      color: 'white',
+                    }}>
+                    Leave
+                  </Text>
+                </View>
+
+                <View style={{ alignItems: 'center' }}>
+                  <ImageBackground
+                    style={styles.options}
+                    source={require('../../images/awards.jpeg')}
+                    imageStyle={{ borderRadius: 50 }}>
+                    <View
+                      style={{
+                        height: 65,
+                        width: 65,
+                        borderRadius: 50,
+                        backgroundColor: '#ffffff95',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                        {Userdata.awards}
+                      </Text>
+                    </View>
+                  </ImageBackground>
+                  <Text
+                    style={{
+                      marginTop: 5,
+                      fontSize: 14,
+                      fontWeight: '600',
+                      color: 'white',
+                    }}>
+                    Awards
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        </PullToRefresh>
-      )}
+          </PullToRefresh>
+        )}
 
-      {/* {!loading && (
+        {/* {!loading && (
         <View style={{flex: 1, marginTop: -150}}>
           <Tab.Navigator
             screenOptions={{
@@ -611,7 +649,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   profileFont: {
-    color: 'white', width:responsiveWidth(55)
+    color: 'white', width: responsiveWidth(55)
   },
   options: {
     width: 65,

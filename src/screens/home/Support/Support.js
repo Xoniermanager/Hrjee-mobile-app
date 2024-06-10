@@ -55,7 +55,6 @@ const Support = ({navigation}) => {
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log(response.data.content);
             setcomplainList(response.data.content);
             response.data.content.length < 1 ? setempty(true) : setempty(false);
             // setrecentLogs(response.data.content);

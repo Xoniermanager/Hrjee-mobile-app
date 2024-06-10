@@ -126,7 +126,6 @@ const Details = ({navigation, route}) => {
   const navigateTo = () => {
     let urlSplitArr = policyDetail.attacnment.split('.');
     let extension = urlSplitArr[2];
-    console.log('extension--->', extension);
     if (extension == 'mp4') {
       navigation.navigate('Video Details', {
         url: policyDetail.attacnment,

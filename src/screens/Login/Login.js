@@ -53,16 +53,6 @@ const Login = () => {
       });
      
      
-    } else if (!emailRegex.test(email)) {
-      Popup.show({
-        type: 'Warning',
-        title: 'Warning',
-        button: true,
-        textBody: 'Invalid email address',
-        buttonText: 'Ok',
-        callback: () => [Popup.hide(),],
-      });
-  
     } else if (password.length < 6) {
       Popup.show({
         type: 'Warning',
@@ -138,6 +128,22 @@ const Login = () => {
                 AsyncStorage.setItem(
                   'PRMData', (response.data.data?.prm_assign),
                 );
+                let FaceDetect = []
+                response?.data?.menu_access?.map((item) => {
+                  if (item.menu_id.includes("52")) {
+                    FaceDetect.push({
+                      name: 'Face Recognition',
+                    })
+                  } 
+                  return item;
+                });
+             
+                AsyncStorage.setItem(
+                  'FaceDetect', JSON.stringify(FaceDetect),
+                );
+
+
+
                 let options = []
                 response?.data?.menu_access?.map((item) => {
                   if (item.menu_name.includes("News Management")) {
@@ -159,7 +165,6 @@ const Login = () => {
                   }
                   return item;
                 });
-                // console.log(options,'option')
                 AsyncStorage.setItem(
                   'menu', JSON.stringify(options),
                 );

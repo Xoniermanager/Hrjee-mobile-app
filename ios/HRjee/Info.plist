@@ -53,6 +53,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+    <string>Your own description of the purpose</string>
 	<key>NSLocationAlwaysUsageDescription</key>
     <string>Program requires GPS to track cars and job orders</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

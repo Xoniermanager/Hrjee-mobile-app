@@ -14,8 +14,11 @@ import {
   Alert,
   useColorScheme,
   Platform,
-  Modal,
+
+  Button
 } from 'react-native';
+import FastImage from 'react-native-fast-image';
+
 import React, {
   useState,
   useContext,
@@ -24,6 +27,8 @@ import React, {
   useCallback,
 } from 'react';
 import {Root, Popup} from 'popup-ui';
+import Modal from 'react-native-modal';
+import { RNCamera } from 'react-native-camera';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -43,6 +48,10 @@ import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { Circle } from 'react-native-svg';
+// import { s3 } from './aws-config';
+import AWS ,{Rekognition, S3,} from 'aws-sdk';
 const {width} = Dimensions.get('window');
 // import messaging from '@react-native-firebas e/messaging';
 import Empty from '../../reusable/Empty';
@@ -54,6 +63,8 @@ import {
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
 import {SocketContext} from '../../tracking/SocketContext';
+// import { Punch_In } from '../../../APINetwork/ComponentApi';
+import {Bucket_Name,accessKey_Id,secretAccess_Key,region} from "@env"
 
 const Home = ({navigation}) => {
   const theme = useColorScheme();
@@ -63,7 +74,7 @@ const Home = ({navigation}) => {
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
   const {sendLocation} = useContext(SocketContext);
-
+  const [showCamera,setShowCamera]=useState(false)
   const {setuser} = useContext(EssContext);
   const [news, setnews] = useState([]);
   const [user, setuser1] = useState(null);
@@ -72,12 +83,16 @@ const Home = ({navigation}) => {
   const [punchIn, setpunchIn] = useState(false);
   const [loading, setloading] = useState(false);
   const [currentLongitude, setCurrentLongitude] = useState('...');
-  const [currentLatitude, setCurrentLatitude] = useState('...');
-  const [training, settraining] = useState([]);
   const [announcements, setannouncements] = useState([]);
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
+  const [firstImage,setFirstImage]=useState(false)
   const [show, setShow] = useState(true);
+  const [menu_access,setMenuaccess]=useState()
+  const [faceModal,setFaceModal]=useState(false)
+  const [faceNotModal,setFaceNotModal]=useState(false)
+
+  const [kYCModal,setKYCModal]=useState(false)
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -94,7 +109,274 @@ const Home = ({navigation}) => {
   const [timerOn, settimerOn] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [apirecentlog, setGetApiRecenLog] = useState([]);
+  const [faces, setFaces] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [face_kyc_img,setFace_kyc_img]=useState()
+ 
+  const s3 = new S3({
+    accessKeyId:accessKey_Id,
+    secretAccessKey:secretAccess_Key,
+    region: region
+  }); 
+  
+  const rekognition = new Rekognition({
+    accessKeyId:accessKey_Id,
+    secretAccessKey:secretAccess_Key,
+    region: region
+  });
+  const cameraRef = useRef(null);
 
+    useEffect(async()=>{
+          const response=JSON.parse(await AsyncStorage.getItem('FaceDetect'));
+          setMenuaccess(response[0]?.name)
+    },[])
+
+
+  const handleFacesDetected = ({ faces }) => {
+    setFaces(faces);
+  };
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [blob,setBlob]=useState()
+  const UpdateProfile = async (key) => {
+    const token = await AsyncStorage.getItem('Token');
+    let data = new FormData();
+data.append('face_kyc', '1');
+data.append('face_kyc_img',key);
+ 
+
+    fetch(`${apiUrl}/SecondPhaseApi/update_face_kyc`, {
+      method: 'POST',
+      headers: {
+        'Token': token,
+        Accept: 'application/json',
+      },
+      body: data,
+    })
+      .then(response => response.json())
+      .then(response => {
+        console.log(response,'response')
+        setKYCModal(true)
+        setFirstImage(false)
+        setShowCamera(false)
+        setIsModalVisible(false)
+        // getUserFace()
+      })
+      .catch(err => {
+        setloading(false);
+       
+        if(err.response.status=='401')
+        {
+    
+     
+        }
+      });
+  }
+  const takePicture = async () => {
+    if (cameraRef.current && showCamera) {
+      const options = { quality: 0.5, base64: true };
+      const data = await cameraRef.current.takePictureAsync(options);
+      setBlob(data)
+      setCapturedImage(data.uri);
+      if(firstImage){
+        const response=await FirstTimeUploadImage(data.uri)
+        const key=response?.key
+        if (key){
+            UpdateProfile(key)
+        }
+      }
+      else {
+        const uploadResult = await uploadTmpimage(data.uri);
+      
+        const s3ObjectKey = uploadResult.Key;
+                const tt=await compareFaces(s3ObjectKey)       
+      }
+     
+    }
+    
+  };
+  const FirstTimeUploadImage=async(uri)=>{
+    const date = new Date();
+    const day = date.getDate();
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const params = {
+      Bucket:Bucket_Name, // replace with your bucket name
+      Key: `images/user/${day}.jpg`,
+      Body: blob,
+      ContentType: 'image/jpeg',
+    };
+    return s3.upload(params).promise();
+  }
+  const getUserFace=async()=>{
+    console.log("first")
+      const token=await AsyncStorage.getItem('Token');
+      fetch(`${apiUrl}/SecondPhaseApi/get_user_face_kyc`, {
+        method: 'GET',
+        headers: {
+          'Token': token,
+          Accept: 'application/json',
+        },
+      })
+        .then(response => response.json())
+        .then(response => {
+          console.log(response,'response')
+            if(response?.data?.face_kyc==1){
+              setFace_kyc_img(response?.data?.face_kyc_img)
+            }
+            else {
+              setIsModalVisible(true)
+            }
+
+        })
+        .catch(err => {
+          setloading(false);
+         
+          if(err.response.status=='401')
+          {
+      
+              console.log(err.response)
+          }
+        });
+
+  }
+
+
+  const uploadTmpimage = async (uri) => {
+    const date = new Date();
+    const monthIndex = date.getMonth();
+    const day = date.getDate();
+    const months = [
+      "January", "February", "March", "April", "May", "June", "July",
+      "August", "September", "October", "November", "December"
+    ];
+    const monthName = months[monthIndex];
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    const params = {
+      Bucket:Bucket_Name, // replace with your bucket name
+      Key: `tmp/${monthName}/${day}.jpg`,
+      Body: blob,
+      ContentType: 'image/jpeg',
+    };
+    return s3.upload(params).promise();
+  };
+  const compareFaces = async (s3ObjectKey) => {
+    setIsModalVisible(false)
+    const token = await AsyncStorage.getItem('Token');
+    const userData = await AsyncStorage.getItem('UserData');
+    const params = {
+      SourceImage: {
+        S3Object: {
+          Bucket:Bucket_Name,
+          Name:s3ObjectKey  // The image you want to compare with
+        },
+      },
+      TargetImage: {
+        S3Object: {
+          Bucket:Bucket_Name,
+          Name:face_kyc_img, // The uploaded image
+        },
+      },
+      SimilarityThreshold: 90,
+    };
+  
+    rekognition.compareFaces(params, (err, data) => {
+      if (err) {
+        console.error('Error comparing faces: ', err);
+      } else if(data?.UnmatchedFaces.length!=0) {
+        setShowCamera(false)
+        setFaceNotModal(true)
+      }
+      else {
+        setShowCamera(false)
+        setFaceModal(true)
+                const userInfo = JSON.parse(userData);
+
+                const config = {
+                  headers: {Token: token},
+                };
+                const body = {
+                  email: userInfo.email,
+                  location_id: activeLocation.location_id,
+                  latitude: currentLocation?.lat,
+                  longitude: currentLocation?.long,
+                  login_type: 'mobile',
+                };
+
+                axios
+                  .post(
+                    `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                    body,
+                    config,
+                  )
+                  .then(function (response) {
+                    if (response.data.status == 1) {
+                      check_punchIn();
+                    } else {
+                      Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody: response.data.message,
+                        buttonText: 'Ok',
+                        callback: () => [Popup.hide()],
+                      });
+
+                      setloading(false);
+                    }
+                  })
+                  .catch(function (error) {
+                    setloading(false);
+
+                    if (error.response.status == '401') {
+                      Popup.show({
+                        type: 'Warning',
+                        title: 'Warning',
+                        button: true,
+                        textBody: error.response.data.msg,
+                        buttonText: 'Ok',
+                        callback: () => [
+                          Popup.hide(),
+                          AsyncStorage.removeItem('Token'),
+                          AsyncStorage.removeItem('UserData'),
+                          AsyncStorage.removeItem('UserLocation'),
+                          navigation.navigate('Login'),
+                        ],
+                      });
+                    }
+                  });
+
+
+       
+      }
+    });
+  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      takePicture();
+    }, 3000); // Automatically take a picture after 5 seconds
+
+    return () => clearTimeout(timer);
+  }, [showCamera]);
+
+  useEffect(()=>{
+    if(kYCModal==true){
+      setTimeout(()=>{
+        setKYCModal(false)
+      },8000)
+    }
+    else if (faceModal==true){
+      setTimeout(()=>{
+        setFaceModal(false)
+      },8000)
+    }
+    else if(faceNotModal==true){
+      setTimeout(()=>{
+        setFaceNotModal(false)
+      },8000)
+    }
+  },[kYCModal,faceModal,faceNotModal])
   const [Userdata, setUserdata] = useState({
     image: '',
     name: '',
@@ -134,15 +416,6 @@ const Home = ({navigation}) => {
     d.getHours() < 10
       ? `0${d.getHours()}`
       : d.getHours() + ':' + d.getMinutes();
-
-  const [menuAccessData, setMenuAccessData] = useState();
-
-  // console.log("menuAccessData", menuAccessData)
-  // AsyncStorage.getItem('menu').then(res => {
-  //   setMenuAccessData(JSON.parse(res))
-  //   console.log(JSON.parse(res))
-  // });
-
   useEffect(() => {
     const getData = async () => {
       AsyncStorage.getItem('UserData').then(res => {
@@ -156,7 +429,6 @@ const Home = ({navigation}) => {
 
   useEffect(() => {
     if (getActiveLocationApi.data != null) {
-      // console.log('getActiveLocationApi.data--->', getActiveLocationApi.data);
       let activeLocation = getActiveLocationApi?.data?.data?.map(i => {
         if (i.active_status == 1) {
           setactiveLocation({
@@ -175,7 +447,12 @@ const Home = ({navigation}) => {
       check_punchIn();
       ProfileDetails();
       get_month_logs();
-    }, []),
+      if(menu_access=="Face Recognition")
+      {
+        getUserFace()
+      }
+   
+    }, [menu_access]),
   );
 
   const handleRefresh = async () => {
@@ -286,7 +563,6 @@ const Home = ({navigation}) => {
     const token = await AsyncStorage.getItem('Token');
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
-    console.log(token, 'token');
     setuser(JSON.parse(userData));
     // setlocation(JSON.parse(UserLocation));
     const config = {
@@ -423,7 +699,7 @@ const Home = ({navigation}) => {
             latitude: lat,
             longitude: long,
           };
-          console.log('body=>', body);
+         
           axios
             .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
             .then(function (response) {
@@ -511,46 +787,46 @@ const Home = ({navigation}) => {
             const config = {
               headers: {Token: token},
             };
-            const body = {
-              user_id: user.userid,
-              employee_number: user.employee_number,
-              email: user.email,
-              location_id: activeLocation.location_id,
-              latitude: lat,
-              longitude: long,
-            };
-            axios
-              .post(
-                `${apiUrl}/secondPhaseApi/mark_attendance_out`,
-                body,
-                config,
-              )
-              .then(function (response) {
-                if (response.data.status == 1) {
-                  check_punchIn();
-                } else {
-                  setloading(false);
-                }
-              })
-              .catch(function (error) {
-                console.log(error);
-                if (error.response.status == '401') {
-                  Popup.show({
-                    type: 'Warning',
-                    title: 'Warning',
-                    button: true,
-                    textBody: error.response.data.msg,
-                    buttonText: 'Ok',
-                    callback: () => [
-                      Popup.hide(),
-                      AsyncStorage.removeItem('Token'),
-                      AsyncStorage.removeItem('UserData'),
-                      AsyncStorage.removeItem('UserLocation'),
-                      navigation.navigate('Login'),
-                    ],
-                  });
-                }
-              });
+            // const body = {
+            //   user_id: user.userid,
+            //   employee_number: user.employee_number,
+            //   email: user.email,
+            //   location_id: activeLocation.location_id,
+            //   latitude: lat,
+            //   longitude: long,
+            // };
+            // axios
+            //   .post(
+            //     `${apiUrl}/secondPhaseApi/mark_attendance_out`,
+            //     body,
+            //     config,
+            //   )
+            //   .then(function (response) {
+            //     if (response.data.status == 1) {
+            //       check_punchIn();
+            //     } else {
+            //       setloading(false);
+            //     }
+            //   })
+            //   .catch(function (error) {
+            //     console.log(error);
+            //     if (error.response.status == '401') {
+            //       Popup.show({
+            //         type: 'Warning',
+            //         title: 'Warning',
+            //         button: true,
+            //         textBody: error.response.data.msg,
+            //         buttonText: 'Ok',
+            //         callback: () => [
+            //           Popup.hide(),
+            //           AsyncStorage.removeItem('Token'),
+            //           AsyncStorage.removeItem('UserData'),
+            //           AsyncStorage.removeItem('UserLocation'),
+            //           navigation.navigate('Login'),
+            //         ],
+            //       });
+            //     }
+            //   });
           } else {
             Popup.show({
               type: 'Warning',
@@ -679,6 +955,7 @@ const Home = ({navigation}) => {
                     }
                   });
               } else {
+
                 if (lat == null || lat == '') {
                   Popup.show({
                     type: 'Warning',
@@ -733,64 +1010,72 @@ const Home = ({navigation}) => {
                 }
 
                 if (dis <= 4000) {
-                  const token = await AsyncStorage.getItem('Token');
-                  const userData = await AsyncStorage.getItem('UserData');
-                  const userInfo = JSON.parse(userData);
+                        if(menu_access=='Face Recognition'){
+                          setShowCamera(true)
+                        }
+                        else {
+                          const token = await AsyncStorage.getItem('Token');
+                          const userData = await AsyncStorage.getItem('UserData');
+                          const userInfo = JSON.parse(userData);
+        
+                          const config = {
+                            headers: {Token: token},
+                          };
+                          const body = {
+                            email: userInfo.email,
+                            location_id: activeLocation.location_id,
+                            latitude: lat,
+                            longitude: long,
+                            login_type: 'mobile',
+                          };
+                       
+                          axios
+                            .post(
+                              `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                              body,
+                              config,
+                            )
+                            .then(function (response) {
+                              if (response.data.status == 1) {
+                                check_punchIn();
+                                setloading(false);
+                              } else {
+                                Popup.show({
+                                  type: 'Warning',
+                                  title: 'Warning',
+                                  button: true,
+                                  textBody: response.data.message,
+                                  buttonText: 'Ok',
+                                  callback: () => [Popup.hide()],
+                                });
+        
+                                setloading(false);
+                              }
+                            })
+                            .catch(function (error) {
+                              setloading(false);
+        
+                              if (error.response.status == '401') {
+                                Popup.show({
+                                  type: 'Warning',
+                                  title: 'Warning',
+                                  button: true,
+                                  textBody: error.response.data.msg,
+                                  buttonText: 'Ok',
+                                  callback: () => [
+                                    Popup.hide(),
+                                    AsyncStorage.removeItem('Token'),
+                                    AsyncStorage.removeItem('UserData'),
+                                    AsyncStorage.removeItem('UserLocation'),
+                                    navigation.navigate('Login'),
+                                  ],
+                                });
+                              }
+                            });
 
-                  const config = {
-                    headers: {Token: token},
-                  };
-                  const body = {
-                    email: userInfo.email,
-                    location_id: activeLocation.location_id,
-                    latitude: lat,
-                    longitude: long,
-                    login_type: 'mobile',
-                  };
-                  console.log('logitute-----', body);
-                  axios
-                    .post(
-                      `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                      body,
-                      config,
-                    )
-                    .then(function (response) {
-                      if (response.data.status == 1) {
-                        check_punchIn();
-                        setloading(false);
-                      } else {
-                        Popup.show({
-                          type: 'Warning',
-                          title: 'Warning',
-                          button: true,
-                          textBody: response.data.message,
-                          buttonText: 'Ok',
-                          callback: () => [Popup.hide()],
-                        });
-
-                        setloading(false);
-                      }
-                    })
-                    .catch(function (error) {
-                      setloading(false);
-
-                      if (error.response.status == '401') {
-                        Popup.show({
-                          type: 'Warning',
-                          title: 'Warning',
-                          button: true,
-                          textBody: error.response.data.msg,
-                          buttonText: 'Ok',
-                          callback: () => [
-                            Popup.hide(),
-                            AsyncStorage.removeItem('Token'),
-                            AsyncStorage.removeItem('UserData'),
-                            AsyncStorage.removeItem('UserLocation'),
-                            navigation.navigate('Login'),
-                          ],
-                        });
-                      }
-                    });
+                        }
+               
+                 
                 } else {
                   Popup.show({
                     type: 'Warning',
@@ -983,63 +1268,71 @@ const Home = ({navigation}) => {
               }
 
               if (dis <= 4000) {
-                const token = await AsyncStorage.getItem('Token');
-                const userData = await AsyncStorage.getItem('UserData');
-                const userInfo = JSON.parse(userData);
+                            if(menu_access=='Face Recognition')
+                            {
+                         setShowCamera(true)
 
-                const config = {
-                  headers: {Token: token},
-                };
-                const body = {
-                  email: userInfo.email,
-                  location_id: activeLocation.location_id,
-                  latitude: lat,
-                  longitude: long,
-                  login_type: 'mobile',
-                };
+                            }
+                            else {
+                              const token = await AsyncStorage.getItem('Token');
+                              const userData = await AsyncStorage.getItem('UserData');
+                              const userInfo = JSON.parse(userData);
+                              const config = {
+                                headers: {Token: token},
+                              };
+                              const body = {
+                                email: userInfo.email,
+                                location_id: activeLocation.location_id,
+                                latitude:lat,
+                                longitude:long,
+                                login_type: 'mobile',
+                              };
+              
+                              axios
+                                .post(
+                                  `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                                  body,
+                                  config,
+                                )
+                                .then(function (response) {
+                                  if (response.data.status == 1) {
+                                    check_punchIn();
+                                  } else {
+                                    Popup.show({
+                                      type: 'Warning',
+                                      title: 'Warning',
+                                      button: true,
+                                      textBody: response.data.message,
+                                      buttonText: 'Ok',
+                                      callback: () => [Popup.hide()],
+                                    });
+              
+                                    setloading(false);
+                                  }
+                                })
+                                .catch(function (error) {
+                                  setloading(false);
+              
+                                  if (error.response.status == '401') {
+                                    Popup.show({
+                                      type: 'Warning',
+                                      title: 'Warning',
+                                      button: true,
+                                      textBody: error.response.data.msg,
+                                      buttonText: 'Ok',
+                                      callback: () => [
+                                        Popup.hide(),
+                                        AsyncStorage.removeItem('Token'),
+                                        AsyncStorage.removeItem('UserData'),
+                                        AsyncStorage.removeItem('UserLocation'),
+                                        navigation.navigate('Login'),
+                                      ],
+                                    });
+                                  }
+                                });
+              
+                            }
 
-                axios
-                  .post(
-                    `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                    body,
-                    config,
-                  )
-                  .then(function (response) {
-                    if (response.data.status == 1) {
-                      check_punchIn();
-                    } else {
-                      Popup.show({
-                        type: 'Warning',
-                        title: 'Warning',
-                        button: true,
-                        textBody: response.data.message,
-                        buttonText: 'Ok',
-                        callback: () => [Popup.hide()],
-                      });
-
-                      setloading(false);
-                    }
-                  })
-                  .catch(function (error) {
-                    setloading(false);
-
-                    if (error.response.status == '401') {
-                      Popup.show({
-                        type: 'Warning',
-                        title: 'Warning',
-                        button: true,
-                        textBody: error.response.data.msg,
-                        buttonText: 'Ok',
-                        callback: () => [
-                          Popup.hide(),
-                          AsyncStorage.removeItem('Token'),
-                          AsyncStorage.removeItem('UserData'),
-                          AsyncStorage.removeItem('UserLocation'),
-                          navigation.navigate('Login'),
-                        ],
-                      });
-                    }
-                  });
               } else {
                 Popup.show({
                   type: 'Warning',
@@ -1080,7 +1373,7 @@ const Home = ({navigation}) => {
       longitude: position.coords.longitude,
     };
 
-    console.log('send data', {userId, location: locationData});
+   
 
     sendLocation({userId, location: locationData});
   };
@@ -1365,19 +1658,19 @@ const Home = ({navigation}) => {
 
     var startOfWeek = moment().startOf('month').toDate();
     var endOfWeek = moment().endOf('month').toDate();
-    console.log(startOfWeek, endOfWeek, 'endOfWeek');
+   
     const body = {
       start_date: startOfWeek,
       end_date: endOfWeek,
     };
-    console.log(body, 'body');
+   
     axios
       .post(`${apiUrl}/Api/attendance`, body, config)
       .then(response => {
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log(response.data.content, 'Month logs');
+          
             setrecentLogs(response.data.content);
           } catch (e) {}
         } else {
@@ -1390,194 +1683,206 @@ const Home = ({navigation}) => {
       });
   };
 
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#e3eefb'}}>
+     {
+      showCamera?
+<View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+   <RNCamera
+          ref={cameraRef}
+          style={styles.preview}
+          type={RNCamera.Constants.Type.front}
+          onFacesDetected={handleFacesDetected}
+          faceDetectionMode={RNCamera.Constants.FaceDetection.Mode.fast}
+          faceDetectionClassifications={RNCamera.Constants.FaceDetection.Classifications.all}
+          faceDetectionLandmarks={RNCamera.Constants.FaceDetection.Landmarks.all}
+          captureAudio={false}
+        />
+              {faces.length > 0 && (
+          <View style={styles.facesContainer}>
+            {faces.map(face => (
+              // <View key={face.faceID} style={[styles.faceBox,{borderColor:done==true?'#008000':'red'}]}>
+               
+              
+              // </View>
+              <AnimatedCircularProgress
+  size={230}
+  width={10}
+  fill={100}
+  tintColor="#0043ae"
+  backgroundColor="#0043ae"
+  duration={5000}
+  padding={10}
+  renderCap={({ center }) => <Circle cx={center.x} cy={center.y} r="10" fill="#fff" delayPressOut={2} />}
+  />
+            ))}
+          </View>
+        )}
+  
+
+  </View>
+
+      :
       <Root>
-        <PullToRefresh onRefresh={handleRefresh}>
-          <View style={{flex: 1}}>
+      <PullToRefresh onRefresh={handleRefresh}>
+        <View style={{flex: 1}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
             <View
               style={{
                 flexDirection: 'row',
+                // justifyContent: 'space-between',
                 alignItems: 'center',
-                justifyContent: 'space-between',
+                padding: 10,
               }}>
-              <View
+              <Image
+                style={styles.tinyLogo}
+                // source={require('../../images/profile_pic.webp')}
+                source={
+                  Userdata?.image
+                    ? {uri: Userdata.image}
+                    : require('../../images/profile_pic.webp')
+                }
+              />
+              <Text
+                numberOfLines={1}
+                style={[
+                  {fontSize: 18, fontWeight: 'bold', marginLeft: 2},
+                  {color: Themes == 'dark' ? '#000' : '#000'},
+                ]}>
+                Hi,{user?.FULL_NAME}!
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Notifications')}
+              style={{}}>
+              <Ionicons
+                name="notifications-outline"
                 style={{
-                  flexDirection: 'row',
-                  // justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: 10,
-                }}>
-                <Image
-                  style={styles.tinyLogo}
-                  // source={require('../../images/profile_pic.webp')}
-                  source={
-                    Userdata?.image
-                      ? {uri: Userdata.image}
-                      : require('../../images/profile_pic.webp')
-                  }
-                />
+                  fontSize: 35,
+                  color: '#000',
+                  marginRight: 10,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{}}>
+            <FlatList
+              horizontal
+              data={options}
+              renderItem={renderItem}
+              keyExtractor={item => item?.id}
+            />
+          </View>
+          <View style={{padding: 15, marginTop: 5}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Text
+                style={[
+                  {fontSize: 18, fontWeight: '700'},
+                  {color: Themes == 'dark' ? '#000' : '#000'},
+                ]}>
+                E-Attendance
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Select Attendance')}>
                 <Text
-                  numberOfLines={1}
                   style={[
-                    {fontSize: 18, fontWeight: 'bold', marginLeft: 2},
+                    styles.purple_txt,
                     {color: Themes == 'dark' ? '#000' : '#000'},
                   ]}>
-                  Hi,{user?.FULL_NAME}!
+                  View History
                 </Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Notifications')}
-                style={{}}>
-                <Ionicons
-                  name="notifications-outline"
-                  style={{
-                    fontSize: 35,
-                    color: '#000',
-                    marginRight: 10,
-                  }}
-                />
               </TouchableOpacity>
             </View>
-            <View style={{}}>
-              <FlatList
-                horizontal
-                data={options}
-                renderItem={renderItem}
-                keyExtractor={item => item?.id}
-              />
-            </View>
-            <View style={{padding: 15, marginTop: 5}}>
+            <View style={{marginTop: 15, borderRadius: 15}}>
               <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={[
-                    {fontSize: 18, fontWeight: '700'},
-                    {color: Themes == 'dark' ? '#000' : '#000'},
-                  ]}>
-                  E-Attendance
-                </Text>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Select Attendance')}>
-                  <Text
-                    style={[
-                      styles.purple_txt,
-                      {color: Themes == 'dark' ? '#000' : '#000'},
-                    ]}>
-                    View History
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={{marginTop: 15, borderRadius: 15}}>
+              // style={{ width: '100%', borderRadius: 15, overflow: 'hidden', }}
+              // source={require('../../images/gradient.gif')}
+              // imageStyle={{ borderRadius: 15,  }}
+              >
                 <View
-                // style={{ width: '100%', borderRadius: 15, overflow: 'hidden', }}
-                // source={require('../../images/gradient.gif')}
-                // imageStyle={{ borderRadius: 15,  }}
-                >
+                  style={{
+                    backgroundColor: 'white',
+                    margin: 8,
+                    padding: 15,
+                    borderRadius: 20,
+                    flexDirection: 'row',
+                    borderWidth: 12,
+                    borderColor: '#172B85',
+                  }}>
                   <View
                     style={{
-                      backgroundColor: 'white',
-                      margin: 8,
-                      padding: 15,
-                      borderRadius: 20,
-                      flexDirection: 'row',
-                      borderWidth: 12,
-                      borderColor: '#172B85',
+                      width: '35%',
+                      // backgroundColor: 'pink',
+                      borderRightWidth: 0.5,
+                      borderRightColor: 'grey',
+                      alignItems: 'center',
                     }}>
-                    <View
-                      style={{
-                        width: '35%',
-                        // backgroundColor: 'pink',
-                        borderRightWidth: 0.5,
-                        borderRightColor: 'grey',
-                        alignItems: 'center',
-                      }}>
-                      <View style={{alignItems: 'center'}}>
-                        <Text
-                          style={{
-                            color: 'grey',
-                            fontSize: 15,
-                            fontWeight: '500',
-                          }}>
-                          {days[d.getDay()]}
-                        </Text>
-                        <Text
-                          style={[
-                            {fontSize: 18, fontWeight: '600'},
-                            {color: Themes == 'dark' ? '#818181' : '#818181'},
-                          ]}>
-                          {d.getDate() + ' ' + monthNames[d.getMonth()]}
-                        </Text>
-                        <Text
-                          style={{
-                            color: 'grey',
-                            fontSize: 15,
-                            fontWeight: '500',
-                          }}>
-                          {d.getFullYear()}
-                        </Text>
-                      </View>
+                    <View style={{alignItems: 'center'}}>
+                      <Text
+                        style={{
+                          color: 'grey',
+                          fontSize: 15,
+                          fontWeight: '500',
+                        }}>
+                        {days[d.getDay()]}
+                      </Text>
+                      <Text
+                        style={[
+                          {fontSize: 18, fontWeight: '600'},
+                          {color: Themes == 'dark' ? '#818181' : '#818181'},
+                        ]}>
+                        {d.getDate() + ' ' + monthNames[d.getMonth()]}
+                      </Text>
+                      <Text
+                        style={{
+                          color: 'grey',
+                          fontSize: 15,
+                          fontWeight: '500',
+                        }}>
+                        {d.getFullYear()}
+                      </Text>
                     </View>
-                    <View
-                      style={{
-                        width: '65%',
-                        alignItems: 'center',
-                      }}>
-                      {inTime && !locationOut && (
-                        <>
-                          <View
+                  </View>
+                  <View
+                    style={{
+                      width: '65%',
+                      alignItems: 'center',
+                    }}>
+                    {inTime && !locationOut && (
+                      <>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}>
+                          <AntDesign
+                            name="rightcircle"
                             style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                            }}>
-                            <AntDesign
-                              name="rightcircle"
-                              style={{
-                                fontSize: 23,
-                                color: '#0e664e',
-                                marginRight: 10,
-                              }}
-                            />
-                            <Text
-                              style={{
-                                color: Themes == 'dark' ? '#000' : '#000',
-                              }}>
-                              {activityTime}
-                            </Text>
-                          </View>
-                          <TouchableOpacity
-                            onPress={showAlert}
+                              fontSize: 23,
+                              color: '#0e664e',
+                              marginRight: 10,
+                            }}
+                          />
+                          <Text
                             style={{
-                              padding: 10,
-                              paddingHorizontal: 20,
-                              backgroundColor: '#0043ae',
-                              marginTop: 10,
-                              borderRadius: 5,
-                              flexDirection: 'row',
+                              color: Themes == 'dark' ? '#000' : '#000',
                             }}>
-                            <Text
-                              style={{
-                                fontSize: 16,
-                                fontWeight: '600',
-                                color: 'white',
-                                marginRight: 10,
-                              }}>
-                              Punch Out
-                            </Text>
-                            {loading ? (
-                              <ActivityIndicator color="white" />
-                            ) : null}
-                          </TouchableOpacity>
-                        </>
-                      )}
-
-                      {!inTime && !locationOut && (
+                            {activityTime}
+                          </Text>
+                        </View>
                         <TouchableOpacity
-                          onPress={() => punch_in()}
+                          onPress={showAlert}
                           style={{
                             padding: 10,
                             paddingHorizontal: 20,
@@ -1593,254 +1898,353 @@ const Home = ({navigation}) => {
                               color: 'white',
                               marginRight: 10,
                             }}>
-                            Punch In
+                            Punch Out
                           </Text>
-                          {loading ? <ActivityIndicator color="white" /> : null}
+                          {loading ? (
+                            <ActivityIndicator color="white" />
+                          ) : null}
                         </TouchableOpacity>
-                      )}
-                      {inTime && locationOut && (
-                        <>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                            }}>
-                            <AntDesign
-                              name="rightcircle"
-                              style={{
-                                fontSize: 23,
-                                color: '#0e664e',
-                                marginRight: 10,
-                              }}
-                            />
-                            <Text style={styles.purple_txt}>{fullTime}</Text>
-                          </View>
-                          <Text style={{color: 'red', marginTop: 10}}>
-                            Total Time Elapsed
-                          </Text>
-                        </>
-                      )}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </View>
+                      </>
+                    )}
 
-            <View style={{marginTop: 10, marginHorizontal: 10}}>
-              <Text
-                style={[
-                  {fontSize: 18, fontWeight: '600'},
-                  {color: Themes == 'dark' ? '#000' : '#000'},
-                ]}>
-                Recent Logs
-              </Text>
-
-              {recentLogs.length > 0 ? (
-                recentLogs.map((i, index) => {
-                  const time = new Date(i?.punch_in_time);
-                  const getTime = time.toLocaleTimeString();
-                  // console.log(getTime)
-                  return (
-                    <View key={index} style={styles.recent_log_box}>
-                      <View>
-                        <Text style={styles.weekDay}>
-                          {days[new Date(i.TR_DATE).getDay()]}
-                        </Text>
-                        <Text
-                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                          {i.TR_DATE}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.weekDay}>Punch In Time</Text>
-                        <Text
-                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                          {getTime}
-                        </Text>
-                      </View>
-
-                      <View style={{alignItems: 'center'}}>
-                        <AntDesign
-                          name="clockcircleo"
-                          size={20}
-                          style={[
-                            {marginBottom: 5},
-                            {color: Themes == 'dark' ? '#000' : '#000'},
-                          ]}
-                        />
-                        {/* <Text>{datetime}, {i.TR_DATE}, {i.location_id ? 'yes' : 'no'}, {i.PRESENT_HOURS}, {hours}, {hours >= '19:00' ? 'yes' : 'no'}</Text> */}
-                        {(datetime == i.TR_DATE && i.location_id) ||
-                        datetime > i.TR_DATE ? (
-                          <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {i.PRESENT_HOURS}
-                          </Text>
-                        ) : hours >= '19:00' ? (
-                          <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {i.PRESENT_HOURS}
-                          </Text>
-                        ) : (
-                          <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            NA
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  );
-                })
-              ) : (
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    color: Themes == 'dark' ? '#000' : '#000',
-                  }}>
-                  No found data
-                </Text>
-              )}
-            </View>
-
-            {/* <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
-            {news.length == 0 && loading == false ? (
-              <Empty onPress={() => navigation.navigate('home')} />
-            ) : loading === false ? (
-              <PullToRefresh onRefresh={handleRefresh}>
-                <View>
-                  <Text style={{ fontSize: 13, color: 'grey' }}>
-                    {days[d.getDay()] +
-                      ', ' +
-                      d.getDate() +
-                      ' ' +
-                      monthNames[d.getMonth()]}
-                  </Text>
-                </View>
-                <View style={{ marginTop: 0 }}>
-                  <Text style={{ fontSize: 22, fontWeight: '600' }}>Latest news</Text>
-                  <View style={{flexDirection:"row"}}>
-                    {news.map((i, index) => (
+                    {!inTime && !locationOut && (
                       <TouchableOpacity
-                        key={index}
-                        onPress={() =>
-                          navigation.navigate('News Detail', {
-                            userId: user.userid,
-                            newsId: i.id,
-                          })
-                        }
+                        onPress={() =>punch_in()}
                         style={{
-                          marginTop: 0,
+                          padding: 10,
+                          paddingHorizontal: 20,
+                          backgroundColor: '#0043ae',
+                          marginTop: 10,
+                          borderRadius: 5,
+                          flexDirection: 'row',
                         }}>
-                        <Text style={{ marginHorizontal:10, marginBottom:5, fontSize: 18, fontWeight: '500', marginTop: 5, color: "blue" }}>
-                          {i.title}
+                        <Text
+                          style={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: 'white',
+                            marginRight: 10,
+                          }}>
+                          Punch In
                         </Text>
-                        <Image
-                          style={styles.tinynews}
-                          // source={require('../../../images/meta.jpeg')}
-                          source={
-                            i.attacnment
-                              ? { uri: i.attacnment }
-                              : require('../../images/meta.jpeg')
-                          }
-                        />
+                        {loading ? <ActivityIndicator color="white" /> : null}
                       </TouchableOpacity>
-                    ))}
+                    )}
+                    {inTime && locationOut && (
+                      <>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}>
+                          <AntDesign
+                            name="rightcircle"
+                            style={{
+                              fontSize: 23,
+                              color: '#0e664e',
+                              marginRight: 10,
+                            }}
+                          />
+                          <Text style={styles.purple_txt}>{fullTime}</Text>
+                        </View>
+                        <Text style={{color: 'red', marginTop: 10}}>
+                          Total Time Elapsed
+                        </Text>
+                      </>
+                    )}
                   </View>
-
                 </View>
-              </PullToRefresh>
-            ) : (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="small" color="#388aeb" />
               </View>
-            )}
-          </View> */}
+            </View>
+          </View>
 
-            {/* <View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                // marginTop: 15,
-                padding: 15,
-              }}>
-              <Text style={{ fontSize: 18, fontWeight: '700' }}>
-                Announcements
+          <View style={{marginTop: 10, marginHorizontal: 10}}>
+            <Text
+              style={[
+                {fontSize: 18, fontWeight: '600'},
+                {color: Themes == 'dark' ? '#000' : '#000'},
+              ]}>
+              Recent Logs
+            </Text>
+
+            {recentLogs.length > 0 ? (
+              recentLogs.map((i, index) => {
+                const time = new Date(i?.punch_in_time);
+                const getTime = time.toLocaleTimeString();
+                // console.log(getTime)
+                return (
+                  <View key={index} style={styles.recent_log_box}>
+                    <View>
+                      <Text style={styles.weekDay}>
+                        {days[new Date(i.TR_DATE).getDay()]}
+                      </Text>
+                      <Text
+                        style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                        {i.TR_DATE}
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={styles.weekDay}>Punch In Time</Text>
+                      <Text
+                        style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                        {getTime}
+                      </Text>
+                    </View>
+
+                    <View style={{alignItems: 'center'}}>
+                      <AntDesign
+                        name="clockcircleo"
+                        size={20}
+                        style={[
+                          {marginBottom: 5},
+                          {color: Themes == 'dark' ? '#000' : '#000'},
+                        ]}
+                      />
+                      {/* <Text>{datetime}, {i.TR_DATE}, {i.location_id ? 'yes' : 'no'}, {i.PRESENT_HOURS}, {hours}, {hours >= '19:00' ? 'yes' : 'no'}</Text> */}
+                      {(datetime == i.TR_DATE && i.location_id) ||
+                      datetime > i.TR_DATE ? (
+                        <Text
+                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                          {i.PRESENT_HOURS}
+                        </Text>
+                      ) : hours >= '19:00' ? (
+                        <Text
+                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                          {i.PRESENT_HOURS}
+                        </Text>
+                      ) : (
+                        <Text
+                          style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                          NA
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                );
+              })
+            ) : (
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: Themes == 'dark' ? '#000' : '#000',
+                }}>
+                No found data
               </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('List')}>
-                <Text style={styles.purple_txt}>View All</Text>
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              horizontal
-              data={announcements}
-              renderItem={renderAnnouncements}
-              keyExtractor={item => item.id}
-            />
+            )}
           </View>
-          <View style={{ marginBottom: 30 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                // marginTop: 15,
-                padding: 15,
-              }}>
-              <Text style={{ fontSize: 18, fontWeight: '700' }}>Training</Text>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('Training', { screen: 'training' })
-                }>
-                <Text style={styles.purple_txt}>View All</Text>
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              horizontal
-              data={training}
-              renderItem={renderTraining}
-              keyExtractor={item => item.create_date}
-            />
-          </View> */}
-          </View>
-        </PullToRefresh>
-        {modalVisible && (
-          <View
-            style={{
-              width: '100%',
-              height: '100%',
-              zIndex: 99,
-              backgroundColor: 'rgba(255,255,255,0.8)',
-              position: 'absolute',
-              flex: 1,
-            }}></View>
-        )}
-        <Modal animationType="none" transparent={true} visible={modalVisible}>
-          <View
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 10,
-              alignSelf: 'center',
-              marginTop: responsiveHeight(50),
-            }}>
-            <ActivityIndicator size="large" color="#0528A5" />
-          </View>
-        </Modal>
-      </Root>
-    </SafeAreaView>
 
-    // <View>
-    //   <Text>
-    //     Current Position:{' '}
-    //     {currentPosition ? JSON.stringify(currentPosition) : 'Fetching...'}
-    //   </Text>
-    //   <Text>
-    //     Previous Position:{' '}
-    //     {previousPosition ? JSON.stringify(previousPosition) : 'N/A'}
-    //   </Text>
-    // </View>
-  );
+          {/* <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
+          {news.length == 0 && loading == false ? (
+            <Empty onPress={() => navigation.navigate('home')} />
+          ) : loading === false ? (
+            <PullToRefresh onRefresh={handleRefresh}>
+              <View>
+                <Text style={{ fontSize: 13, color: 'grey' }}>
+                  {days[d.getDay()] +
+                    ', ' +
+                    d.getDate() +
+                    ' ' +
+                    monthNames[d.getMonth()]}
+                </Text>
+              </View>
+              <View style={{ marginTop: 0 }}>
+                <Text style={{ fontSize: 22, fontWeight: '600' }}>Latest news</Text>
+                <View style={{flexDirection:"row"}}>
+                  {news.map((i, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() =>
+                        navigation.navigate('News Detail', {
+                          userId: user.userid,
+                          newsId: i.id,
+                        })
+                      }
+                      style={{
+                        marginTop: 0,
+                      }}>
+                      <Text style={{ marginHorizontal:10, marginBottom:5, fontSize: 18, fontWeight: '500', marginTop: 5, color: "blue" }}>
+                        {i.title}
+                      </Text>
+                      <Image
+                        style={styles.tinynews}
+                        // source={require('../../../images/meta.jpeg')}
+                        source={
+                          i.attacnment
+                            ? { uri: i.attacnment }
+                            : require('../../images/meta.jpeg')
+                        }
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+              </View>
+            </PullToRefresh>
+          ) : (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="small" color="#388aeb" />
+            </View>
+          )}
+        </View> */}
+
+          {/* <View>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              // marginTop: 15,
+              padding: 15,
+            }}>
+            <Text style={{ fontSize: 18, fontWeight: '700' }}>
+              Announcements
+            </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('List')}>
+              <Text style={styles.purple_txt}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            horizontal
+            data={announcements}
+            renderItem={renderAnnouncements}
+            keyExtractor={item => item.id}
+          />
+        </View>
+        <View style={{ marginBottom: 30 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              // marginTop: 15,
+              padding: 15,
+            }}>
+            <Text style={{ fontSize: 18, fontWeight: '700' }}>Training</Text>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('Training', { screen: 'training' })
+              }>
+              <Text style={styles.purple_txt}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            horizontal
+            data={training}
+            renderItem={renderTraining}
+            keyExtractor={item => item.create_date}
+          />
+        </View> */}
+        </View>
+      </PullToRefresh>
+      {modalVisible && (
+        <View
+          style={{
+            width: '100%',
+            height: '100%',
+            zIndex: 99,
+            backgroundColor:'rgba(255,255,255,0.8)',
+            position: 'absolute',
+            flex: 1,
+          }}></View>
+      )}
+      <Modal animationType="none" transparent={true} visible={modalVisible}>
+        <View
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: 10,
+            alignSelf: 'center',
+            marginTop: responsiveHeight(50),
+          }}>
+          <ActivityIndicator size="large" color="#0528A5" />
+        </View>
+      </Modal>
+
+      {/* <Button title="Show Modal" onPress={toggleModal} /> */}
+      <Modal
+        isVisible={isModalVisible}
+        // onBackdropPress={toggleModal}
+        animationIn="zoomIn"
+        animationOut="zoomOut"
+      >
+        <View style={styles.modalContent}>
+          <Image
+          source={require('../../images/kycicon.png')}
+          style={{width:responsiveWidth(90),height:responsiveHeight(28),resizeMode:'contain',alignSelf:'center'}}
+          />
+          <Text style={{color:'#000',fontSize:responsiveFontSize(2),fontWeight:'bold',marginTop:responsiveHeight(1)}}>Please complete your
+           KYC.</Text>
+           <TouchableOpacity style={{width:responsiveWidth(30),height:responsiveHeight(5),backgroundColor:'#0043ae',borderRadius:10,justifyContent:'center',alignItems:'center',marginTop:responsiveHeight(1)}}
+           onPress={()=>[setShowCamera(true),setFirstImage(true)]}
+           >
+            <Text style={{color:'#fff',fontWeight:'bold',fontSize:responsiveFontSize(1.7)}}>Camera</Text>
+           </TouchableOpacity>
+          {/* <Button title="Camera Scaner" onPress={()=>[setShowCamera(true),setFirstImage(true)]}  /> */}
+
+          {/* <Button title="Hide Modal" onPress={toggleModal} /> */}
+
+           
+        </View>
+      </Modal>
+      <Modal
+        isVisible={kYCModal}
+        // onBackdropPress={toggleModal}
+        animationIn="zoomIn"
+        animationOut="zoomOut"
+      >
+        <View style={styles.modalContent}>
+          <Image
+          source={require('../../images/kycsuccess.png')}
+          style={{width:responsiveWidth(90),height:responsiveHeight(20),resizeMode:'contain',alignSelf:'center'}}
+          />
+          <Text style={{color:'#000',fontSize:responsiveFontSize(2),fontWeight:'bold',marginTop:responsiveHeight(1)}}>Your KYC has been</Text>
+          <Text style={{color:'#000',fontSize:responsiveFontSize(2),fontWeight:'bold',marginTop:responsiveHeight(1)}}>successfully completed.</Text>
+          <Text style={{color:'#0043ae',fontSize:responsiveFontSize(2),fontWeight:'bold',marginTop:responsiveHeight(1)}}>Thank you!</Text>
+
+           {/* <TouchableOpacity style={{width:responsiveWidth(30),height:responsiveHeight(5),backgroundColor:'#0043ae',borderRadius:10,justifyContent:'center',alignItems:'center',marginTop:responsiveHeight(1)}}
+           onPress={()=>setKYCModal(false)}
+           >
+            <Text style={{color:'#fff',fontWeight:'bold',fontSize:responsiveFontSize(1.7)}}>Hide</Text>
+           </TouchableOpacity> */}
+        </View>
+      </Modal>
+      <Modal
+        isVisible={faceModal}
+        // onBackdropPress={toggleModal}
+        animationIn="zoomIn"
+        animationOut="zoomOut"
+      >
+        <View style={styles.modalContent}>
+          <Image
+          source={require('../../images/kycsuccess.png')}
+          style={{width:responsiveWidth(90),height:responsiveHeight(20),resizeMode:'contain',alignSelf:'center'}}
+          />
+          <Text style={{color:'#000',fontSize:responsiveFontSize(2),fontWeight:'bold',marginTop:responsiveHeight(1)}}>Face match detected!</Text>
+          <Text style={{color:'#0043ae',fontSize:responsiveFontSize(2),fontWeight:'bold',marginTop:responsiveHeight(1)}}>Thank you!</Text>
+        </View>
+      </Modal>
+      <Modal
+        isVisible={faceNotModal}
+        // onBackdropPress={toggleModal}
+        animationIn="zoomIn"
+        animationOut="zoomOut"
+      >
+        <View style={styles.modalContent}>
+          <Image
+          source={require('../../images/11.png')}
+          style={{width:responsiveWidth(90),height:responsiveHeight(20),resizeMode:'contain',alignSelf:'center'}}
+          />
+          <Text style={{color:'#000',fontSize:responsiveFontSize(2),fontWeight:'bold',marginTop:responsiveHeight(1)}}>Face does not match!</Text>
+          <Text style={{color:'#0043ae',fontSize:responsiveFontSize(2),fontWeight:'bold',marginTop:responsiveHeight(1)}}>Please try again.</Text>
+
+        </View>
+      </Modal>
+
+    </Root>
+     }
+    </SafeAreaView>
+);
+
 };
 
 export default Home;
@@ -1976,5 +2380,44 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderBottomWidth: 1,
     borderBottomColor: 'grey',
+  },
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  capturedImage: {
+    width: 300,
+    height: 300,
+    marginVertical: 20,
+  },
+
+  facesContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // width:200
+  },
+  faceBox: {
+    padding: 10,
+    borderWidth: 2,
+    borderRadius:150,
+    width:300,
+    height:300
+   
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius:10,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
 });

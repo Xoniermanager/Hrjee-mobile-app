@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import VersionCheck from 'react-native-version-check';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// import messaging from '@react-native-firebase/messaging';
+
 
 const Login = () => {
   const theme = useColorScheme();
@@ -42,6 +42,16 @@ const Login = () => {
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+
+//   async function getFCMToken() {
+//     const token = await messaging().getToken();
+//     console.log(token,'token');
+//     setfcmtoken(token);
+//   }
+
+// useEffect(()=>{
+//   getFCMToken();
+// },[])
 
   const login = () => {
     if (email.trim() === '' || password.trim() === '') {
@@ -202,13 +212,7 @@ const Login = () => {
 
   };
 
-  // async function getFCMToken() {
-  //   const token = await messaging().getToken();
-  //   // console.log(token);
-  //   setfcmtoken(token);
-  // }
 
-  // getFCMToken();
 
 
 

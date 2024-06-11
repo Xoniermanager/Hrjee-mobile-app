@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ImageBackground,
-  Modal,
   TextInput,
   Dimensions,
   Alert,
@@ -55,8 +54,7 @@ import Toast from 'react-native-simple-toast';
 import DatePicker from 'react-native-date-picker';
 import { RadioButton } from 'react-native-paper';
 import Themes from '../src/Theme/Theme';
-
-
+import Modal from "react-native-modal";
 function CustomDrawerContent(props) {
   const theme = useColorScheme();
   const [startopen, setstartopen] = useState(false);
@@ -106,7 +104,7 @@ function CustomDrawerContent(props) {
   const [address, setaddress] = useState('');
   const [manuallylocation, setManuallyLocation] = useState(null);
   const [error, setError] = useState(null);
-
+  const [showModal,setShowModal]=useState(false)
   useEffect(() => {
     handleGetLocation()
   }, [address])
@@ -198,6 +196,17 @@ function CustomDrawerContent(props) {
     }, []),
   );
 
+  function WrapperComponent() {
+    return (
+      <View>
+        <Modal>
+          <View style={{ flex: 1 }}>
+          <ActivityIndicator />
+          </View>
+        </Modal>
+      </View>
+    );
+  }
   const get_employee_detail = async () => {
 
 
@@ -474,14 +483,7 @@ function CustomDrawerContent(props) {
               try {
                 setaddressTitle('');
                 setaddress('');
-                Popup.show({
-                  type: 'Success',
-                  title: 'Success',
-                  button: true,
-                  textBody: response.data.msg,
-                  buttonText: 'Ok',
-                  callback: () => [Popup.hide()]
-                });
+                Toast.show(response.data.msg)
                 get_address();
                 setshowInput(false);
               } catch (error) {
@@ -489,23 +491,11 @@ function CustomDrawerContent(props) {
               }
             } else if (response.data.status == 2) {
               setloading(false);
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: response.data.msg,
-                buttonText: 'Ok',
-                callback: () => [Popup.hide()]
-              });
+              Toast.show(response.data.msg)
+              
             } else {
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: response.data.msg,
-                buttonText: 'Ok',
-                callback: () => [Popup.hide()]
-              });
+              Toast.show(response.data.msg)
+              
             }
           })
           .catch(error => {
@@ -519,19 +509,13 @@ function CustomDrawerContent(props) {
       .catch(error => {
         setloading(false);
         const { code, message } = error;
-
-        Popup.show({
-          type: 'Warning',
-          title: 'Warning',
-          button: true,
-          textBody: message,
-          buttonText: 'Ok',
-          callback: () => [Popup.hide()]
-        });
+        Toast.show(message)
+        
       });
   };
 
   const makeActive = async id => {
+  setShowModal(true)
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: { Token: token },
@@ -545,39 +529,48 @@ function CustomDrawerContent(props) {
       .then(response => {
         if (response.data.status == 1) {
           try {
-            Popup.show({
-              type: 'Success',
-              title: 'Success',
-              button: true,
-              textBody: response.data.msg,
-              buttonText: 'Ok',
-              callback: () => [Popup.hide()]
-            });
+            setShowModal(false)
+            Toast.show(response.data.msg)
+            // Popup.show({
+            //   type: 'Success',
+            //   title: 'Success',
+            //   button: true,
+            //   textBody: response.data.msg,
+            //   buttonText: 'Ok',
+            //   callback: () => [Popup.hide()]
+            // });
             get_address();
           } catch (e) {
 
           }
         } else if (response.data.status == 2) {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody: response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide()]
-          });
+         setShowModal(false)
+
+          Toast.show(response.data.msg)
+
+          // Popup.show({
+          //   type: 'Warning',
+          //   title: 'Warning',
+          //   button: true,
+          //   textBody: response.data.msg,
+          //   buttonText: 'Ok',
+          //   callback: () => [Popup.hide()]
+          // });
         } else {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody: response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide()]
-          });
+         setShowModal(false)
+          Toast.show(response.data.msg)
+          // Popup.show({
+          //   type: 'Warning',
+          //   title: 'Warning',
+          //   button: true,
+          //   textBody: response.data.msg,
+          //   buttonText: 'Ok',
+          //   callback: () => [Popup.hide()]
+          // });
         }
       })
       .catch(error => {
+        setShowModal(false)
 
         if (error.response.status == '401') {
 
@@ -900,7 +893,9 @@ function CustomDrawerContent(props) {
       );
     } else if (show == 'OfficeAddress') {
       return (
+       
         <View style={{marginHorizontal: 15}}>
+          
           {location
             ? location.map(
               (i, index) =>
@@ -1097,9 +1092,9 @@ function CustomDrawerContent(props) {
                           setshowUpdate(false),
                           setaddressTitle(''),
                           setaddress('');
-                        alert(
-                          'Please add address by physically being present at that address',
-                        );
+                          // Toast.show('Please add address by physically being present at that address');
+      
+                      
                       }}
                       style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
                       <Text style={{ color: 'white', fontWeight: 'bold' }}>
@@ -1113,6 +1108,16 @@ function CustomDrawerContent(props) {
               </>
 
             )}
+            <Modal
+        isVisible={showModal}
+        // onBackdropPress={toggleModal}
+        animationIn="zoomIn"
+        animationOut="zoomOut"
+      >
+      
+      <ActivityIndicator size="large" color="#00ff00" />
+     
+      </Modal>
         </View>
       );
     }
@@ -1519,5 +1524,13 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: 'red',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius:10,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
 });

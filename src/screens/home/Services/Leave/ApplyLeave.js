@@ -49,12 +49,14 @@ const ApplyLeave = ({ navigation }) => {
   const [phone, setphone] = useState(null);
   const [address, setaddress] = useState(null)
 
+
   const [form, setForm] = useState({
     name: '',
     phone: '',
     address: '',
     comment: '',
   });
+
 
   const handleFieldChange = (name, value) => {
     setForm({
@@ -92,7 +94,6 @@ const ApplyLeave = ({ navigation }) => {
         }
       })
       .catch(error => {
-
         setloading(false)
         if (error.response.status == '401') {
           Popup.show({
@@ -165,6 +166,7 @@ const ApplyLeave = ({ navigation }) => {
 
 
   const apply_leave = async () => {
+
     if (startDate.valueOf() < endDate.valueOf()) {
       setloading(true);
       const token = await AsyncStorage.getItem('Token');
@@ -285,7 +287,10 @@ const ApplyLeave = ({ navigation }) => {
 
 
   const checkEmptyField = () => {
-    if (value !== null && form.name !== null && form.phone !== null && form.address !== null) {
+    if (choosedata == 'Self') {
+      return apply_leave();
+    }
+    else if (value !== null && name !== null && phone !== null && address !== null) {
       return apply_leave();
     } else {
       if (value == null) {
@@ -298,47 +303,48 @@ const ApplyLeave = ({ navigation }) => {
           callback: () => [Popup.hide()]
         })
       }
-      if (form.name == null) {
-        return Popup.show({
-          type: 'Warning',
-          title: 'Warning',
-          button: true,
-          textBody: 'please enter emergency name',
-          buttonText: 'Ok',
-          callback: () => [Popup.hide()]
-        })
-      }
-      if (form.phone == null) {
-        return Popup.show({
-          type: 'Warning',
-          title: 'Warning',
-          button: true,
-          textBody: 'please enter emergency contact number',
-          buttonText: 'Ok',
-          callback: () => [Popup.hide()]
-        })
-      }
-      if (form.address == null) {
 
+      if (name == null) {
         return Popup.show({
           type: 'Warning',
           title: 'Warning',
           button: true,
-          textBody: 'please enter emergency address',
+          textBody: 'please enter name',
           buttonText: 'Ok',
           callback: () => [Popup.hide()]
         })
       }
+      if (phone == null) {
+        return Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody: 'please enter mobile',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
+      }
+      if (address == null) {
+        return Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody: 'please enter address',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
+      }
+
     }
   };
 
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding:18 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white', padding: 18 }}>
 
       <Root>
-        <ScrollView style={{marginHorizontal:5}}>
+        <ScrollView style={{ marginHorizontal: 5 }}>
           <View>
             <Text style={styles.input_title}>Leave Type</Text>
             <Dropdown
@@ -558,6 +564,7 @@ const ApplyLeave = ({ navigation }) => {
                 )}
                 <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>Self</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
                 onPress={() => setChooseData('Other')}
                 style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20 }}>

@@ -211,7 +211,7 @@ const LeaveList = ({ navigation }) => {
           <PullToRefresh onRefresh={handleRefresh}>
             <View style={{ flex: 1, padding: 15 }}>
               <View style={styles.tag_separator}>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={[
                     styles.tag,
                     { backgroundColor: tag == 'all' ? '#0043ae' : '#0043ae50' },
@@ -224,7 +224,7 @@ const LeaveList = ({ navigation }) => {
                     color="white"
                     style={{ marginLeft: 5 }}
                   />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 {/* <TouchableOpacity
                   style={[
                     styles.tag,
@@ -434,7 +434,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
     padding: 5,
   },
   status_tag: {

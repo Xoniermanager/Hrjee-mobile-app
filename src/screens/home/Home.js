@@ -54,6 +54,7 @@ import {
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
 import { SocketContext } from '../../tracking/SocketContext';
+import NotificationController from '../PushNotification/NotificationController';
 
 const Home = ({ navigation }) => {
   const theme = useColorScheme();
@@ -1473,8 +1474,10 @@ const Home = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e3eefb' }}>
+      
       <Root>
         <PullToRefresh onRefresh={handleRefresh}>
+          <NotificationController/>
           <View style={{ flex: 1 }}>
             <View
               style={{
@@ -1890,6 +1893,7 @@ const Home = ({ navigation }) => {
           </View> */}
           </View>
         </PullToRefresh>
+
         {modalVisible && (
           <View
             style={{

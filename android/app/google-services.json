@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "276926847958",
+    "project_id": "hrjee-notification-a8a3b",
+    "storage_bucket": "hrjee-notification-a8a3b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276926847958:android:1e3e1eec11ab7fb4dda277",
+        "android_client_info": {
+          "package_name": "com.HRjee"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVUzYEbUbH7kSmXgLldMBZpLHldIFbwUA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

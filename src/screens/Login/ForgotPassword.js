@@ -56,7 +56,7 @@ const ForgotPassword = ({ navigation }) => {
       let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://app.hrjee.com/users/reset_password',
+        url:'https://app.hrjee.com/users/forgot_password',
         headers: { 
           'Content-Type': 'application/json', 
           'Cookie': 'ci_session=ngc399claf516efh767kho1ldnmsf952'
@@ -73,7 +73,7 @@ const ForgotPassword = ({ navigation }) => {
             button: true,
             textBody:response.data.message,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(), navigation.navigate('Login')]
+            callback: () => [Popup.hide(), navigation.navigate('Enter your Pin',{email:email})]
           })
         }
         else if (response.data.status== 0){
@@ -185,7 +185,7 @@ const ForgotPassword = ({ navigation }) => {
               ) : null}
             </View>
             <TouchableOpacity
-              onPress={() => resetPassword()}
+              onPress={() =>resetPassword()}
               style={[styles.btn_style]}>
               <Text
                 style={{

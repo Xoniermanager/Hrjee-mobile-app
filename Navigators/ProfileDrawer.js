@@ -55,6 +55,7 @@ import DatePicker from 'react-native-date-picker';
 import { RadioButton } from 'react-native-paper';
 import Themes from '../src/Theme/Theme';
 import Modal from "react-native-modal";
+import PullToRefresh from '../src/reusable/PullToRefresh';
 function CustomDrawerContent(props) {
   const theme = useColorScheme();
   const [startopen, setstartopen] = useState(false);
@@ -89,6 +90,7 @@ function CustomDrawerContent(props) {
   const [show, setshow] = useState('');
   const [showInput, setshowInput] = useState(false);
   const [addressTitle, setaddressTitle] = useState('');
+  const [addressTitleError, setaddressTitleError] = useState('');
   const [loading, setloading] = useState(false);
   const [showUpdate, setshowUpdate] = useState(false);
   const [updateId, setupdateId] = useState('');
@@ -275,7 +277,7 @@ function CustomDrawerContent(props) {
       .then(response => {
         if (response.data.status === 1) {
           try {
-
+              console.log(response.data.data,'response.data.data')
             setlocation(response.data.data);
           } catch (e) {
           }
@@ -287,79 +289,85 @@ function CustomDrawerContent(props) {
       });
   };
   const add_address = async () => {
-    setloading(true);
-    GetLocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 15000,
-    })
-      .then(async location => {
-        var lat = parseFloat(manuallylocation.latitude);
-        var long = parseFloat(manuallylocation.longitude);
+      if(addressTitle.trim()==='' || address.trim()===''){
+        Toast.show('Please Enter some text')
+      }
+      else {
         setloading(true);
-        const token = await AsyncStorage.getItem('Token');
-        const config = {
-          headers: { Token: token },
-        };
-        const body = {
-          location_name: addressTitle,
-          address1: address,
-          latitude: lat,
-          longitude: long,
-        };
-        axios
-          .post(`${apiUrl}/api/add_user_location`, body, config)
-          .then(response => {
-            Toast.show(response?.data?.msg);
-            setloading(false);
-            if (response.data.status == 1) {
-              try {
-                setaddressTitle('');
-                setaddress('');
-                get_address();
-                setshowInput(false);
-                Toast.show('Address added successfully, wait for admin approval');
-              } catch (error) {
-                console.log(error.request._response)
-              }
-            } else if (response.data.status == 2) {
-              setloading(false);
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: response.data.msg,
-                buttonText: 'Ok',
-                callback: () => [Popup.hide()]
+        GetLocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 15000,
+        })
+          .then(async location => {
+            var lat = parseFloat(manuallylocation.latitude);
+            var long = parseFloat(manuallylocation.longitude);
+            setloading(true);
+            const token = await AsyncStorage.getItem('Token');
+            const config = {
+              headers: { Token: token },
+            };
+            const body = {
+              location_name: addressTitle,
+              address1: address,
+              latitude: lat,
+              longitude: long,
+            };
+            axios
+              .post(`${apiUrl}/api/add_user_location`, body, config)
+              .then(response => {
+                Toast.show(response?.data?.msg);
+                setloading(false);
+                if (response.data.status == 1) {
+                  try {
+                    setaddressTitle('');
+                    setaddress('');
+                    get_address();
+                    setshowInput(false);
+                    Toast.show('Address added successfully, wait for admin approval');
+                  } catch (error) {
+                    console.log(error.request._response)
+                  }
+                } else if (response.data.status == 2) {
+                  setloading(false);
+                  Popup.show({
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody: response.data.msg,
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()]
+                  });
+    
+                } else {
+                  Popup.show({
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody: response.data.msg,
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()]
+                  });
+                }
+              })
+              .catch(error => {
+                setloading(false)
+                Toast.show(error.request._response)
               });
-
-            } else {
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: response.data.msg,
-                buttonText: 'Ok',
-                callback: () => [Popup.hide()]
-              });
-            }
           })
           .catch(error => {
+            const { code, message } = error;
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody: message,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
             setloading(false)
-            Toast.show(error.request._response)
           });
-      })
-      .catch(error => {
-        const { code, message } = error;
-        Popup.show({
-          type: 'Warning',
-          title: 'Warning',
-          button: true,
-          textBody: message,
-          buttonText: 'Ok',
-          callback: () => [Popup.hide()]
-        });
-        setloading(false)
-      });
+      }
+    
   };
 
   const delete_address = async id => {
@@ -531,14 +539,7 @@ function CustomDrawerContent(props) {
           try {
             setShowModal(false)
             Toast.show(response.data.msg)
-            // Popup.show({
-            //   type: 'Success',
-            //   title: 'Success',
-            //   button: true,
-            //   textBody: response.data.msg,
-            //   buttonText: 'Ok',
-            //   callback: () => [Popup.hide()]
-            // });
+           
             get_address();
           } catch (e) {
 
@@ -547,26 +548,10 @@ function CustomDrawerContent(props) {
          setShowModal(false)
 
           Toast.show(response.data.msg)
-
-          // Popup.show({
-          //   type: 'Warning',
-          //   title: 'Warning',
-          //   button: true,
-          //   textBody: response.data.msg,
-          //   buttonText: 'Ok',
-          //   callback: () => [Popup.hide()]
-          // });
         } else {
          setShowModal(false)
           Toast.show(response.data.msg)
-          // Popup.show({
-          //   type: 'Warning',
-          //   title: 'Warning',
-          //   button: true,
-          //   textBody: response.data.msg,
-          //   buttonText: 'Ok',
-          //   callback: () => [Popup.hide()]
-          // });
+
         }
       })
       .catch(error => {
@@ -893,7 +878,7 @@ function CustomDrawerContent(props) {
       );
     } else if (show == 'OfficeAddress') {
       return (
-       
+        <PullToRefresh onRefresh={()=>add_address()}>
         <View style={{marginHorizontal: 15}}>
           
           {location
@@ -946,9 +931,23 @@ function CustomDrawerContent(props) {
                                   alignItems: 'center',
                                   marginTop: 15,
                                 }}>
-                                <TouchableOpacity
+                            {i.active_status==1?null:<TouchableOpacity
                                   style={{ marginRight: 20 }}
-                                  onPress={() => delete_address(i.location_id)}>
+                                  onPress={() => 
+                                    Alert.alert(
+                                      '',
+                                      'Are you sure you want to delete address?',
+                                      [
+                                        {
+                                          text: 'Cancel',
+                                          onPress: () => console.log('Cancel Pressed'),
+                                          style: 'cancel',
+                                        },
+                                        { text: 'OK', onPress: () => delete_address(i.location_id) },
+                                      ],
+                                    )
+                                  
+                                  }>
                                   <Text
                                     style={{
                                       color: GlobalStyle.blueDark,
@@ -957,8 +956,8 @@ function CustomDrawerContent(props) {
                                     }}>
                                     Delete
                                   </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
+                                </TouchableOpacity>}
+                                {/* <TouchableOpacity
                                   style={{}}
                                   onPress={() => {
                                     setshowInput(true),
@@ -975,7 +974,7 @@ function CustomDrawerContent(props) {
                                     }}>
                                     Edit
                                   </Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                               </View>
                               :
                               null
@@ -1092,9 +1091,6 @@ function CustomDrawerContent(props) {
                           setshowUpdate(false),
                           setaddressTitle(''),
                           setaddress('');
-                          // Toast.show('Please add address by physically being present at that address');
-      
-                      
                       }}
                       style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
                       <Text style={{ color: 'white', fontWeight: 'bold' }}>
@@ -1119,6 +1115,7 @@ function CustomDrawerContent(props) {
      
       </Modal>
         </View>
+        </PullToRefresh>
       );
     }
     else if (show == 'Aboutus') {

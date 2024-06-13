@@ -620,7 +620,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000', width: responsiveWidth(70),
                             textAlign: 'right'
                           }}>
-                          {item?.dept_id}
+                          {item?.dept_id?item?.dept_id:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -635,7 +635,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000', }}>
-                          {item?.customer_name}
+                          {item?.customer_name?item?.customer_name:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -650,7 +650,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.mobile_no}
+                          {item?.mobile_no?item?.mobile_no:'N/A'}
                         </Text>
                       </View>
 
@@ -674,7 +674,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.loan_no}
+                          {item?.loan_no?item?.loan_no:'N/A'}
                         </Text>
                       </View>
 
@@ -695,10 +695,10 @@ const Processing = () => {
                         <Text
                           style={{
                             color: Themes == 'dark' ? '#000' : '#000',
-                            width: responsiveWidth(70),
+                            width: responsiveWidth(60),
                             textAlign: 'right'
                           }}>
-                          {item?.risk_address}
+                          {item?.risk_address?item?.risk_address:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -719,7 +719,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.state}
+                          {item?.state?item?.state:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -740,7 +740,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.city}
+                          {item?.city?item?.city:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -761,7 +761,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.pincode}
+                          {item?.pincode?item?.pincode:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -782,7 +782,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.total_amount}
+                          {item?.total_amount?item?.total_amount:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -803,7 +803,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.principle}
+                          {item?.principle?item?.principle:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -824,7 +824,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.emi_amount}
+                          {item?.emi_amount?item?.emi_amount:'N/A'}
                         </Text>
                       </View>
 
@@ -846,7 +846,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.builder_name}
+                          {item?.builder_name?item?.builder_name:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -867,7 +867,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.banker_name}
+                          {item?.banker_name?item?.banker_name:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -887,10 +887,10 @@ const Processing = () => {
                           style={{
                             color: Themes == 'dark' ? '#000' : '#000',
 
-                            width: responsiveWidth(70),
+                            width: responsiveWidth(60),
                             textAlign: 'right'
                           }}>
-                          {item?.loan_center}
+                          {item?.loan_center?item?.loan_center:'N/A'}
                         </Text>
                       </View>
 
@@ -902,12 +902,13 @@ const Processing = () => {
                           marginBottom: 2,
                         }}>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000',   width: responsiveWidth(60),
+                          textAlign: 'right', }}>
                           Proparty address:
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.proparty_address}
+                          {item?.proparty_address?item?.proparty_address:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -922,7 +923,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.alternate_no}
+                          {item?.alternate_no?item?.alternate_no:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -937,7 +938,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.legal_status}
+                          {item?.legal_status?item?.legal_status:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -952,7 +953,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.create_at}
+                          {item?.create_at?item?.create_at:'N/A'}
                         </Text>
                       </View>
 
@@ -1010,7 +1011,8 @@ const Processing = () => {
                           marginBottom: 2,
                         }}>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000',   width: responsiveWidth(60),
+                          textAlign: 'right', }}>
                           Manager remark:
                         </Text>
                         <Text
@@ -1018,7 +1020,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000', width: responsiveWidth(60),
                             textAlign: 'right'
                           }}>
-                          {item?.description}
+                          {item?.description?item?.description:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -1033,7 +1035,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.location_coordinates}
+                          {item?.location_coordinates?item?.location_coordinates:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -1047,8 +1049,9 @@ const Processing = () => {
                           Home address:
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.home_address}
+                          style={{ color: Themes == 'dark' ? '#000' : '#000',   width: responsiveWidth(60),
+                          textAlign: 'right', }}>
+                          {item?.home_address?item?.home_address:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -1063,7 +1066,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.pos_amount}
+                          {item?.pos_amount?item?.pos_amount:'N/A'}
                         </Text>
                       </View>
 
@@ -1082,7 +1085,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000', width: responsiveWidth(70),
                             textAlign: 'right'
                           }}>
-                          {item?.product}
+                          {item?.product?item?.product:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -1097,7 +1100,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.process_name}
+                          {item?.process_name?item?.process_name:'N/A'}
                         </Text>
                       </View>
                     </>
@@ -1123,7 +1126,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.loan_no}
+                          {item?.loan_no?item?.loan_no:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -1138,7 +1141,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.customer_name}
+                          {item?.customer_name?item?.customer_name:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -1159,7 +1162,7 @@ const Processing = () => {
                             color: Themes == 'dark' ? '#000' : '#000',
                             textAlign: 'center',
                           }}>
-                          {item?.pincode}
+                          {item?.pincode?item?.pincode:'N/A'}
                         </Text>
                       </View>
                       <View
@@ -1174,7 +1177,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.mobile_no}
+                          {item?.mobile_no?item?.mobile_no:'N/A'}
                         </Text>
                       </View>
 
@@ -1190,7 +1193,7 @@ const Processing = () => {
                         </Text>
                         <Text
                           style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.create_at}
+                          {item?.create_at?item?.create_at:'N/A'}
                         </Text>
                       </View>
 

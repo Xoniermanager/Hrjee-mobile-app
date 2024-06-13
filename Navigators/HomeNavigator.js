@@ -65,6 +65,8 @@ import AddPRM from '../src/screens/PRM/AddPRM';
 import Main from './Main';
 import PRM from '../src/screens/PRM/PRM';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
+import ChangePassword from '../src/screens/settings/ChangePassword';
+import ResetPassword from '../src/screens/Login/ResetPassword';
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
@@ -273,6 +275,14 @@ function MyStack() {
                 name="Accessories Listings"
                 component={AccessoriesListings}
               />
+               <Stack.Screen
+                name="ChangePassword"
+                component={ChangePassword}
+              />
+                  <Stack.Screen
+                name="Enter your Pin"
+                component={ResetPassword}
+              />
             </>
           ) : (
             <>
@@ -443,6 +453,10 @@ function MyStack() {
                 }}
                 name="Forgot Password"
                 component={ForgotPassword}
+              />
+                   <Stack.Screen
+                name="Enter your Pin"
+                component={ResetPassword}
               />
             </>
           )}

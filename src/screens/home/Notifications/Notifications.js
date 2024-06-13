@@ -6,7 +6,7 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
-  useColorScheme
+  useColorScheme,
 } from 'react-native';
 import React, {useState} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -28,13 +28,10 @@ const Notifications = ({navigation}) => {
   const [empty, setempty] = useState(false);
   const [notifications, setnotifications] = useState();
 
-  useFocusEffect(
-    React.useCallback(() => {
-      get_notifications();
-    }, []),
-  );
+
 
   const get_notifications = async () => {
+    setempty(true)
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: {Token: token},
@@ -45,12 +42,15 @@ const Notifications = ({navigation}) => {
     axios
       .post(`${apiUrl}/api/notification_list`, body, config)
       .then(response => {
+        console.log('Notification.....',response?.data)
         if (response.data.status == 1) {
           try {
-            // console.log(response.data.data);
+            setempty(false)
             setnotifications(response.data.data);
-            response.data.data.length < 1 ? setempty(true) : setempty(false);
+            
+            
           } catch (e) {
+   
             Popup.show({
               type: 'Warning',
               title: 'Warning',
@@ -62,20 +62,14 @@ const Notifications = ({navigation}) => {
           
           }
         } else {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:response.data.message,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide()]
-          });
-          
+         console.log("first")
+         
         }
       })
       .catch(error => {
         
         if(error.response.status=='401')
+      
         {
           Popup.show({
             type: 'Warning',
@@ -91,7 +85,11 @@ const Notifications = ({navigation}) => {
         }
       });
   };
-
+  useFocusEffect(
+    React.useCallback(() => {
+      get_notifications();
+    }, []),
+  );
   const handleRefresh = async () => {
     // Do something to refresh the data
     get_notifications();
@@ -117,6 +115,8 @@ const Notifications = ({navigation}) => {
         </View>
       ) : (
         <View style={{flex: 1, padding: 15, paddingTop: 0}}>
+        
+        <Text>You have <Text style={{color:'#2260FF'}}>{notifications?.length} Notification</Text>  today.</Text>
           <PullToRefresh onRefresh={handleRefresh}>
             {notifications ? (
               notifications.map((i, index) => (

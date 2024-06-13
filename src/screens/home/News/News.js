@@ -154,7 +154,7 @@ const News = ({ navigation }) => {
                   source={
                     i.attacnment
                       ? { uri: i.attacnment }
-                      : require('../../../images/meta.jpeg')
+                      : require('../../../images/image.png')
                   }
                 />
                 {/* <Text style={{fontSize: 16, fontWeight: '400', marginTop: 5}}>

@@ -138,7 +138,7 @@ const NewsDetails = ({navigation, route}) => {
             source={
               newsDetail
                 ? {uri: newsDetail.filename}
-                : require('../../../images/meta.jpeg')
+                : require('../../../images/image.png')
             }
             // source={require('../../../images/meta.jpeg')}
           />

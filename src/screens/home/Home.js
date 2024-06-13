@@ -1477,7 +1477,7 @@ const Home = ({ navigation }) => {
       
       <Root>
         <PullToRefresh onRefresh={handleRefresh}>
-          <NotificationController/>
+        
           <View style={{ flex: 1 }}>
             <View
               style={{

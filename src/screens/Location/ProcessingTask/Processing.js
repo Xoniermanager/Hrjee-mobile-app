@@ -902,12 +902,12 @@ const Processing = () => {
                           marginBottom: 2,
                         }}>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000',   width: responsiveWidth(60),
-                          textAlign: 'right', }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000',  }}>
                           Proparty address:
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000', width: responsiveWidth(60),
+                          textAlign: 'right',  }}>
                           {item?.proparty_address?item?.proparty_address:'N/A'}
                         </Text>
                       </View>
@@ -1011,8 +1011,7 @@ const Processing = () => {
                           marginBottom: 2,
                         }}>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000',   width: responsiveWidth(60),
-                          textAlign: 'right', }}>
+                          style={{ color: Themes == 'dark' ? '#000' : '#000', }}>
                           Manager remark:
                         </Text>
                         <Text

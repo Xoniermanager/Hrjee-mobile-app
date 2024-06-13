@@ -112,24 +112,52 @@ function CustomDrawerContent(props) {
   }, [address])
 
   const handleGetLocation = () => {
-    const apiKey = 'AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg'; // Replace with your Google Maps API key
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
 
-    axios.get(url)
-      .then(response => {
-        if (response.data.status === 'OK') {
-          const { lat, lng } = response.data.results[0].geometry.location;
-          setManuallyLocation({ latitude: lat, longitude: lng });
-          setError(null);
-        } else {
-          setError('Location not found');
-          setManuallyLocation(null);
-        }
+
+
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 15000,
+    })
+      .then(async location => {
+        var lat = parseFloat(manuallylocation.latitude);
+        var long = parseFloat(manuallylocation.longitude);
+        setloading(true);
+        const token = await AsyncStorage.getItem('Token');
+        const config = {
+          headers: { Token: token },
+        };
+        const body = {
+          location_name: addressTitle,
+          address1: address,
+          latitude: lat,
+          longitude: long,
+        };
+        const apiKey = 'AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg'; // Replace with your Google Maps API key
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+    
+        axios.get(url)
+          .then(response => {
+            if (response.data.status === 'OK') {
+              const { lat, lng } = response.data.results[0].geometry.location;
+              setManuallyLocation({ latitude: lat, longitude: lng });
+              setError(null);
+            } else {
+              setError('Location not found');
+              setManuallyLocation(null);
+            }
+          })
+          .catch(err => {
+            setError('Error fetching location');
+            setManuallyLocation(null);
+          });
       })
-      .catch(err => {
-        setError('Error fetching location');
-        setManuallyLocation(null);
+      .catch(error => {
+        const { code, message } = error;
+        Toast.show(message)
+        setloading(false)
       });
+   
   };
 
   AsyncStorage.getItem("AddRequest").then(res => {
@@ -869,7 +897,7 @@ function CustomDrawerContent(props) {
                 i.location_id != 209 && (
                   <TouchableOpacity
                     Key={index}
-                    onPress={() =>
+                    onPress={() =>i.active_status==1?null:
                       makeActive(i.location_id, i.location_name, i.address1)
                     }
                     style={{

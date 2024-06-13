@@ -1,6 +1,6 @@
 import {Button, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import messaging from '@react-native-firebase/messaging';
+
 import {Platform} from 'react-native';
 import notifee, {AndroidImportance, EventType} from '@notifee/react-native';
 import BackgroundService from 'react-native-background-actions';

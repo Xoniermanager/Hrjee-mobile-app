@@ -136,11 +136,11 @@ const NewsDetails = ({navigation, route}) => {
           <Image
             style={styles.tinyLogo}
             source={
-              newsDetail
+              newsDetail?.filename
                 ? {uri: newsDetail.filename}
                 : require('../../../images/image.png')
             }
-            // source={require('../../../images/meta.jpeg')}
+           
           />
           <View style={{marginTop: 10}}>
           <Text style={{ color:"#000", fontWeight:"bold" }}>Publish Date</Text>

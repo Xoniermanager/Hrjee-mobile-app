@@ -329,24 +329,13 @@ function CustomDrawerContent(props) {
                   }
                 } else if (response.data.status == 2) {
                   setloading(false);
-                  Popup.show({
-                    type: 'Warning',
-                    title: 'Warning',
-                    button: true,
-                    textBody: response.data.msg,
-                    buttonText: 'Ok',
-                    callback: () => [Popup.hide()]
-                  });
+                  Toast.show(response.data.msg)
+               
     
                 } else {
-                  Popup.show({
-                    type: 'Warning',
-                    title: 'Warning',
-                    button: true,
-                    textBody: response.data.msg,
-                    buttonText: 'Ok',
-                    callback: () => [Popup.hide()]
-                  });
+                  Toast.show(response.data.msg)
+
+                
                 }
               })
               .catch(error => {
@@ -356,14 +345,7 @@ function CustomDrawerContent(props) {
           })
           .catch(error => {
             const { code, message } = error;
-            Popup.show({
-              type: 'Warning',
-              title: 'Warning',
-              button: true,
-              textBody: message,
-              buttonText: 'Ok',
-              callback: () => [Popup.hide()]
-            });
+            Toast.show(message)
             setloading(false)
           });
       }
@@ -878,7 +860,7 @@ function CustomDrawerContent(props) {
       );
     } else if (show == 'OfficeAddress') {
       return (
-        <PullToRefresh onRefresh={()=>add_address()}>
+        <PullToRefresh onRefresh={()=>get_address()}>
         <View style={{marginHorizontal: 15}}>
           
           {location

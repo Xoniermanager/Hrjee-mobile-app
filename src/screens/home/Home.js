@@ -992,7 +992,7 @@ const Home = ({ navigation }) => {
                 return;
               }
 
-              if (dis <= 500) {
+              if (dis <= 4000) {
                 const token = await AsyncStorage.getItem('Token');
                 const userData = await AsyncStorage.getItem('UserData');
                 const userInfo = JSON.parse(userData);

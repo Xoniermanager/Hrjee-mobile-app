@@ -505,7 +505,7 @@ const Home = ({ navigation }) => {
             setloading(false);
             return;
           }
-          if (dis <= 500) {
+          if (dis <= 4000) {
             const token = await AsyncStorage.getItem('Token');
             const config = {
               headers: { Token: token },
@@ -737,7 +737,7 @@ const Home = ({ navigation }) => {
                   return;
                 }
 
-                if (dis <= 500) {
+                if (dis <= 4000) {
                   const token = await AsyncStorage.getItem('Token');
                   const userData = await AsyncStorage.getItem('UserData');
                   const userInfo = JSON.parse(userData);
@@ -1477,7 +1477,7 @@ const Home = ({ navigation }) => {
       
       <Root>
         <PullToRefresh onRefresh={handleRefresh}>
-        
+        <NotificationController/>
           <View style={{ flex: 1 }}>
             <View
               style={{

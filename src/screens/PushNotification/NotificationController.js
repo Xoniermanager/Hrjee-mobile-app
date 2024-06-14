@@ -1,15 +1,12 @@
 import {Button, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-
+import messaging from '@react-native-firebase/messaging';
 import {Platform} from 'react-native';
 import notifee, {AndroidImportance, EventType} from '@notifee/react-native';
 import BackgroundService from 'react-native-background-actions';
 import {useNavigation} from '@react-navigation/native';
-import TrackPlayer from 'react-native-track-player';
 const NotificationController = () => {
   const navigation = useNavigation();
-  const [data, setData] = useState(true);
-  
   const options = {
     taskName: 'Example',
     taskTitle: 'ExampleTask title',
@@ -24,75 +21,16 @@ const NotificationController = () => {
       delay: 1000,
     },
   };
-  const setUPPlayer = async () => {
-    TrackPlayer.setupPlayer()
-  };
-  const playBackgroundSound = async () => {
-    try {
-      //add track
-      await TrackPlayer.add({
-        // id: 'background-sound',
-        url: require('./assets/yash.mp3'),
-        title: 'Background Sound',
-        artist: 'Your App',
-        artwork: require('./assets/Login/LoginIcon.png'),
-      });
-      //play track
-      await TrackPlayer.play();
-      console.log('TrackPlayer has been play');
-    } catch (error) {
-      console.error('Error playing TrackPlayer:', error);
-    }
-  };
+  
 
-
-  useEffect(() => {
-    return notifee.onForegroundEvent(({ type, detail }) => {
-      switch (type) {
-        case EventType.ACTION_PRESS:
-          handleActionPress(detail.pressAction.id);
-          break;
-        // Add more event types if needed
-      }
-    });
-  }, []);
-  const resetTrackPlayer = async () => {
-    try {
-      await TrackPlayer.reset();
-      console.log('TrackPlayer has been reset');
-    } catch (error) {
-      console.error('Error resetting TrackPlayer:', error);
-    }
-  };
-  const handleActionPress = async(actionId) => {
-    if (actionId === 'dance') {
-      await notifee.cancelNotification(notification.id);
-      resetTrackPlayer()
-      
-
-      console.log('Accept button pressed');
-      // Your logic for accept action
-    } else if (actionId === 'cry') {
-      // Handle reject action
-      await notifee.cancelNotification(notification.id);
-
-      resetTrackPlayer()
-      console.log('Reject button pressed');
-      // Your logic for reject action
-    }
-  };
-
-
-
-// this code is used push notification comming
+  // this code is used push notification comming
 
   async function onDisplayNotification(data) {
     await notifee.requestPermission({sound:true});
 
     const channelId = await notifee.createChannel({
-      id: 'default10',
-      name: 'Default Channel-10',
-      sound:'yash',
+      id: 'default1',
+      name: 'Default Channel-1',
       importance: AndroidImportance.HIGH,
     });
     console.log(channelId,'channelId')
@@ -102,18 +40,7 @@ const NotificationController = () => {
       body: data?.notification.body,
       android: {
         channelId,
-        sound:'yash',
         color: '#4caf50',
-        actions: [
-          {
-            title: '<b>Accept</b> &#128111;',
-            pressAction: {id: 'dance'},
-          },
-          {
-            title: '<p style="color: #f44336;"><b>reject</b> &#128557;</p>',
-            pressAction: {id: 'cry'},
-          },
-        ],
       },
     });
    
@@ -123,10 +50,9 @@ const NotificationController = () => {
   async function onBacckotification(data) {
     if(data?.notification.title!=undefined){
       await notifee.requestPermission({sound:true});
-
       const channelId = await notifee.createChannel({
-        id: 'default10',
-        name: 'Default Channel-10',
+        id: 'default1',
+        name: 'Default Channel-1',
         importance: AndroidImportance.HIGH,
       });
       notifee.displayNotification({
@@ -136,16 +62,7 @@ const NotificationController = () => {
         android: {
           channelId,
           color: '#4caf50',
-          actions: [
-            {
-              title: '<b>Accept</b> &#128111;',
-              pressAction: {id: 'dance'},
-            },
-            {
-              title: '<p style="color: #f44336;"><b>reject</b> &#128557;</p>',
-              pressAction: {id: 'cry'},
-            },
-          ],
+         
         },
       });
       notifee.onBackgroundEvent(async ({ type, detail }) => {
@@ -158,7 +75,7 @@ const NotificationController = () => {
             
             // Cancel the notification
             await notifee.cancelNotification(notification.id);
-            resetTrackPlayer()
+           
           }
           else if (pressAction.id === 'cry') {
             // Your custom logic here
@@ -168,36 +85,28 @@ const NotificationController = () => {
             
             // Cancel the notification
             await notifee.cancelNotification(notification.id);
-            resetTrackPlayer()
+           
           }
         }
       });
-      setTimeout(async()=>{
-        await TrackPlayer.reset();
-      },20000)
-      setUPPlayer()
-      playBackgroundSound()
+   
    
     }
     
   }
 
 
-  const sleep = time =>
+    const sleep = time =>
     new Promise(resolve => setTimeout(() => resolve(), time));
-  const veryIntensiveTask = async taskDataArguments => {
+    const veryIntensiveTask = async taskDataArguments => {
     const {delay} = taskDataArguments;
-console.log('veryIntensiveTask')
     await new Promise(async resolve => {
       for (let i = 0; BackgroundService.isRunning(); i++) {
         console.log(i);
         await sleep(delay);
-    
-      
         const unsubscribe = messaging().setBackgroundMessageHandler(
           async remoteMessage => {
           onBacckotification(remoteMessage);
-      
           },
         );
         messaging().onNotificationOpenedApp(remoteMessage => {
@@ -233,16 +142,14 @@ console.log('veryIntensiveTask')
   };
   useEffect(async () => {
     await BackgroundService.start(veryIntensiveTask, options);
-    setUPPlayer()
     const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log(remoteMessage,'remoteMessage')
       onDisplayNotification(remoteMessage);
-      console.log("app open")
     });
     messaging().onNotificationOpenedApp(remoteMessage => {
       setTimeout(async () => {
         const token = await AsyncStorage.getItem('token');
         const PRN = await AsyncStorage.getItem('PRN');
-
         if (token !== null) {
           if (PRN == 1) {
             navigation.navigate('PatientTabBar');
@@ -252,8 +159,6 @@ console.log('veryIntensiveTask')
         }
       }, 2000);
     });
-
-    // Check whether an initial notification is available
     messaging()
       .getInitialNotification()
       .then(remoteMessage => {

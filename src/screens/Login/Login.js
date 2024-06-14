@@ -13,7 +13,6 @@ import {
 import { Root, Popup } from 'popup-ui'
 import React, { useState, useContext, useEffect } from 'react';
 import GlobalStyle from '../../reusable/GlobalStyle';
-// import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../reusable/apiUrl';
 import axios from 'axios';
@@ -23,7 +22,7 @@ import Themes from '../../Theme/Theme';
 import { useNavigation } from '@react-navigation/native';
 import VersionCheck from 'react-native-version-check';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import messaging from '@react-native-firebase/messaging';
 const Login = () => {
   const theme = useColorScheme();
   const navigation = useNavigation()
@@ -43,13 +42,13 @@ const Login = () => {
 
   async function getFCMToken() {
     const token = await messaging().getToken();
-    console.log(token,'token');
+    console.log(token,'fcm token');
     setfcmtoken(token);
   }
 
-// useEffect(()=>{
-//   getFCMToken();
-// },[])
+useEffect(()=>{
+  getFCMToken();
+},[])
 
   const login = () => {
     if (email.trim() === '' || password.trim() === '') {

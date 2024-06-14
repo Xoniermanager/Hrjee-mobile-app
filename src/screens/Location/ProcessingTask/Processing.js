@@ -906,7 +906,7 @@ const Processing = () => {
                           Proparty address:
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000', width: responsiveWidth(60),
+                          style={{ color: Themes == 'dark' ? '#000' : '#000', width: responsiveWidth(59),
                           textAlign: 'right',  }}>
                           {item?.proparty_address?item?.proparty_address:'N/A'}
                         </Text>

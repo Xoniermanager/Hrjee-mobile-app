@@ -6,6 +6,7 @@ import {
     TextInput,
     ScrollView,
     TouchableOpacity,
+    useColorScheme,
   } from 'react-native';
   import React, {useEffect, useState} from 'react';
   import Entypo from 'react-native-vector-icons/Entypo';
@@ -18,6 +19,7 @@ import {
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
   
   const ResetPassword = ({route}) => {
+    const theme = useColorScheme();
   const navigation=useNavigation()
   const [resendloader, setResendLoader] = useState(false);
   const [loader,setLoader]=useState(false)
@@ -210,8 +212,9 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
           <View style={{marginVertical: 10,marginHorizontal:20}}>
          
             <TextInput
-              style={styles.input}
+              style={[styles.input,{color:theme == 'dark' ? '#000' : '#000'}]}
               placeholder="Password"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
               autoCapitalize="none"
               value={password}
               onChangeText={text =>
@@ -223,8 +226,9 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
           <View style={{marginVertical: 10,marginHorizontal:20}}>
         
             <TextInput
-              style={styles.input}
+              style={[styles.input,{   color:theme == 'dark' ? '#000' : '#000'}]}
               placeholder="Confirm Password"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
               autoCapitalize="none"
               value={confirmPassword}
               onChangeText={text =>setConfirmPassword(text)}
@@ -233,10 +237,11 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
           <View style={{marginVertical: 10,marginHorizontal:20}}>
  
             <TextInput
-              style={styles.input}
+              style={[styles.input,{   color:theme == 'dark' ? '#000' : '#000'}]}
               placeholder="OTP"
               autoCapitalize="none"
               keyboardType='number-pad'
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
               maxLength={4}
               value={otp}
               onChangeText={text =>
@@ -323,6 +328,7 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
       padding: 10,
       borderRadius:20,
       borderColor: '#000',
+   
     },
   });
   

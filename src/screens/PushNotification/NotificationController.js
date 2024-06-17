@@ -29,9 +29,10 @@ const NotificationController = () => {
     await notifee.requestPermission({sound:true});
 
     const channelId = await notifee.createChannel({
-      id: 'default1',
-      name: 'Default Channel-1',
+      id: 'default2',
+      name: 'Default Channel-2',
       importance: AndroidImportance.HIGH,
+      sound:'default'
     });
     console.log(channelId,'channelId')
     notifee.displayNotification({
@@ -41,6 +42,7 @@ const NotificationController = () => {
       android: {
         channelId,
         color: '#4caf50',
+        sound:'default'
       },
     });
    
@@ -51,8 +53,8 @@ const NotificationController = () => {
     if(data?.notification.title!=undefined){
       await notifee.requestPermission({sound:true});
       const channelId = await notifee.createChannel({
-        id: 'default1',
-        name: 'Default Channel-1',
+        id: 'default2',
+        name: 'Default Channel-2',
         importance: AndroidImportance.HIGH,
       });
       notifee.displayNotification({

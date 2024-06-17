@@ -193,3 +193,43 @@ const styles = StyleSheet.create({});
 // };
 
 // export default App;
+// import React from 'react';
+// import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+// import LinearGradient from 'react-native-linear-gradient';
+
+
+// const App = () => {
+//   return (
+//     <TouchableOpacity style={styles.buttonContainer}>
+//     <LinearGradient
+//       colors={['#EC6192', '#FDB76D']} // Colors for the gradient
+//       start={{ x: 0, y: 0 }}
+//       end={{ x: 1, y: 0 }}
+//       style={styles.gradient}
+//     >
+//       <Text style={styles.text}>Log In</Text>
+//     </LinearGradient>
+//   </TouchableOpacity>
+//   )
+// }
+
+// export default App
+
+// const styles = StyleSheet.create({
+//   buttonContainer: {
+//     borderRadius: 20,
+//     overflow: 'hidden',
+//     width: '80%', // Adjust as needed
+//     alignSelf: 'center', // Centers the button on the screen
+//   },
+//   gradient: {
+//     paddingVertical: 15,
+//     paddingHorizontal: 45,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   text: {
+//     color: 'white',
+//     fontSize: 16,
+//   },
+// })

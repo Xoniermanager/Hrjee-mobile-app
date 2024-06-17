@@ -24,7 +24,7 @@ import { Root, Popup } from 'popup-ui'
 
 const Notifications = ({navigation}) => {
   const theme = useColorScheme();
-
+ 
   const [empty, setempty] = useState(false);
   const [notifications, setnotifications] = useState();
 
@@ -116,7 +116,7 @@ const Notifications = ({navigation}) => {
       ) : (
         <View style={{flex: 1, padding: 15, paddingTop: 0}}>
         
-        <Text>You have <Text style={{color:'#2260FF'}}>{notifications?.length} Notification</Text>  today.</Text>
+        <Text style={{color:theme == 'dark' ? '#000' : '#000'}}>You have <Text style={{color:'#2260FF'}}>{notifications?.length} Notification</Text>  today.</Text>
           <PullToRefresh onRefresh={handleRefresh}>
             {notifications ? (
               notifications.map((i, index) => (

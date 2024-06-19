@@ -150,14 +150,14 @@ const Pending = ({navigation}) => {
   const onSearchList = async prev => {
     const filtered = data?.filter(
       item =>
-        item.pincode.toLowerCase().includes(prev.toLowerCase()) ||
-        item.city.toLowerCase().includes(prev.toLowerCase()) ||
-        item.state.toLowerCase().includes(prev.toLowerCase()) ||
-        item.customer_name.toLowerCase().includes(prev.toLowerCase()) ||
-        item.loan_no.toLowerCase().includes(prev.toLowerCase()),
+        item.pincode?.toLowerCase().includes(prev.toLowerCase()) ||
+        item.city?.toLowerCase().includes(prev.toLowerCase()) ||
+        item.state?.toLowerCase().includes(prev.toLowerCase()) ||
+        item.customer_name?.toLowerCase().includes(prev.toLowerCase()) ||
+        item.loan_no?.toLowerCase().includes(prev.toLowerCase()),
     );
     if (prev === '') {
-      setFilterData('');
+      setFilterData(null);
       return setUserdata(data);
     }
     setFilterData(filtered);
@@ -210,7 +210,9 @@ const Pending = ({navigation}) => {
                 </Text>
               </View>
             )}
-
+ {filterData?.length!=0?null: <View style={{ justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
+            <Text style={{ marginTop: responsiveHeight(30), textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
+          </View>}
             <FlatList
               data={filterData ? filterData : data}
               renderItem={({item, index}) => (
@@ -817,20 +819,27 @@ const Pending = ({navigation}) => {
                           </Text>
                         </View>
                         <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            Mobile Number:
-                          </Text>
-                          <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.mobile_no?item?.mobile_no:'N/A'}
-                          </Text>
-                        </View>
+                          Visit Address:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(60),
+                            textAlign: 'right'
+                          }}>
+                          {item?.risk_address?item?.risk_address:'N/A'}
+                        </Text>
+                      </View>
 
                         <View
                           style={{

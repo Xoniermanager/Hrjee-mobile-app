@@ -233,3 +233,114 @@ const styles = StyleSheet.create({});
 //     fontSize: 16,
 //   },
 // })
+
+// import React, { useState } from 'react';
+// import { View, Button, Alert } from 'react-native';
+// import DocumentPicker from 'react-native-document-picker';
+// import { PDFDocument } from 'pdf-lib';
+// import ExcelJS from 'exceljs';
+// import RNFS from 'react-native-fs';
+// import FilePickerManager from 'react-native-file-picker';
+
+// const App = () => {
+//   const [pdfPath, setPdfPath] = useState(null);
+
+//   const handleUpload = async () => {
+//     try {
+//       const res = await DocumentPicker.pick({
+//         type: [DocumentPicker.types.pdf],
+//       });
+//       setPdfPath(res[0].uri);
+//     } catch (err) {
+//       Alert.alert('Error', 'Failed to pick a PDF file');
+//     }
+//   };
+
+//   const convertPDFtoExcel = async () => {
+//     if (!pdfPath) {
+//       Alert.alert('Error', 'Please upload a PDF file first');
+//       return;
+//     }
+
+//     try {
+//       // Read the PDF file as base64
+//       const pdfBytes = await RNFS.readFile(pdfPath, 'base64');
+      
+//       // Load the PDF document
+//       const pdfDoc = await PDFDocument.load(pdfBytes);
+      
+//       // Initialize an array to store text content
+//       const textContent = [];
+      
+//       // Iterate through each page and extract text
+//       const numPages = pdfDoc.getPageCount();
+//       for (let i = 0; i < numPages; i++) {
+//           const pdfPage = await pdfDoc.getPage(i);
+//           console.log(pdfPage,'pdfPage')
+//           const pageText = await pdfPage.text;
+//           textContent.push(pageText);
+//       }
+      
+//       // Initialize Excel workbook and worksheet
+//       const workbook = new ExcelJS.Workbook();
+//       const worksheet = workbook.addWorksheet('Sheet1');
+      
+//       // Set headers and add rows to the worksheet
+//       worksheet.columns = [{ header: 'Content', key: 'content' }];
+//       textContent.forEach(text => {
+//           worksheet.addRow({ content: text });
+//       });
+      
+//       // Save the workbook to a file
+//       const excelFilePath = `${RNFS.DocumentDirectoryPath}/output.xlsx`;
+//       await workbook.xlsx.writeFile(excelFilePath);
+      
+//       // Show success message
+//       Alert.alert('Success', 'PDF converted to Excel successfully');
+//   } catch (err) {
+//       // Show error message if conversion fails
+//       Alert.alert('Error', 'Failed to convert PDF to Excel');
+//       console.error(err);
+//   }
+//   };
+
+//   return (
+//     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+//       <Button title="Upload PDF" onPress={handleUpload} />
+//       <Button title="Convert to Excel" onPress={convertPDFtoExcel} />
+//     </View>
+//   );
+// };
+
+// export default App;
+
+
+
+
+
+// /////a nkur
+
+
+// import { StyleSheet, Text, View } from 'react-native'
+// import React, { useState } from 'react'
+// import UploadPDF from './UploadPDF'
+// import ExportExcel from './ExportExcel'
+
+// const App = () => {
+//   const [dataToExport, setDataToExport] = useState([])
+
+//   const handleUpload = (file) => {
+//     // Handle uploaded PDF (e.g., extract data for export)
+//     setDataToExport(processDataFromPDF(file));
+//   };
+//   return (
+//     <View>
+//      <UploadPDF onUpload={handleUpload} />
+//       <ExportExcel data={dataToExport} />
+//     </View>
+//   )
+// }
+
+// export default App
+
+// const styles = StyleSheet.create({})

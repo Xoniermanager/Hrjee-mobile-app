@@ -189,7 +189,7 @@ const Processing = () => {
     let config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://hrjee.xonierconnect.com/SecondPhaseApi/disposition_codes',
+      url: `${apiUrl}/SecondPhaseApi/disposition_codes`,
       headers: {
         'token': token,
         'Cookie': 'ci_session=ea0e3f97bd97f4488613b1397707387c3c8c9c43'
@@ -198,11 +198,11 @@ const Processing = () => {
 
     axios.request(config)
       .then((response) => {
-
+          console.log(response?.data?.data,'response?.data?.data')
         setDisposition(response?.data?.data)
       })
       .catch((error) => {
-        console.log(error.response.data.msg, 'yashu');
+        console.log('code isue----',error.response.data.msg);
       });
 
   };
@@ -265,11 +265,11 @@ const Processing = () => {
   };
   const onSearchList = async (prev) => {
     const filtered = data?.filter(item =>
-      item.pincode.toLowerCase().includes(prev.toLowerCase()) || item.city.toLowerCase().includes(prev.toLowerCase()) || item.state.toLowerCase().includes(prev.toLowerCase()) || item.customer_name.toLowerCase().includes(prev.toLowerCase()) || item.loan_no.toLowerCase().includes(prev.toLowerCase()),
-
+      // console.log(item.customer_name,'item.pincode')
+      item.pincode?.toLowerCase().includes(prev.toLowerCase()) || item.city?.toLowerCase().includes(prev.toLowerCase()) || item.state?.toLowerCase().includes(prev.toLowerCase()) || item.customer_name?.toLowerCase().includes(prev.toLowerCase()) || item.loan_no?.toLowerCase().includes(prev.toLowerCase()),
     );
     if (prev === '') {
-      setFilterData('')
+      setFilterData(null)
       return setUserdata(data);
     }
     setFilterData(filtered);
@@ -284,7 +284,7 @@ const Processing = () => {
         longitude: coordinates?.lng,
       },
     );
-    if (dis <= 500) {
+    if (dis <= 4000) {
       if (Platform.OS == 'android') {
         try {
 
@@ -325,7 +325,7 @@ const Processing = () => {
                 };
                 data.append('selfie_image', selfie_image);
                 data.append('lat_long_address', address);
-
+                  console.log('form data',data)
                 if (remark.trim() === '') {
                   setRemarkError('Please enter some text');
 
@@ -333,6 +333,7 @@ const Processing = () => {
                   setPhotoError('Please Upload the Image');
                 }
                 else {
+                  console.log(data,'123456789')
                   axios
                     .post(`${apiUrl}/SecondPhaseApi/update_task_status`, data, config)
                     .then(response => {
@@ -349,7 +350,7 @@ const Processing = () => {
 
                       }
                       else {
-                        // console.log(response?.data, 'yashu')
+                        console.log(response?.data, 'yashu')
                         setModalVisible1(false)
                         Popup.show({
                           type: 'Warning',
@@ -552,7 +553,7 @@ const Processing = () => {
 
 
   };
-
+console.log(filterData,'data')
 
 
   return (
@@ -574,7 +575,9 @@ const Processing = () => {
             <Text style={{ marginTop: responsiveHeight(30), textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
           </View>
         }
-
+      {filterData?.length!=0?null: <View style={{ justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
+            <Text style={{ marginTop: responsiveHeight(30), textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
+          </View>}
         <FlatList
           data={filterData ? filterData : data}
           renderItem={({ item, index }) =>
@@ -582,7 +585,7 @@ const Processing = () => {
               <View activeOpacity={0.2} style={styles.maincard}>
 
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignContent: "center", alignItems: "center" }}>
-                  <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1), setID(item), getCoordinates(item?.risk_address), getAddress()]}>
+                  <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1), setID(item),getCoordinates(item?.risk_address),getAddress()]}>
                     <Text style={{ color: Themes == 'dark' ? '#fff' : '#fff', fontWeight: "bold", fontSize: 16, padding: 5 }}>Update</Text>
                   </TouchableOpacity>
 
@@ -1171,12 +1174,19 @@ const Processing = () => {
                           marginBottom: 2,
                         }}>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          Mobile Number:
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Visit Address:
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.mobile_no?item?.mobile_no:'N/A'}
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(60),
+                            textAlign: 'right'
+                          }}>
+                          {item?.risk_address?item?.risk_address:'N/A'}
                         </Text>
                       </View>
 

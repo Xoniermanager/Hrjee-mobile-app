@@ -37,6 +37,8 @@ const AddPRM = ({ navigation }) => {
   const route = useRoute();
   // Access params from the route
   const get_data  = route?.params?.item;
+  const {category_name}=route?.params?.item;
+
   const theme = useColorScheme(); 
   const [value, setValue] = useState(null);
   const [loading, setloading] = useState(false);
@@ -110,7 +112,7 @@ const currentDate=new Date()
       });
   }
 
-  
+  console.log(prmcategory_id,'prmcategory_id')
 
   const Post_prm_category = async (get_data) => {
     setloading(true)
@@ -124,11 +126,12 @@ const currentDate=new Date()
     if (get_data) {
     let data = new FormData();
     data.append('prm_request_id', get_data?.id);
-    data.append('prmcategory_id', prmcategory_id);
+    data.append('prmcategory_id', prmcategory_id==undefined?category_name:prmcategory_id);
     data.append('remark', reason);
     data.append('amount', amount);
     data.append('payment_date', startdate.toISOString().split('T')[0]);
     data.append('image', fileResponse[0]);
+    console.log(data,'category')
     axios
       .post(`${apiUrl}/SecondPhaseApi/update_prm_request`, data, config)
       .then(response => {

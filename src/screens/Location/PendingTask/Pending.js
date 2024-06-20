@@ -74,6 +74,7 @@ const Pending = ({navigation}) => {
             ],
           });
         } else if (error.response.status == '400') {
+          console.log(first)
           Popup.show({
             type: 'Warning',
             title: 'Warning',

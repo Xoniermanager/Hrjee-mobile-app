@@ -198,7 +198,6 @@ const Processing = () => {
 
     axios.request(config)
       .then((response) => {
-          console.log(response?.data?.data,'response?.data?.data')
         setDisposition(response?.data?.data)
       })
       .catch((error) => {

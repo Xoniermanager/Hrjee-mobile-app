@@ -128,7 +128,7 @@ const currentDate=new Date()
     if (get_data) {
     let data = new FormData();
     data.append('prm_request_id',get_data?.id);
-    data.append('prmcategory_id',get_data?.prmcategory_id);
+    data.append('prmcategory_id',prmcategory_id?prmcategory_id:get_data?.prmcategory_id);
     data.append('remark', reason);
     data.append('amount', amount);
     data.append('payment_date', startdate.toISOString().split('T')[0]);

@@ -20,7 +20,6 @@ import {
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
 import { Root, Popup } from 'popup-ui'
-
 import Themes from '../../Theme/Theme';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,15 +28,12 @@ import axios from 'axios';
 import Reload from '../../../Reload';
 import DocumentPicker from 'react-native-document-picker'
 import { useRoute } from '@react-navigation/native';
-import { lightGreen100 } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
-import { invalid } from 'moment';
 
 const AddPRM = ({ navigation }) => {
 
   const route = useRoute();
   // Access params from the route
   const get_data  = route?.params?.item;
-  const {category_name}=route?.params?.item;
 
   const theme = useColorScheme(); 
   const [value, setValue] = useState(null);
@@ -126,7 +122,7 @@ const currentDate=new Date()
     if (get_data) {
     let data = new FormData();
     data.append('prm_request_id', get_data?.id);
-    data.append('prmcategory_id', prmcategory_id==undefined?category_name:prmcategory_id);
+    data.append('prmcategory_id', get_data?.prmcategory_id);
     data.append('remark', reason);
     data.append('amount', amount);
     data.append('payment_date', startdate.toISOString().split('T')[0]);

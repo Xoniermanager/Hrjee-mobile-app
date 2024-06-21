@@ -193,154 +193,54 @@ const styles = StyleSheet.create({});
 // };
 
 // export default App;
-// import React from 'react';
-// import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient';
-
-
-// const App = () => {
-//   return (
-//     <TouchableOpacity style={styles.buttonContainer}>
-//     <LinearGradient
-//       colors={['#EC6192', '#FDB76D']} // Colors for the gradient
-//       start={{ x: 0, y: 0 }}
-//       end={{ x: 1, y: 0 }}
-//       style={styles.gradient}
-//     >
-//       <Text style={styles.text}>Log In</Text>
-//     </LinearGradient>
-//   </TouchableOpacity>
-//   )
-// }
-
-// export default App
-
-// const styles = StyleSheet.create({
-//   buttonContainer: {
-//     borderRadius: 20,
-//     overflow: 'hidden',
-//     width: '80%', // Adjust as needed
-//     alignSelf: 'center', // Centers the button on the screen
-//   },
-//   gradient: {
-//     paddingVertical: 15,
-//     paddingHorizontal: 45,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   text: {
-//     color: 'white',
-//     fontSize: 16,
-//   },
-// })
-
-// import React, { useState } from 'react';
-// import { View, Button, Alert } from 'react-native';
-// import DocumentPicker from 'react-native-document-picker';
-// import { PDFDocument } from 'pdf-lib';
-// import ExcelJS from 'exceljs';
-// import RNFS from 'react-native-fs';
-// import FilePickerManager from 'react-native-file-picker';
-
-// const App = () => {
-//   const [pdfPath, setPdfPath] = useState(null);
-
-//   const handleUpload = async () => {
-//     try {
-//       const res = await DocumentPicker.pick({
-//         type: [DocumentPicker.types.pdf],
-//       });
-//       setPdfPath(res[0].uri);
-//     } catch (err) {
-//       Alert.alert('Error', 'Failed to pick a PDF file');
-//     }
-//   };
-
-//   const convertPDFtoExcel = async () => {
-//     if (!pdfPath) {
-//       Alert.alert('Error', 'Please upload a PDF file first');
-//       return;
-//     }
-
-//     try {
-//       // Read the PDF file as base64
-//       const pdfBytes = await RNFS.readFile(pdfPath, 'base64');
-      
-//       // Load the PDF document
-//       const pdfDoc = await PDFDocument.load(pdfBytes);
-      
-//       // Initialize an array to store text content
-//       const textContent = [];
-      
-//       // Iterate through each page and extract text
-//       const numPages = pdfDoc.getPageCount();
-//       for (let i = 0; i < numPages; i++) {
-//           const pdfPage = await pdfDoc.getPage(i);
-//           console.log(pdfPage,'pdfPage')
-//           const pageText = await pdfPage.text;
-//           textContent.push(pageText);
-//       }
-      
-//       // Initialize Excel workbook and worksheet
-//       const workbook = new ExcelJS.Workbook();
-//       const worksheet = workbook.addWorksheet('Sheet1');
-      
-//       // Set headers and add rows to the worksheet
-//       worksheet.columns = [{ header: 'Content', key: 'content' }];
-//       textContent.forEach(text => {
-//           worksheet.addRow({ content: text });
-//       });
-      
-//       // Save the workbook to a file
-//       const excelFilePath = `${RNFS.DocumentDirectoryPath}/output.xlsx`;
-//       await workbook.xlsx.writeFile(excelFilePath);
-      
-//       // Show success message
-//       Alert.alert('Success', 'PDF converted to Excel successfully');
-//   } catch (err) {
-//       // Show error message if conversion fails
-//       Alert.alert('Error', 'Failed to convert PDF to Excel');
-//       console.error(err);
-//   }
-//   };
-
-//   return (
-//     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-//       <Button title="Upload PDF" onPress={handleUpload} />
-//       <Button title="Convert to Excel" onPress={convertPDFtoExcel} />
-//     </View>
-//   );
-// };
-
-// export default App;
 
 
 
 
 
 // /////a nkur
-
-
-// import { StyleSheet, Text, View } from 'react-native'
-// import React, { useState } from 'react'
-// import UploadPDF from './UploadPDF'
-// import ExportExcel from './ExportExcel'
+// import React from 'react';
+// import { StyleSheet, View } from 'react-native';
+// import MapView, { Marker } from 'react-native-maps';
+// import MapViewDirections from 'react-native-maps-directions';
 
 // const App = () => {
-//   const [dataToExport, setDataToExport] = useState([])
+//   const origin = { latitude: 28.6252665, longitude: 77.2960197 }; // Origin coordinates
+//   const destination = { latitude: 28.5704429, longitude: 77.239417}; // Destination coordinates
 
-//   const handleUpload = (file) => {
-//     // Handle uploaded PDF (e.g., extract data for export)
-//     setDataToExport(processDataFromPDF(file));
-//   };
 //   return (
-//     <View>
-//      <UploadPDF onUpload={handleUpload} />
-//       <ExportExcel data={dataToExport} />
+//     <View style={styles.container}>
+//       <MapView
+//         style={styles.map}
+//         initialRegion={{
+//           latitude: (origin.latitude + destination.latitude) / 2,
+//           longitude: (origin.longitude + destination.longitude) / 2,
+//           latitudeDelta: Math.abs(origin.latitude - destination.latitude) * 2,
+//           longitudeDelta: Math.abs(origin.longitude - destination.longitude) * 2,
+//         }}
+//       >
+//         <Marker coordinate={origin} title="Origin" />
+//         <Marker coordinate={destination} title="Destination" />
+//         <MapViewDirections
+//           origin={origin}
+//           destination={destination}
+//           apikey="AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg" // Replace with your API key
+//           strokeWidth={3}
+//           strokeColor="blue"
+//         />
+//       </MapView>
 //     </View>
-//   )
-// }
+//   );
+// };
 
-// export default App
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//   },
+//   map: {
+//     flex: 1,
+//   },
+// });
 
-// const styles = StyleSheet.create({})
+// export default App;
+

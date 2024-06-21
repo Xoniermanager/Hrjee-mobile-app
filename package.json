@@ -12,6 +12,7 @@
   "dependencies": {
     "@gorhom/bottom-sheet": "^4.6.1",
     "@gurukumparan/react-native-android-inapp-updates": "^2.0.2",
+    "@mapbox/polyline": "^1.2.1",
     "@notifee/react-native": "^7.8.2",
     "@react-native-async-storage/async-storage": "^1.22.0",
     "@react-native-community/geolocation": "^3.2.1",
@@ -47,6 +48,8 @@
     "react-native-image-picker": "^7.1.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-linear-gradient": "^2.8.3",
+    "react-native-maps": "^0.27.1",
+    "react-native-maps-directions": "^1.9.0",
     "react-native-modal": "^13.0.1",
     "react-native-onboarding-swiper": "^1.2.0",
     "react-native-pager-view": "^6.3.0",

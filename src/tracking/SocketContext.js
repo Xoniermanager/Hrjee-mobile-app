@@ -21,6 +21,7 @@ const SocketProvider = ({ children }) => {
 
     const sendLocation = (location) => {
         socket.emit('sendLocation', location);
+        console.log(location,'location')
     };
 
     // const requestLocationData = (userId) => {

@@ -67,6 +67,10 @@ import PRM from '../src/screens/PRM/PRM';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
 import ChangePassword from '../src/screens/settings/ChangePassword';
 import ResetPassword from '../src/screens/Login/ResetPassword';
+import Maps from '../src/screens/Maps/Maps';
+import UserList from '../src/screens/Maps/UserList';
+import GetLocation from 'react-native-get-location';
+import GetLocation_id from '../src/screens/Maps/GetLocation';
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
@@ -283,7 +287,16 @@ function MyStack() {
                 name="Enter your Pin"
                 component={ResetPassword}
               />
+                  <Stack.Screen
+                name="Maps"
+                component={Maps}
+              />
+                   <Stack.Screen
+                name="UserList"
+                component={UserList}
+              />
             </>
+            
           ) : (
             <>
             
@@ -457,6 +470,19 @@ function MyStack() {
                    <Stack.Screen
                 name="Enter your Pin"
                 component={ResetPassword}
+              />
+              
+              <Stack.Screen
+                name="Maps"
+                component={Maps}
+              />
+                  <Stack.Screen
+                name="UserList"
+                component={UserList}
+              />
+                <Stack.Screen
+                name="GetLocation_id"
+                component={GetLocation_id}
               />
             </>
           )}

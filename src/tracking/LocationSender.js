@@ -8,7 +8,7 @@ const LocationSender = () => {
     const { sendLocation } = useContext(SocketContext);
     
     const [previousPosition, setPreviousPosition] = useState(null);
-    const distanceThreshold = 0.1; // Distance threshold in kilometers (e.g., 100 meters)
+    const distanceThreshold = 0.001; // Distance threshold in kilometers (e.g., 100 meters)
 
     const sendLocationUpdate = (position, userId=1) => {
         const locationData = {

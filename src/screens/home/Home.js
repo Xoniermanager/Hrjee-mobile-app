@@ -27,6 +27,8 @@ import { Root, Popup } from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
+
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -91,6 +93,7 @@ const Home = ({ navigation }) => {
   });
 
   const [locationOut, setlocationOut] = useState(null);
+
   const [timerOn, settimerOn] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [apirecentlog, setGetApiRecenLog] = useState([]);
@@ -599,7 +602,7 @@ const Home = ({ navigation }) => {
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
 
-              /* 
+      
               // { Live tracking starting}
                             sendLocation({
                               userId: userInfo?.userid,
@@ -609,7 +612,7 @@ const Home = ({ navigation }) => {
                               },
                             });
                             // { Live tracking ending }
-              */
+             
 
 
               setcurrentLocation({
@@ -854,7 +857,7 @@ const Home = ({ navigation }) => {
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
 
-            /* 
+            
                         // { Live tracking starting}
             sendLocation({
               userId: userInfo?.userid,
@@ -864,7 +867,7 @@ const Home = ({ navigation }) => {
               },
             });
             // { Live tracking starting}
-            */
+            
 
             setcurrentLocation({
               long: long,
@@ -1084,7 +1087,7 @@ const Home = ({ navigation }) => {
     }
   };
 
-  /*
+
   
     //  This is used send live tracking location socketContext page Starting ..................................
   
@@ -1218,7 +1221,7 @@ const Home = ({ navigation }) => {
   
     //  This is used send live tracking location socketContext page Ending ..................................
   
-  */
+  
 
   const renderItem = ({ item }) =>
     // console.log("A.......", item)
@@ -1510,6 +1513,18 @@ const Home = ({ navigation }) => {
                   Hi,{user?.FULL_NAME}!
                 </Text>
               </View>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('UserList')}
+                style={{marginLeft:responsiveWidth(18)}}>
+                <Entypo
+                  name="location"
+                  style={{
+                    fontSize: 35,
+                    color: '#000',
+                    marginRight: 10,
+                  }}
+                />
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 style={{}}>

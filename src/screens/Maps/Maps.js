@@ -19,7 +19,7 @@ const Maps = ({route}) => {
         setWaypoints([...waypoints, locations.slice(1, locations.length - 1).map(point => point.coordinates)])
         setCount(prev => prev + 1);
       }
-    }, 3000);
+    }, 4000);
 
   }, [locations]);
 

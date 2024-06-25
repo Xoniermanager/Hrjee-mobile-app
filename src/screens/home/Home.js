@@ -80,6 +80,7 @@ const Home = ({ navigation }) => {
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
   const [show, setShow] = useState(true);
+  const [radius,setRadius]=useState()
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -139,6 +140,33 @@ const Home = ({ navigation }) => {
       : d.getHours() + ':' + d.getMinutes();
 
   const [menuAccessData, setMenuAccessData] = useState();
+  const [punchin_radius,setPunchin_radius]=useState()
+
+        const ManuAccessdetails=async()=>{
+          const token=await AsyncStorage.getItem('Token')
+          let config = {
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: 'https://app.hrjee.com/SecondPhaseApi/employee_config_details',
+            headers: { 
+              'Token': token, 
+              'Cookie': 'ci_session=fu0slk2fsljjjsm9s7m28i9pugh0f2ik'
+            }
+          };
+          
+          axios.request(config)
+          .then((response) => {
+            setMenuAccessData(response?.data?.menu_access)
+            setPunchin_radius(response?.data)
+            setRadius(response?.data?.config?.punchin_radius)
+            console.log(JSON.stringify(response.data));
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+          
+
+        }
 
   // console.log("menuAccessData", menuAccessData)
   // AsyncStorage.getItem('menu').then(res => {
@@ -178,6 +206,7 @@ const Home = ({ navigation }) => {
       check_punchIn();
       ProfileDetails();
       get_month_logs();
+      ManuAccessdetails()
     }, []),
   );
 
@@ -187,7 +216,9 @@ const Home = ({ navigation }) => {
     check_punchIn();
     get_month_logs();
     ProfileDetails();
+    ManuAccessdetails()
   };
+  console.log(radius,'yahsuhdjhjgdh')
 
   const getActiveLocation = async () => {
     const token = await AsyncStorage.getItem('Token');
@@ -411,7 +442,7 @@ const Home = ({ navigation }) => {
           },
         );
 
-        if (company_id == 56 || company_id == 89 || company_id == 92) {
+        if (radius<=0) {
           const token = await AsyncStorage.getItem('Token');
           const config = {
             headers: { Token: token },
@@ -505,7 +536,7 @@ const Home = ({ navigation }) => {
             setloading(false);
             return;
           }
-          if (dis <= 4000) {
+          if (dis <= radius) {
             const token = await AsyncStorage.getItem('Token');
             const config = {
               headers: { Token: token },
@@ -625,7 +656,7 @@ const Home = ({ navigation }) => {
                 },
               );
 
-              if (company_id == 56 || company_id == 89 || company_id == 92) {
+              if (radius<=0) {
                 const token = await AsyncStorage.getItem('Token');
                 const userData = await AsyncStorage.getItem('UserData');
                 const userInfo = JSON.parse(userData);
@@ -737,7 +768,7 @@ const Home = ({ navigation }) => {
                   return;
                 }
 
-                if (dis <= 4000) {
+                if (dis <= radius) {
                   const token = await AsyncStorage.getItem('Token');
                   const userData = await AsyncStorage.getItem('UserData');
                   const userInfo = JSON.parse(userData);
@@ -878,7 +909,7 @@ const Home = ({ navigation }) => {
               },
             );
 
-            if (company_id == 56 || company_id == 89 || company_id == 92) {
+            if (radius<=0) {
               const token = await AsyncStorage.getItem('Token');
               const userData = await AsyncStorage.getItem('UserData');
               const userInfo = JSON.parse(userData);
@@ -991,7 +1022,7 @@ const Home = ({ navigation }) => {
                 return;
               }
 
-              if (dis <= 4000) {
+              if (dis <= radius) {
                 const token = await AsyncStorage.getItem('Token');
                 const userData = await AsyncStorage.getItem('UserData');
                 const userInfo = JSON.parse(userData);
@@ -1505,7 +1536,7 @@ const Home = ({ navigation }) => {
                   Hi,{user?.FULL_NAME}!
                 </Text>
               </View>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() => navigation.navigate('UserList')}
                 style={{marginLeft:responsiveWidth(18)}}>
                 <Entypo
@@ -1516,7 +1547,7 @@ const Home = ({ navigation }) => {
                     marginRight: 10,
                   }}
                 />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 style={{}}>

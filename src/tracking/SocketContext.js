@@ -6,6 +6,7 @@ const SocketContext = createContext();
 const socket = io('https://app.hrjee.com:6370');
 
 const SocketProvider = ({ children }) => {
+    const [contextState,setContextState]=useState()
     // const [locationData, setLocationData] = useState({});
 
     // useEffect(() => {
@@ -29,7 +30,7 @@ const SocketProvider = ({ children }) => {
     // };
 
     return (
-        <SocketContext.Provider value={{ sendLocation }}>
+        <SocketContext.Provider value={{ sendLocation ,contextState,setContextState}}>
             {children}
         </SocketContext.Provider>
     );

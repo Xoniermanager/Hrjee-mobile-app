@@ -289,7 +289,6 @@ const Home = ({ navigation }) => {
     const token = await AsyncStorage.getItem('Token');
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
-    console.log(token, 'token');
     setuser(JSON.parse(userData));
     // setlocation(JSON.parse(UserLocation));
     const config = {
@@ -425,7 +424,6 @@ const Home = ({ navigation }) => {
             latitude: lat,
             longitude: long,
           };
-          console.log('body=>', body);
           axios
             .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
             .then(function (response) {
@@ -454,7 +452,6 @@ const Home = ({ navigation }) => {
               }
             });
         } else {
-          //console.log('dis=-----',dis);
           if (lat == null || lat == '') {
             Popup.show({
               type: 'Warning',
@@ -755,7 +752,6 @@ const Home = ({ navigation }) => {
                     longitude: long,
                     login_type: 'mobile',
                   };
-                  console.log('logitute-----', body);
                   axios
                     .post(
                       `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -1141,26 +1137,15 @@ const Home = ({ navigation }) => {
     const [previousPosition, setPreviousPosition] = useState(null);
   
     const distanceThreshold = 0.0000;
-  
+ 
     const sendLocationUpdate = async (position, user_id) => {
-      // const locationData = {
-      //   latitude: position.coords.latitude,
-      //   longitude: position.coords.longitude,
-      // };
-  
-      // console.log('send data', { user_id, location: locationData })
-  
-      alert(JSON.stringify(latitude, longitude))
-      alert(JSON.stringify(user_id))
-  
-      // sendLocation({ user_id, location: locationData });
-  
-  
+      console.log(user_id,'user_id')
       sendLocation({
         userId: user_id,
+        
         location: {
-          longitude: latitude,
-          latitude: longitude,
+          longitude: position?.coords?.longitude,
+          latitude:position?.coords?.latitude,
         },
       });
   
@@ -1201,6 +1186,7 @@ const Home = ({ navigation }) => {
               sendLocationUpdate(position, user_id);
               setPreviousPosition(currentPosition);
             }
+
           } else {
             sendLocationUpdate(position, user_id);
             setPreviousPosition(currentPosition);
@@ -1210,7 +1196,7 @@ const Home = ({ navigation }) => {
         error => console.log(error),
         { enableHighAccuracy: true, distanceFilter: 1, interval: 5000 },
       );
-  
+          console.log(watchId,'watchId')
       // Clean up the watchPosition when the component unmounts
       return () => Geolocation.clearWatch(watchId);
     }
@@ -1287,7 +1273,7 @@ const Home = ({ navigation }) => {
       })
       .catch(error => {
         if (error.response.status == '401') {
-          console.log('first');
+        
         }
       });
   };
@@ -1450,19 +1436,19 @@ const Home = ({ navigation }) => {
 
     var startOfWeek = moment().startOf('month').toDate();
     var endOfWeek = moment().endOf('month').toDate();
-    console.log(startOfWeek, endOfWeek, 'endOfWeek');
+   
     const body = {
       start_date: startOfWeek,
       end_date: endOfWeek,
     };
-    console.log(body, 'body');
+
     axios
       .post(`${apiUrl}/Api/attendance`, body, config)
       .then(response => {
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log(response.data.content, 'Month logs');
+           
             setrecentLogs(response.data.content);
           } catch (e) { }
         } else {
@@ -1482,6 +1468,12 @@ const Home = ({ navigation }) => {
         <PullToRefresh onRefresh={handleRefresh}>
         <NotificationController/>
           <View style={{ flex: 1 }}>
+            {/* <Text>{currentPosition?.coords?.latitude}</Text> 
+            <Text>{currentPosition?.coords?.longitude}</Text> 
+            
+            <Text>previousPosition</Text>
+            <Text>{previousPosition?.coords?.latitude}</Text> 
+            <Text>{previousPosition?.coords?.longitude}</Text>  */}
             <View
               style={{
                 flexDirection: 'row',

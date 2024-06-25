@@ -1,52 +1,44 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState,useContext} from 'react';
 import {StyleSheet, View} from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
+import { SocketContext } from '../../tracking/SocketContext';
 
 const Maps = ({route}) => {
-  console.log(route.params, 'yash');
+  const {setContextState,contextState}=useContext(SocketContext)
+  console.log(contextState, 'yash');
   const origin = {latitude: 28.6252665, longitude: 77.2960197}; // Origin coordinates
   const destination = {latitude: 28.6209434, longitude: 77.3643691}; // Destination coordinates
-  const [apiData, setApiData] = useState([]);
   const [locations, setLocations] = useState([]);
   const [waypoints, setWaypoints] = useState([]);
-  const [count, setCount] = useState(0);
+ 
 
   useEffect(() => {
-    let timer = setTimeout(() => {
-      if (data.length > count) {
-        setLocations([...locations, data[count]]);
-        setWaypoints([...waypoints, locations.slice(1, locations.length - 1).map(point => point.coordinates)])
-        setCount(prev => prev + 1);
-      }
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [locations]);
+    // let timer = setTimeout(() => {
+    //   if (data.length > count) {
+    //     setLocations([...locations, data[count]]);
+    //     setWaypoints([...waypoints, locations.slice(1, locations.length - 1).map(point => point.coordinates)])
+    //     setCount(prev => prev + 1);
+    //   }
+    // }, 4000);
+    // return () => clearTimeout(timer);
 
-  const data = [
-    {
-      title: 'first',
-      coordinates: {
-        latitude: 28.6216009,
-        longitude: 77.3778445,
-      },
-    },
-    {
-      title: 'second',
-      coordinates: {
-        latitude: 28.6211885,
-        longitude: 77.3683049,
-      },
-    },
-    {
-      title: 'third',
-      coordinates: {
-        latitude: 28.6209434,
-        longitude: 77.2960197,
-      },
-    },
- 
-  ];
+    if(locations.length){
+      setLocations([...locations, {
+        title: 'Current Point',
+        coordinates: contextState.currentLocation,
+      }])
+    }else{
+      setLocations([...locations, {
+        title: 'Start Point',
+        coordinates: contextState.firstLocation,
+      }])
+    }
+
+    setWaypoints([...waypoints, locations.slice(1, locations.length - 1).map(point => point.coordinates)])
+  }, [contextState]);
+
+
   
   return (
     <View style={styles.container}>

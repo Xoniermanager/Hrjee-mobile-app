@@ -81,7 +81,7 @@ const getList=async()=>{
   
   axios.request(config)
   .then((response) => {
-    console.log(JSON.stringify(response.data));
+   
     setList(response?.data?.data)
   })
   .catch((error) => {
@@ -100,7 +100,7 @@ const getList=async()=>{
         <FlatList
         data={list}
         renderItem={({item,index}) => 
-        <TouchableOpacity style={styles.cart_box} onPress={()=>navigation.navigate('Maps')} key={index}>
+        <TouchableOpacity style={styles.cart_box} onPress={()=>navigation.navigate('GetLocation_id')} key={index}>
         <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
    { item?.profile_img==""?
    <Image 
@@ -139,7 +139,7 @@ export default UserList
 const styles = StyleSheet.create({
     cart_box:{
         width:responsiveWidth(95),
-        height:responsiveHeight(10),
+        padding:10,
         backgroundColor:'#fff',
         marginTop:5,
         alignSelf:'center',

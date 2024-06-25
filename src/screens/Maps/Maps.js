@@ -20,7 +20,7 @@ const Maps = ({route}) => {
         setCount(prev => prev + 1);
       }
     }, 4000);
-
+    return () => clearTimeout(timer);
   }, [locations]);
 
   const data = [
@@ -74,6 +74,10 @@ const Maps = ({route}) => {
             apikey="AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg" // Replace with your API key
             strokeWidth={3}
             strokeColor="blue"
+            optimizeWaypoints={true}
+            onStart={(params) => {
+              console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
+            }}
           />
         </MapView>
       )}

@@ -99,38 +99,36 @@ const getList=async()=>{
     <View style={{flex:1,backgroundColor:'#fff'}}>
         <FlatList
         data={list}
-        renderItem={(item,index)=>{
-            console.log(item,'item')
-            return (
-                <TouchableOpacity style={styles.cart_box} onPress={()=>navigation.navigate('Maps')}>
-                        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-                   { item?.item?.profile_img==""?
-                   <Image 
-                    source={require('../../images/profile_pic.webp')}
-                    style={{width:85, height:responsiveHeight(10),}}
-                    />:
-                   
-                   <Image 
-                    source={{uri:item?.item?.profile_img}}
-                    style={{width:85, height:responsiveHeight(10),}}
-                    />}
-                    <View style={{justifyContent:'center',alignItems:'center'}}>
-                    
-                    <Text style={{color:'#000'}}>{item?.item?.FULL_NAME}</Text>
-                    <Text style={{color:'#000',marginTop:3,fontSize:10}}>{item?.item?.email}</Text>
-                    <Text style={{color:'#000',marginTop:3}}>{item?.item?.job_deg}</Text>
+        renderItem={({item,index}) => 
+        <TouchableOpacity style={styles.cart_box} onPress={()=>navigation.navigate('Maps')} key={index}>
+        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+   { item?.profile_img==""?
+   <Image 
+    source={require('../../images/profile_pic.webp')}
+    style={{width:85, height:responsiveHeight(10),}}
+    />:
+   
+   <Image 
+    source={{uri:item?.profile_img}}
+    style={{width:85, height:responsiveHeight(10),}}
+    />}
+    <View style={{justifyContent:'center',alignItems:'center'}}>
+    
+    <Text style={{color:'#000'}}>{item?.FULL_NAME}</Text>
+    <Text style={{color:'#000',marginTop:3,fontSize:10}}>{item?.email}</Text>
+    <Text style={{color:'#000',marginTop:3}}>{item?.job_deg}</Text>
 
-                    <Text style={{color:'#000',marginTop:3}}>{item?.item?.office_timing}</Text>
-                    </View>
-                 <TouchableOpacity onPress={()=>Alert.alert("hello")}>
-                 <Entypo name="dots-three-horizontal" size={20} color="#000" style={{marginRight:20}}/>
-                 </TouchableOpacity>
+    <Text style={{color:'#000',marginTop:3}}>{item?.office_timing}</Text>
+    </View>
+ <TouchableOpacity onPress={()=>Alert.alert("hello")}>
+ <Entypo name="dots-three-horizontal" size={20} color="#000" style={{marginRight:20}}/>
+ </TouchableOpacity>
 
 
-                            </View>
-                    </TouchableOpacity>
-            )
-        }}
+            </View>
+    </TouchableOpacity>
+}
+      
         />
     </View>
   )

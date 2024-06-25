@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDyZH2uCVBA_cj8WXBCN9v2KXoqQSdFb7w</string>
+	<key>GCM_SENDER_ID</key>
+	<string>74640097652</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>app.meds2Trace</string>
+	<key>PROJECT_ID</key>
+	<string>pushnotification-1632a</string>
+	<key>STORAGE_BUCKET</key>
+	<string>pushnotification-1632a.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:74640097652:ios:f91172f3755248637aac21</string>
+</dict>
+</plist>

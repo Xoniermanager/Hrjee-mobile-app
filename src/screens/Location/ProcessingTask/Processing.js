@@ -198,7 +198,6 @@ const Processing = () => {
 
     axios.request(config)
       .then((response) => {
-          console.log(response?.data?.data,'response?.data?.data')
         setDisposition(response?.data?.data)
       })
       .catch((error) => {
@@ -314,8 +313,7 @@ const Processing = () => {
                 data.append('remark', remark);
                 data.append('latitude', latitude);
                 data.append('longitude', longitude);
-
-                data.append('image', fileResponse[0]);
+                {fileResponse[0]==undefined?null: data.append('image', fileResponse[0]);}
                 data.append('status', updatedStatus);
                 data.append('disposition_code', codeName);
                 var selfie_image = {
@@ -449,7 +447,7 @@ const Processing = () => {
           data.append('latitude', latitude);
           data.append('longitude', longitude);
 
-          data.append('image', fileResponse[0]);
+          {fileResponse[0]==undefined?null: data.append('image', fileResponse[0]);}
           data.append('status', updatedStatus);
           data.append('disposition_code', codeName);
 

@@ -12,6 +12,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		1831A5552C29712900226C4F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1831A5542C29712900226C4F /* GoogleService-Info.plist */; };
 		18C6DC112B845E7F00708722 /* Fontisto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18C6DBFE2B845E7F00708722 /* Fontisto.ttf */; };
 		18C6DC122B845E7F00708722 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18C6DBFF2B845E7F00708722 /* Octicons.ttf */; };
 		18C6DC132B845E7F00708722 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18C6DC002B845E7F00708722 /* Feather.ttf */; };
@@ -55,6 +56,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = HRjee/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = HRjee/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = HRjee/main.m; sourceTree = "<group>"; };
+		1831A5542C29712900226C4F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		18C6DBFE2B845E7F00708722 /* Fontisto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fontisto.ttf; sourceTree = "<group>"; };
 		18C6DBFF2B845E7F00708722 /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Octicons.ttf; sourceTree = "<group>"; };
 		18C6DC002B845E7F00708722 /* Feather.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Feather.ttf; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				1831A5542C29712900226C4F /* GoogleService-Info.plist */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
@@ -327,6 +330,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				18C6DC172B845E7F00708722 /* MaterialCommunityIcons.ttf in Resources */,
 				18C6DC202B845E7F00708722 /* FontAwesome6_Solid.ttf in Resources */,
+				1831A5552C29712900226C4F /* GoogleService-Info.plist in Resources */,
 				18C6DC142B845E7F00708722 /* FontAwesome6_Regular.ttf in Resources */,
 				18C6DC232B845E7F00708722 /* MaterialIcons.ttf in Resources */,
 			);
@@ -689,10 +693,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -760,10 +761,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

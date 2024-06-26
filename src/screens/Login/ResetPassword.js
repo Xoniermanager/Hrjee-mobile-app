@@ -29,7 +29,7 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
   const [loading, setloading] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(300);
   const {email}=route.params;
-  console.log(email,'email')
+
   useEffect(() => {
     const timer = setInterval(() => {
       setSecondsRemaining(prevSeconds => {

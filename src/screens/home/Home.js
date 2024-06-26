@@ -23,7 +23,7 @@ import React, {
   useRef,
   useCallback,
 } from 'react';
-import { Root, Popup } from 'popup-ui';
+import {Root, Popup} from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -31,42 +31,42 @@ import Entypo from 'react-native-vector-icons/Entypo';
 
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import apiUrl from '../../reusable/apiUrl';
 import axios from 'axios';
-import { EssContext } from '../../../Context/EssContext';
-import { PermissionsAndroid } from 'react-native';
+import {EssContext} from '../../../Context/EssContext';
+import {PermissionsAndroid} from 'react-native';
 import useApi from '../../../api/useApi';
 import attendence from '../../../api/attendence';
 import GetLocation from 'react-native-get-location';
 import Geolocation from '@react-native-community/geolocation';
-import { getDistance } from 'geolib';
+import {getDistance} from 'geolib';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 // import messaging from '@react-native-firebas e/messaging';
 import Empty from '../../reusable/Empty';
-import { NavigationContainer, useIsFocused } from '@react-navigation/native';
+import {NavigationContainer, useIsFocused} from '@react-navigation/native';
 import Themes from '../../Theme/Theme';
 import {
   responsiveFontSize,
   responsiveHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
-import { SocketContext } from '../../tracking/SocketContext';
+import {SocketContext} from '../../tracking/SocketContext';
 import NotificationController from '../PushNotification/NotificationController';
 
-const Home = ({ navigation }) => {
+const Home = ({navigation}) => {
   const theme = useColorScheme();
   const [modalVisible, setModalVisible] = useState(false);
   const punchInApi = useApi2(attendence.punchIn);
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
-  const { sendLocation } = useContext(SocketContext);
-  const { setuser } = useContext(EssContext);
+  const {sendLocation} = useContext(SocketContext);
+  const {setuser} = useContext(EssContext);
   const [news, setnews] = useState([]);
   const [user, setuser1] = useState(null);
   const [inTime, setinTime] = useState(null);
@@ -80,6 +80,7 @@ const Home = ({ navigation }) => {
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
   const [show, setShow] = useState(true);
+  const [radius, setRadius] = useState();
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -95,9 +96,6 @@ const Home = ({ navigation }) => {
   const [locationOut, setlocationOut] = useState(null);
 
   const [timerOn, settimerOn] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [apirecentlog, setGetApiRecenLog] = useState([]);
-
   const [Userdata, setUserdata] = useState({
     image: '',
     name: '',
@@ -139,6 +137,33 @@ const Home = ({ navigation }) => {
       : d.getHours() + ':' + d.getMinutes();
 
   const [menuAccessData, setMenuAccessData] = useState();
+  const [punchin_radius, setPunchin_radius] = useState();
+
+
+
+  const ManuAccessdetails = async () => {
+    const token = await AsyncStorage.getItem('Token');
+    let config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: 'https://app.hrjee.com/SecondPhaseApi/employee_config_details',
+      headers: {
+        Token: token,
+        Cookie: 'ci_session=fu0slk2fsljjjsm9s7m28i9pugh0f2ik',
+      },
+    };
+
+    axios
+      .request(config)
+      .then(response => {
+        setMenuAccessData(response?.data?.menu_access);
+        setPunchin_radius(response?.data);
+        setRadius(response?.data?.config?.punchin_radius);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
   // console.log("menuAccessData", menuAccessData)
   // AsyncStorage.getItem('menu').then(res => {
@@ -178,6 +203,7 @@ const Home = ({ navigation }) => {
       check_punchIn();
       ProfileDetails();
       get_month_logs();
+      ManuAccessdetails();
     }, []),
   );
 
@@ -187,12 +213,13 @@ const Home = ({ navigation }) => {
     check_punchIn();
     get_month_logs();
     ProfileDetails();
+    ManuAccessdetails();
   };
 
   const getActiveLocation = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: { Token: token },
+      headers: {Token: token},
     };
     const body = {};
     getActiveLocationApi.request(body, config);
@@ -292,7 +319,7 @@ const Home = ({ navigation }) => {
     setuser(JSON.parse(userData));
     // setlocation(JSON.parse(UserLocation));
     const config = {
-      headers: { Token: token },
+      headers: {Token: token},
     };
 
     const body = {};
@@ -378,9 +405,9 @@ const Home = ({ navigation }) => {
           // onPress: handleCancelButtonPress,
           style: 'cancel',
         },
-        { text: 'OK', onPress: () => punch_out() },
+        {text: 'OK', onPress: () => punch_out()},
       ],
-      { cancelable: false },
+      {cancelable: false},
     );
   };
 
@@ -404,17 +431,17 @@ const Home = ({ navigation }) => {
         });
 
         var dis = getDistance(
-          { latitude: lat, longitude: long },
+          {latitude: lat, longitude: long},
           {
             latitude: activeLocation.latitude,
             longitude: activeLocation.longitude,
           },
         );
 
-        if (company_id == 56 || company_id == 89 || company_id == 92) {
+        if (radius <= 0) {
           const token = await AsyncStorage.getItem('Token');
           const config = {
-            headers: { Token: token },
+            headers: {Token: token},
           };
           const body = {
             user_id: user.userid,
@@ -505,10 +532,10 @@ const Home = ({ navigation }) => {
             setloading(false);
             return;
           }
-          if (dis <= 4000) {
+          if (dis <= radius) {
             const token = await AsyncStorage.getItem('Token');
             const config = {
-              headers: { Token: token },
+              headers: {Token: token},
             };
             const body = {
               user_id: user.userid,
@@ -565,7 +592,7 @@ const Home = ({ navigation }) => {
       })
       .catch(error => {
         setloading(false);
-        const { code, message } = error;
+        const {code, message} = error;
         Popup.show({
           type: 'Warning',
           title: 'Warning',
@@ -599,18 +626,15 @@ const Home = ({ navigation }) => {
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
 
-      
               // { Live tracking starting}
-                            sendLocation({
-                              userId: userInfo?.userid,
-                              location: {
-                                longitude: long,
-                                latitude: lat,
-                              },
-                            });
-                            // { Live tracking ending }
-             
-
+              sendLocation({
+                userId: userInfo?.userid,
+                location: {
+                  longitude: long,
+                  latitude: lat,
+                },
+              });
+              // { Live tracking ending }
 
               setcurrentLocation({
                 long: long,
@@ -618,20 +642,20 @@ const Home = ({ navigation }) => {
               });
 
               var dis = getDistance(
-                { latitude: lat, longitude: long },
+                {latitude: lat, longitude: long},
                 {
                   latitude: activeLocation.latitude,
                   longitude: activeLocation.longitude,
                 },
               );
 
-              if (company_id == 56 || company_id == 89 || company_id == 92) {
+              if (radius <= 0) {
                 const token = await AsyncStorage.getItem('Token');
                 const userData = await AsyncStorage.getItem('UserData');
                 const userInfo = JSON.parse(userData);
 
                 const config = {
-                  headers: { Token: token },
+                  headers: {Token: token},
                 };
                 const body = {
                   email: userInfo.email,
@@ -737,13 +761,13 @@ const Home = ({ navigation }) => {
                   return;
                 }
 
-                if (dis <= 4000) {
+                if (dis <= radius) {
                   const token = await AsyncStorage.getItem('Token');
                   const userData = await AsyncStorage.getItem('UserData');
                   const userInfo = JSON.parse(userData);
 
                   const config = {
-                    headers: { Token: token },
+                    headers: {Token: token},
                   };
                   const body = {
                     email: userInfo.email,
@@ -810,7 +834,7 @@ const Home = ({ navigation }) => {
               }
             })
             .catch(error => {
-              const { code, message } = error;
+              const {code, message} = error;
 
               Popup.show({
                 type: 'Warning',
@@ -853,8 +877,7 @@ const Home = ({ navigation }) => {
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
 
-            
-                        // { Live tracking starting}
+            // { Live tracking starting}
             sendLocation({
               userId: userInfo?.userid,
               location: {
@@ -863,7 +886,6 @@ const Home = ({ navigation }) => {
               },
             });
             // { Live tracking starting}
-            
 
             setcurrentLocation({
               long: long,
@@ -871,20 +893,20 @@ const Home = ({ navigation }) => {
             });
 
             var dis = getDistance(
-              { latitude: lat, longitude: long },
+              {latitude: lat, longitude: long},
               {
                 latitude: activeLocation.latitude,
                 longitude: activeLocation.longitude,
               },
             );
 
-            if (company_id == 56 || company_id == 89 || company_id == 92) {
+            if (radius <= 0) {
               const token = await AsyncStorage.getItem('Token');
               const userData = await AsyncStorage.getItem('UserData');
               const userInfo = JSON.parse(userData);
 
               const config = {
-                headers: { Token: token },
+                headers: {Token: token},
               };
               const body = {
                 email: userInfo.email,
@@ -991,13 +1013,13 @@ const Home = ({ navigation }) => {
                 return;
               }
 
-              if (dis <= 4000) {
+              if (dis <= radius) {
                 const token = await AsyncStorage.getItem('Token');
                 const userData = await AsyncStorage.getItem('UserData');
                 const userInfo = JSON.parse(userData);
 
                 const config = {
-                  headers: { Token: token },
+                  headers: {Token: token},
                 };
                 const body = {
                   email: userInfo.email,
@@ -1064,7 +1086,7 @@ const Home = ({ navigation }) => {
             }
           })
           .catch(error => {
-            const { code, message } = error;
+            const {code, message} = error;
             Popup.show({
               type: 'Warning',
               title: 'Warning',
@@ -1083,133 +1105,125 @@ const Home = ({ navigation }) => {
     }
   };
 
+  //  This is used send live tracking location socketContext page Starting ..................................
 
-  
-    //  This is used send live tracking location socketContext page Starting ..................................
-  
-    const punch = async () => {
-      setloading(true);
-  
-      if (Platform.OS == 'android') {
-        try {
-          const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          );
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            GetLocation.getCurrentPosition({});
-            const userData = await AsyncStorage.getItem('UserData');
-            const userInfo = JSON.parse(userData);
-            let company_id = userInfo?.company_id;
-  
-            GetLocation.getCurrentPosition({
-              enableHighAccuracy: true,
-              timeout: 15000,
-            })
-              .then(async location => {
-                setloading(false);
-                var lat = parseFloat(location.latitude);
-                var long = parseFloat(location.longitude);
-  
-                // { Live tracking starting}
-                sendLocation({
-                  userId: userInfo?.userid,
-                  location: {
-                    longitude: long,
-                    latitude: lat,
-                  },
-                });
-                // { Live tracking ending }
-  
-                setcurrentLocation({
-                  long: long,
-                  lat: lat,
-                });
-              })
-          }
-        } catch (err) {
-          setloading(false);
-          console.warn(err);
+  const punch = async () => {
+    setloading(true);
+
+    if (Platform.OS == 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          GetLocation.getCurrentPosition({});
+          const userData = await AsyncStorage.getItem('UserData');
+          const userInfo = JSON.parse(userData);
+          let company_id = userInfo?.company_id;
+
+          GetLocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 15000,
+          }).then(async location => {
+            setloading(false);
+            var lat = parseFloat(location.latitude);
+            var long = parseFloat(location.longitude);
+
+            // { Live tracking starting}
+            sendLocation({
+              userId: userInfo?.userid,
+              location: {
+                longitude: long,
+                latitude: lat,
+              },
+            });
+            // { Live tracking ending }
+
+            setcurrentLocation({
+              long: long,
+              lat: lat,
+            });
+          });
         }
+      } catch (err) {
+        setloading(false);
+        console.warn(err);
       }
-    };
-  
-    const [currentPosition, setCurrentPosition] = useState(null);
-    const [previousPosition, setPreviousPosition] = useState(null);
-  
-    const distanceThreshold = 0.0000;
- 
-    const sendLocationUpdate = async (position, user_id) => {
-      console.log(user_id,'user_id')
-      sendLocation({
-        userId: user_id,
-        
-        location: {
-          longitude: position?.coords?.longitude,
-          latitude:position?.coords?.latitude,
-        },
-      });
-  
-    };
-  
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-      const R = 6371; // Radius of the Earth in kilometers
-      const dLat = ((lat2 - lat1) * Math.PI) / 180;
-      const dLon = ((lon2 - lon1) * Math.PI) / 180;
-      const a =
-        0.5 -
-        Math.cos(dLat) / 2 +
-        (Math.cos((lat1 * Math.PI) / 180) *
-          Math.cos((lat2 * Math.PI) / 180) *
-          (1 - Math.cos(dLon))) /
-        2;
-  
-      return R * 2 * Math.asin(Math.sqrt(a));
-    };
-  
-  
-    const doSomething = async () => {
-      const userData = await AsyncStorage.getItem('UserData');
-      const userInfo = JSON.parse(userData);
-      const user_id = userInfo?.userid
-      const watchId = Geolocation.watchPosition(
-        position => {
-          // Save current position as previous position before updating
-          if (previousPosition) {
-            const distance = calculateDistance(
-              previousPosition.coords.latitude,
-              previousPosition.coords.longitude,
-              position.coords.latitude,
-              position.coords.longitude,
-            );
-  
-            if (distance >= distanceThreshold) {
-              sendLocationUpdate(position, user_id);
-              setPreviousPosition(currentPosition);
-            }
+    }
+  };
 
-          } else {
+  const [currentPosition, setCurrentPosition] = useState(null);
+  const [previousPosition, setPreviousPosition] = useState(null);
+
+  const distanceThreshold = 0.0;
+
+  const sendLocationUpdate = async (position, user_id) => {
+    console.log(user_id, 'user_id');
+    sendLocation({
+      userId: user_id,
+
+      location: {
+        longitude: position?.coords?.longitude,
+        latitude: position?.coords?.latitude,
+      },
+    });
+  };
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      0.5 -
+      Math.cos(dLat) / 2 +
+      (Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        (1 - Math.cos(dLon))) /
+        2;
+
+    return R * 2 * Math.asin(Math.sqrt(a));
+  };
+
+  const doSomething = async () => {
+    const userData = await AsyncStorage.getItem('UserData');
+    const userInfo = JSON.parse(userData);
+    const user_id = userInfo?.userid;
+    const watchId = Geolocation.watchPosition(
+      position => {
+        // Save current position as previous position before updating
+        if (previousPosition) {
+          const distance = calculateDistance(
+            previousPosition.coords.latitude,
+            previousPosition.coords.longitude,
+            position.coords.latitude,
+            position.coords.longitude,
+          );
+
+          if (distance >= distanceThreshold) {
             sendLocationUpdate(position, user_id);
             setPreviousPosition(currentPosition);
           }
-          setCurrentPosition(position);
-        },
-        error => console.log(error),
-        { enableHighAccuracy: true, distanceFilter: 1, interval: 5000 },
-      );
-          console.log(watchId,'watchId')
-      // Clean up the watchPosition when the component unmounts
-      return () => Geolocation.clearWatch(watchId);
-    }
-  
-    useEffect(() => {
-      doSomething();
-    }, [currentPosition]);
-  
-    //  This is used send live tracking location socketContext page Ending ..................................
-  
-  
+        } else {
+          sendLocationUpdate(position, user_id);
+          setPreviousPosition(currentPosition);
+        }
+        setCurrentPosition(position);
+      },
+      error => console.log(error),
+      {enableHighAccuracy: true, distanceFilter: 1, interval: 5000},
+    );
+    console.log(watchId, 'watchId');
+    // Clean up the watchPosition when the component unmounts
+    return () => Geolocation.clearWatch(watchId);
+  };
 
-  const renderItem = ({ item }) =>
+  useEffect(() => {
+    doSomething();
+  }, [currentPosition]);
+
+  //  This is used send live tracking location socketContext page Ending ..................................
+
+  const renderItem = ({item}) =>
     // console.log("A.......", item)
     // let x = item?.id;
     // console.log(x);
@@ -1219,13 +1233,13 @@ const Home = ({ navigation }) => {
       <TouchableOpacity
         onPress={() =>
           item.id == 0
-            ? navigation.navigate('Post', { screen: 'Post' })
+            ? navigation.navigate('Post', {screen: 'Post'})
             : navigation.navigate(item.moveTo)
         }>
         <ImageBackground
           style={styles.options1}
           source={item?.location}
-          imageStyle={{ borderRadius: 5 }}>
+          imageStyle={{borderRadius: 5}}>
           <LinearGradient
             colors={['#00000000', '#000000']}
             style={{
@@ -1252,7 +1266,7 @@ const Home = ({ navigation }) => {
   const ProfileDetails = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: { Token: token },
+      headers: {Token: token},
     };
     axios
       .post(`${apiUrl}/api/get_employee_detail`, {}, config)
@@ -1273,7 +1287,6 @@ const Home = ({ navigation }) => {
       })
       .catch(error => {
         if (error.response.status == '401') {
-        
         }
       });
   };
@@ -1431,12 +1444,12 @@ const Home = ({ navigation }) => {
   const get_month_logs = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: { Token: token },
+      headers: {Token: token},
     };
 
     var startOfWeek = moment().startOf('month').toDate();
     var endOfWeek = moment().endOf('month').toDate();
-   
+
     const body = {
       start_date: startOfWeek,
       end_date: endOfWeek,
@@ -1448,9 +1461,8 @@ const Home = ({ navigation }) => {
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-           
             setrecentLogs(response.data.content);
-          } catch (e) { }
+          } catch (e) {}
         } else {
         }
       })
@@ -1462,12 +1474,11 @@ const Home = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e3eefb' }}>
-      
+    <SafeAreaView style={{flex: 1, backgroundColor: '#e3eefb'}}>
       <Root>
         <PullToRefresh onRefresh={handleRefresh}>
-        <NotificationController/>
-          <View style={{ flex: 1 }}>
+          <NotificationController />
+          <View style={{flex: 1}}>
             {/* <Text>{currentPosition?.coords?.latitude}</Text> 
             <Text>{currentPosition?.coords?.longitude}</Text> 
             
@@ -1492,22 +1503,22 @@ const Home = ({ navigation }) => {
                   // source={require('../../images/profile_pic.webp')}
                   source={
                     Userdata?.image
-                      ? { uri: Userdata.image }
+                      ? {uri: Userdata.image}
                       : require('../../images/profile_pic.webp')
                   }
                 />
                 <Text
                   numberOfLines={1}
                   style={[
-                    { fontSize: 18, fontWeight: 'bold', marginLeft: 2 },
-                    { color: Themes == 'dark' ? '#000' : '#000' },
+                    {fontSize: 18, fontWeight: 'bold', marginLeft: 2},
+                    {color: Themes == 'dark' ? '#000' : '#000'},
                   ]}>
                   Hi,{user?.FULL_NAME}!
                 </Text>
               </View>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() => navigation.navigate('UserList')}
-                style={{marginLeft:responsiveWidth(18)}}>
+                style={{marginLeft: responsiveWidth(18)}}>
                 <Entypo
                   name="location"
                   style={{
@@ -1516,7 +1527,7 @@ const Home = ({ navigation }) => {
                     marginRight: 10,
                   }}
                 />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 style={{}}>
@@ -1538,7 +1549,7 @@ const Home = ({ navigation }) => {
                 keyExtractor={item => item?.id}
               />
             </View>
-            <View style={{ padding: 15, marginTop: 5 }}>
+            <View style={{padding: 15, marginTop: 5}}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -1547,8 +1558,8 @@ const Home = ({ navigation }) => {
                 }}>
                 <Text
                   style={[
-                    { fontSize: 18, fontWeight: '700' },
-                    { color: Themes == 'dark' ? '#000' : '#000' },
+                    {fontSize: 18, fontWeight: '700'},
+                    {color: Themes == 'dark' ? '#000' : '#000'},
                   ]}>
                   E-Attendance
                 </Text>
@@ -1557,13 +1568,16 @@ const Home = ({ navigation }) => {
                   <Text
                     style={[
                       styles.purple_txt,
-                      { color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" },
+                      {
+                        color: Themes == 'dark' ? '#000' : '#000',
+                        fontWeight: 'bold',
+                      },
                     ]}>
                     View History
                   </Text>
                 </TouchableOpacity>
               </View>
-              <View style={{ marginTop: 15, borderRadius: 15 }}>
+              <View style={{marginTop: 15, borderRadius: 15}}>
                 <View
                 // style={{ width: '100%', borderRadius: 15, overflow: 'hidden', }}
                 // source={require('../../images/gradient.gif')}
@@ -1587,7 +1601,7 @@ const Home = ({ navigation }) => {
                         borderRightColor: 'grey',
                         alignItems: 'center',
                       }}>
-                      <View style={{ alignItems: 'center' }}>
+                      <View style={{alignItems: 'center'}}>
                         <Text
                           style={{
                             color: '#000',
@@ -1603,7 +1617,7 @@ const Home = ({ navigation }) => {
                               fontSize: 15,
                               fontWeight: '800',
                             },
-                            { color: Themes == 'dark' ? '#000' : '#000' },
+                            {color: Themes == 'dark' ? '#000' : '#000'},
                           ]}>
                           {d.getDate() + ' ' + monthNames[d.getMonth()]}
                         </Text>
@@ -1639,7 +1653,9 @@ const Home = ({ navigation }) => {
                             />
                             <Text
                               style={{
-                                color: Themes == 'dark' ? '#000' : '#000', fontSize: 15, fontWeight: "bold"
+                                color: Themes == 'dark' ? '#000' : '#000',
+                                fontSize: 15,
+                                fontWeight: 'bold',
                               }}>
                               {activityTime}
                             </Text>
@@ -1711,7 +1727,7 @@ const Home = ({ navigation }) => {
                             />
                             <Text style={styles.purple_txt}>{fullTime}</Text>
                           </View>
-                          <Text style={{ color: 'red', marginTop: 10 }}>
+                          <Text style={{color: 'red', marginTop: 10}}>
                             Total Time Elapsed
                           </Text>
                         </>
@@ -1722,11 +1738,11 @@ const Home = ({ navigation }) => {
               </View>
             </View>
 
-            <View style={{ marginTop: 10, marginHorizontal: 10 }}>
+            <View style={{marginTop: 10, marginHorizontal: 10}}>
               <Text
                 style={[
-                  { fontSize: 18, fontWeight: '600' },
-                  { color: Themes == 'dark' ? '#000' : '#000' },
+                  {fontSize: 18, fontWeight: '600'},
+                  {color: Themes == 'dark' ? '#000' : '#000'},
                 ]}>
                 Recent Logs
               </Text>
@@ -1743,42 +1759,57 @@ const Home = ({ navigation }) => {
                           {days[new Date(i.TR_DATE).getDay()]}
                         </Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            fontWeight: 'bold',
+                          }}>
                           {i.TR_DATE}
                         </Text>
                       </View>
                       <View>
                         <Text style={styles.weekDay}>Punch In Time</Text>
                         <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            fontWeight: 'bold',
+                          }}>
                           {getTime}
                         </Text>
                       </View>
 
-                      <View style={{ alignItems: 'center' }}>
+                      <View style={{alignItems: 'center'}}>
                         <AntDesign
                           name="clockcircleo"
                           size={20}
                           style={[
-                            { marginBottom: 5 },
-                            { color: Themes == 'dark' ? '#000' : '#000', },
+                            {marginBottom: 5},
+                            {color: Themes == 'dark' ? '#000' : '#000'},
                           ]}
                         />
                         {/* <Text>{datetime}, {i.TR_DATE}, {i.location_id ? 'yes' : 'no'}, {i.PRESENT_HOURS}, {hours}, {hours >= '19:00' ? 'yes' : 'no'}</Text> */}
                         {(datetime == i.TR_DATE && i.location_id) ||
-                          datetime > i.TR_DATE ? (
+                        datetime > i.TR_DATE ? (
                           <Text
-                            style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
+                            style={{
+                              color: Themes == 'dark' ? '#000' : '#000',
+                              fontWeight: 'bold',
+                            }}>
                             {i.PRESENT_HOURS}
                           </Text>
                         ) : hours >= '19:00' ? (
                           <Text
-                            style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
+                            style={{
+                              color: Themes == 'dark' ? '#000' : '#000',
+                              fontWeight: 'bold',
+                            }}>
                             {i.PRESENT_HOURS}
                           </Text>
                         ) : (
                           <Text
-                            style={{ color: Themes == 'dark' ? '#000' : '#000', fontWeight: "bold" }}>
+                            style={{
+                              color: Themes == 'dark' ? '#000' : '#000',
+                              fontWeight: 'bold',
+                            }}>
                             NA
                           </Text>
                         )}
@@ -2000,10 +2031,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#d3e3fd30',
     borderColor: '#0c57d0',
   },
-  heading: { fontWeight: '700', fontSize: 16 },
-  heading_grey: { fontSize: 14, color: 'grey', fontWeight: '300' },
-  add_txt: { fontSize: 14, color: '#efad37', fontWeight: '600' },
-  view_txt: { color: '#702963', fontWeight: 'bold' },
+  heading: {fontWeight: '700', fontSize: 16},
+  heading_grey: {fontSize: 14, color: 'grey', fontWeight: '300'},
+  add_txt: {fontSize: 14, color: '#efad37', fontWeight: '600'},
+  view_txt: {color: '#702963', fontWeight: 'bold'},
   weekDay: {
     fontSize: 19,
     fontWeight: '600',

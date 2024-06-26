@@ -182,9 +182,6 @@ useEffect(()=>{
                   index: 0,
                   routes: [{ name: 'Main' }],
                 });
-
-             
-
               } catch (e) {
                 setloading(false);
                 alert(e);

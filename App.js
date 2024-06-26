@@ -37,7 +37,6 @@ const App = ({navigation}) => {
     await AsyncStorage.removeItem('Token');
     await AsyncStorage.removeItem('UserData');
     await AsyncStorage.removeItem('UserLocation');
-    RNExitApp.exitApp();
   };
 
   useEffect(() => {

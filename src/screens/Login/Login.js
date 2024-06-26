@@ -40,6 +40,17 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  
+    if (enabled) {
+      getFCMToken()
+    }
+  }
+
   async function getFCMToken() {
     const token = await messaging().getToken();
     console.log(token,'fcm token');
@@ -47,7 +58,7 @@ const Login = () => {
   }
 
 useEffect(()=>{
-  getFCMToken();
+  requestUserPermission();
 },[])
 
   const login = () => {

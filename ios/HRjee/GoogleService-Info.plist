@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDyZH2uCVBA_cj8WXBCN9v2KXoqQSdFb7w</string>
+	<string>AIzaSyDZtTFHlK7qZ7s3VWJ3gPsJ6JFUbe3qllw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>74640097652</string>
+	<string>895835451503</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>app.meds2Trace</string>
+	<string>com.appHRjee</string>
 	<key>PROJECT_ID</key>
-	<string>pushnotification-1632a</string>
+	<string>push-notification-cd97c</string>
 	<key>STORAGE_BUCKET</key>
-	<string>pushnotification-1632a.appspot.com</string>
+	<string>push-notification-cd97c.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:74640097652:ios:f91172f3755248637aac21</string>
+	<string>1:895835451503:ios:87bc3793596ebb7860dd9a</string>
 </dict>
 </plist>

@@ -27,6 +27,8 @@ import { Root, Popup } from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
+
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -91,6 +93,7 @@ const Home = ({ navigation }) => {
   });
 
   const [locationOut, setlocationOut] = useState(null);
+
   const [timerOn, settimerOn] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [apirecentlog, setGetApiRecenLog] = useState([]);
@@ -286,7 +289,6 @@ const Home = ({ navigation }) => {
     const token = await AsyncStorage.getItem('Token');
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
-    console.log(token, 'token');
     setuser(JSON.parse(userData));
     // setlocation(JSON.parse(UserLocation));
     const config = {
@@ -422,7 +424,6 @@ const Home = ({ navigation }) => {
             latitude: lat,
             longitude: long,
           };
-          console.log('body=>', body);
           axios
             .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
             .then(function (response) {
@@ -451,7 +452,6 @@ const Home = ({ navigation }) => {
               }
             });
         } else {
-          //console.log('dis=-----',dis);
           if (lat == null || lat == '') {
             Popup.show({
               type: 'Warning',
@@ -599,7 +599,7 @@ const Home = ({ navigation }) => {
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
 
-              /* 
+      
               // { Live tracking starting}
                             sendLocation({
                               userId: userInfo?.userid,
@@ -609,7 +609,7 @@ const Home = ({ navigation }) => {
                               },
                             });
                             // { Live tracking ending }
-              */
+             
 
 
               setcurrentLocation({
@@ -752,7 +752,6 @@ const Home = ({ navigation }) => {
                     longitude: long,
                     login_type: 'mobile',
                   };
-                  console.log('logitute-----', body);
                   axios
                     .post(
                       `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -854,7 +853,7 @@ const Home = ({ navigation }) => {
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
 
-            /* 
+            
                         // { Live tracking starting}
             sendLocation({
               userId: userInfo?.userid,
@@ -864,7 +863,7 @@ const Home = ({ navigation }) => {
               },
             });
             // { Live tracking starting}
-            */
+            
 
             setcurrentLocation({
               long: long,
@@ -1084,7 +1083,7 @@ const Home = ({ navigation }) => {
     }
   };
 
-  /*
+
   
     //  This is used send live tracking location socketContext page Starting ..................................
   
@@ -1138,26 +1137,15 @@ const Home = ({ navigation }) => {
     const [previousPosition, setPreviousPosition] = useState(null);
   
     const distanceThreshold = 0.0000;
-  
+ 
     const sendLocationUpdate = async (position, user_id) => {
-      // const locationData = {
-      //   latitude: position.coords.latitude,
-      //   longitude: position.coords.longitude,
-      // };
-  
-      // console.log('send data', { user_id, location: locationData })
-  
-      alert(JSON.stringify(latitude, longitude))
-      alert(JSON.stringify(user_id))
-  
-      // sendLocation({ user_id, location: locationData });
-  
-  
+      console.log(user_id,'user_id')
       sendLocation({
         userId: user_id,
+        
         location: {
-          longitude: latitude,
-          latitude: longitude,
+          longitude: position?.coords?.longitude,
+          latitude:position?.coords?.latitude,
         },
       });
   
@@ -1198,6 +1186,7 @@ const Home = ({ navigation }) => {
               sendLocationUpdate(position, user_id);
               setPreviousPosition(currentPosition);
             }
+
           } else {
             sendLocationUpdate(position, user_id);
             setPreviousPosition(currentPosition);
@@ -1207,7 +1196,7 @@ const Home = ({ navigation }) => {
         error => console.log(error),
         { enableHighAccuracy: true, distanceFilter: 1, interval: 5000 },
       );
-  
+          console.log(watchId,'watchId')
       // Clean up the watchPosition when the component unmounts
       return () => Geolocation.clearWatch(watchId);
     }
@@ -1218,7 +1207,7 @@ const Home = ({ navigation }) => {
   
     //  This is used send live tracking location socketContext page Ending ..................................
   
-  */
+  
 
   const renderItem = ({ item }) =>
     // console.log("A.......", item)
@@ -1284,7 +1273,7 @@ const Home = ({ navigation }) => {
       })
       .catch(error => {
         if (error.response.status == '401') {
-          console.log('first');
+        
         }
       });
   };
@@ -1447,19 +1436,19 @@ const Home = ({ navigation }) => {
 
     var startOfWeek = moment().startOf('month').toDate();
     var endOfWeek = moment().endOf('month').toDate();
-    console.log(startOfWeek, endOfWeek, 'endOfWeek');
+   
     const body = {
       start_date: startOfWeek,
       end_date: endOfWeek,
     };
-    console.log(body, 'body');
+
     axios
       .post(`${apiUrl}/Api/attendance`, body, config)
       .then(response => {
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log(response.data.content, 'Month logs');
+           
             setrecentLogs(response.data.content);
           } catch (e) { }
         } else {
@@ -1479,6 +1468,12 @@ const Home = ({ navigation }) => {
         <PullToRefresh onRefresh={handleRefresh}>
         <NotificationController/>
           <View style={{ flex: 1 }}>
+            {/* <Text>{currentPosition?.coords?.latitude}</Text> 
+            <Text>{currentPosition?.coords?.longitude}</Text> 
+            
+            <Text>previousPosition</Text>
+            <Text>{previousPosition?.coords?.latitude}</Text> 
+            <Text>{previousPosition?.coords?.longitude}</Text>  */}
             <View
               style={{
                 flexDirection: 'row',
@@ -1510,6 +1505,18 @@ const Home = ({ navigation }) => {
                   Hi,{user?.FULL_NAME}!
                 </Text>
               </View>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('UserList')}
+                style={{marginLeft:responsiveWidth(18)}}>
+                <Entypo
+                  name="location"
+                  style={{
+                    fontSize: 35,
+                    color: '#000',
+                    marginRight: 10,
+                  }}
+                />
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 style={{}}>

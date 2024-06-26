@@ -29,22 +29,32 @@ const NotificationController = () => {
     await notifee.requestPermission({sound:true});
 
     const channelId = await notifee.createChannel({
-      id: 'default2',
-      name: 'Default Channel-2',
+      id: 'default3',
+      name: 'Default Channel-3',
       importance: AndroidImportance.HIGH,
       sound:'default'
     });
-    console.log(channelId,'channelId')
-    notifee.displayNotification({
-      title: `<p style="color: #4caf50;"><b>${data?.notification.title}</span></p></b></p> &#128576`,
-      subtitle: '&#129395;',
-      body: data?.notification.body,
-      android: {
-        channelId,
-        color: '#4caf50',
-        sound:'default'
-      },
-    });
+    {
+      Platform.OS === 'android' ?
+        notifee.displayNotification({
+          title: `<p style="color: #4caf50;"><b>${data?.notification.title}</span></p></b></p> &#128576`,
+          subtitle: '&#129395;',
+          body: data?.notification.body,
+          android: {
+            channelId,
+            sound: 'default',
+            color: '#4caf50',
+          },
+        })
+        :
+        notifee.displayNotification({
+          title: `${data?.notification.title}`,
+          body: data?.notification.body,
+          ios: {
+            sound: 'default',
+          },
+        });
+    }
    
 
   }
@@ -57,40 +67,27 @@ const NotificationController = () => {
         name: 'Default Channel-2',
         importance: AndroidImportance.HIGH,
       });
-      notifee.displayNotification({
-        title: `<p style="color: #4caf50;"><b>${data?.notification.title}</span></p></b></p> &#128576`,
-        subtitle: '&#129395;',
-        body: data?.notification.body,
-        android: {
-          channelId,
-          color: '#4caf50',
-         
-        },
-      });
-      notifee.onBackgroundEvent(async ({ type, detail }) => {
-        if (type === EventType.ACTION_PRESS) {
-          const { pressAction, notification } = detail;
-          
-          if (pressAction.id === 'dance') {
-            // Your custom logic here
-            console.log('Notification action pressed:', pressAction.id);
-            
-            // Cancel the notification
-            await notifee.cancelNotification(notification.id);
-           
-          }
-          else if (pressAction.id === 'cry') {
-            // Your custom logic here
-
-            console.log('Notification action pressed:', pressAction.id);
-            
-            
-            // Cancel the notification
-            await notifee.cancelNotification(notification.id);
-           
-          }
-        }
-      });
+      {
+        Platform.OS === 'android' ?
+          notifee.displayNotification({
+            title: `<p style="color: #4caf50;"><b>${data?.notification.title}</span></p></b></p> &#128576`,
+            subtitle: '&#129395;',
+            body: data?.notification.body,
+            android: {
+              channelId,
+              sound: 'default',
+              color: '#4caf50',
+            },
+          })
+          :
+          notifee.displayNotification({
+            title: `${data?.notification.title}`,
+            body: data?.notification.body,
+            ios: {
+              sound: 'default',
+            },
+          });
+      }
    
    
     }
@@ -185,3 +182,21 @@ const NotificationController = () => {
 export default NotificationController;
 
 const styles = StyleSheet.create({});
+// import { StyleSheet, Text, View } from 'react-native'
+// import React from 'react'
+// import messaging from '@react-native-firebase/messaging';
+
+// const NotificationController = () => {
+//   messaging().onMessage(async remoteMessage => {
+//     console.log('Received foreground message:', remoteMessage);
+//   });
+//   return (
+//     <View>
+//       <Text>NotificationController</Text>
+//     </View>
+//   )
+// }
+
+// export default NotificationController
+
+// const styles = StyleSheet.create({})

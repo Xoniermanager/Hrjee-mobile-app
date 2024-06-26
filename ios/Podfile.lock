@@ -1074,7 +1074,7 @@ PODS:
     - React-Core
   - react-native-date-picker (4.3.6):
     - React-Core
-  - react-native-document-picker (9.1.1):
+  - react-native-document-picker (9.3.0):
     - React-Core
   - react-native-geolocation (3.2.1):
     - glog
@@ -1084,13 +1084,15 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - react-native-maps (1.0.1):
+    - React-Core
   - react-native-netinfo (11.3.1):
     - React-Core
   - react-native-pager-view (6.3.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - react-native-safe-area-context (4.9.0):
+  - react-native-safe-area-context (3.3.2):
     - React-Core
   - react-native-simple-toast (3.3.1):
     - React-Core
@@ -1321,6 +1323,8 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - RNSVG (12.1.1):
+    - React
   - SocketRocket (0.6.1)
   - SwiftAudioEx (1.1.0)
   - Toast (4.1.1)
@@ -1390,6 +1394,7 @@ DEPENDENCIES:
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-maps (from `../node_modules/react-native-maps`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -1431,6 +1436,7 @@ DEPENDENCIES:
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1532,6 +1538,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/geolocation"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-maps:
+    :path: "../node_modules/react-native-maps"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
@@ -1614,6 +1622,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1672,12 +1682,13 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 63913773ed7f96b814a2521e13e6d010282096ad
   react-native-background-actions: ecffd3f0864140ef6cf21c29be6819a02b531a52
   react-native-date-picker: c28ccf1b3bc3de3bc6a785792a393fee49677f89
-  react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
+  react-native-document-picker: 5b97e24a7f1a1e4a50a72c540a043f32d29a70a2
   react-native-geolocation: 0ac6e11c1097d61b3836ab570c48c2bebb052604
   react-native-image-picker: 6c51359eca7a7df9f07e297218c25696eb9da976
+  react-native-maps: 5127b469a0e645a7ec432294a2dbe562af31ac4d
   react-native-netinfo: bdb108d340cdb41875c9ced535977cac6d2ff321
   react-native-pager-view: ffde7887fb8dbf2d5b7a5df6d558f9e9a32942c5
-  react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
+  react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-simple-toast: 1f1cc551d419bc0ab05dcb0136554006c274789d
   react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
   react-native-track-player: 82ef1756ffeea61140fea17519ecd6d64ec3cf3e
@@ -1716,6 +1727,7 @@ SPEC CHECKSUMS:
   RNNotifee: 8e2d3df3f0e9ce8f5d1fe4c967431138190b6175
   RNReanimated: 071599dab9e3769c03b84c984c87dc79087fef2f
   RNScreens: b582cb834dc4133307562e930e8fa914b8c04ef2
+  RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   SwiftAudioEx: f6aa653770f3a0d3851edaf8d834a30aee4a7646
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e

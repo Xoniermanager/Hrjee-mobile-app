@@ -137,12 +137,13 @@ const Processing = () => {
 
       })
   }, [showAddress])
+  console.log(currentLocation,'currentLocation')
   const latitude = currentLocation?.lat;
   const longitude = currentLocation?.long;
   const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
   const getAddress = async () => {
     axios.get(urlAddress).then(res => {
-
+console.log(res.data?.results[0].formatted_address,'res.data?.results[0].formatted_address')
       setAddress(res.data?.results[0].formatted_address)
     })
   }
@@ -262,6 +263,8 @@ const Processing = () => {
       setError('Error fetching data');
     }
   };
+
+  console.log(address,'address')
   const onSearchList = async (prev) => {
     const filtered = data?.filter(item =>
       // console.log(item.customer_name,'item.pincode')
@@ -583,7 +586,7 @@ console.log(filterData,'data')
               <View activeOpacity={0.2} style={styles.maincard}>
 
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignContent: "center", alignItems: "center" }}>
-                  <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1), setID(item),getCoordinates(item?.risk_address),getAddress()]}>
+                  <TouchableOpacity style={{ backgroundColor: "#0043ae", borderRadius: 10 }} onPress={() => [setModalVisible1(true), setShowAddress(showAddress + 1), setID(item),getCoordinates(item?.risk_address),getAddress(),]}>
                     <Text style={{ color: Themes == 'dark' ? '#fff' : '#fff', fontWeight: "bold", fontSize: 16, padding: 5 }}>Update</Text>
                   </TouchableOpacity>
 

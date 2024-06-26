@@ -269,6 +269,61 @@ function CustomDrawerContent(props) {
         setloading(false)
       });
   };
+  const UpdateProfile = async () => {
+    setloading(true);
+
+    const token = await AsyncStorage.getItem('Token');
+
+    const formData = new FormData();
+    formData.append('father_name', Userdata?.fatherName);
+    formData.append('dob', dateTxt?.txt1);
+    formData.append('SEX', Userdata?.gender)
+    formData.append('email', Userdata?.email)
+    formData.append('mobile_no', Userdata?.phone);
+    formData.append('permanent_address', Userdata?.permanentAddress)
+    if (photo) {
+      // var photoFormData = ;
+      formData.append('image', {
+        uri: photo?.path,
+        type: photo?.mime,
+        name: photo?.modificationDate + '.' + 'jpg',
+        // name: photo?.modificationDate
+      });
+    }
+
+
+    fetch(`${apiUrl}/SecondPhaseApi/update_employee_data`, {
+      method: 'POST',
+      headers: {
+        'Token': token,
+        Accept: 'application/json',
+      },
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(response => {
+        setloading(false);
+        setModalVisible(!modalVisible);
+        get_employee_detail();
+
+        Popup.show({
+          type: 'Success',
+          title: 'Success',
+          button: true,
+          textBody: response?.msg,
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        });
+      })
+      .catch(err => {
+        setloading(false);
+
+        if (err.response.status == '401') {
+
+
+        }
+      });
+  }
 
   const get_address = async () => {
     const token = await AsyncStorage.getItem('Token');
@@ -389,62 +444,6 @@ function CustomDrawerContent(props) {
         alert(error);
       });
   };
-
-  const UpdateProfile = async () => {
-    setloading(true);
-
-    const token = await AsyncStorage.getItem('Token');
-
-    const formData = new FormData();
-    formData.append('father_name', Userdata?.fatherName);
-    formData.append('dob', dateTxt?.txt1);
-    formData.append('SEX', Userdata?.gender)
-    formData.append('email', Userdata?.email)
-    formData.append('mobile_no', Userdata?.phone);
-    formData.append('permanent_address', Userdata?.permanentAddress)
-    if (photo) {
-      // var photoFormData = ;
-      formData.append('image', {
-        uri: photo?.path,
-        type: photo?.mime,
-        name: photo?.modificationDate + '.' + 'jpg',
-        // name: photo?.modificationDate
-      });
-    }
-
-
-    fetch(`${apiUrl}/SecondPhaseApi/update_employee_data`, {
-      method: 'POST',
-      headers: {
-        'Token': token,
-        Accept: 'application/json',
-      },
-      body: formData,
-    })
-      .then(response => response.json())
-      .then(response => {
-        setloading(false);
-        setModalVisible(!modalVisible);
-        get_employee_detail();
-
-        Popup.show({
-          type: 'Success',
-          title: 'Success',
-          button: true,
-          textBody: response?.msg,
-          buttonText: 'Ok',
-          callback: () => [Popup.hide()]
-        });
-      })
-      .catch(err => {
-        setloading(false);
-
-        if (err.response.status == '401') {
-
-
-        }
-      });
-  }
 
   const update_address = async id => {
     setloading(true);

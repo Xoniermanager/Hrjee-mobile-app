@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
@@ -25,9 +25,9 @@ import LocationList from '../src/screens/Location/LocationList';
 import Home from '../src/screens/home/Home';
 import PRM from '../src/screens/PRM/PRM';
 import {responsiveWidth} from 'react-native-responsive-dimensions';
+import { SocketContext } from '../src/tracking/SocketContext';
 
 const Tab = createBottomTabNavigator();
-
 const DUMMY_MENUS = [
   {
     "created_date": "2021-07-19 13:53:09",
@@ -54,6 +54,9 @@ const DUMMY_MENUS = [
 ]
 
 const Main = () => {
+const {list,prm}=useContext(SocketContext)
+console.log(prm,'njfnjrnfjn')
+
   const [companyid, setCompany_id] = useState('');
   const [prmData, setPrmData] = useState();
   const [locationmgmt, setPrmLocationMgmt] = useState();
@@ -87,9 +90,9 @@ const Main = () => {
     return 'flex';
   };
 
-  const checkMenuAccess = (menuName) => {
-    let filteredMenus = DUMMY_MENUS.filter((item) => {
-      return item.menu_name == menuName
+  const checkMenuAccess = (id) => {
+    let filteredMenus = list.filter((item) => {
+      return item.menu_id == id
     });
 
     if(filteredMenus.length > 0) return true;
@@ -138,7 +141,7 @@ const Main = () => {
         component={Services}
       />
 
-      {checkMenuAccess("Location Management") == 0 ? null : (
+      {checkMenuAccess("54") == 0 ? null : (
         <Tab.Screen
           options={{
             unmountOnBlur: true,
@@ -154,7 +157,7 @@ const Main = () => {
         />
       )}
       
-      {prmData == 0 ? null : (
+      {prm == 0 ? null : (
         <Tab.Screen
           options={{
             unmountOnBlur: true,

@@ -144,9 +144,9 @@ useEffect(()=>{
                   JSON.stringify(response.data.location),
                 );
                 setlocation(response.data.location);
-                AsyncStorage.setItem(
-                  'PRMData', (response.data.data?.prm_assign),
-                );
+                // AsyncStorage.setItem(
+                //   'PRMData', (response.data.data?.prm_assign),
+                // );
                 let options = []
                 response?.data?.menu_access?.map((item) => {
                   if (item.menu_name.includes("News Management")) {

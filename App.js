@@ -46,7 +46,9 @@ const App = ({navigation}) => {
           packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
           ignoreErrors: true,
         });
+      
         const currentVersion = VersionCheck.getCurrentVersion();
+        console.log(currentVersion,latestVersion)
         if (latestVersion > currentVersion) {
           Alert.alert(
             'Update Required',

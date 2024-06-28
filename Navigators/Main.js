@@ -54,9 +54,7 @@ const DUMMY_MENUS = [
 ]
 
 const Main = () => {
-const {list,prm}=useContext(SocketContext)
-console.log(prm,'njfnjrnfjn')
-
+  const {list,prm}=useContext(SocketContext)
   const [companyid, setCompany_id] = useState('');
   const [prmData, setPrmData] = useState();
   const [locationmgmt, setPrmLocationMgmt] = useState();
@@ -91,11 +89,11 @@ console.log(prm,'njfnjrnfjn')
   };
 
   const checkMenuAccess = (id) => {
-    let filteredMenus = list.filter((item) => {
-      return item.menu_id == id
+    let filteredMenus = list?.filter((item) => {
+      return item?.menu_id == id
     });
 
-    if(filteredMenus.length > 0) return true;
+    if(filteredMenus?.length > 0) return true;
 
     return false;
   }
@@ -140,8 +138,6 @@ console.log(prm,'njfnjrnfjn')
         name="Services"
         component={Services}
       />
-
-      {checkMenuAccess("54") == 0 ? null : (
         <Tab.Screen
           options={{
             unmountOnBlur: true,
@@ -155,7 +151,7 @@ console.log(prm,'njfnjrnfjn')
           name="Location List"
           component={LocationList}
         />
-      )}
+  
       
       {prm == 0 ? null : (
         <Tab.Screen
@@ -181,7 +177,7 @@ console.log(prm,'njfnjrnfjn')
           name="PRM"
           component={PRM}
         />
-      )}
+     )}
 
       <Tab.Screen
         options={{

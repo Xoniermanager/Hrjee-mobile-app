@@ -28,7 +28,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
-
+import BackgroundService from 'react-native-background-actions';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
@@ -45,6 +45,8 @@ import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
+import io from 'socket.io-client';
+
 const {width} = Dimensions.get('window');
 // import messaging from '@react-native-firebas e/messaging';
 import Empty from '../../reusable/Empty';
@@ -81,6 +83,7 @@ const Home = ({navigation}) => {
   const [officetiming, setOfficeTiming] = useState('');
   const [show, setShow] = useState(true);
   const [radius, setRadius] = useState();
+  const socket = io('https://app.hrjee.com:6370');
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -165,11 +168,7 @@ const Home = ({navigation}) => {
       });
   };
 
-  // console.log("menuAccessData", menuAccessData)
-  // AsyncStorage.getItem('menu').then(res => {
-  //   setMenuAccessData(JSON.parse(res))
-  //   console.log(JSON.parse(res))
-  // });
+ 
 
   useEffect(() => {
     const getData = async () => {
@@ -314,6 +313,7 @@ const Home = ({navigation}) => {
     setModalVisible(true);
     settimerOn(false);
     const token = await AsyncStorage.getItem('Token');
+    console.log(token,'yashuuuuu')
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
     setuser(JSON.parse(userData));
@@ -331,7 +331,7 @@ const Home = ({navigation}) => {
           if (data.in_time != '' && data.out_location_id == null) {
             setpunchIn(true);
             setinTime(data.in_time);
-            setlocationOut(data.out_location_id);
+            setlocationOut(data?.out_location_id);
             settimerOn(true);
             setloading(false);
             setModalVisible(false);
@@ -429,7 +429,7 @@ const Home = ({navigation}) => {
           long: long,
           lat: lat,
         });
-
+          let locations = {userId:userInfo?.userid, location: {longitude: long, latitude: lat}}
         var dis = getDistance(
           {latitude: lat, longitude: long},
           {
@@ -456,6 +456,8 @@ const Home = ({navigation}) => {
             .then(function (response) {
               if (response.data.status == 1) {
                 check_punchIn();
+                socket.emit('closeConnection', locations);
+
               } else {
                 setloading(false);
               }
@@ -554,6 +556,7 @@ const Home = ({navigation}) => {
               .then(function (response) {
                 if (response.data.status == 1) {
                   check_punchIn();
+                  socket.emit('closeConnection', locations);
                 } else {
                   setloading(false);
                 }
@@ -1155,7 +1158,7 @@ const Home = ({navigation}) => {
   const [currentPosition, setCurrentPosition] = useState(null);
   const [previousPosition, setPreviousPosition] = useState(null);
 
-  const distanceThreshold = 0.0;
+  const distanceThreshold = 0.001;
 
   const sendLocationUpdate = async (position, user_id) => {
     console.log(user_id, 'user_id');
@@ -1191,17 +1194,20 @@ const Home = ({navigation}) => {
     const watchId = Geolocation.watchPosition(
       position => {
         // Save current position as previous position before updating
+        console.log(currentPosition,'currentPosition')
+          
         if (previousPosition) {
           const distance = calculateDistance(
-            previousPosition.coords.latitude,
-            previousPosition.coords.longitude,
-            position.coords.latitude,
-            position.coords.longitude,
+            previousPosition?.coords?.latitude,
+            previousPosition?.coords?.longitude,
+            position?.coords?.latitude,
+            position?.coords?.longitude,
           );
 
           if (distance >= distanceThreshold) {
             sendLocationUpdate(position, user_id);
             setPreviousPosition(currentPosition);
+          
           }
         } else {
           sendLocationUpdate(position, user_id);
@@ -1212,14 +1218,45 @@ const Home = ({navigation}) => {
       error => console.log(error),
       {enableHighAccuracy: true, distanceFilter: 1, interval: 5000},
     );
-    console.log(watchId, 'watchId');
+
     // Clean up the watchPosition when the component unmounts
     return () => Geolocation.clearWatch(watchId);
   };
+  const map = {
+    taskName: 'Example',
+    taskTitle: 'ExampleTask map',
+    taskDesc: 'ExampleTask map',
+    taskIcon: {
+      name: 'ic_launcher',
+      type: 'mipmap',
+    },
+    color: '#ff00ff',
+    linkingURI: 'yourSchemeHere://chat/jane', // See Deep Linking for more info
+    parameters: {
+      delay: 1000,
+    },
+  };
+  
+  const sleep = time =>
+  new Promise(resolve => setTimeout(() => resolve(), time));
+  const veryIntensiveTask = async taskDataArguments => {
+  const {delay} = taskDataArguments;
+  await new Promise(async resolve => {
+    for (let i = 0; BackgroundService.isRunning(); i++) {
+      await sleep(delay);
+      doSomething();
+    }
+  });
+};
 
-  useEffect(() => {
-    doSomething();
-  }, [currentPosition]);
+  // useEffect(async() => {
+   
+  //     await BackgroundService.start(veryIntensiveTask,map);
+  //     doSomething();
+  
+  
+   
+  // }, [currentPosition]);
 
   //  This is used send live tracking location socketContext page Ending ..................................
 
@@ -1358,6 +1395,7 @@ const Home = ({navigation}) => {
       clearInterval(interval);
     };
   }, [timerOn]);
+ 
 
   useEffect(() => {
     setTimeout(function () {
@@ -1369,26 +1407,7 @@ const Home = ({navigation}) => {
             setpunchIn(true);
             setinTime(data.in_time);
             settimerOn(true);
-            // console.log('today attendence');
             setloading(false);
-            // setInterval(() => {
-            //   var timeEnd1 = parseInt(new Date().getTime());
-            //   const startDate = moment(data.in_time);
-            //   const timeEnd = moment(timeEnd1);
-            //   const diff = timeEnd.diff(startDate);
-            //   const diffDuration = moment.duration(diff);
-            //   var days = diffDuration.days();
-            //   var hours = diffDuration.hours();
-            //   var minutes = diffDuration.minutes();
-            //   var seconds = diffDuration.seconds();
-            //   var time =
-            //     (hours < 10 ? '0' + hours : hours) +
-            //     ':' +
-            //     (minutes < 10 ? '0' + minutes : minutes) +
-            //     ':' +
-            //     (seconds < 10 ? '0' + seconds : seconds);
-            //   setactivityTime(time);
-            // }, 1000);
           } else {
             if (data.in_time != '' && data.out_location_id != '') {
               // after punch out
@@ -1516,7 +1535,7 @@ const Home = ({navigation}) => {
                   Hi,{user?.FULL_NAME}!
                 </Text>
               </View>
-              {/* <TouchableOpacity
+               <TouchableOpacity
                 onPress={() => navigation.navigate('UserList')}
                 style={{marginLeft: responsiveWidth(18)}}>
                 <Entypo
@@ -1527,7 +1546,7 @@ const Home = ({navigation}) => {
                     marginRight: 10,
                   }}
                 />
-              </TouchableOpacity> */}
+              </TouchableOpacity> 
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 style={{}}>

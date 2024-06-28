@@ -8,7 +8,7 @@ const SocketContext = createContext();
 const socket = io('https://app.hrjee.com:6370');
 
 const SocketProvider = ({ children }) => {
-    const [contextState,setContextState]=useState()
+    const [contextState,setContextState]=useState([])
     const [list,setList]=useState()
     const [prm,setPrm]=useState()
     const [radius,setRadius]=useState()

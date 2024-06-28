@@ -8,67 +8,10 @@ import axios from 'axios';
 import Reload from '../../../Reload';
 const UserList = () => {
     const navigation=useNavigation()
-    const [list,setList]=useState(null)
-    const data = [{
-        id: 1,
-        fullName: "Aafreen Khan",
-        timeStamp: "12:47 PM",
-        recentText: "Good Day!",
-        avatarUrl: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-      }, {
-        id:2,
-        fullName: "Sujitha Mathur",
-        timeStamp: "11:11 PM",
-        recentText: "Cheer up, there!",
-        avatarUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyEaZqT3fHeNrPGcnjLLX1v_W4mvBlgpwxnA&usqp=CAU"
-      }, {
-        id:3,
-        fullName: "Anci Barroco",
-        timeStamp: "6:22 PM",
-        recentText: "Good Day!",
-        avatarUrl: "https://miro.medium.com/max/1400/0*0fClPmIScV5pTLoE.jpg"
-      }, {
-        id:4,
-        fullName: "Aniket Kumar",
-        timeStamp: "8:56 PM",
-        recentText: "All the best",
-        avatarUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyEaZqT3fHeNrPGcnjLLX1v_W4mvBlgpwxnA&usqp=CAU"
-      }, {
-        id: 5,
-        fullName: "Kiara",
-        timeStamp: "12:47 PM",
-        recentText: "I will call today.",
-        avatarUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBwgu1A5zgPSvfE83nurkuzNEoXs9DMNr8Ww&usqp=CAU"
-      },
-      
-      {
-        id:6,
-        fullName: "Sujitha Mathur",
-        timeStamp: "11:11 PM",
-        recentText: "Cheer up, there!",
-        avatarUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyEaZqT3fHeNrPGcnjLLX1v_W4mvBlgpwxnA&usqp=CAU"
-      }, {
-        id:7,
-        fullName: "Anci Barroco",
-        timeStamp: "6:22 PM",
-        recentText: "Good Day!",
-        avatarUrl: "https://miro.medium.com/max/1400/0*0fClPmIScV5pTLoE.jpg"
-      }, {
-        id:8,
-        fullName: "Aniket Kumar",
-        timeStamp: "8:56 PM",
-        recentText: "All the best",
-        avatarUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyEaZqT3fHeNrPGcnjLLX1v_W4mvBlgpwxnA&usqp=CAU"
-      }, {
-        id: 9,
-        fullName: "Kiara",
-        timeStamp: "12:47 PM",
-        recentText: "I will call today.",
-        avatarUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBwgu1A5zgPSvfE83nurkuzNEoXs9DMNr8Ww&usqp=CAU"
-      },
-    ];
+    const [list,setList]=useState([])
 const getList=async()=>{
-  const token=await AsyncStorage.getItem('Token')
+  const token=await AsyncStorage.getItem('Token');
+  console.log(token,'token')
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
@@ -92,15 +35,20 @@ const getList=async()=>{
     useEffect(async()=>{
       getList()
     },[])
-    if(list==null){
-      <Reload/>
-    }
+  
   return (
     <View style={{flex:1,backgroundColor:'#fff'}}>
+      {list && list?.length==0?
+      <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+        <Image
+      source={require('../../images/Datanot.jpg')}
+      />
+        </View>
+      :null}
         <FlatList
         data={list}
         renderItem={({item,index}) => 
-        <TouchableOpacity style={styles.cart_box} onPress={()=>navigation.navigate('GetLocation_id')} key={index}>
+        <TouchableOpacity style={styles.cart_box} onPress={()=>navigation.navigate('User Location',{userId:item?.userid})} key={index}>
         <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
    { item?.profile_img==""?
    <Image 

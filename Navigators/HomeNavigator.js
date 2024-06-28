@@ -481,7 +481,7 @@ function MyStack() {
                 component={UserList}
               />
                 <Stack.Screen
-                name="GetLocation_id"
+                name="User Location"
                 component={GetLocation_id}
               />
             </>

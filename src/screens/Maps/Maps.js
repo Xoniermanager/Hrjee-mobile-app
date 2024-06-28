@@ -6,34 +6,34 @@ import { SocketContext } from '../../tracking/SocketContext';
 
 const Maps = ({route}) => {
   const {setContextState,contextState}=useContext(SocketContext)
-  console.log(contextState, 'yash');
+  // console.log(contextState, 'yash');
   const origin = {latitude: 28.6252665, longitude: 77.2960197}; // Origin coordinates
   const destination = {latitude: 28.6209434, longitude: 77.3643691}; // Destination coordinates
   const [locations, setLocations] = useState([]);
   const [waypoints, setWaypoints] = useState([]);
  
-
+console.log("locations",locations)
   useEffect(() => {
-    // let timer = setTimeout(() => {
-    //   if (data.length > count) {
-    //     setLocations([...locations, data[count]]);
-    //     setWaypoints([...waypoints, locations.slice(1, locations.length - 1).map(point => point.coordinates)])
-    //     setCount(prev => prev + 1);
-    //   }
-    // }, 4000);
-    // return () => clearTimeout(timer);
-
     if(locations.length){
-      setLocations([...locations, {
-        title: 'Current Point',
-        coordinates: contextState.currentLocation,
-      }])
+      if(contextState.exitLocation){
+        setLocations([...locations, {
+          title: 'Current Point',
+          coordinates: contextState.exitLocation,
+        }])
+      }else{
+        setLocations([...locations, {
+          title: 'Current Point',
+          coordinates: contextState.currentLocation,
+        }])
+      }
     }else{
       setLocations([...locations, {
         title: 'Start Point',
-        coordinates: contextState.firstLocation,
+        coordinates: contextState.firstLocation?.location,
       }])
     }
+
+    console.log('locationslocations', locations);
 
     setWaypoints([...waypoints, locations.slice(1, locations.length - 1).map(point => point.coordinates)])
   }, [contextState]);
@@ -62,14 +62,12 @@ const Maps = ({route}) => {
           <MapViewDirections
             origin={locations[0].coordinates}
             destination={locations[locations.length - 1].coordinates}
-            waypoints={waypoints}
+            // waypoints={waypoints}
             apikey="AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg" // Replace with your API key
             strokeWidth={3}
             strokeColor="blue"
             optimizeWaypoints={true}
-            onStart={(params) => {
-              console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
-            }}
+         
           />
         </MapView>
       )}

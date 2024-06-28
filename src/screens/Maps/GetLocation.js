@@ -1,15 +1,18 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,ActivityIndicator } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 import io from 'socket.io-client';
 import { SocketContext } from '../../tracking/SocketContext';
+import Reload from '../../../Reload';
 
 const GetLocation_id = ({route}) => {
-  const navigation=useNavigation()
-    const userId = 4572;
-    const {setContextState}=useContext(SocketContext)
+  const {userId}=route?.params;
+  // const userId=43800011
 
+  const navigation=useNavigation()
+
+    const {setContextState,contextState}=useContext(SocketContext)
     useEffect(()=>{
         const socket = io('https://app.hrjee.com:6370');
     
@@ -23,7 +26,7 @@ const GetLocation_id = ({route}) => {
         // Listen for location updates from the server
         socket.on('locationData', (data) => {
           setContextState(data)
-          console.log(data,'yashu')
+          // console.log(data,'yashu')
           navigation.navigate('Maps')
         });
     
@@ -32,11 +35,21 @@ const GetLocation_id = ({route}) => {
             console.error(`Connection error: ${err.message}`);
         });
     
-        subscribeToUser(userId ? userId : 4572)
+        subscribeToUser(userId ? userId : 1)
     },[])
-  
 
+   
+      return (
+        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+      <Image
+      source={require('../../images/1.webp')}
+
+      />
+
+        </View>
+      )
 }
+
 const styles = StyleSheet.create({
     container: {
       flex: 1,

@@ -456,7 +456,7 @@ const Home = ({navigation}) => {
             .then(function (response) {
               if (response.data.status == 1) {
                 check_punchIn();
-                socket.emit('closeConnection', locations);
+                // socket.emit('closeConnection', locations);
 
               } else {
                 setloading(false);
@@ -556,7 +556,7 @@ const Home = ({navigation}) => {
               .then(function (response) {
                 if (response.data.status == 1) {
                   check_punchIn();
-                  socket.emit('closeConnection', locations);
+                  // socket.emit('closeConnection', locations);
                 } else {
                   setloading(false);
                 }
@@ -630,13 +630,13 @@ const Home = ({navigation}) => {
               var long = parseFloat(location.longitude);
 
               // { Live tracking starting}
-              sendLocation({
-                userId: userInfo?.userid,
-                location: {
-                  longitude: long,
-                  latitude: lat,
-                },
-              });
+              // sendLocation({
+              //   userId: userInfo?.userid,
+              //   location: {
+              //     longitude: long,
+              //     latitude: lat,
+              //   },
+              // });
               // { Live tracking ending }
 
               setcurrentLocation({
@@ -881,13 +881,13 @@ const Home = ({navigation}) => {
             var long = parseFloat(location.longitude);
 
             // { Live tracking starting}
-            sendLocation({
-              userId: userInfo?.userid,
-              location: {
-                longitude: long,
-                latitude: lat,
-              },
-            });
+            // sendLocation({
+            //   userId: userInfo?.userid,
+            //   location: {
+            //     longitude: long,
+            //     latitude: lat,
+            //   },
+            // });
             // { Live tracking starting}
 
             setcurrentLocation({
@@ -1133,13 +1133,13 @@ const Home = ({navigation}) => {
             var long = parseFloat(location.longitude);
 
             // { Live tracking starting}
-            sendLocation({
-              userId: userInfo?.userid,
-              location: {
-                longitude: long,
-                latitude: lat,
-              },
-            });
+            // sendLocation({
+            //   userId: userInfo?.userid,
+            //   location: {
+            //     longitude: long,
+            //     latitude: lat,
+            //   },
+            // });
             // { Live tracking ending }
 
             setcurrentLocation({
@@ -1237,17 +1237,17 @@ const Home = ({navigation}) => {
     },
   };
   
-  const sleep = time =>
-  new Promise(resolve => setTimeout(() => resolve(), time));
-  const veryIntensiveTask = async taskDataArguments => {
-  const {delay} = taskDataArguments;
-  await new Promise(async resolve => {
-    for (let i = 0; BackgroundService.isRunning(); i++) {
-      await sleep(delay);
-      doSomething();
-    }
-  });
-};
+//   const sleep = time =>
+//   new Promise(resolve => setTimeout(() => resolve(), time));
+//   const veryIntensiveTask = async taskDataArguments => {
+//   const {delay} = taskDataArguments;
+//   await new Promise(async resolve => {
+//     for (let i = 0; BackgroundService.isRunning(); i++) {
+//       await sleep(delay);
+//       doSomething();
+//     }
+//   });
+// };
 
   // useEffect(async() => {
    
@@ -1535,7 +1535,7 @@ const Home = ({navigation}) => {
                   Hi,{user?.FULL_NAME}!
                 </Text>
               </View>
-               <TouchableOpacity
+               {/* <TouchableOpacity
                 onPress={() => navigation.navigate('UserList')}
                 style={{marginLeft: responsiveWidth(18)}}>
                 <Entypo
@@ -1546,7 +1546,7 @@ const Home = ({navigation}) => {
                     marginRight: 10,
                   }}
                 />
-              </TouchableOpacity> 
+              </TouchableOpacity>  */}
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 style={{}}>

@@ -28,52 +28,52 @@ const App = ({navigation}) => {
     }, 1000);
   }, []);
 
-  const update = async () => {
-    Linking.openURL(
-      Platform.OS === 'ios'
-        ? 'http://itunes.apple.com/lookup?bundleId=com.appHRjee'
-        : 'https://play.google.com/store/apps/details?id=com.HRjee',
-    );
-    await AsyncStorage.removeItem('Token');
-    await AsyncStorage.removeItem('UserData');
-    await AsyncStorage.removeItem('UserLocation');
-  };
+  // const update = async () => {
+  //   Linking.openURL(
+  //     Platform.OS === 'ios'
+  //       ? 'http://itunes.apple.com/lookup?bundleId=com.appHRjee'
+  //       : 'https://play.google.com/store/apps/details?id=com.HRjee',
+  //   );
+  //   await AsyncStorage.removeItem('Token');
+  //   await AsyncStorage.removeItem('UserData');
+  //   await AsyncStorage.removeItem('UserLocation');
+  // };
 
-  useEffect(() => {
-    const checkAppVersion = async () => {
-      try {
-        const latestVersion = await VersionCheck.getLatestVersion({
-          packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
-          ignoreErrors: true,
-        });
+  // useEffect(() => {
+  //   const checkAppVersion = async () => {
+  //     try {
+  //       const latestVersion = await VersionCheck.getLatestVersion({
+  //         packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
+  //         ignoreErrors: true,
+  //       });
       
-        const currentVersion = VersionCheck.getCurrentVersion();
-        console.log(currentVersion,latestVersion)
-        if (latestVersion > currentVersion) {
-          Alert.alert(
-            'Update Required',
-            'A new version of the app is available. Please update to continue using the app.',
-            [
-              {
-                text: 'Update Now',
-                onPress: () => {
-                  update();
-                },
-              },
-            ],
-            {cancelable: false},
-          );
-        } else {
-          // App is up-to-date, proceed with the app
-        }
-      } catch (error) {
-        // Handle error while checking app version
-        console.error('Error checking app version:', error);
-      }
-    };
+  //       const currentVersion = VersionCheck.getCurrentVersion();
+  //       console.log(currentVersion,latestVersion)
+  //       if (latestVersion > currentVersion) {
+  //         Alert.alert(
+  //           'Update Required',
+  //           'A new version of the app is available. Please update to continue using the app.',
+  //           [
+  //             {
+  //               text: 'Update Now',
+  //               onPress: () => {
+  //                 update();
+  //               },
+  //             },
+  //           ],
+  //           {cancelable: false},
+  //         );
+  //       } else {
+  //         // App is up-to-date, proceed with the app
+  //       }
+  //     } catch (error) {
+  //       // Handle error while checking app version
+  //       console.error('Error checking app version:', error);
+  //     }
+  //   };
 
-    checkAppVersion();
-  }, []);
+  //   checkAppVersion();
+  // }, []);
 
   const [isConnected, setIsConnected] = useState('');
   const [isModalVisiblebeneficial, setModalVisiblebeneficial] = useState(false);

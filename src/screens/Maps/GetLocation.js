@@ -25,9 +25,16 @@ const GetLocation_id = ({route}) => {
     
         // Listen for location updates from the server
         socket.on('locationData', (data) => {
-          setContextState(data)
-          // console.log(data,'yashu')
-          navigation.navigate('Maps')
+          console.log(data,'yashu')
+          if(data?.firstLocation==null){
+            alert("Location not Allow")
+          }
+          else{
+            setContextState(data)
+            console.log(data,'yashu')
+            navigation.navigate('Maps')
+          }
+         
         });
     
         // Handle connection errors

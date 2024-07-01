@@ -8,7 +8,7 @@ import axios from 'axios';
 import Reload from '../../../Reload';
 const UserList = () => {
     const navigation=useNavigation()
-    const [list,setList]=useState([])
+    const [list,setList]=useState(null)
 const getList=async()=>{
   const token=await AsyncStorage.getItem('Token');
   console.log(token,'token')
@@ -35,15 +35,25 @@ const getList=async()=>{
     useEffect(async()=>{
       getList()
     },[])
+    if(list==null){
+      return <Reload/>
+    }
   
   return (
     <View style={{flex:1,backgroundColor:'#fff'}}>
       {list && list?.length==0?
-      <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-        <Image
-      source={require('../../images/Datanot.jpg')}
-      />
-        </View>
+     <View
+     style={{
+       flex: 1,
+       backgroundColor: 'white',
+       alignItems: 'center',
+       justifyContent: 'center',
+     }}>
+     <Image
+       style={styles.tinyLogo}
+       source={require('../../images/nothingToShow.gif')}
+     />
+   </View>
       :null}
         <FlatList
         data={list}
@@ -97,5 +107,13 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
         // Android shadow property
         elevation: 5,
-    }
+    },
+    tinyLogo: {
+      width: 300,
+      height: 300,
+      borderRadius: 100,
+      marginRight: 10,
+      borderWidth: 1,
+      borderColor: 'white',
+    },
 })

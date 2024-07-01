@@ -295,6 +295,10 @@ function MyStack() {
                 name="UserList"
                 component={UserList}
               />
+                 <Stack.Screen
+                name="User Location"
+                component={GetLocation_id}
+              />
             </>
             
           ) : (

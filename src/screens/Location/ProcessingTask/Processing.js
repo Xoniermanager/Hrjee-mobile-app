@@ -247,13 +247,16 @@ console.log(res.data?.results[0].formatted_address,'res.data?.results[0].formatt
   }
 
   const getCoordinates = async (address) => {
+   
     const apiKey = 'AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg'; // Replace with your Google Maps API key
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
 
     try {
       const response = await axios.get(url);
+      console.log(response?.data?.status,'yashu')
       if (response.data.status === 'OK') {
         const location = response?.data?.results[0]?.geometry.location;
+      console.log(location,'location')
         setCoordinates(location);
         setError('');
       } else {
@@ -277,8 +280,19 @@ console.log(res.data?.results[0].formatted_address,'res.data?.results[0].formatt
     setFilterData(filtered);
   };
   const tast_status_update = async (item) => {
+  
     setloading1(true);
     setShowAddress(showAddress + 1)
+   
+    console.log(currentLocation?.lat,currentLocation?.long)
+ 
+    console.log(coordinates?.lat,'bhbkbblllf')
+   if(coordinates?.lat==undefined ||coordinates?.lng==undefined ) {
+    setloading1(false)
+      alert('Visit address found invalid')
+     
+   }
+   else{
     var dis = getDistance(
       { latitude: currentLocation?.lat, longitude: currentLocation?.long },
       {
@@ -288,6 +302,7 @@ console.log(res.data?.results[0].formatted_address,'res.data?.results[0].formatt
     );
     if (dis <= 4000) {
       if (Platform.OS == 'android') {
+        console.log("second")
         try {
 
           const granted = await PermissionsAndroid.request(
@@ -326,7 +341,7 @@ console.log(res.data?.results[0].formatted_address,'res.data?.results[0].formatt
                 };
                 data.append('selfie_image', selfie_image);
                 data.append('lat_long_address', address);
-                  console.log('form data',data)
+                 
                 if (remark.trim() === '') {
                   setRemarkError('Please enter some text');
 
@@ -551,10 +566,10 @@ console.log(res.data?.results[0].formatted_address,'res.data?.results[0].formatt
 
       setloading(false);
     }
-
-
+   }
+   
   };
-console.log(filterData,'data')
+
 
 
   return (

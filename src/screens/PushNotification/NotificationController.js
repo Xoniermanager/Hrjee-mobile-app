@@ -140,7 +140,8 @@ const NotificationController = () => {
     });
   };
   useEffect(async () => {
-    await BackgroundService.start(veryIntensiveTask, options);
+    console.log("yashsu")
+    // await BackgroundService.start(veryIntensiveTask, options);
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       console.log(remoteMessage,'remoteMessage')
       onDisplayNotification(remoteMessage);

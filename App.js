@@ -49,7 +49,7 @@ const App = ({navigation}) => {
       
         const currentVersion = VersionCheck.getCurrentVersion();
         console.log(currentVersion,latestVersion)
-        if (latestVersion > currentVersion) {
+        if (latestVersion < currentVersion) {
           Alert.alert(
             'Update Required',
             'A new version of the app is available. Please update to continue using the app.',
@@ -72,7 +72,7 @@ const App = ({navigation}) => {
       }
     };
 
-    checkAppVersion();
+    // checkAppVersion();
   }, []);
 
   const [isConnected, setIsConnected] = useState('');

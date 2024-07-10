@@ -63,6 +63,7 @@ import NotificationController from '../PushNotification/NotificationController';
 const Home = ({navigation}) => {
   const theme = useColorScheme();
   const [modalVisible, setModalVisible] = useState(false);
+  const [disabledBtn,setDisabledBtn]=useState(false);
   const punchInApi = useApi2(attendence.punchIn);
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
@@ -146,6 +147,7 @@ const Home = ({navigation}) => {
 
   const ManuAccessdetails = async () => {
     const token = await AsyncStorage.getItem('Token');
+
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -162,6 +164,11 @@ const Home = ({navigation}) => {
         setMenuAccessData(response?.data?.menu_access);
         setPunchin_radius(response?.data);
         setRadius(response?.data?.config?.punchin_radius);
+        setUserdata({
+          name: response.data.users.FULL_NAME,
+          image: response.data.users.image,
+        });
+        
       })
       .catch(error => {
         console.log(error);
@@ -200,7 +207,7 @@ const Home = ({navigation}) => {
     React.useCallback(() => {
       getActiveLocation();
       check_punchIn();
-      ProfileDetails();
+      // ProfileDetails();
       get_month_logs();
       ManuAccessdetails();
     }, []),
@@ -211,7 +218,7 @@ const Home = ({navigation}) => {
     getActiveLocation();
     check_punchIn();
     get_month_logs();
-    ProfileDetails();
+    // ProfileDetails();
     ManuAccessdetails();
   };
 
@@ -309,7 +316,7 @@ const Home = ({navigation}) => {
 
   const check_punchIn = async () => {
     // setloading(true)
-    get_month_logs();
+  
     setModalVisible(true);
     settimerOn(false);
     const token = await AsyncStorage.getItem('Token');
@@ -608,7 +615,7 @@ const Home = ({navigation}) => {
   };
   const punch_in = async () => {
     setloading(true);
-
+    setDisabledBtn(true)
     if (Platform.OS == 'android') {
       try {
         const granted = await PermissionsAndroid.request(
@@ -630,13 +637,13 @@ const Home = ({navigation}) => {
               var long = parseFloat(location.longitude);
 
               // { Live tracking starting}
-              sendLocation({
-                userId: userInfo?.userid,
-                location: {
-                  longitude: long,
-                  latitude: lat,
-                },
-              });
+              // sendLocation({
+              //   userId: userInfo?.userid,
+              //   location: {
+              //     longitude: long,
+              //     latitude: lat,
+              //   },
+              // });
               // { Live tracking ending }
 
               setcurrentLocation({
@@ -678,6 +685,7 @@ const Home = ({navigation}) => {
                     if (response.data.status == 1) {
                       check_punchIn();
                       setloading(false);
+                       setDisabledBtn(false)
                     } else {
                       Popup.show({
                         type: 'Warning',
@@ -689,10 +697,12 @@ const Home = ({navigation}) => {
                       });
 
                       setloading(false);
+                      setDisabledBtn(false)
                     }
                   })
                   .catch(function (error) {
                     setloading(false);
+                    setDisabledBtn(false)
                     if (error.response.status == '401') {
                       Popup.show({
                         type: 'Warning',
@@ -722,6 +732,7 @@ const Home = ({navigation}) => {
                   });
 
                   setloading(false);
+                  setDisabledBtn(false)
                   return;
                 } else if (long == null || long == '') {
                   Popup.show({
@@ -733,6 +744,7 @@ const Home = ({navigation}) => {
                     callback: () => [Popup.hide()],
                   });
                   setloading(false);
+                  setDisabledBtn(false)
                   return;
                 } else if (
                   activeLocation.latitude == null ||
@@ -747,6 +759,7 @@ const Home = ({navigation}) => {
                     callback: () => [Popup.hide()],
                   });
                   setloading(false);
+                  setDisabledBtn(false)
                   return;
                 } else if (
                   activeLocation.longitude == null ||
@@ -761,6 +774,7 @@ const Home = ({navigation}) => {
                     callback: () => [Popup.hide()],
                   });
                   setloading(false);
+                  setDisabledBtn(false)
                   return;
                 }
 
@@ -789,6 +803,7 @@ const Home = ({navigation}) => {
                       if (response.data.status == 1) {
                         check_punchIn();
                         setloading(false);
+                        setDisabledBtn(false)
                       } else {
                         Popup.show({
                           type: 'Warning',
@@ -800,11 +815,12 @@ const Home = ({navigation}) => {
                         });
 
                         setloading(false);
+                        setDisabledBtn(false)
                       }
                     })
                     .catch(function (error) {
                       setloading(false);
-
+                      setDisabledBtn(false)
                       if (error.response.status == '401') {
                         Popup.show({
                           type: 'Warning',
@@ -833,6 +849,7 @@ const Home = ({navigation}) => {
                   });
 
                   setloading(false);
+                  setDisabledBtn(false)
                 }
               }
             })
@@ -848,6 +865,7 @@ const Home = ({navigation}) => {
                 callback: () => [Popup.hide()],
               });
               setloading(false);
+              setDisabledBtn(false)
             });
         } else {
           Popup.show({
@@ -860,9 +878,11 @@ const Home = ({navigation}) => {
           });
 
           setloading(false);
+          setDisabledBtn(false)
         }
       } catch (err) {
         setloading(false);
+        setDisabledBtn(false)
       }
     } else {
       try {
@@ -881,13 +901,13 @@ const Home = ({navigation}) => {
             var long = parseFloat(location.longitude);
 
             // { Live tracking starting}
-            sendLocation({
-              userId: userInfo?.userid,
-              location: {
-                longitude: long,
-                latitude: lat,
-              },
-            });
+            // sendLocation({
+            //   userId: userInfo?.userid,
+            //   location: {
+            //     longitude: long,
+            //     latitude: lat,
+            //   },
+            // });
             // { Live tracking starting}
 
             setcurrentLocation({
@@ -928,6 +948,8 @@ const Home = ({navigation}) => {
                 .then(function (response) {
                   if (response.data.status == 1) {
                     check_punchIn();
+                    setDisabledBtn(false)
+                    setloading(false);
                   } else {
                     Popup.show({
                       type: 'Warning',
@@ -939,11 +961,12 @@ const Home = ({navigation}) => {
                     });
 
                     setloading(false);
+                    setDisabledBtn(false)
                   }
                 })
                 .catch(function (error) {
                   setloading(false);
-
+                  setDisabledBtn(false)
                   if (error.response.status == '401') {
                     Popup.show({
                       type: 'Warning',
@@ -973,6 +996,7 @@ const Home = ({navigation}) => {
                 });
 
                 setloading(false);
+                setDisabledBtn(false)
                 return;
               } else if (long == null || long == '') {
                 Popup.show({
@@ -984,6 +1008,7 @@ const Home = ({navigation}) => {
                   callback: () => [Popup.hide()],
                 });
                 setloading(false);
+                setDisabledBtn(false)
                 return;
               } else if (
                 activeLocation.latitude == null ||
@@ -999,6 +1024,7 @@ const Home = ({navigation}) => {
                 });
 
                 setloading(false);
+                setDisabledBtn(false)
                 return;
               } else if (
                 activeLocation.longitude == null ||
@@ -1013,6 +1039,7 @@ const Home = ({navigation}) => {
                   callback: () => [Popup.hide()],
                 });
                 setloading(false);
+                setDisabledBtn(false)
                 return;
               }
 
@@ -1041,6 +1068,8 @@ const Home = ({navigation}) => {
                   .then(function (response) {
                     if (response.data.status == 1) {
                       check_punchIn();
+                      setDisabledBtn(false)
+                      setloading(false);
                     } else {
                       Popup.show({
                         type: 'Warning',
@@ -1052,10 +1081,12 @@ const Home = ({navigation}) => {
                       });
 
                       setloading(false);
+                      setDisabledBtn(false)
                     }
                   })
                   .catch(function (error) {
                     setloading(false);
+                    setDisabledBtn(false)
 
                     if (error.response.status == '401') {
                       Popup.show({
@@ -1085,6 +1116,7 @@ const Home = ({navigation}) => {
                 });
 
                 setloading(false);
+                setDisabledBtn(false)
               }
             }
           })
@@ -1100,9 +1132,11 @@ const Home = ({navigation}) => {
             });
 
             setloading(false);
+            setDisabledBtn(false)
           });
       } catch (err) {
         setloading(false);
+        setDisabledBtn(false)
         console.warn(err);
       }
     }
@@ -1133,13 +1167,13 @@ const Home = ({navigation}) => {
             var long = parseFloat(location.longitude);
 
             // { Live tracking starting}
-            sendLocation({
-              userId: userInfo?.userid,
-              location: {
-                longitude: long,
-                latitude: lat,
-              },
-            });
+            // sendLocation({
+            //   userId: userInfo?.userid,
+            //   location: {
+            //     longitude: long,
+            //     latitude: lat,
+            //   },
+            // });
             // { Live tracking ending }
 
             setcurrentLocation({
@@ -1244,7 +1278,7 @@ const Home = ({navigation}) => {
   await new Promise(async resolve => {
     for (let i = 0; BackgroundService.isRunning(); i++) {
       await sleep(delay);
-      doSomething();
+      // doSomething();
     }
   });
 };
@@ -1535,7 +1569,7 @@ const Home = ({navigation}) => {
                   Hi,{user?.FULL_NAME}!
                 </Text>
               </View>
-               <TouchableOpacity
+               {/* <TouchableOpacity
                 onPress={() => navigation.navigate('UserList')}
                 style={{marginLeft: responsiveWidth(18)}}>
                 <Entypo
@@ -1546,7 +1580,7 @@ const Home = ({navigation}) => {
                     marginRight: 10,
                   }}
                 />
-              </TouchableOpacity> 
+              </TouchableOpacity>  */}
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 style={{}}>
@@ -1708,6 +1742,7 @@ const Home = ({navigation}) => {
                       {!inTime && !locationOut && (
                         <TouchableOpacity
                           // onPress={() => punch()}
+                          disabled={disabledBtn==true?true:false}
                           onPress={() => punch_in()}
                           style={{
                             padding: 10,

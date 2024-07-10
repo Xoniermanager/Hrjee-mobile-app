@@ -32,6 +32,7 @@ const ApplyLeave = ({ navigation }) => {
   const { user } = useContext(EssContext);
   const [loading, setloading] = useState(false);
   // const [leaveBalance,setLeaveBalance]=useState()
+  const [disabledBtn,setDisabledBtn]=useState(false);
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
   const [halfDay, sethalfDay] = useState('0');
@@ -166,8 +167,9 @@ const ApplyLeave = ({ navigation }) => {
 
 
   const apply_leave = async () => {
-
+    setDisabledBtn(true)
     if (startDate.valueOf() < endDate.valueOf()) {
+   
       setloading(true);
       const token = await AsyncStorage.getItem('Token');
       const config = {
@@ -218,6 +220,7 @@ const ApplyLeave = ({ navigation }) => {
         .then(function (response) {
           //handle success
           setloading(false);
+          setDisabledBtn(false)
           if (response.data.status == 1) {
             try {
 
@@ -232,11 +235,13 @@ const ApplyLeave = ({ navigation }) => {
 
 
             } catch (e) {
+              setDisabledBtn(false)
               setloading(false);
 
             }
           } else {
             setloading(false);
+            setDisabledBtn(false)
             Popup.show({
               type: 'Warning',
               title: 'Warning',
@@ -251,6 +256,7 @@ const ApplyLeave = ({ navigation }) => {
         .catch(function (error) {
           //handle error
           setloading(false);
+          setDisabledBtn(false)
           if (error.response.status == '401') {
             Popup.show({
               type: 'Warning',
@@ -267,6 +273,7 @@ const ApplyLeave = ({ navigation }) => {
         });
     }
     else {
+      setDisabledBtn(false)
       Popup.show({
         type: 'Warning',
         title: 'Warning',
@@ -294,6 +301,7 @@ const ApplyLeave = ({ navigation }) => {
       return apply_leave();
     } else {
       if (value == null) {
+        setDisabledBtn(false)
         return Popup.show({
           type: 'Warning',
           title: 'Warning',
@@ -305,6 +313,7 @@ const ApplyLeave = ({ navigation }) => {
       }
 
       if (name == null) {
+        setDisabledBtn(false)
         return Popup.show({
           type: 'Warning',
           title: 'Warning',
@@ -315,6 +324,7 @@ const ApplyLeave = ({ navigation }) => {
         })
       }
       if (phone == null) {
+        setDisabledBtn(false)
         return Popup.show({
           type: 'Warning',
           title: 'Warning',
@@ -325,6 +335,7 @@ const ApplyLeave = ({ navigation }) => {
         })
       }
       if (address == null) {
+        setDisabledBtn(false)
         return Popup.show({
           type: 'Warning',
           title: 'Warning',
@@ -728,6 +739,7 @@ const ApplyLeave = ({ navigation }) => {
             {
               form.length > 0 ?
                 < TouchableOpacity
+                disabled={disabledBtn==true?true:false}
                   style={[styles.btn_style, { flexDirection: 'row' }]}
                   onPress={checkEmptyField}>
                   <Text
@@ -743,6 +755,7 @@ const ApplyLeave = ({ navigation }) => {
                 </TouchableOpacity>
                 :
                 < TouchableOpacity
+                disabled={disabledBtn==true?true:false}
                   style={[styles.btn_style, { flexDirection: 'row' }]}
                   onPress={checkEmptyField}>
                   <Text

@@ -34,7 +34,7 @@ const Login = () => {
   const [fcmtoken, setfcmtoken] = useState();
   const [addrequest, setAddRequest] = useState();
   const [showPassword, setShowPassword] = useState(false);
-
+  const [disabledBtn,setDisabledBtn]=useState(false);
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -52,6 +52,7 @@ const Login = () => {
   }
 
   async function getFCMToken() {
+    console.log("yashu")
     const token = await messaging().getToken();
     console.log(token,'fcm token');
     setfcmtoken(token);
@@ -62,7 +63,9 @@ useEffect(()=>{
 },[])
 
   const login = () => {
+   setDisabledBtn(true)
     if (email.trim() === '' || password.trim() === '') {
+      setDisabledBtn(false)
       Popup.show({
         type: 'Warning',
         title: 'Warning',
@@ -72,6 +75,8 @@ useEffect(()=>{
         callback: () => [Popup.hide(),],
       });
     } else if (password.length < 6) {
+      setDisabledBtn(false)
+  
       Popup.show({
         type: 'Warning',
         title: 'Warning',
@@ -103,6 +108,7 @@ useEffect(()=>{
                 callback: () => [Popup.hide(),],
               });
               setloading(false);
+              setDisabledBtn(false)
             }
             else if (response?.data?.data?.login_type === null) {
               Popup.show({
@@ -115,6 +121,7 @@ useEffect(()=>{
               });
               // alert('You are not authorized to use mobile application. Kindly contact admin!')
               setloading(false);
+              setDisabledBtn(false)
             }
             else if (response?.data?.data?.block == 1) {
               Popup.show({
@@ -127,12 +134,13 @@ useEffect(()=>{
               });
               // alert('You have been blocked, Please contact your admin department!')
               setloading(false);
+              setDisabledBtn(false)
             }
 
             else {
               try {
                 setloading(false);
-                  
+                setDisabledBtn(false)
                 AsyncStorage.setItem('Token', response.data.token);
                 AsyncStorage.setItem(
                   'UserData',
@@ -199,6 +207,7 @@ useEffect(()=>{
             });
             // alert('Please enter correct credentials');
             setloading(false);
+            setDisabledBtn(false)
           }
         })
         .catch(error => {
@@ -212,6 +221,7 @@ useEffect(()=>{
           })
 
           setloading(false)
+          setDisabledBtn(false)
         });
     }
 
@@ -282,7 +292,7 @@ useEffect(()=>{
                   />
                 </View>
               </View>
-              <TouchableOpacity style={[styles.btn_style]} onPress={() => login()}>
+              <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn==true?true:false}>
                 <Text
                   style={{
                     color: 'white',

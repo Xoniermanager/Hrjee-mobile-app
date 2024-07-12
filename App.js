@@ -48,7 +48,6 @@ const App = ({navigation}) => {
         });
       
         const currentVersion = VersionCheck.getCurrentVersion();
-        console.log(currentVersion,latestVersion)
         if (latestVersion < currentVersion) {
           Alert.alert(
             'Update Required',
@@ -72,7 +71,7 @@ const App = ({navigation}) => {
       }
     };
 
-    // checkAppVersion();
+    checkAppVersion();
   }, []);
 
   const [isConnected, setIsConnected] = useState('');

@@ -1527,7 +1527,7 @@ import {
   Pressable,
   Platform,
 } from 'react-native';
-import React, {useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import GlobalStyle from '../../../reusable/GlobalStyle';
 import {
   responsiveFontSize,
@@ -1546,14 +1546,14 @@ import ImagePicker from 'react-native-image-crop-picker';
 import DocumentPicker from 'react-native-document-picker';
 import GetLocation from 'react-native-get-location';
 import Reload from '../../../../Reload';
-import {useNavigation} from '@react-navigation/native';
-import {Root, Popup} from 'popup-ui';
+import { useNavigation } from '@react-navigation/native';
+import { Root, Popup } from 'popup-ui';
 import Toast from 'react-native-simple-toast';
-import {getDistance} from 'geolib';
-import {Dropdown} from 'react-native-element-dropdown';
+import { getDistance } from 'geolib';
+import { Dropdown } from 'react-native-element-dropdown';
 
-const {width} = Dimensions.get('window');
-const {height} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 const Processing = () => {
   const navigation = useNavigation();
@@ -1593,7 +1593,7 @@ const Processing = () => {
   console.log('api_currennt_address--------------', address);
 
   const row = [
-    {id: 1, title: 'abc'},
+    { id: 1, title: 'abc' },
     {
       id: 2,
       title: 'xyz',
@@ -1698,7 +1698,7 @@ const Processing = () => {
     setloading(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
 
     axios
@@ -1835,7 +1835,7 @@ const Processing = () => {
       alert('Visit address found invalid');
     } else {
       var dis = getDistance(
-        {latitude: currentLocation?.lat, longitude: currentLocation?.long},
+        { latitude: currentLocation?.lat, longitude: currentLocation?.long },
         {
           latitude: coordinates?.lat,
           longitude: coordinates?.lng,
@@ -1906,9 +1906,14 @@ const Processing = () => {
                             Toast.show(response?.data?.message);
 
                           get_employee_detail(),
-                            setRemart(''),
-                            setCameramodal(''),
-                            setCameramodal1('');
+                          setRemart(''),
+                          setCameramodal(''),
+                          setCameramodal1('');
+                          setPhotoPath('');
+                          setCameramodal1('');
+                          setValue('')
+                          setPhoto(null);
+                          setPhotoPath('');
                         } else {
                           console.log(response?.data, 'yashu');
                           setModalVisible1(false);
@@ -1943,9 +1948,8 @@ const Processing = () => {
                       });
                   }
                 })
-
                 .catch(error => {
-                  const {code, message} = error;
+                  const { code, message } = error;
                   Alert.alert(code, message);
                   setModalVisible1(!modalVisible1);
                   setRemart('');
@@ -2039,6 +2043,11 @@ const Processing = () => {
                       setRemart(''),
                       setCameramodal(''),
                       setCameramodal1('');
+                      setPhotoPath('');
+                      setCameramodal1('');
+                      setValue('')
+                      setPhoto('');
+                      setPhotoPath('');
                     // console.log("response statsu ---------", response?.data)
                   } else {
                     // console.log(response?.data, 'yashu')
@@ -2120,7 +2129,7 @@ const Processing = () => {
           <TextInput
             placeholder="Search by pin code..."
             placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
-            style={{color: Themes == 'dark' ? '#000' : '#000'}}
+            style={{ color: Themes == 'dark' ? '#000' : '#000' }}
             value={searchItem}
             onChangeText={prev => onSearchList(prev)}
           />
@@ -2163,7 +2172,7 @@ const Processing = () => {
         )}
         <FlatList
           data={filterData ? filterData : data}
-          renderItem={({item, index}) => (
+          renderItem={({ item, index }) => (
             <>
               <View activeOpacity={0.2} style={styles.maincard}>
                 <View
@@ -2174,7 +2183,7 @@ const Processing = () => {
                     alignItems: 'center',
                   }}>
                   <TouchableOpacity
-                    style={{backgroundColor: '#0043ae', borderRadius: 10}}
+                    style={{ backgroundColor: '#0043ae', borderRadius: 10 }}
                     onPress={() => [
                       setModalVisible1(true),
                       setShowAddress(showAddress + 1),
@@ -2195,7 +2204,7 @@ const Processing = () => {
 
                   <TouchableOpacity
                     onPress={() => update_show_hide(item?.task_id, true)}
-                    style={{flexDirection: 'row', alignItems: 'center'}}>
+                    style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <View>
                       <Text
                         style={{
@@ -2213,7 +2222,7 @@ const Processing = () => {
                   </TouchableOpacity>
                 </View>
                 {currentDisplayedTask &&
-                currentDisplayedTask == item?.task_id ? (
+                  currentDisplayedTask == item?.task_id ? (
                   <>
                     <View
                       style={{
@@ -2221,7 +2230,7 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Dept id:
                       </Text>
                       <Text
@@ -2239,10 +2248,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Customer name:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.customer_name ? item?.customer_name : 'N/A'}
                       </Text>
                     </View>
@@ -2252,10 +2261,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Mobile Number:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.mobile_no ? item?.mobile_no : 'N/A'}
                       </Text>
                     </View>
@@ -2503,7 +2512,7 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Proparty address:
                       </Text>
                       <Text
@@ -2523,10 +2532,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Alternate no:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.alternate_no ? item?.alternate_no : 'N/A'}
                       </Text>
                     </View>
@@ -2536,10 +2545,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Legal status:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.legal_status ? item?.legal_status : 'N/A'}
                       </Text>
                     </View>
@@ -2549,10 +2558,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Created Date:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.create_at ? item?.create_at : 'N/A'}
                       </Text>
                     </View>
@@ -2610,7 +2619,7 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Manager remark:
                       </Text>
                       <Text
@@ -2628,10 +2637,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Location coordinates:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.location_coordinates
                           ? item?.location_coordinates
                           : 'N/A'}
@@ -2643,7 +2652,7 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Home address:
                       </Text>
                       <Text
@@ -2661,10 +2670,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         pos amount:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.pos_amount ? item?.pos_amount : 'N/A'}
                       </Text>
                     </View>
@@ -2675,7 +2684,7 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Product:
                       </Text>
                       <Text
@@ -2693,10 +2702,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Process name:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.process_name ? item?.process_name : 'N/A'}
                       </Text>
                     </View>
@@ -2730,10 +2739,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Customer name:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.customer_name ? item?.customer_name : 'N/A'}
                       </Text>
                     </View>
@@ -2787,10 +2796,10 @@ const Processing = () => {
                         justifyContent: 'space-between',
                         marginBottom: 2,
                       }}>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         Created Date:
                       </Text>
-                      <Text style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                      <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                         {item?.create_at ? item?.create_at : 'N/A'}
                       </Text>
                     </View>
@@ -2814,7 +2823,7 @@ const Processing = () => {
                         }}>
                         <View style={styles.centeredView}>
                           <View style={styles.modalView}>
-                            <View style={{padding: 10}}>
+                            <View style={{ padding: 10 }}>
                               <View
                                 style={{
                                   flexDirection: 'row',
@@ -2822,7 +2831,7 @@ const Processing = () => {
                                 }}>
                                 <Text
                                   style={[
-                                    {fontSize: 16, fontWeight: 'bold'},
+                                    { fontSize: 16, fontWeight: 'bold' },
                                     {
                                       color:
                                         Themes == 'dark'
@@ -2869,7 +2878,7 @@ const Processing = () => {
                                 </Text>
                               ) : null}
                             </View>
-                            <View style={{margin: 20, alignSelf: 'center'}}>
+                            <View style={{ margin: 20, alignSelf: 'center' }}>
                               <Pressable onPress={() => takePhotoFromCamera()}>
                                 <View style={styles.takepic}>
                                   <Text style={styles.takepictext}>
@@ -2940,11 +2949,11 @@ const Processing = () => {
                                   color: Themes == 'dark' ? '#fff' : '#fff',
                                   textAlign: 'center',
                                 }}
-                                itemContainerStyle={{height: 60}}
-                                containerStyle={{height: responsiveHeight(20)}}
+                                itemContainerStyle={{ height: 60 }}
+                                containerStyle={{ height: responsiveHeight(20) }}
                                 selectedTextStyle={[
                                   styles.selectedTextStyle,
-                                  {color: Themes == 'dark' ? '#fff' : '#fff'},
+                                  { color: Themes == 'dark' ? '#fff' : '#fff' },
                                 ]}
                                 data={disposition}
                                 maxHeight={300}
@@ -2996,7 +3005,7 @@ const Processing = () => {
                                     ]}>
                                     <Text
                                       style={[
-                                        {textAlign: 'center'},
+                                        { textAlign: 'center' },
                                         {
                                           color:
                                             Themes == 'dark' ? '#000' : '#000',
@@ -3021,7 +3030,7 @@ const Processing = () => {
                                     onPress={() => tast_status_update(item)}>
                                     <Text
                                       style={[
-                                        {textAlign: 'center'},
+                                        { textAlign: 'center' },
                                         {
                                           color:
                                             Themes == 'dark' ? '#fff' : '#fff',
@@ -3039,8 +3048,8 @@ const Processing = () => {
                                 }>
                                 <Text
                                   style={[
-                                    {textAlign: 'center'},
-                                    {color: Themes == 'dark' ? '#fff' : '#fff'},
+                                    { textAlign: 'center' },
+                                    { color: Themes == 'dark' ? '#fff' : '#fff' },
                                   ]}>
                                   Cancel
                                 </Text>
@@ -3076,7 +3085,7 @@ const styles = StyleSheet.create({
     opacity: 1,
     elevation: 20,
     backgroundColor: '#fff',
-    shadowOffset: {width: 1, height: 1},
+    shadowOffset: { width: 1, height: 1 },
     shadowColor: '#333',
     shadowOpacity: 0.3,
     shadowRadius: 2,

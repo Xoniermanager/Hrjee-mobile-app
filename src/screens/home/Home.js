@@ -335,8 +335,10 @@ const Home = ({navigation}) => {
       .then(function (response) {
         if (response.data.status == 1) {
           const data = response.data.data;
+          console.log(data,'data')
           if (data.in_time != '' && data.out_location_id == null) {
             setpunchIn(true);
+            console.log(data.in_time,'data.in_time')
             setinTime(data.in_time);
             setlocationOut(data?.out_location_id);
             settimerOn(true);

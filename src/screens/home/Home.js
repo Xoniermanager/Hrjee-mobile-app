@@ -105,7 +105,6 @@ const Home = ({ navigation }) => {
     name: '',
   });
 
-  console.log("disabledBtn-----", disabledBtn)
 
   const monthNames = [
     'Jan',
@@ -1795,7 +1794,11 @@ const Home = ({ navigation }) => {
                                 marginRight: 10,
                               }}
                             />
-                            <Text style={styles.purple_txt}>{fullTime}</Text>
+                            <Text style={{
+                              color: Themes == 'dark' ? '#000' : '#000',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}>{fullTime}</Text>
                           </View>
                           <Text style={{ color: 'red', marginTop: 10 }}>
                             Total Time Elapsed

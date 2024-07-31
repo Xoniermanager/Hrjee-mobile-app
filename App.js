@@ -31,7 +31,7 @@ const App = ({navigation}) => {
   const update = async () => {
     Linking.openURL(
       Platform.OS === 'ios'
-        ? 'http://itunes.apple.com/lookup?bundleId=com.appHRjee'
+        ? 'https://apps.apple.com/in/app/hrjee/id6478102468'
         : 'https://play.google.com/store/apps/details?id=com.HRjee',
     );
     await AsyncStorage.removeItem('Token');
@@ -45,9 +45,9 @@ const App = ({navigation}) => {
         const latestVersion = await VersionCheck.getLatestVersion({
           packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
           ignoreErrors: true,
-        });
-      
+        })
         const currentVersion = VersionCheck.getCurrentVersion();
+        console.log(latestVersion, currentVersion);
         if (latestVersion < currentVersion) {
           Alert.alert(
             'Update Required',

@@ -62,7 +62,7 @@ console.log("locations",locations)
           <MapViewDirections
             origin={locations[0].coordinates}
             destination={locations[locations.length - 1].coordinates}
-            // waypoints={waypoints}
+            waypoints={waypoints}
             apikey="AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg" // Replace with your API key
             strokeWidth={3}
             strokeColor="blue"

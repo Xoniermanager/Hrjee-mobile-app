@@ -22,6 +22,7 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useMemo,
 } from 'react';
 import {Root, Popup} from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
@@ -69,6 +70,7 @@ const Home = ({navigation}) => {
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
   const {sendLocation} = useContext(SocketContext);
+
   const {setuser} = useContext(EssContext);
   const [news, setnews] = useState([]);
   const [user, setuser1] = useState(null);
@@ -84,7 +86,7 @@ const Home = ({navigation}) => {
   const [officetiming, setOfficeTiming] = useState('');
   const [show, setShow] = useState(true);
   const [radius, setRadius] = useState();
-  const socket = io('https://app.hrjee.com:6370');
+  const socket = io('https://websocket.hrjee.com:6370/');
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -313,14 +315,94 @@ const Home = ({navigation}) => {
       clearInterval(interval);
     };
   }, [timerOn]);
+  const getFirstTimeLocation=async()=>{
+    const userData = await AsyncStorage.getItem('UserData');
+    const userInfo = JSON.parse(userData);
+    const user_id = userInfo?.userid;
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 15000,
+    })
+      .then(async location => {
+        setloading(false);
+        var lat = parseFloat(location.latitude);
+        var long = parseFloat(location.longitude);
+        let data = JSON.stringify({
+          "userId":user_id,
+          "location": {
+            "latitude":lat,
+            "longitude":long
+          }
+        });
+            console.log(data,'getFirstTimeLocation')
+        let config = {
+          method: 'post',
+          maxBodyLength: Infinity,
+          url: 'https://websocket.hrjee.com:6370/send-first-location',
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          data : data
+        };
+        
+        axios.request(config)
+        .then((response) => {
+          console.log(JSON.stringify(response.data));
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      })
 
+  }
+  const getLastTimeLocation=async()=>{
+    const userData = await AsyncStorage.getItem('UserData');
+    const userInfo = JSON.parse(userData);
+    const user_id = userInfo?.userid;
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 15000,
+    })
+      .then(async location => {
+        setloading(false);
+        var lat = parseFloat(location.latitude);
+        var long = parseFloat(location.longitude);
+       
+let data = JSON.stringify({
+  "userId":user_id,
+  "location": {
+    "latitude":lat,
+    "longitude": long
+  }
+});
+console.log(data,'lastLocation')
+let config = {
+  method: 'post',
+  maxBodyLength: Infinity,
+  url: 'https://websocket.hrjee.com:6370/send-last-location',
+  headers: { 
+    'Content-Type': 'application/json'
+  },
+  data : data
+};
+
+axios.request(config)
+.then((response) => {
+  console.log(JSON.stringify(response.data));
+})
+.catch((error) => {
+  console.log(error);
+});
+
+      })
+  }
   const check_punchIn = async () => {
     // setloading(true)
   
     setModalVisible(true);
     settimerOn(false);
     const token = await AsyncStorage.getItem('Token');
-    console.log(token,'yashuuuuu')
+  
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
     setuser(JSON.parse(userData));
@@ -335,10 +417,10 @@ const Home = ({navigation}) => {
       .then(function (response) {
         if (response.data.status == 1) {
           const data = response.data.data;
-          console.log(data,'data')
+         
           if (data.in_time != '' && data.out_location_id == null) {
             setpunchIn(true);
-            console.log(data.in_time,'data.in_time')
+        
             setinTime(data.in_time);
             setlocationOut(data?.out_location_id);
             settimerOn(true);
@@ -399,11 +481,11 @@ const Home = ({navigation}) => {
             ],
           });
 
-          setModalVisible(false);
+          setModalVisible(false); 
         }
       });
   };
-
+  const [currentPosition, setCurrentPosition] = useState(null);
   const showAlert = () => {
     Alert.alert(
       'Log Out',
@@ -464,9 +546,8 @@ const Home = ({navigation}) => {
             .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
             .then(function (response) {
               if (response.data.status == 1) {
+                getLastTimeLocation()
                 check_punchIn();
-                socket.emit('closeConnection', locations);
-
               } else {
                 setloading(false);
               }
@@ -564,8 +645,9 @@ const Home = ({navigation}) => {
               )
               .then(function (response) {
                 if (response.data.status == 1) {
+                  getLastTimeLocation()
                   check_punchIn();
-                  socket.emit('closeConnection', locations);
+               
                 } else {
                   setloading(false);
                 }
@@ -638,16 +720,6 @@ const Home = ({navigation}) => {
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
 
-              // { Live tracking starting}
-              // sendLocation({
-              //   userId: userInfo?.userid,
-              //   location: {
-              //     longitude: long,
-              //     latitude: lat,
-              //   },
-              // });
-              // { Live tracking ending }
-
               setcurrentLocation({
                 long: long,
                 lat: lat,
@@ -687,6 +759,10 @@ const Home = ({navigation}) => {
                     if (response.data.status == 1) {
                       check_punchIn();
                       setloading(false);
+                      getFirstTimeLocation()
+                      setCurrentPosition({
+                        "location": {"latitude":lat, "longitude":long}, "userId": userInfo?.userid
+                      })
                        setDisabledBtn(false)
                     } else {
                       Popup.show({
@@ -803,7 +879,11 @@ const Home = ({navigation}) => {
                     )
                     .then(function (response) {
                       if (response.data.status == 1) {
+                        getFirstTimeLocation()
                         check_punchIn();
+                        setCurrentPosition({
+                          "location": {"latitude":lat, "longitude":long}, "userId": userInfo?.userid
+                        })
                         setloading(false);
                         setDisabledBtn(false)
                       } else {
@@ -950,8 +1030,13 @@ const Home = ({navigation}) => {
                 .then(function (response) {
                   if (response.data.status == 1) {
                     check_punchIn();
+                    getFirstTimeLocation()
+                    setCurrentPosition({
+                      "location": {"latitude":lat, "longitude":long}, "userId": userInfo?.userid
+                    })
                     setDisabledBtn(false)
                     setloading(false);
+                    
                   } else {
                     Popup.show({
                       type: 'Warning',
@@ -1070,6 +1155,10 @@ const Home = ({navigation}) => {
                   .then(function (response) {
                     if (response.data.status == 1) {
                       check_punchIn();
+                      getFirstTimeLocation()
+                      setCurrentPosition({
+                        "location": {"latitude":lat, "longitude":long}, "userId": userInfo?.userid
+                      })
                       setDisabledBtn(false)
                       setloading(false);
                     } else {
@@ -1146,66 +1235,22 @@ const Home = ({navigation}) => {
 
   //  This is used send live tracking location socketContext page Starting ..................................
 
-  const punch = async () => {
-    setloading(true);
-
-    if (Platform.OS == 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          GetLocation.getCurrentPosition({});
-          const userData = await AsyncStorage.getItem('UserData');
-          const userInfo = JSON.parse(userData);
-          let company_id = userInfo?.company_id;
-
-          GetLocation.getCurrentPosition({
-            enableHighAccuracy: true,
-            timeout: 15000,
-          }).then(async location => {
-            setloading(false);
-            var lat = parseFloat(location.latitude);
-            var long = parseFloat(location.longitude);
-
-            // { Live tracking starting}
-            // sendLocation({
-            //   userId: userInfo?.userid,
-            //   location: {
-            //     longitude: long,
-            //     latitude: lat,
-            //   },
-            // });
-            // { Live tracking ending }
-
-            setcurrentLocation({
-              long: long,
-              lat: lat,
-            });
-          });
-        }
-      } catch (err) {
-        setloading(false);
-        console.warn(err);
-      }
-    }
-  };
-
-  const [currentPosition, setCurrentPosition] = useState(null);
+ 
+ 
   const [previousPosition, setPreviousPosition] = useState(null);
 
   const distanceThreshold = 0.001;
 
   const sendLocationUpdate = async (position, user_id) => {
-    console.log(user_id, 'user_id');
+
     sendLocation({
       userId: user_id,
-
       location: {
         longitude: position?.coords?.longitude,
         latitude: position?.coords?.latitude,
       },
     });
+  
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -1223,15 +1268,15 @@ const Home = ({navigation}) => {
     return R * 2 * Math.asin(Math.sqrt(a));
   };
 
-  const doSomething = async () => {
+    const sendTrackLocation = async () => {
     const userData = await AsyncStorage.getItem('UserData');
     const userInfo = JSON.parse(userData);
     const user_id = userInfo?.userid;
+  
     const watchId = Geolocation.watchPosition(
-      position => {
-        // Save current position as previous position before updating
-        console.log(currentPosition,'currentPosition')
-          
+      position => {   
+      
+        setCurrentPosition(position); 
         if (previousPosition) {
           const distance = calculateDistance(
             previousPosition?.coords?.latitude,
@@ -1239,23 +1284,19 @@ const Home = ({navigation}) => {
             position?.coords?.latitude,
             position?.coords?.longitude,
           );
-
           if (distance >= distanceThreshold) {
             sendLocationUpdate(position, user_id);
-            setPreviousPosition(currentPosition);
-          
+            setPreviousPosition(currentPosition);    
           }
         } else {
           sendLocationUpdate(position, user_id);
           setPreviousPosition(currentPosition);
         }
-        setCurrentPosition(position);
+       
       },
       error => console.log(error),
       {enableHighAccuracy: true, distanceFilter: 1, interval: 5000},
     );
-
-    // Clean up the watchPosition when the component unmounts
     return () => Geolocation.clearWatch(watchId);
   };
   const map = {
@@ -1280,21 +1321,35 @@ const Home = ({navigation}) => {
   await new Promise(async resolve => {
     for (let i = 0; BackgroundService.isRunning(); i++) {
       await sleep(delay);
-      // doSomething();
+      // sendTrackLocation();
     }
   });
 };
+useEffect(() => {
+    let isMounted = true;
 
-  // useEffect(async() => {
-   
-  //     await BackgroundService.start(veryIntensiveTask,map);
-  //     doSomething();
+    const startBackgroundService = async () => {
+      try {
+        await BackgroundService.start(veryIntensiveTask, map);
+        if (isMounted) {
+          sendTrackLocation();
+        }
+      } catch (error) {
+        console.error("Error starting background service:", error);
+      }
+    };
+  
+    startBackgroundService();
+  
+    return () => {
+      isMounted = false;
+      // If BackgroundService.stop() is available and needed, add it here
+      // BackgroundService.stop();
+    };
   
   
-   
-  // }, [currentPosition]);
+}, [currentPosition]);
 
-  //  This is used send live tracking location socketContext page Ending ..................................
 
   const renderItem = ({item}) =>
     // console.log("A.......", item)
@@ -1335,39 +1390,6 @@ const Home = ({navigation}) => {
         </ImageBackground>
       </TouchableOpacity>
     );
-
-  const ProfileDetails = async () => {
-    const token = await AsyncStorage.getItem('Token');
-    const config = {
-      headers: {Token: token},
-    };
-    axios
-      .post(`${apiUrl}/api/get_employee_detail`, {}, config)
-      .then(response => {
-        if (response.data.status === 1) {
-          try {
-            setUserdata({
-              name: response.data.data.FULL_NAME,
-              image: response.data.data.image,
-            });
-            // get_employee_detail();
-          } catch (e) {
-            console.log(e);
-          }
-        } else {
-          console.log('some error occured');
-        }
-      })
-      .catch(error => {
-        if (error.response.status == '401') {
-        }
-      });
-  };
-
-  const getAtendenceApi = useApi(attendence.getAttendance);
-
-  const [locationStatus, setLocationStatus] = useState('');
-  const [location, setlocation] = useState();
   const [recentLogs, setrecentLogs] = useState([]);
 
   useEffect(() => {
@@ -1483,12 +1505,12 @@ const Home = ({navigation}) => {
       if (getActiveLocationApi.data != null) {
         // console.log('getActiveLocationApi.data--->', getActiveLocationApi.data);
         let activeLocation = getActiveLocationApi?.data?.data?.map(i => {
-          if (i.active_status == 1) {
+          if (i?.active_status == 1) {
             setactiveLocation({
-              latitude: i.latitude,
-              longitude: i.longitude,
-              address: i.address1,
-              location_id: i.location_id,
+              latitude: i?.latitude,
+              longitude: i?.longitude,
+              address: i?.address1,
+              location_id: i?.location_id,
             });
           }
         });
@@ -1571,7 +1593,7 @@ const Home = ({navigation}) => {
                   Hi,{user?.FULL_NAME}!
                 </Text>
               </View>
-               {/* <TouchableOpacity
+                <TouchableOpacity
                 onPress={() => navigation.navigate('UserList')}
                 style={{marginLeft: responsiveWidth(18)}}>
                 <Entypo
@@ -1582,7 +1604,7 @@ const Home = ({navigation}) => {
                     marginRight: 10,
                   }}
                 />
-              </TouchableOpacity>  */}
+              </TouchableOpacity>  
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 style={{}}>

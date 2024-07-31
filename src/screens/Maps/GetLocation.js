@@ -14,7 +14,7 @@ const GetLocation_id = ({route}) => {
 
     const {setContextState,contextState}=useContext(SocketContext)
     useEffect(()=>{
-        const socket = io('https://app.hrjee.com:6370');
+        const socket = io('https://websocket.hrjee.com:6370/');
     
         // Function to handle subscription to a user's location updates
         const subscribeToUser = (userId) => {

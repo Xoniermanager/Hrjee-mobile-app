@@ -1,5 +1,3 @@
-
-
 import {
   FlatList,
   StyleSheet,
@@ -40,6 +38,7 @@ import {Root, Popup} from 'popup-ui';
 import Toast from 'react-native-simple-toast';
 import {getDistance} from 'geolib';
 import {Dropdown} from 'react-native-element-dropdown';
+import {green} from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
 
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
@@ -115,14 +114,13 @@ const Processing = () => {
     ImagePicker.openPicker({
       width: 300,
       height: 400,
+      multiple: true,
       cropping: true,
-      includeBase64: true,
+      // includeBase64: true,
     })
       .then(image => {
-        // setImage(image.path)
-        // setMimez(image?.mime)
+        console.log(image, 'yashu');
         setPhotoError(null);
-        // console.log(image)
         setPhoto(image);
         setPhotoPath(image?.path);
         setCameramodal1(!cameramodal1);
@@ -330,9 +328,8 @@ const Processing = () => {
           longitude: coordinates?.lng,
         },
       );
-      if (dis <= 4000) {
+      if (dis >= 500) {
         if (Platform.OS == 'android') {
-          console.log('second');
           try {
             const granted = await PermissionsAndroid.request(
               PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -344,8 +341,6 @@ const Processing = () => {
                 timeout: 15000,
               })
                 .then(async location => {
-                  setloading1(false);
-
                   const updatedStatus = parseInt(item?.status) + parseInt(1);
                   const token = await AsyncStorage.getItem('Token');
                   const config = {
@@ -376,12 +371,16 @@ const Processing = () => {
 
                   if (remark.trim() === '') {
                     setRemarkError('Please enter some text');
+                    setloading1(false);
                   } else if (value == '' || value == null) {
                     setValueError('Please select  disposition');
+                    setloading1(false);
                   } else if (photo == null) {
                     setPhotoError('Please Upload the Image');
+                    setloading1(false);
                   } else {
                     console.log(data, '123456789');
+
                     axios
                       .post(
                         `${apiUrl}/SecondPhaseApi/update_task_status`,
@@ -393,7 +392,7 @@ const Processing = () => {
                           console.log('response update task--------', response);
                           setModalVisible1(false),
                             Toast.show(response?.data?.message);
-
+                          setloading1(false);
                           get_employee_detail(),
                             setRemart(''),
                             setCameramodal(''),
@@ -401,6 +400,7 @@ const Processing = () => {
                         } else {
                           console.log(response?.data, 'yashu');
                           setModalVisible1(false);
+                          setloading1(false);
                           Popup.show({
                             type: 'Warning',
                             title: 'Warning',
@@ -436,6 +436,7 @@ const Processing = () => {
                 .catch(error => {
                   const {code, message} = error;
                   Alert.alert(code, message);
+
                   setModalVisible1(!modalVisible1);
                   setRemart('');
                   setCameramodal('');
@@ -444,6 +445,7 @@ const Processing = () => {
                   setloading1(false);
                 });
             } else {
+              setloading1(false);
               setModalVisible1(!modalVisible1);
               setRemart('');
               setCameramodal('');
@@ -1475,52 +1477,37 @@ const Processing = () => {
                                 flexDirection: 'row',
                                 alignSelf: 'center',
                               }}>
-                              {loading1 ? (
-                                <>
-                                  <Pressable
-                                    disabled={true}
+                              <Pressable
+                                disabled={loading1}
+                                onPress={() => tast_status_update()}
+                                style={[
+                                  styles.button,
+                                  styles.buttonSubmit,
+                                  {
+                                    backgroundColor: loading1
+                                      ? '#cccccc'
+                                      : 'green',
+                                  },
+                                ]}>
+                                {loading1 ? (
+                                  <ActivityIndicator
+                                    marginHorizontal={8}
+                                    size="small"
+                                    color="#000"
+                                  />
+                                ) : (
+                                  <Text
                                     style={[
-                                      styles.button,
-                                      styles.buttonSubmit,
+                                      {textAlign: 'center'},
+                                      {
+                                        color:
+                                          Themes == 'dark' ? '#fff' : '#fff',
+                                      },
                                     ]}>
-                                    <Text
-                                      style={[
-                                        {textAlign: 'center'},
-                                        {
-                                          color:
-                                            Themes == 'dark' ? '#000' : '#000',
-                                        },
-                                      ]}>
-                                      Submit
-                                    </Text>
-                                    <ActivityIndicator
-                                      marginHorizontal={8}
-                                      size="small"
-                                      color="#000"
-                                    />
-                                  </Pressable>
-                                </>
-                              ) : (
-                                <>
-                                  <Pressable
-                                    style={[
-                                      styles.button,
-                                      styles.buttonSubmit1,
-                                    ]}
-                                    onPress={() => tast_status_update(item)}>
-                                    <Text
-                                      style={[
-                                        {textAlign: 'center'},
-                                        {
-                                          color:
-                                            Themes == 'dark' ? '#fff' : '#fff',
-                                        },
-                                      ]}>
-                                      Submit
-                                    </Text>
-                                  </Pressable>
-                                </>
-                              )}
+                                    Submit
+                                  </Text>
+                                )}
+                              </Pressable>
                               <Pressable
                                 style={[styles.button, styles.buttonClose]}
                                 onPress={() =>

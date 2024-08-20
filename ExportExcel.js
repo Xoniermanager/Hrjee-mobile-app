@@ -8,7 +8,7 @@ const ExportExcel = ({data}) => {
   const [isExporting, setIsExporting] = useState(false);
   const exportData = async () => {
     setIsExporting(true); // Assuming setIsExporting is a state setter function
-    console.log(data, 'data');
+    // console.log(data, 'data');
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(data); // Ensure `data` is correctly formatted
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
@@ -21,10 +21,10 @@ const ExportExcel = ({data}) => {
 
     try {
       const info = await RNFS.writeFile(filePath, base64String, 'base64');
-      console.log(info, 'info');
-      console.log('Excel exported successfully!');
+      // console.log(info, 'info');
+      // console.log('Excel exported successfully!');
     } catch (error) {
-      console.error('Error exporting Excel:', error);
+      // console.error('Error exporting Excel:', error);
       // Handle error as needed (e.g., show error message to user)
     } finally {
       setIsExporting(false); // Reset export state

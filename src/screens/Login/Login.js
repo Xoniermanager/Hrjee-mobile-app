@@ -33,8 +33,9 @@ const Login = () => {
   const [loading, setloading] = useState(false);
   const [fcmtoken, setfcmtoken] = useState();
   const [addrequest, setAddRequest] = useState();
+  const [locationtracking, setLocationTracking] = useState();
   const [showPassword, setShowPassword] = useState(false);
-  const [disabledBtn,setDisabledBtn]=useState(false);
+  const [disabledBtn, setDisabledBtn] = useState(false);
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -45,7 +46,7 @@ const Login = () => {
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  
+
     if (enabled) {
       getFCMToken()
     }
@@ -54,16 +55,16 @@ const Login = () => {
   async function getFCMToken() {
     console.log("yashu")
     const token = await messaging().getToken();
-    console.log(token,'fcm token');
+    console.log(token, 'fcm token');
     setfcmtoken(token);
   }
 
-useEffect(()=>{
-  requestUserPermission();
-},[])
+  useEffect(() => {
+    requestUserPermission();
+  }, [])
 
   const login = () => {
-   setDisabledBtn(true)
+    setDisabledBtn(true)
     if (email.trim() === '' || password.trim() === '') {
       setDisabledBtn(false)
       Popup.show({
@@ -76,7 +77,7 @@ useEffect(()=>{
       });
     } else if (password.length < 6) {
       setDisabledBtn(false)
-  
+
       Popup.show({
         type: 'Warning',
         title: 'Warning',
@@ -96,6 +97,7 @@ useEffect(()=>{
           device_id: fcmtoken,
         })
         .then(response => {
+          console.log("res-------", response?.data?.location)
           if (response?.data?.status == 1) {
 
             if (response?.data?.data?.login_type === 'web') {
@@ -178,11 +180,19 @@ useEffect(()=>{
                 });
 
                 const filteredData = response?.data?.menu_access?.filter(item => item.menu_name == "Address Request");
-                  setAddRequest(filteredData);
+                const filteredDataLocationAccess = response?.data?.menu_access?.filter(item => item.menu_name == "Location Tracking");
+                // console.log("filteredDataLocationAccess......", filteredDataLocationAccess)
 
-                  AsyncStorage.setItem(
-                    'AddRequest', JSON.stringify(filteredData[0]?.menu_name),
-                  );
+                setAddRequest(filteredData);
+                console.log("object", filteredDataLocationAccess)
+                // setLocationTracking(filteredDataLocationAccess)
+
+                AsyncStorage.setItem(
+                  'AddRequest', JSON.stringify(filteredData[0]?.menu_name),
+                );
+                AsyncStorage.setItem(
+                  'LOCATIONTRACKING', JSON.stringify(filteredDataLocationAccess),
+                );
                 AsyncStorage.setItem(
                   'menu', JSON.stringify(options),
                 );
@@ -292,7 +302,7 @@ useEffect(()=>{
                   />
                 </View>
               </View>
-              <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn==true?true:false}>
+              <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn == true ? true : false}>
                 <Text
                   style={{
                     color: 'white',

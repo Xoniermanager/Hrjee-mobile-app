@@ -10,11 +10,11 @@ const UploadPDF = ({onUpload}) => {
       const result = await DocumentPicker.pick({
         type: [DocumentPicker.types.pdf],
       });
-      console.log(result,'result')
+      // console.log(result,'result')
       onUpload(result)
       setSelectedFile(result);
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       // Handle errors here (e.g., show an error message to the user)
     }
   };

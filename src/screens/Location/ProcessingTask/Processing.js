@@ -1827,16 +1827,19 @@ const Processing = () => {
     }
     setFilterData(filtered);
   };
+
+  // Update task code start ........................
+
   const tast_status_update = async item => {
-    setloading1(true);
+    setloading(true);
     setShowAddress(showAddress + 1);
 
     console.log(currentLocation?.lat, currentLocation?.long);
 
     console.log(coordinates?.lat, 'bhbkbblllf');
     if (coordinates?.lat == undefined || coordinates?.lng == undefined) {
-      setloading1(false);
       alert('Visit address found invalid');
+      setloading(false);
     } else {
       var dis = getDistance(
         { latitude: currentLocation?.lat, longitude: currentLocation?.long },
@@ -1859,8 +1862,6 @@ const Processing = () => {
                 timeout: 15000,
               })
                 .then(async location => {
-                  setloading1(false);
-
                   const updatedStatus = parseInt(item?.status) + parseInt(1);
                   const token = await AsyncStorage.getItem('Token');
                   const config = {
@@ -1891,10 +1892,13 @@ const Processing = () => {
 
                   if (remark.trim() === '') {
                     setRemarkError('Please enter some text');
+                    setloading(false);
                   } else if (value == '' || value == null) {
                     setValueError('Please select  disposition');
+                    setloading(false);
                   } else if (photo == null) {
                     setPhotoError('Please Upload the Image');
+                    setloading(false);
                   } else {
                     console.log(data, '123456789');
                     axios
@@ -1904,11 +1908,10 @@ const Processing = () => {
                         config,
                       )
                       .then(response => {
+                        setloading(false);
                         if (response?.data?.status == 1) {
-                          console.log('response update task--------', response);
                           setModalVisible1(false),
-                            Toast.show(response?.data?.message);
-
+                          Toast.show(response?.data?.message);
                           get_employee_detail(),
                             setRemart(''),
                             setCameramodal(''),
@@ -1932,7 +1935,7 @@ const Processing = () => {
                         }
                       })
                       .catch(error => {
-                        setloading1(false);
+                        setloading(false);
                         if (error.response.status == '401') {
                           Popup.show({
                             type: 'Warning',
@@ -1960,7 +1963,6 @@ const Processing = () => {
                   setCameramodal('');
                   setCameramodal1('');
                   setDocmodal('');
-                  setloading1(false);
                 });
             } else {
               setModalVisible1(!modalVisible1);
@@ -1977,10 +1979,10 @@ const Processing = () => {
                 callback: () => [Popup.hide()],
               });
 
-              setloading1(false);
+              setloading(false);
             }
           } catch (error) {
-            setloading1(false);
+            setloading(false);
             // if (error.response.status == '401') {
             //   Popup.show({
             //     type: 'Warning',
@@ -1997,7 +1999,8 @@ const Processing = () => {
           }
         } else {
           try {
-            setloading1(false);
+            setloading(false);
+
             const updatedStatus = parseInt(item?.status) + parseInt(1);
             const token = await AsyncStorage.getItem('Token');
             const config = {
@@ -2032,7 +2035,6 @@ const Processing = () => {
             } else if (photo == null) {
               setPhotoError('Please Upload the Image');
             } else {
-              setloading1(true);
               axios
                 .post(
                   `${apiUrl}/SecondPhaseApi/update_task_status`,
@@ -2040,6 +2042,7 @@ const Processing = () => {
                   config,
                 )
                 .then(response => {
+                  setloading(false);
                   if (response?.data?.status == 1) {
                     Toast.show(response?.data?.message);
                     get_employee_detail(),
@@ -2067,7 +2070,7 @@ const Processing = () => {
                   }
                 })
                 .catch(error => {
-                  setloading1(false);
+                  setloading(false);
                   // if (error.response.status == '401') {
                   //   Popup.show({
                   //     type: 'Warning',
@@ -2084,7 +2087,7 @@ const Processing = () => {
                 });
             }
           } catch (error) {
-            setloading1(false);
+            setloading(false);
             // if (error.response.status == '401') {
             //   Popup.show({
             //     type: 'Warning',
@@ -2101,7 +2104,6 @@ const Processing = () => {
           }
         }
       } else {
-        setloading1(false);
         setModalVisible1(false);
         Popup.show({
           type: 'Warning',
@@ -2117,8 +2119,11 @@ const Processing = () => {
     }
   };
 
-  if(loading1 == true){
-    return <ProcessingMessage/>
+  // Update task code end ........................
+
+
+  if (loading1 == true) {
+    return <ProcessingMessage />
   }
 
   return (
@@ -2139,7 +2144,7 @@ const Processing = () => {
               marginVertical: 10,
             }}>
             <TextInput
-              placeholder="Search by pin code..."
+              placeholder="Search by pin code/customer name/loan no"
               placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
               style={{ color: Themes == 'dark' ? '#000' : '#000' }}
               value={searchItem}
@@ -3025,11 +3030,7 @@ const Processing = () => {
                                         ]}>
                                         Submit
                                       </Text>
-                                      {/* <ActivityIndicator
-                                        marginHorizontal={8}
-                                        size="small"
-                                        color="#000"
-                                      /> */}
+
                                     </Pressable>
                                   </>
                                 ) : (
@@ -3050,6 +3051,17 @@ const Processing = () => {
                                         ]}>
                                         Submit
                                       </Text>
+                                      {
+                                        loading ?
+                                          <ActivityIndicator
+                                            marginHorizontal={8}
+                                            size="small"
+                                            color="#fff"
+                                          />
+                                          :
+                                          null
+                                      }
+
                                     </Pressable>
                                   </>
                                 )}
@@ -3071,7 +3083,7 @@ const Processing = () => {
                           </View>
                         </Modal>
                       </View>
-                     
+
                     </>
                   )}
                 </View>
@@ -3080,7 +3092,7 @@ const Processing = () => {
           />
 
         </Root>
-        
+
       </View>
 
 

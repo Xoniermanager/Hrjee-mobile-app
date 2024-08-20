@@ -58,7 +58,7 @@ const Main = () => {
   const [companyid, setCompany_id] = useState('');
   const [prmData, setPrmData] = useState();
   const [locationmgmt, setPrmLocationMgmt] = useState();
-  console.log('locationmgmt......', locationmgmt);
+  // console.log('locationmgmt......', prmData);
 
   const company_id = async () => {
     const userData = await AsyncStorage.getItem('UserData');

@@ -183,7 +183,7 @@ const Pending = ({navigation}) => {
             marginVertical: 10,
           }}>
           <TextInput
-            placeholder="Search by pin code..."
+            placeholder="Search by pin code/customer name/loan no"
             placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
             style={{color: Themes == 'dark' ? '#000' : '#000'}}
             value={searchItem}

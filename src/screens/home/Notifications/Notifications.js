@@ -20,13 +20,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
 import { Root, Popup } from 'popup-ui'
-
+import NotificationListSkeleton from '../../Skeleton/NotificationListSkeleton';
 
 const Notifications = ({navigation}) => {
   const theme = useColorScheme();
  
   const [empty, setempty] = useState(false);
-  const [notifications, setnotifications] = useState();
+  const [notifications, setnotifications] = useState(null);
 
 
 
@@ -94,6 +94,10 @@ const Notifications = ({navigation}) => {
     // Do something to refresh the data
     get_notifications();
   };
+
+  if(notifications == null){
+    return <NotificationListSkeleton/>
+  }
 
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>

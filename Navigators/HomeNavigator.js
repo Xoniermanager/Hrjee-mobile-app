@@ -71,12 +71,14 @@ import Maps from '../src/screens/Maps/Maps';
 import UserList from '../src/screens/Maps/UserList';
 import GetLocation from 'react-native-get-location';
 import GetLocation_id from '../src/screens/Maps/GetLocation';
+import ProcessingMessage from '../src/screens/Location/ProcessingTask/ProcessingMessage';
+
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
   const [token, settoken] = useState(null);
   const [loading, setloading] = useState(true);
-  const [prmData,setPrmData]=useState()
+  const [prmData, setPrmData] = useState()
 
   const retrieveData = () => {
     AsyncStorage.getItem('Token').then(res => {
@@ -85,7 +87,7 @@ function MyStack() {
   };
   AsyncStorage.getItem('PRMData').then(res => {
     setPrmData(res);
-  });  
+  });
 
   useEffect(() => {
     retrieveData();
@@ -134,8 +136,8 @@ function MyStack() {
                 name="Main"
                 component={Main}
               />
-             
-              
+
+
 
               <Stack.Screen name="News" component={News} />
               <Stack.Screen name="Attendence" component={Attendence} />
@@ -150,32 +152,32 @@ function MyStack() {
                 component={SelectAttendence}
               />
               <Stack.Screen name="Leave Applied List" component={LeaveList} />
-              <Stack.Screen name="AddPRM" component={AddPRM} 
-                   options={{
-                    title:'Add PRM',
-                    headerBackTitleVisible: false,
-                    headerStyle: {
-                      backgroundColor:'#0043ae',
-                    },
-                    headerTintColor: '#fff',
-                    headerTitleStyle: {
-                      fontWeight: 'bold',
-                      marginLeft:responsiveWidth(35)
-                    },
-                  }}
+              <Stack.Screen name="AddPRM" component={AddPRM}
+                options={{
+                  title: 'Add PRM',
+                  headerBackTitleVisible: false,
+                  headerStyle: {
+                    backgroundColor: '#0043ae',
+                  },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                    marginLeft: responsiveWidth(35)
+                  },
+                }}
               />
-              <Stack.Screen name="PRM" component={PRM}  
-               options={{
-                title:'PRM List',
-                headerBackTitleVisible: false,
-                headerStyle: {
-                  backgroundColor:'#1E558D',
-                },
-                headerTintColor: '#fff',
-                headerTitleStyle: {
-                  fontWeight: 'bold',
-                },
-              }}
+              <Stack.Screen name="PRM" component={PRM}
+                options={{
+                  title: 'PRM List',
+                  headerBackTitleVisible: false,
+                  headerStyle: {
+                    backgroundColor: '#1E558D',
+                  },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                  },
+                }}
               />
               <Stack.Screen name="Apply Leave" component={ApplyLeave} />
               <Stack.Screen name="Holidays" component={Holidays} />
@@ -279,82 +281,86 @@ function MyStack() {
                 name="Accessories Listings"
                 component={AccessoriesListings}
               />
-               <Stack.Screen
+              <Stack.Screen
                 name="ChangePassword"
                 component={ChangePassword}
               />
-                  <Stack.Screen
+              <Stack.Screen
                 name="Enter your Pin"
                 component={ResetPassword}
               />
-                  <Stack.Screen
+              <Stack.Screen
                 name="Maps"
                 component={Maps}
               />
-                   <Stack.Screen
+              <Stack.Screen
                 name="UserList"
                 component={UserList}
               />
-                 <Stack.Screen
+              <Stack.Screen
                 name="User Location"
                 component={GetLocation_id}
               />
+              <Stack.Screen
+                name="ProcessingMessage"
+                component={ProcessingMessage}
+              />
             </>
-            
+
           ) : (
             <>
-            
-        
-             <Stack.Screen 
+
+
+              <Stack.Screen
                 options={{
                   headerShown: false,
                 }}
                 name="Main"
                 component={Main}
               />
-          
+
               <Stack.Screen name="Attendance" component={Attendence} />
               <Stack.Screen name="News" component={News} />
               <Stack.Screen name="Policies" component={Policies} />
-              <Stack.Screen name="Services" component={Services}  />
+              <Stack.Screen name="Services" component={Services} />
               <Stack.Screen name="Support" component={Support} />
               <Stack.Screen name="Notifications" component={Notifications} />
               <Stack.Screen name="LeavePolicy" component={LeavePolicy} />
               <Stack.Screen name="Details" component={Details} />
               <Stack.Screen
-                name="Select Attendance" 
+                name="Select Attendance"
                 component={SelectAttendence}
               />
               <Stack.Screen name="Leave Applied List" component={LeaveList} />
               <Stack.Screen name="Apply Leave" component={ApplyLeave} />
               <Stack.Screen name="Holidays" component={Holidays} />
-              <Stack.Screen name="AddPRM" component={AddPRM} 
+              <Stack.Screen name="AddPRM" component={AddPRM}
                 options={{
-                  title:'Add PRM ',
+                  title: 'Add PRM ',
                   headerBackTitleVisible: false,
                   headerStyle: {
-                    backgroundColor:'#0043ae',
+                    backgroundColor: '#0043ae',
                   },
                   headerTintColor: '#fff',
                   headerTitleStyle: {
                     fontWeight: 'bold',
-                    marginLeft:responsiveWidth(35)
+                    marginLeft: responsiveWidth(35)
                   },
                 }}
               />
-              <Stack.Screen name="PRM" component={PRM} 
-              options={{
-                title:'PRM List',
-                headerBackTitleVisible: false,
-                headerStyle: {
-                  backgroundColor:'#1E558D',
-                },
-                headerTintColor: '#fff',
-                headerTitleStyle: {
-                  fontWeight: 'bold',
-                },
-              }}
-               />
+              <Stack.Screen name="PRM" component={PRM}
+                options={{
+                  title: 'PRM List',
+                  headerBackTitleVisible: false,
+                  headerStyle: {
+                    backgroundColor: '#1E558D',
+                  },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                  },
+                }}
+              />
               <Stack.Screen name="Resign Content" component={Resign} />
               <Stack.Screen name="Payslip" component={Payslip} />
               <Stack.Screen name="Document" component={Document} />
@@ -471,22 +477,26 @@ function MyStack() {
                 name="Forgot Password"
                 component={ForgotPassword}
               />
-                   <Stack.Screen
+              <Stack.Screen
                 name="Enter your Pin"
                 component={ResetPassword}
               />
-              
+
               <Stack.Screen
                 name="Maps"
                 component={Maps}
               />
-                  <Stack.Screen
+              <Stack.Screen
                 name="UserList"
                 component={UserList}
               />
-                <Stack.Screen
+              <Stack.Screen
                 name="User Location"
                 component={GetLocation_id}
+              />
+              <Stack.Screen
+                name="ProcessingMessage"
+                component={ProcessingMessage}
               />
             </>
           )}

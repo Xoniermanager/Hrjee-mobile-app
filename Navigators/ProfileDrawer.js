@@ -336,7 +336,7 @@ function CustomDrawerContent(props) {
       .then(response => {
         if (response.data.status === 1) {
           try {
-              console.log(response.data.data,'response.data.data')
+              // console.log(response.data.data,'response.data.data')
             setlocation(response.data.data);
           } catch (e) {
           }
@@ -1148,6 +1148,7 @@ function CustomDrawerContent(props) {
     await AsyncStorage.removeItem('UserData');
     await AsyncStorage.removeItem('UserLocation');
     await AsyncStorage.removeItem('AddRequest');
+    await AsyncStorage.removeItem('LOCATIONTRACKING');
     props.navigation.closeDrawer();
     props.navigation.navigate('Login');
 

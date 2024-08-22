@@ -20,10 +20,8 @@ import React, {
   useState,
   useContext,
   useEffect,
-  useRef,
-  useCallback,
 } from 'react';
-import {Root, Popup} from 'popup-ui';
+import { Root, Popup } from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -31,48 +29,51 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import BackgroundService from 'react-native-background-actions';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import apiUrl from '../../reusable/apiUrl';
 import axios from 'axios';
-import {EssContext} from '../../../Context/EssContext';
-import {PermissionsAndroid} from 'react-native';
+import { EssContext } from '../../../Context/EssContext';
+import { PermissionsAndroid } from 'react-native';
 import useApi from '../../../api/useApi';
 import attendence from '../../../api/attendence';
 import GetLocation from 'react-native-get-location';
 import Geolocation from '@react-native-community/geolocation';
-import {getDistance} from 'geolib';
+import { getDistance } from 'geolib';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
 import io from 'socket.io-client';
+import { SocketContext } from '../../tracking/SocketContext';
+import HomeSkeleton from '../Skeleton/HomeSkeleton';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 // import messaging from '@react-native-firebas e/messaging';
 import Empty from '../../reusable/Empty';
-import {NavigationContainer, useIsFocused} from '@react-navigation/native';
+import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import Themes from '../../Theme/Theme';
 import {
   responsiveFontSize,
   responsiveHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
-import {SocketContext} from '../../tracking/SocketContext';
 import NotificationController from '../PushNotification/NotificationController';
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
+
   const theme = useColorScheme();
   const [modalVisible, setModalVisible] = useState(false);
-  const [disabledBtn,setDisabledBtn]=useState(false);
+  const [disabledBtn, setDisabledBtn] = useState(false);
   const punchInApi = useApi2(attendence.punchIn);
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
-  const {sendLocation} = useContext(SocketContext);
-  const {setuser} = useContext(EssContext);
+  const { sendLocation } = useContext(SocketContext);
+  const { setuser } = useContext(EssContext);
   const [news, setnews] = useState([]);
   const [user, setuser1] = useState(null);
   const [inTime, setinTime] = useState(null);
+  const [homeskelton, setHomeSkeleton] = useState(null)
   const [outTime, setoutTime] = useState(null);
   const [punchIn, setpunchIn] = useState(false);
   const [loading, setloading] = useState(false);
@@ -84,6 +85,9 @@ const Home = ({navigation}) => {
   const [officetiming, setOfficeTiming] = useState('');
   const [show, setShow] = useState(true);
   const [radius, setRadius] = useState();
+  const [locationtracking, setLOCATIONTRACKING] = useState('');
+
+  // console.log("locationtracking length......", locationtracking?.length)
   const socket = io('https://app.hrjee.com:6370');
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
@@ -104,6 +108,7 @@ const Home = ({navigation}) => {
     image: '',
     name: '',
   });
+
 
   const monthNames = [
     'Jan',
@@ -128,6 +133,7 @@ const Home = ({navigation}) => {
     'Friday',
     'Saturday',
   ];
+
 
   const d = new Date();
   var mon = d.getMonth() + 1 <= 9 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1;
@@ -164,18 +170,19 @@ const Home = ({navigation}) => {
         setMenuAccessData(response?.data?.menu_access);
         setPunchin_radius(response?.data);
         setRadius(response?.data?.config?.punchin_radius);
+        setHomeSkeleton(response?.data)
         setUserdata({
           name: response.data.users.FULL_NAME,
           image: response.data.users.image,
         });
-        
+
       })
       .catch(error => {
         console.log(error);
       });
   };
 
- 
+
 
   useEffect(() => {
     const getData = async () => {
@@ -225,7 +232,7 @@ const Home = ({navigation}) => {
   const getActiveLocation = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
     const body = {};
     getActiveLocationApi.request(body, config);
@@ -316,17 +323,17 @@ const Home = ({navigation}) => {
 
   const check_punchIn = async () => {
     // setloading(true)
-  
+
     setModalVisible(true);
     settimerOn(false);
     const token = await AsyncStorage.getItem('Token');
-    console.log(token,'yashuuuuu')
+    console.log(token, 'yashuuuuu')
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
     setuser(JSON.parse(userData));
     // setlocation(JSON.parse(UserLocation));
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
 
     const body = {};
@@ -335,10 +342,9 @@ const Home = ({navigation}) => {
       .then(function (response) {
         if (response.data.status == 1) {
           const data = response.data.data;
-          console.log(data,'data')
           if (data.in_time != '' && data.out_location_id == null) {
+
             setpunchIn(true);
-            console.log(data.in_time,'data.in_time')
             setinTime(data.in_time);
             setlocationOut(data?.out_location_id);
             settimerOn(true);
@@ -349,7 +355,7 @@ const Home = ({navigation}) => {
               setloading(false);
               setpunchIn(false);
               setModalVisible(false);
-
+              setHomeSkeleton(response.data)
               setinTime(data.in_time);
               setlocationOut(data.out_location_id);
               settimerOn(false);
@@ -383,7 +389,7 @@ const Home = ({navigation}) => {
       .catch(function (error) {
         setloading(false);
 
-        if (error.response.status == '401') {
+        if (error?.response?.status == '401') {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
@@ -414,15 +420,14 @@ const Home = ({navigation}) => {
           // onPress: handleCancelButtonPress,
           style: 'cancel',
         },
-        {text: 'OK', onPress: () => punch_out()},
+        { text: 'OK', onPress: () => punch_out() },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
   };
 
   const punch_out = async () => {
     setloading(true);
-    get_month_logs();
     const userData = await AsyncStorage.getItem('UserData');
     const userInfo = JSON.parse(userData);
     let company_id = userInfo?.company_id;
@@ -438,9 +443,9 @@ const Home = ({navigation}) => {
           long: long,
           lat: lat,
         });
-          let locations = {userId:userInfo?.userid, location: {longitude: long, latitude: lat}}
+        let locations = { userId: userInfo?.userid, location: { longitude: long, latitude: lat } }
         var dis = getDistance(
-          {latitude: lat, longitude: long},
+          { latitude: lat, longitude: long },
           {
             latitude: activeLocation.latitude,
             longitude: activeLocation.longitude,
@@ -450,7 +455,7 @@ const Home = ({navigation}) => {
         if (radius <= 0) {
           const token = await AsyncStorage.getItem('Token');
           const config = {
-            headers: {Token: token},
+            headers: { Token: token },
           };
           const body = {
             user_id: user.userid,
@@ -465,7 +470,8 @@ const Home = ({navigation}) => {
             .then(function (response) {
               if (response.data.status == 1) {
                 check_punchIn();
-                socket.emit('closeConnection', locations);
+                get_month_logs();
+                // socket.emit('closeConnection', locations);
 
               } else {
                 setloading(false);
@@ -546,7 +552,7 @@ const Home = ({navigation}) => {
           if (dis <= radius) {
             const token = await AsyncStorage.getItem('Token');
             const config = {
-              headers: {Token: token},
+              headers: { Token: token },
             };
             const body = {
               user_id: user.userid,
@@ -565,7 +571,8 @@ const Home = ({navigation}) => {
               .then(function (response) {
                 if (response.data.status == 1) {
                   check_punchIn();
-                  socket.emit('closeConnection', locations);
+                  get_month_logs();
+                  // socket.emit('closeConnection', locations);
                 } else {
                   setloading(false);
                 }
@@ -604,7 +611,7 @@ const Home = ({navigation}) => {
       })
       .catch(error => {
         setloading(false);
-        const {code, message} = error;
+        const { code, message } = error;
         Popup.show({
           type: 'Warning',
           title: 'Warning',
@@ -616,8 +623,9 @@ const Home = ({navigation}) => {
       });
   };
   const punch_in = async () => {
-    setloading(true);
     setDisabledBtn(true)
+    setloading(true);
+
     if (Platform.OS == 'android') {
       try {
         const granted = await PermissionsAndroid.request(
@@ -654,7 +662,7 @@ const Home = ({navigation}) => {
               });
 
               var dis = getDistance(
-                {latitude: lat, longitude: long},
+                { latitude: lat, longitude: long },
                 {
                   latitude: activeLocation.latitude,
                   longitude: activeLocation.longitude,
@@ -667,7 +675,7 @@ const Home = ({navigation}) => {
                 const userInfo = JSON.parse(userData);
 
                 const config = {
-                  headers: {Token: token},
+                  headers: { Token: token },
                 };
                 const body = {
                   email: userInfo.email,
@@ -687,7 +695,8 @@ const Home = ({navigation}) => {
                     if (response.data.status == 1) {
                       check_punchIn();
                       setloading(false);
-                       setDisabledBtn(false)
+                      setDisabledBtn(false)
+                      get_month_logs()
                     } else {
                       Popup.show({
                         type: 'Warning',
@@ -786,7 +795,7 @@ const Home = ({navigation}) => {
                   const userInfo = JSON.parse(userData);
 
                   const config = {
-                    headers: {Token: token},
+                    headers: { Token: token },
                   };
                   const body = {
                     email: userInfo.email,
@@ -806,6 +815,7 @@ const Home = ({navigation}) => {
                         check_punchIn();
                         setloading(false);
                         setDisabledBtn(false)
+                        get_month_logs()
                       } else {
                         Popup.show({
                           type: 'Warning',
@@ -856,7 +866,7 @@ const Home = ({navigation}) => {
               }
             })
             .catch(error => {
-              const {code, message} = error;
+              const { code, message } = error;
 
               Popup.show({
                 type: 'Warning',
@@ -918,7 +928,7 @@ const Home = ({navigation}) => {
             });
 
             var dis = getDistance(
-              {latitude: lat, longitude: long},
+              { latitude: lat, longitude: long },
               {
                 latitude: activeLocation.latitude,
                 longitude: activeLocation.longitude,
@@ -931,7 +941,7 @@ const Home = ({navigation}) => {
               const userInfo = JSON.parse(userData);
 
               const config = {
-                headers: {Token: token},
+                headers: { Token: token },
               };
               const body = {
                 email: userInfo.email,
@@ -952,6 +962,7 @@ const Home = ({navigation}) => {
                     check_punchIn();
                     setDisabledBtn(false)
                     setloading(false);
+                    get_month_logs()
                   } else {
                     Popup.show({
                       type: 'Warning',
@@ -1051,7 +1062,7 @@ const Home = ({navigation}) => {
                 const userInfo = JSON.parse(userData);
 
                 const config = {
-                  headers: {Token: token},
+                  headers: { Token: token },
                 };
                 const body = {
                   email: userInfo.email,
@@ -1072,6 +1083,7 @@ const Home = ({navigation}) => {
                       check_punchIn();
                       setDisabledBtn(false)
                       setloading(false);
+                      get_month_logs()
                     } else {
                       Popup.show({
                         type: 'Warning',
@@ -1123,7 +1135,7 @@ const Home = ({navigation}) => {
             }
           })
           .catch(error => {
-            const {code, message} = error;
+            const { code, message } = error;
             Popup.show({
               type: 'Warning',
               title: 'Warning',
@@ -1218,7 +1230,7 @@ const Home = ({navigation}) => {
       (Math.cos((lat1 * Math.PI) / 180) *
         Math.cos((lat2 * Math.PI) / 180) *
         (1 - Math.cos(dLon))) /
-        2;
+      2;
 
     return R * 2 * Math.asin(Math.sqrt(a));
   };
@@ -1230,8 +1242,8 @@ const Home = ({navigation}) => {
     const watchId = Geolocation.watchPosition(
       position => {
         // Save current position as previous position before updating
-        console.log(currentPosition,'currentPosition')
-          
+        console.log(currentPosition, 'currentPosition')
+
         if (previousPosition) {
           const distance = calculateDistance(
             previousPosition?.coords?.latitude,
@@ -1243,7 +1255,7 @@ const Home = ({navigation}) => {
           if (distance >= distanceThreshold) {
             sendLocationUpdate(position, user_id);
             setPreviousPosition(currentPosition);
-          
+
           }
         } else {
           sendLocationUpdate(position, user_id);
@@ -1252,7 +1264,7 @@ const Home = ({navigation}) => {
         setCurrentPosition(position);
       },
       error => console.log(error),
-      {enableHighAccuracy: true, distanceFilter: 1, interval: 5000},
+      { enableHighAccuracy: true, distanceFilter: 1, interval: 5000 },
     );
 
     // Clean up the watchPosition when the component unmounts
@@ -1272,31 +1284,31 @@ const Home = ({navigation}) => {
       delay: 1000,
     },
   };
-  
+
   const sleep = time =>
-  new Promise(resolve => setTimeout(() => resolve(), time));
+    new Promise(resolve => setTimeout(() => resolve(), time));
   const veryIntensiveTask = async taskDataArguments => {
-  const {delay} = taskDataArguments;
-  await new Promise(async resolve => {
-    for (let i = 0; BackgroundService.isRunning(); i++) {
-      await sleep(delay);
-      // doSomething();
-    }
-  });
-};
+    const { delay } = taskDataArguments;
+    await new Promise(async resolve => {
+      for (let i = 0; BackgroundService.isRunning(); i++) {
+        await sleep(delay);
+        // doSomething();
+      }
+    });
+  };
 
   // useEffect(async() => {
-   
+
   //     await BackgroundService.start(veryIntensiveTask,map);
   //     doSomething();
-  
-  
-   
+
+
+
   // }, [currentPosition]);
 
   //  This is used send live tracking location socketContext page Ending ..................................
 
-  const renderItem = ({item}) =>
+  const renderItem = ({ item }) =>
     // console.log("A.......", item)
     // let x = item?.id;
     // console.log(x);
@@ -1306,13 +1318,13 @@ const Home = ({navigation}) => {
       <TouchableOpacity
         onPress={() =>
           item.id == 0
-            ? navigation.navigate('Post', {screen: 'Post'})
+            ? navigation.navigate('Post', { screen: 'Post' })
             : navigation.navigate(item.moveTo)
         }>
         <ImageBackground
           style={styles.options1}
           source={item?.location}
-          imageStyle={{borderRadius: 5}}>
+          imageStyle={{ borderRadius: 5 }}>
           <LinearGradient
             colors={['#00000000', '#000000']}
             style={{
@@ -1339,7 +1351,7 @@ const Home = ({navigation}) => {
   const ProfileDetails = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
     axios
       .post(`${apiUrl}/api/get_employee_detail`, {}, config)
@@ -1383,7 +1395,7 @@ const Home = ({navigation}) => {
         callback: () => [Popup.hide()],
       });
     }
-  }, [punchInApi.loading]);
+  }, [punchInApi.loading,]);
 
   useEffect(() => {
     if (punchOutApi.data != null) {
@@ -1431,7 +1443,7 @@ const Home = ({navigation}) => {
       clearInterval(interval);
     };
   }, [timerOn]);
- 
+
 
   useEffect(() => {
     setTimeout(function () {
@@ -1476,7 +1488,7 @@ const Home = ({navigation}) => {
         }
       }
     }, 1000);
-  }, [todayAtendenceApi.loading]);
+  }, [todayAtendenceApi.loading,]);
 
   useEffect(() => {
     setTimeout(function () {
@@ -1499,7 +1511,7 @@ const Home = ({navigation}) => {
   const get_month_logs = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
 
     var startOfWeek = moment().startOf('month').toDate();
@@ -1517,7 +1529,7 @@ const Home = ({navigation}) => {
         if (response.data.status == 1) {
           try {
             setrecentLogs(response.data.content);
-          } catch (e) {}
+          } catch (e) { }
         } else {
         }
       })
@@ -1528,74 +1540,293 @@ const Home = ({navigation}) => {
       });
   };
 
+  const filterLastSevenDays = (logs) => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    return logs.filter((log) => {
+      const logDate = new Date(log.TR_DATE);
+      return logDate >= sevenDaysAgo;
+    });
+  };
+
+  const lastSevenDaysLogs = filterLastSevenDays(recentLogs);
+
+  // location..................tracking..................................
+
+
+  const [locationArray, setLocationArray] = useState([]);
+
+
+  const storeLocation = async (location) => {
+    // Alert.alert('19 Secent', JSON.stringify(location))
+    try {
+      setLocationArray((prevLocations) => {
+        const updatedLocations = [...prevLocations, location];
+        // Store all locations in AsyncStorage
+        AsyncStorage.setItem('CurrentLocation', JSON.stringify(updatedLocations));
+        return updatedLocations;
+      });
+    } catch (error) {
+      console.error('Error storing location:', error);
+    }
+  };
+
+  const sendStoredLocation = async () => {
+    try {
+      const token = await AsyncStorage.getItem('Token');
+      const config = {
+        headers: { Token: token },
+      };
+      const userData = await AsyncStorage.getItem('UserData');
+      const userInfo = JSON.parse(userData);
+      const storedLocation = await AsyncStorage.getItem('CurrentLocation');
+      const date = new Date(); // Create a new date object
+
+      // Format the date as "YYYY-MM-DD HH:mm:ss"
+      const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')
+        }-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')
+        }:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')
+        }`;
+      if (storedLocation) {
+        const locations = JSON.parse(storedLocation).map((loc) => ({
+          latitude: loc.latitude.toString(),
+          longitude: loc.longitude.toString(),
+          timestamp: formattedDate // Add timestamp in the format you need
+        }));
+        // Alert.alert('1 minuts', JSON.stringify(locations))
+        const payload = {
+          user_id: userInfo?.userid,
+          locations
+        };
+
+
+        // Send payload to the server
+        const response = await axios.post(
+          'https://hrjee.xonierconnect.com/secondPhaseApi/send_locations',
+          payload, config
+        );
+        console.log('Response from server:', response?.data);
+
+        // Clear stored location after sending (optional)
+        await AsyncStorage.removeItem('CurrentLocation');
+
+        // Clear the state array
+        setLocationArray([]);
+      } else {
+        console.log('No stored location found.')
+        await AsyncStorage.removeItem('CurrentLocation');
+        // Clear the state array
+        setLocationArray([]);
+      }
+    } catch (error) {
+      console.error('Error sending stored location:', error);
+      await AsyncStorage.removeItem('CurrentLocation');
+      // Clear the state array
+      setLocationArray([]);
+    }
+  };
+
+
+
+  useEffect(() => {
+    let storeInterval = null;
+    let sendInterval = null;
+
+    if (timerOn) {
+      storeInterval = setInterval(() => {
+        GetLocation.getCurrentPosition({})
+          .then(location => {
+            const lat = parseFloat(location.latitude);
+            const long = parseFloat(location.longitude);
+            const currentLocation = { latitude: lat, longitude: long };
+            storeLocation(currentLocation);
+          })
+          .catch(error => {
+            console.error('Error getting current location:', error);
+          });
+      }, 19000); // Store current location every 10 seconds
+
+      sendInterval = setInterval(() => {
+        sendStoredLocation();
+      }, 60000); // Send stored location every 1 minute
+    } else {
+      clearInterval(storeInterval);
+      clearInterval(sendInterval);
+    }
+
+    // Clean up intervals on component unmount
+    return () => {
+      clearInterval(storeInterval);
+      clearInterval(sendInterval);
+    };
+  }, [timerOn && locationtracking?.length > 0])
+
+
+  const LOCATIONTRACKING = async () => {
+    const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
+    const finallocationtracking = JSON.parse(locationtracking);
+    setLOCATIONTRACKING(finallocationtracking)
+  }
+  useEffect(() => {
+    LOCATIONTRACKING();
+  }, [])
+
+
+
+  //ending location.................tracking...................................
+
+
+  // console.log("locationtracking,.........", locationtracking)
+
+  const renderItemLogs = ({ item, index }) => {
+    const time = new Date(item?.punch_in_time);
+    const getTime = time.toLocaleTimeString();
+
+    return (
+      <View key={index} style={styles.recent_log_box}>
+        <View>
+          <Text style={styles.weekDay}>
+            {days[new Date(item.TR_DATE).getDay()]}
+          </Text>
+          <Text
+            style={{
+              color: Themes === 'dark' ? '#000' : '#000',
+              fontWeight: 'bold',
+            }}>
+            {item.TR_DATE}
+          </Text>
+        </View>
+        <View>
+          <Text style={styles.weekDay}>Punch In Time</Text>
+          <Text
+            style={{
+              color: Themes === 'dark' ? '#000' : '#000',
+              fontWeight: 'bold',
+            }}>
+            {getTime}
+          </Text>
+        </View>
+
+        <View style={{ alignItems: 'center' }}>
+          <AntDesign
+            name="clockcircleo"
+            size={20}
+            style={[
+              { marginBottom: 5 },
+              { color: Themes === 'dark' ? '#000' : '#000' },
+            ]}
+          />
+          {(datetime === item.TR_DATE && item.location_id) ||
+            datetime > item.TR_DATE ? (
+            <Text
+              style={{
+                color: Themes === 'dark' ? '#000' : '#000',
+                fontWeight: 'bold',
+              }}>
+              {item.PRESENT_HOURS}
+            </Text>
+          ) : hours >= '19:00' ? (
+            <Text
+              style={{
+                color: Themes === 'dark' ? '#000' : '#000',
+                fontWeight: 'bold',
+              }}>
+              {item.PRESENT_HOURS}
+            </Text>
+          ) : (
+            <Text
+              style={{
+                color: Themes === 'dark' ? '#000' : '#000',
+                fontWeight: 'bold',
+              }}>
+              NA
+            </Text>
+          )}
+        </View>
+      </View>
+    );
+  }
+
+  if (homeskelton == null) {
+    return <HomeSkeleton />
+  }
+
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#e3eefb'}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#e3eefb' }}>
       <Root>
         <PullToRefresh onRefresh={handleRefresh}>
           <NotificationController />
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             {/* <Text>{currentPosition?.coords?.latitude}</Text> 
             <Text>{currentPosition?.coords?.longitude}</Text> 
             
             <Text>previousPosition</Text>
             <Text>{previousPosition?.coords?.latitude}</Text> 
             <Text>{previousPosition?.coords?.longitude}</Text>  */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
               <View
                 style={{
                   flexDirection: 'row',
-                  // justifyContent: 'space-between',
                   alignItems: 'center',
-                  padding: 10,
+                  justifyContent: 'space-between'
                 }}>
-                <Image
-                  style={styles.tinyLogo}
-                  // source={require('../../images/profile_pic.webp')}
-                  source={
-                    Userdata?.image
-                      ? {uri: Userdata.image}
-                      : require('../../images/profile_pic.webp')
-                  }
-                />
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    {fontSize: 18, fontWeight: 'bold', marginLeft: 2},
-                    {color: Themes == 'dark' ? '#000' : '#000'},
-                  ]}>
-                  Hi,{user?.FULL_NAME}!
-                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    padding: 10,
+                  }}>
+                  <Image
+                    style={styles.tinyLogo}
+                    // source={require('../../images/profile_pic.webp')}
+                    source={
+                      Userdata?.image
+                        ? { uri: Userdata.image }
+                        : require('../../images/profile_pic.webp')
+                    }
+                  />
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      { fontSize: 16, fontWeight: 'bold', marginLeft: 2 },
+                      { color: Themes == 'dark' ? '#000' : '#000' },
+                    ]}>
+                    Hi,{user?.FULL_NAME}!
+                  </Text>
+                </View>
               </View>
-               {/* <TouchableOpacity
-                onPress={() => navigation.navigate('UserList')}
-                style={{marginLeft: responsiveWidth(18)}}>
-                <Entypo
-                  name="location"
-                  style={{
-                    fontSize: 35,
-                    color: '#000',
-                    marginRight: 10,
-                  }}
-                />
-              </TouchableOpacity>  */}
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Notifications')}
-                style={{}}>
-                <Ionicons
-                  name="notifications-outline"
-                  style={{
-                    fontSize: 35,
-                    color: '#000',
-                    marginRight: 10,
-                  }}
-                />
-              </TouchableOpacity>
+              <View style={{ flexDirection: "row" }}>
+                {locationtracking && locationtracking?.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('UserList')}
+                    style={{}}
+                  >
+                    <Entypo
+                      name="location"
+                      style={{
+                        fontSize: 25,
+                        color: '#000',
+                        marginRight: 10,
+                      }}
+                    />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Notifications')}
+                  style={{}}>
+                  <Ionicons
+                    name="notifications-outline"
+                    style={{
+                      fontSize: 30,
+                      color: '#000',
+                      marginRight: 10,
+                    }}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
+
             <View style={{}}>
               <FlatList
                 horizontal
@@ -1604,7 +1835,7 @@ const Home = ({navigation}) => {
                 keyExtractor={item => item?.id}
               />
             </View>
-            <View style={{padding: 15, marginTop: 5}}>
+            <View style={{ padding: 15, marginTop: 5 }}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -1613,8 +1844,8 @@ const Home = ({navigation}) => {
                 }}>
                 <Text
                   style={[
-                    {fontSize: 18, fontWeight: '700'},
-                    {color: Themes == 'dark' ? '#000' : '#000'},
+                    { fontSize: 18, fontWeight: '700' },
+                    { color: Themes == 'dark' ? '#000' : '#000' },
                   ]}>
                   E-Attendance
                 </Text>
@@ -1632,7 +1863,7 @@ const Home = ({navigation}) => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <View style={{marginTop: 15, borderRadius: 15}}>
+              <View style={{ marginTop: 15, borderRadius: 15 }}>
                 <View
                 // style={{ width: '100%', borderRadius: 15, overflow: 'hidden', }}
                 // source={require('../../images/gradient.gif')}
@@ -1656,7 +1887,7 @@ const Home = ({navigation}) => {
                         borderRightColor: 'grey',
                         alignItems: 'center',
                       }}>
-                      <View style={{alignItems: 'center'}}>
+                      <View style={{ alignItems: 'center' }}>
                         <Text
                           style={{
                             color: '#000',
@@ -1672,7 +1903,7 @@ const Home = ({navigation}) => {
                               fontSize: 15,
                               fontWeight: '800',
                             },
-                            {color: Themes == 'dark' ? '#000' : '#000'},
+                            { color: Themes == 'dark' ? '#000' : '#000' },
                           ]}>
                           {d.getDate() + ' ' + monthNames[d.getMonth()]}
                         </Text>
@@ -1744,7 +1975,7 @@ const Home = ({navigation}) => {
                       {!inTime && !locationOut && (
                         <TouchableOpacity
                           // onPress={() => punch()}
-                          disabled={disabledBtn==true?true:false}
+                          disabled={disabledBtn == true ? true : false}
                           onPress={() => punch_in()}
                           style={{
                             padding: 10,
@@ -1781,9 +2012,13 @@ const Home = ({navigation}) => {
                                 marginRight: 10,
                               }}
                             />
-                            <Text style={styles.purple_txt}>{fullTime}</Text>
+                            <Text style={{
+                              color: Themes == 'dark' ? '#000' : '#000',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}>{fullTime}</Text>
                           </View>
-                          <Text style={{color: 'red', marginTop: 10}}>
+                          <Text style={{ color: 'red', marginTop: 10 }}>
                             Total Time Elapsed
                           </Text>
                         </>
@@ -1794,94 +2029,30 @@ const Home = ({navigation}) => {
               </View>
             </View>
 
-            <View style={{marginTop: 10, marginHorizontal: 10}}>
+            <View style={{ marginTop: 10, marginHorizontal: 10 }}>
               <Text
                 style={[
-                  {fontSize: 18, fontWeight: '600'},
-                  {color: Themes == 'dark' ? '#000' : '#000'},
+                  { fontSize: 18, fontWeight: '600' },
+                  { color: Themes == 'dark' ? '#000' : '#000' },
                 ]}>
                 Recent Logs
               </Text>
 
-              {recentLogs.length > 0 ? (
-                recentLogs.map((i, index) => {
-                  const time = new Date(i?.punch_in_time);
-                  const getTime = time.toLocaleTimeString();
-                  // console.log(getTime)
-                  return (
-                    <View key={index} style={styles.recent_log_box}>
-                      <View>
-                        <Text style={styles.weekDay}>
-                          {days[new Date(i.TR_DATE).getDay()]}
-                        </Text>
-                        <Text
-                          style={{
-                            color: Themes == 'dark' ? '#000' : '#000',
-                            fontWeight: 'bold',
-                          }}>
-                          {i.TR_DATE}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.weekDay}>Punch In Time</Text>
-                        <Text
-                          style={{
-                            color: Themes == 'dark' ? '#000' : '#000',
-                            fontWeight: 'bold',
-                          }}>
-                          {getTime}
-                        </Text>
-                      </View>
+              <FlatList
+                data={lastSevenDaysLogs}
+                renderItem={renderItemLogs}
+                keyExtractor={item => item?.id}
+                ListEmptyComponent={
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      color: Themes === 'dark' ? '#000' : '#000',
+                    }}>
+                    No found data
+                  </Text>
+                }
+              />
 
-                      <View style={{alignItems: 'center'}}>
-                        <AntDesign
-                          name="clockcircleo"
-                          size={20}
-                          style={[
-                            {marginBottom: 5},
-                            {color: Themes == 'dark' ? '#000' : '#000'},
-                          ]}
-                        />
-                        {/* <Text>{datetime}, {i.TR_DATE}, {i.location_id ? 'yes' : 'no'}, {i.PRESENT_HOURS}, {hours}, {hours >= '19:00' ? 'yes' : 'no'}</Text> */}
-                        {(datetime == i.TR_DATE && i.location_id) ||
-                        datetime > i.TR_DATE ? (
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              fontWeight: 'bold',
-                            }}>
-                            {i.PRESENT_HOURS}
-                          </Text>
-                        ) : hours >= '19:00' ? (
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              fontWeight: 'bold',
-                            }}>
-                            {i.PRESENT_HOURS}
-                          </Text>
-                        ) : (
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              fontWeight: 'bold',
-                            }}>
-                            NA
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  );
-                })
-              ) : (
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    color: Themes == 'dark' ? '#000' : '#000',
-                  }}>
-                  No found data
-                </Text>
-              )}
             </View>
 
             {/* <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
@@ -1987,7 +2158,7 @@ const Home = ({navigation}) => {
           </View> */}
           </View>
         </PullToRefresh>
-
+        {/* 
         {modalVisible && (
           <View
             style={{
@@ -2010,7 +2181,7 @@ const Home = ({navigation}) => {
             }}>
             <ActivityIndicator size="large" color="#0528A5" />
           </View>
-        </Modal>
+        </Modal> */}
       </Root>
     </SafeAreaView>
   );
@@ -2020,8 +2191,8 @@ export default Home;
 
 const styles = StyleSheet.create({
   tinyLogo: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 100,
     // marginRight: 20,
     borderWidth: 1,
@@ -2056,14 +2227,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     borderRadius: 10,
   },
-  tinyLogo: {
-    width: 70,
-    height: 70,
-    borderRadius: 100,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: 'white',
-  },
   profileFont: {
     color: 'white',
   },
@@ -2087,10 +2250,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#d3e3fd30',
     borderColor: '#0c57d0',
   },
-  heading: {fontWeight: '700', fontSize: 16},
-  heading_grey: {fontSize: 14, color: 'grey', fontWeight: '300'},
-  add_txt: {fontSize: 14, color: '#efad37', fontWeight: '600'},
-  view_txt: {color: '#702963', fontWeight: 'bold'},
+  heading: { fontWeight: '700', fontSize: 16 },
+  heading_grey: { fontSize: 14, color: 'grey', fontWeight: '300' },
+  add_txt: { fontSize: 14, color: '#efad37', fontWeight: '600' },
+  view_txt: { color: '#702963', fontWeight: 'bold' },
   weekDay: {
     fontSize: 19,
     fontWeight: '600',
@@ -2098,7 +2261,7 @@ const styles = StyleSheet.create({
     color: Themes == 'dark' ? '#000' : '#000',
   },
   recent_log_box: {
-    width: responsiveWidth(96),
+    width: responsiveWidth(95),
     marginTop: 15,
     alignSelf: 'center',
     padding: 10,

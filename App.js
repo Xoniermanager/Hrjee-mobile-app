@@ -45,9 +45,9 @@ const App = ({navigation}) => {
         const latestVersion = await VersionCheck.getLatestVersion({
           packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
           ignoreErrors: true,
-        });
-      
+        })
         const currentVersion = VersionCheck.getCurrentVersion();
+        // console.log(latestVersion, currentVersion);
         if (latestVersion < currentVersion) {
           Alert.alert(
             'Update Required',
@@ -71,7 +71,7 @@ const App = ({navigation}) => {
       }
     };
 
-    checkAppVersion();
+    // checkAppVersion();
   }, []);
 
   const [isConnected, setIsConnected] = useState('');
@@ -97,7 +97,7 @@ const App = ({navigation}) => {
 
   return (
     <>
-      {isConnected == 'true' && (
+      {/* {isConnected == 'true' && ( */}
         <>
           <SocketProvider>
             <EssProvider>
@@ -107,9 +107,9 @@ const App = ({navigation}) => {
             </EssProvider>
           </SocketProvider>
         </>
-      )}
+      {/* )} */}
 
-      {isConnected == 'false' && (
+      {/* {isConnected == 'false' && (
         <Modal isVisible={isModalVisiblebeneficial} animationType="slide">
           <View
             style={{
@@ -132,7 +132,7 @@ const App = ({navigation}) => {
             />
           </View>
         </Modal>
-      )}
+      )} */}
     </>
   );
 };
@@ -193,7 +193,6 @@ const styles = StyleSheet.create({});
 // };
 
 // export default App;
-
 
 
 

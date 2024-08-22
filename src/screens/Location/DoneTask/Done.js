@@ -63,13 +63,13 @@ const Done = ({ navigation }) => {
       .catch(error => {
 
         setloading(false);
-        // if (error.response.status == '401') {
+        if (error.response.status == '401') {
 
-        //   AsyncStorage.removeItem('Token');
-        //   AsyncStorage.removeItem('UserData');
-        //   AsyncStorage.removeItem('UserLocation');
-        //   navigation.navigate('Login');
-        // }
+          AsyncStorage.removeItem('Token');
+          AsyncStorage.removeItem('UserData');
+          AsyncStorage.removeItem('UserLocation');
+          navigation.navigate('Login');
+        }
       });
   };
   const update_show_hide = async (task_id, show) => {

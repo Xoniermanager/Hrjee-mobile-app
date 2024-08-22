@@ -7,16 +7,15 @@ import LottieView from 'lottie-react-native';
 const ProcessingMessage = () => {
   return (
     <View style={styles.container}>
-      {/* <ActivityIndicator size="large" color="#0000FF"  /> */}
       <LottieView
         source={require('../../../images/processingtask.json')}
         autoPlay
         loop
-        style={styles.lottie}
+        style={styles.animation}
       />
-      <Text>Please wait</Text>
-      <Text> we are submitting your requiest</Text>
     </View>
+
+
   )
 }
 
@@ -26,10 +25,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: 'white', // Ensure the background is white or another contrasting color
   },
-  lottie: {
-    width: 100,
-    height: 100
-  }
+  text: {
+    fontSize: 24,
+    color: 'black', // Ensure the text color contrasts with the background
+    marginBottom: 20, // Adjust spacing
+  },
+  animation: {
+    width: 150, // Ensure the animation is large enough to be visible
+    height: 150,
+  },
 })

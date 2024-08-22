@@ -73,7 +73,7 @@ const Home = ({ navigation }) => {
   const [news, setnews] = useState([]);
   const [user, setuser1] = useState(null);
   const [inTime, setinTime] = useState(null);
-  const [homeskelton,setHomeSkeleton]=useState(null)
+  const [homeskelton, setHomeSkeleton] = useState(null)
   const [outTime, setoutTime] = useState(null);
   const [punchIn, setpunchIn] = useState(false);
   const [loading, setloading] = useState(false);
@@ -343,7 +343,7 @@ const Home = ({ navigation }) => {
         if (response.data.status == 1) {
           const data = response.data.data;
           if (data.in_time != '' && data.out_location_id == null) {
-          
+
             setpunchIn(true);
             setinTime(data.in_time);
             setlocationOut(data?.out_location_id);
@@ -1395,7 +1395,7 @@ const Home = ({ navigation }) => {
         callback: () => [Popup.hide()],
       });
     }
-  }, [punchInApi.loading, ]);
+  }, [punchInApi.loading,]);
 
   useEffect(() => {
     if (punchOutApi.data != null) {
@@ -1554,6 +1554,7 @@ const Home = ({ navigation }) => {
 
   // location..................tracking..................................
 
+
   const [locationArray, setLocationArray] = useState([]);
 
 
@@ -1662,9 +1663,6 @@ const Home = ({ navigation }) => {
   }, [timerOn && locationtracking?.length > 0])
 
 
-
-  //ending location.................tracking...................................
-
   const LOCATIONTRACKING = async () => {
     const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
     const finallocationtracking = JSON.parse(locationtracking);
@@ -1673,6 +1671,11 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     LOCATIONTRACKING();
   }, [])
+
+
+
+  //ending location.................tracking...................................
+
 
   // console.log("locationtracking,.........", locationtracking)
 
@@ -1745,9 +1748,8 @@ const Home = ({ navigation }) => {
     );
   }
 
-  if(homeskelton == null)
-  {
-    return <HomeSkeleton/>
+  if (homeskelton == null) {
+    return <HomeSkeleton />
   }
 
   return (
@@ -1795,7 +1797,7 @@ const Home = ({ navigation }) => {
                 </View>
               </View>
               <View style={{ flexDirection: "row" }}>
-                {/* {locationtracking && locationtracking?.length > 0 && ( */}
+                {locationtracking && locationtracking?.length > 0 && (
                   <TouchableOpacity
                     onPress={() => navigation.navigate('UserList')}
                     style={{}}
@@ -1809,7 +1811,7 @@ const Home = ({ navigation }) => {
                       }}
                     />
                   </TouchableOpacity>
-                {/* )} */}
+                )}
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Notifications')}
                   style={{}}>
@@ -2156,7 +2158,7 @@ const Home = ({ navigation }) => {
           </View> */}
           </View>
         </PullToRefresh>
-{/* 
+        {/* 
         {modalVisible && (
           <View
             style={{

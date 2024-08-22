@@ -10,14 +10,14 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import GlobalStyle from '../../../reusable/GlobalStyle';
 import {
   responsiveHeight,
   responsiveScreenWidth,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
-import {Root, Popup} from 'popup-ui';
+import { Root, Popup } from 'popup-ui';
 
 import Themes from './Pending';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,7 +29,7 @@ import Reload from '../../../../Reload';
 import Toast from 'react-native-simple-toast';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 
-const Pending = ({navigation}) => {
+const Pending = ({ navigation }) => {
   const theme = useColorScheme();
   const [Userdata, setUserdata] = useState(null);
   const [show, setShow] = useState('2');
@@ -45,13 +45,14 @@ const Pending = ({navigation}) => {
     setloading(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
 
     axios
       .get(`${apiUrl}/SecondPhaseApi/get_user_task`, config)
       .then(response => {
         setloading(false);
+        console.log("res-------", response?.data)
         if (response?.data?.status == 200) {
           setUserdata(response?.data?.data);
         }
@@ -185,7 +186,7 @@ const Pending = ({navigation}) => {
           <TextInput
             placeholder="Search by pin code/customer name/loan no"
             placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
-            style={{color: Themes == 'dark' ? '#000' : '#000'}}
+            style={{ color: Themes == 'dark' ? '#000' : '#000' }}
             value={searchItem}
             onChangeText={prev => onSearchList(prev)}
           />
@@ -211,12 +212,12 @@ const Pending = ({navigation}) => {
                 </Text>
               </View>
             )}
- {filterData?.length!=0?null: <View style={{ justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
-            <Text style={{ marginTop: responsiveHeight(30), textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
-          </View>}
+            {filterData?.length != 0 ? null : <View style={{ justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
+              <Text style={{ marginTop: responsiveHeight(30), textAlign: 'center', fontSize: 20, color: Themes == 'dark' ? '#000' : '#000' }}>No Data Found</Text>
+            </View>}
             <FlatList
               data={filterData ? filterData : data}
-              renderItem={({item, index}) => (
+              renderItem={({ item, index }) => (
                 <>
                   <View activeOpacity={0.2} style={styles.maincard}>
                     <View
@@ -231,7 +232,7 @@ const Pending = ({navigation}) => {
                           tast_status_update(item),
                           setModalVisible(true),
                         ]}
-                        style={{backgroundColor: '#0043ae', borderRadius: 10}}>
+                        style={{ backgroundColor: '#0043ae', borderRadius: 10 }}>
                         <Text
                           style={{
                             color: Themes == 'dark' ? '#fff' : '#fff',
@@ -245,7 +246,7 @@ const Pending = ({navigation}) => {
 
                       <TouchableOpacity
                         onPress={() => update_show_hide(item?.task_id, true)}
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View>
                           <Text
                             style={{
@@ -265,7 +266,7 @@ const Pending = ({navigation}) => {
                       </TouchableOpacity>
                     </View>
                     {currentDisplayedTask &&
-                    currentDisplayedTask == item?.task_id ? (
+                      currentDisplayedTask == item?.task_id ? (
                       <>
                         <View
                           style={{
@@ -274,12 +275,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Dept id:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.dept_id?item?.dept_id:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.dept_id ? item?.dept_id : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -289,12 +290,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Customer name:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.customer_name?item?.customer_name:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.customer_name ? item?.customer_name : 'N/A'}
                           </Text>
                         </View>
 
@@ -305,12 +306,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Mobile Number:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.mobile_no?item?.mobile_no:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.mobile_no ? item?.mobile_no : 'N/A'}
                           </Text>
                         </View>
 
@@ -332,7 +333,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.loan_no?item?.loan_no:'N/A'}
+                            {item?.loan_no ? item?.loan_no : 'N/A'}
                           </Text>
                         </View>
 
@@ -355,7 +356,7 @@ const Pending = ({navigation}) => {
                               width: responsiveWidth(60),
                               textAlign: 'right',
                             }}>
-                            {item?.risk_address?item?.risk_address:'N/A'}
+                            {item?.risk_address ? item?.risk_address : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -376,7 +377,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.state?item?.state:'N/A'}
+                            {item?.state ? item?.state : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -397,7 +398,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.city?item?.city:"N/A"}
+                            {item?.city ? item?.city : "N/A"}
                           </Text>
                         </View>
                         <View
@@ -418,7 +419,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.pincode?item?.pincode:'N/A'}
+                            {item?.pincode ? item?.pincode : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -439,7 +440,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.total_amount?item?.total_amount:'N/A'}
+                            {item?.total_amount ? item?.total_amount : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -460,7 +461,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.principle?item?.principle:'N/A'}
+                            {item?.principle ? item?.principle : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -481,7 +482,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.emi_amount?item?.emi_amount:'N/A'}
+                            {item?.emi_amount ? item?.emi_amount : 'N/A'}
                           </Text>
                         </View>
 
@@ -503,7 +504,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.builder_name?item?.builder_name:'N/A'}
+                            {item?.builder_name ? item?.builder_name : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -524,7 +525,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.banker_name?item?.banker_name:'N/A'}
+                            {item?.banker_name ? item?.banker_name : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -545,7 +546,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.loan_center?item?.loan_center:'N/A'}
+                            {item?.loan_center ? item?.loan_center : 'N/A'}
                           </Text>
                         </View>
 
@@ -556,7 +557,7 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Proparty address:
                           </Text>
                           <Text
@@ -565,7 +566,7 @@ const Pending = ({navigation}) => {
                               width: responsiveWidth(60),
                               textAlign: 'right',
                             }}>
-                            {item?.proparty_address?item?.proparty_address:'N/A'}
+                            {item?.proparty_address ? item?.proparty_address : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -575,12 +576,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Alternate no:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.alternate_no?item?.alternate_no:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.alternate_no ? item?.alternate_no : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -590,12 +591,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Legal status:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.legal_status?item?.legal_status:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.legal_status ? item?.legal_status : 'N/A'}
                           </Text>
                         </View>
 
@@ -653,7 +654,7 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Manager remark:
                           </Text>
                           <Text
@@ -662,7 +663,7 @@ const Pending = ({navigation}) => {
                               width: responsiveWidth(60),
                               textAlign: 'right',
                             }}>
-                            {item?.description?item?.description:'N/A'}
+                            {item?.description ? item?.description : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -672,12 +673,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Location coordinates:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.location_coordinates?item?.location_coordinates:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.location_coordinates ? item?.location_coordinates : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -687,7 +688,7 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Home address:
                           </Text>
                           <Text
@@ -696,7 +697,7 @@ const Pending = ({navigation}) => {
                               width: responsiveWidth(60),
                               textAlign: 'right',
                             }}>
-                            {item?.home_address?item?.home_address:'N/A'}
+                            {item?.home_address ? item?.home_address : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -706,12 +707,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             pos amount:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.pos_amount?item?.pos_amount:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.pos_amount ? item?.pos_amount : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -721,12 +722,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Product:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.product?item?.product:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.product ? item?.product : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -736,12 +737,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Process name:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.process_name?item?.process_name:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.process_name ? item?.process_name : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -751,12 +752,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Created Date:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.create_at?item?.create_at:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.create_at ? item?.create_at : 'N/A'}
                           </Text>
                         </View>
                       </>
@@ -780,7 +781,7 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.loan_no?item?.loan_no:'N/A'}
+                            {item?.loan_no ? item?.loan_no : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -790,12 +791,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Customer name:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.customer_name?item?.customer_name:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.customer_name ? item?.customer_name : 'N/A'}
                           </Text>
                         </View>
                         <View
@@ -816,31 +817,31 @@ const Pending = ({navigation}) => {
                               color: Themes == 'dark' ? '#000' : '#000',
                               textAlign: 'center',
                             }}>
-                            {item?.pincode?item?.pincode:'N/A'}
+                            {item?.pincode ? item?.pincode : 'N/A'}
                           </Text>
                         </View>
                         <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
                           style={{
-                            color: Themes == 'dark' ? '#000' : '#000',
-                            textAlign: 'center',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            marginBottom: 2,
                           }}>
-                          Visit Address:
-                        </Text>
-                        <Text
-                          style={{
-                            color: Themes == 'dark' ? '#000' : '#000',
-                            width: responsiveWidth(60),
-                            textAlign: 'right'
-                          }}>
-                          {item?.risk_address?item?.risk_address:'N/A'}
-                        </Text>
-                      </View>
+                          <Text
+                            style={{
+                              color: Themes == 'dark' ? '#000' : '#000',
+                              textAlign: 'center',
+                            }}>
+                            Visit Address:
+                          </Text>
+                          <Text
+                            style={{
+                              color: Themes == 'dark' ? '#000' : '#000',
+                              width: responsiveWidth(60),
+                              textAlign: 'right'
+                            }}>
+                            {item?.risk_address ? item?.risk_address : 'N/A'}
+                          </Text>
+                        </View>
 
                         <View
                           style={{
@@ -849,12 +850,12 @@ const Pending = ({navigation}) => {
                             marginBottom: 2,
                           }}>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                             Created Date:
                           </Text>
                           <Text
-                            style={{color: Themes == 'dark' ? '#000' : '#000'}}>
-                            {item?.create_at?item?.create_at:'N/A'}
+                            style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                            {item?.create_at ? item?.create_at : 'N/A'}
                           </Text>
                         </View>
                       </>
@@ -908,7 +909,7 @@ const styles = StyleSheet.create({
     opacity: 1,
     elevation: 20,
     backgroundColor: '#fff',
-    shadowOffset: {width: 1, height: 1},
+    shadowOffset: { width: 1, height: 1 },
     shadowColor: '#333',
     shadowOpacity: 0.3,
     shadowRadius: 2,

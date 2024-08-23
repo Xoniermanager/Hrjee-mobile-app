@@ -213,7 +213,7 @@
 //             pinColor="red"
 //           />
 //         ))}
-   
+
 
 //         {locations.length > 1 && (
 //           <Polyline
@@ -242,21 +242,21 @@
 //           return null;
 //         })}
 
-        // {mapDataNewApi.length > 1 && mapDataNewApi.map((_, index) => {
-        //   if (index < mapDataNewApi.length - 1) {
-        //     return (
-        //       <MapViewDirections
-        //         key={`new-api-direction-${index}`}
-        //         origin={mapDataNewApi[index]}
-        //         destination={mapDataNewApi[index + 1]}
-        //         apikey={"AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg"}
-        //         strokeWidth={3}
-        //         strokeColor="blue"
-        //       />
-        //     );
-        //   }
-        //   return null;
-        // })}
+// {mapDataNewApi.length > 1 && mapDataNewApi.map((_, index) => {
+//   if (index < mapDataNewApi.length - 1) {
+//     return (
+//       <MapViewDirections
+//         key={`new-api-direction-${index}`}
+//         origin={mapDataNewApi[index]}
+//         destination={mapDataNewApi[index + 1]}
+//         apikey={"AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg"}
+//         strokeWidth={3}
+//         strokeColor="blue"
+//       />
+//     );
+//   }
+//   return null;
+// })}
 //       </MapView>
 //       <View style={{ padding: 10 }}>
 //         <Text>Total Distance: {totalDistance} km</Text>
@@ -276,14 +276,26 @@
 // export default Maps;
 
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, ActivityIndicator, Dimensions, Text } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Dimensions, Text, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
+import Geolocation from '@react-native-community/geolocation';
 import apiUrl from '../../reusable/apiUrl';
 const { width, height } = Dimensions.get('window');
+const getDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+};
 const Maps = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -293,6 +305,8 @@ const Maps = () => {
   const [loading, setLoading] = useState(false);
   const [mapDataApi, setMapDataApi] = useState([]);
   const [isPunchedOut, setIsPunchedOut] = useState(false);
+  const [totalDistance, setTotalDistance] = useState(0);
+  const [lastRecordedLocation, setLastRecordedLocation] = useState(null); // Track the last recorded location
   useEffect(() => {
     getFirstLocation();
   }, []);
@@ -304,6 +318,18 @@ const Maps = () => {
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
       });
+      let distance = 0;
+      for (let i = 0; i < mapDataApi.length - 1; i++) {
+        const point1 = mapDataApi[i];
+        const point2 = mapDataApi[i + 1];
+        distance += getDistance(
+          parseFloat(point1.latitude),
+          parseFloat(point1.longitude),
+          parseFloat(point2.latitude),
+          parseFloat(point2.longitude)
+        );
+      }
+      setTotalDistance(distance);
     }
   }, [mapDataApi]);
   const getFirstLocation = async () => {
@@ -332,7 +358,6 @@ const Maps = () => {
           });
           setIsPunchedOut(true);
         } else if (responseData?.locations?.length > 0) {
-          // Add the last recorded location if punch out is not available
           const lastLocation = responseData.locations[responseData.locations.length - 1];
           finalCoordinates.push({
             latitude: parseFloat(lastLocation?.latitude),
@@ -341,6 +366,7 @@ const Maps = () => {
           });
         }
         setMapDataApi(finalCoordinates);
+        setLastRecordedLocation(finalCoordinates[finalCoordinates.length - 1]); // Initialize the last recorded location
       }
       setLoading(false);
     } catch (error) {
@@ -353,6 +379,46 @@ const Maps = () => {
       }
     }
   };
+  useEffect(() => {
+    // Watch the user's location and send data if distance exceeds 200 meters
+    const watchId = Geolocation.watchPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        if (lastRecordedLocation) {
+          const distance = getDistance(
+            lastRecordedLocation.latitude,
+            lastRecordedLocation.longitude,
+            latitude,
+            longitude
+          );
+          if (distance >= 0.2) { // 200 meters in kilometers
+            try {
+              // Send location data to backend
+              const token = await AsyncStorage.getItem('Token');
+              const config = {
+                headers: { Token: token },
+              };
+              await axios.post(
+                `${apiUrl}/yourApiEndpoint`,
+                { latitude, longitude },
+                config
+              );
+              setLastRecordedLocation({ latitude, longitude }); // Update the last recorded location
+            } catch (error) {
+              // Alert.alert("Error", "Failed to send location data.");
+            }
+          }
+        }
+      },
+      (error) => {
+        console.log(error);
+      },
+      { enableHighAccuracy: true, distanceFilter: 10 } // Adjust distanceFilter as needed
+    );
+    return () => {
+      Geolocation.clearWatch(watchId);
+    };
+  }, [lastRecordedLocation]);
   if (loading) {
     return <ActivityIndicator style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} size="large" />;
   }
@@ -377,23 +443,13 @@ const Maps = () => {
               coordinate.type === 'punch_in'
                 ? 'Punch In'
                 : coordinate.type === 'punch_out'
-                ? 'Punch Out'
-                : 'Last Recorded Location'
+                  ? 'Punch Out'
+                  : 'Last Recorded Location'
             }
             pinColor={coordinate.type === 'punch_in' ? 'blue' : 'red'}
           />
         ))}
-        {/* {mapDataApi.length > 1 && (
-          <Polyline
-            coordinates={mapDataApi.map((loc) => ({
-              latitude: parseFloat(loc.latitude),
-              longitude: parseFloat(loc.longitude),
-            }))}
-            strokeColor="#000"
-            strokeWidth={3}
-          />
-        )} */}
-          {mapDataApi.length > 1 && mapDataApi.map((_, index) => {
+        {mapDataApi.length > 1 && mapDataApi.map((_, index) => {
           if (index < mapDataApi.length - 1) {
             return (
               <MapViewDirections
@@ -409,6 +465,9 @@ const Maps = () => {
           return null;
         })}
       </MapView>
+      <View style={styles.distanceContainer}>
+        <Text style={styles.distanceText}>Total Distance: {totalDistance.toFixed(2)} km</Text>
+      </View>
     </View>
   );
 };
@@ -418,5 +477,24 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
   },
+  distanceContainer: {
+    padding: 10,
+    backgroundColor: 'white',
+    alignItems: 'center',
+  },
+  distanceText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000'
+  },
 });
 export default Maps;
+
+
+
+
+
+
+
+
+

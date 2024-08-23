@@ -121,17 +121,18 @@ const Processing = () => {
       height: 400,
       cropping: true,
       multiple: true,
-      includeBase64: true,
+      // includeBase64: true,
     })
       .then(image => {
+        // alert(JSON.stringify(image))
         // setImage(image.path)
         // setMimez(image?.mime)
-        if (image.length > 5) {
+        if (image?.length > 5) {
           alert('You can only select up to 5 photos.');
         }
         else {
           setPhotoError(null);
-          // console.log(image)
+          console.log('image-------', image);
           setPhoto(image);
           setPhotoPath(image?.path);
           setCameramodal1(!cameramodal1);
@@ -142,7 +143,7 @@ const Processing = () => {
         // console.log("file ", image?.data?.mime);
       })
       .catch(err => {
-        console.log(err);
+        console.log("err........", err);
       });
   };
 
@@ -359,6 +360,7 @@ const Processing = () => {
                   data.append('remark', remark);
                   data.append('latitude', latitude);
                   data.append('longitude', longitude);
+                  console.log('fileResponse[0]', fileResponse[0]);
                   {
                     fileResponse[0] == undefined
                       ? null
@@ -366,29 +368,16 @@ const Processing = () => {
                   }
                   data.append('status', updatedStatus);
                   data.append('disposition_code', codeName);
-                  // var selfie_image = {
-                  //   uri: photo?.path,
-                  //   type: photo?.mime,
-                  //   name: photo?.modificationDate + '.' + 'jpg',
-                  // };
-                  // var multipleImage = photo?.map((image, index) =>
-                  // ({
-                  //   uri: image.path,
-                  //   type: image.mime,
-                  //   name: image?.modificationDate + '.' + 'jpg',
-                  // }));
-                  const formattedResponse = {
-                    uri: photo.map(image => `${image.path}`),
-                    type: photo.map(image => image.mime),
-                    name: photo.map(image => `${image.modificationDate}.jpg`),
-                      
-                  };   
-                  console.log(formattedResponse,'formattedResponse')
-                  data.append('selfie_image', formattedResponse);
-             
+                  photo.map((ele, index) => {
+                    let obj = {
+                      name: ele.modificationDate + '.' + 'jpg',
+                      size: ele.size,
+                      type: ele.mime,
+                      uri: ele.path
+                    }
+                    data.append(`selfie_image[${index}]`, obj);
+                  });
                   data.append('lat_long_address', address);
-                  console.log("payload1......", data)
-
                   if (remark.trim() === '') {
                     setRemarkError('Please enter some text');
                     setloading(false);
@@ -406,7 +395,6 @@ const Processing = () => {
                         config,
                       )
                       .then(response => {
-                        console.log("res++++++++++", response?.data)
                         setloading(false);
                         setloading(false);
                         if (response?.data?.status == 1) {
@@ -435,7 +423,6 @@ const Processing = () => {
                       })
                       .catch(error => {
                         setloading(false);
-                      console.log(error,'jjkk')
                       });
                   }
                 })
@@ -500,16 +487,16 @@ const Processing = () => {
             data.append('image', fileResponse[0]);
             data.append('status', updatedStatus);
             data.append('disposition_code', codeName);
-
-            var selfie_image = {
-              uri: photo?.path,
-              type: photo?.mime,
-              name: photo?.modificationDate + '.' + 'jpg',
-            };
-            data.append('selfie_image', selfie_image);
+            photo.map((ele, index) => {
+              let obj = {
+                name: ele.modificationDate + '.' + 'jpg',
+                size: ele.size,
+                type: ele.mime,
+                uri: ele.path
+              }
+              data.append(`selfie_image[${index}]`, obj);
+            });
             data.append('lat_long_address', address);
-
-            console.log("payload2......", data)
             if (remark.trim() === '') {
               setRemarkError('Please enter some text');
             } else if (value == '' || value == null) {
@@ -525,7 +512,7 @@ const Processing = () => {
                 )
                 .then(response => {
                   setloading(false);
-                  console.log("res++++++++++", response?.data)
+                  // console.log("res++++++++++", response?.data)
                   if (response?.data?.status == 1) {
                     Toast.show(response?.data?.message);
                     get_employee_detail(),

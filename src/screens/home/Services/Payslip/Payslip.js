@@ -7,22 +7,26 @@ import {
   ActivityIndicator,
   useColorScheme
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import GlobalStyle from '../../../../reusable/GlobalStyle';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../../reusable/apiUrl';
 import axios from 'axios';
-import {ScrollView} from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Empty from '../../../../reusable/Empty';
 import Themes from '../../../../Theme/Theme';
 import { Root, Popup } from 'popup-ui'
+import NotificationListSkeleton from '../../../Skeleton/NotificationListSkeleton';
+import CardSkeleton from '../../../Skeleton/CardSkeleton';
+import { responsiveFontSize, responsiveWidth, responsiveHeight } from 'react-native-responsive-dimensions';
+import HomePayslipSkeleton from '../../../Skeleton/HomePayslipSkeleton';
 
-const Payslip = ({navigation}) => {
+const Payslip = ({ navigation }) => {
   const theme = useColorScheme();
-
+  const arr = [1, 2, 3, 4, 5, 6, 7, 8]
   const [empty, setempty] = useState(false);
   const [loading, setloading] = useState(true);
   const [payslip, setpayslip] = useState([]);
@@ -54,7 +58,7 @@ const Payslip = ({navigation}) => {
     const token = await AsyncStorage.getItem('Token');
 
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
     axios
       .post(`${apiUrl}/api/payslip`, {}, config)
@@ -71,24 +75,23 @@ const Payslip = ({navigation}) => {
         }
       })
       .catch(error => {
-      
-       
+
+
         setloading(false)
-        if(error.response.status=='401')
-        {
+        if (error.response.status == '401') {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:error.response.data.msg,
+            textBody: error.response.data.msg,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
             AsyncStorage.removeItem('UserData'),
             AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
+            navigation.navigate('Login')]
           });
         }
-      
+
       });
   };
 
@@ -96,58 +99,67 @@ const Payslip = ({navigation}) => {
     // Do something to refresh the data
     get_payslip();
   };
+
+  console.log("payslip", payslip)
+
   return (
     <>
-    <Root>
+      <Root>
 
-    
-      {payslip && payslip?.length == 0 && !loading && <Empty />}
+        {payslip && payslip?.length == 0 && !loading && <Empty />}
 
-      {payslip?.length > 0 && (
-        <View style={{flex: 1, backgroundColor: '#e3eefb', padding: 15}}>
-          <PullToRefresh onRefresh={handleRefresh}>
-            {payslip?.map((i, index) => (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Doc', {url: i.doc})}
-                
-                key={index}
-                style={[
-                  {
-                    marginTop: index > 0 ? 20 : 0,
-                    padding: 15,
-                    backgroundColor: 'white',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  },
-                  GlobalStyle.card,
-                ]}>
-                <Text style={[{fontWeight: '600', fontSize: 16},{color: Themes == 'dark' ? '#000' : '#000' }]}>
-                  {monthNames[+i.month - 1] + ' ' + i.year}
-                </Text>
-                <AntDesign
-                  name="rightcircle"
-                  size={28}
-                  color="#0043ae"
-                  style={{marginRight: 5}}
-                />
-              </TouchableOpacity>
-            ))}
-          </PullToRefresh>
-        </View>
-      )}
+        {payslip ? (
+          payslip?.length > 0 ? (
+            <View style={{ flex: 1, backgroundColor: '#e3eefb', padding: 15 }}>
+              <PullToRefresh onRefresh={handleRefresh}>
 
-      {loading && (
-        <View
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'white',
-          }}>
-          <ActivityIndicator size="small" color="#388aeb" />
-        </View>
-      )}
+                {payslip?.map((i, index) => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('Doc', { url: i.doc })}
+
+                    key={index}
+                    style={[
+                      {
+                        marginTop: index > 0 ? 20 : 0,
+                        padding: 15,
+                        backgroundColor: 'white',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      },
+                      GlobalStyle.card,
+                    ]}>
+                    <Text style={[{ fontWeight: '600', fontSize: 16 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                      {monthNames[+i.month - 1] + ' ' + i.year}
+                    </Text>
+                    <AntDesign
+                      name="rightcircle"
+                      size={28}
+                      color="#0043ae"
+                      style={{ marginRight: 5 }}
+                    />
+                  </TouchableOpacity>
+                )
+                )}
+              </PullToRefresh>
+            </View>
+          )
+            :
+            (
+              arr.map((val, index) => {
+                return (
+                  <View key={index} style={{ borderColor: 'gray', alignSelf: "center" }}>
+                    <HomePayslipSkeleton height={responsiveHeight(7)} width={responsiveWidth(95)} />
+                  </View>
+                )
+              })
+
+            )
+        )
+          :
+          null
+        }
+
       </Root>
     </>
   );

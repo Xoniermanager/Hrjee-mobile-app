@@ -213,7 +213,7 @@
 //             pinColor="red"
 //           />
 //         ))}
-   
+
 
 //         {locations.length > 1 && (
 //           <Polyline
@@ -242,21 +242,21 @@
 //           return null;
 //         })}
 
-        // {mapDataNewApi.length > 1 && mapDataNewApi.map((_, index) => {
-        //   if (index < mapDataNewApi.length - 1) {
-        //     return (
-        //       <MapViewDirections
-        //         key={`new-api-direction-${index}`}
-        //         origin={mapDataNewApi[index]}
-        //         destination={mapDataNewApi[index + 1]}
-        //         apikey={"AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg"}
-        //         strokeWidth={3}
-        //         strokeColor="blue"
-        //       />
-        //     );
-        //   }
-        //   return null;
-        // })}
+// {mapDataNewApi.length > 1 && mapDataNewApi.map((_, index) => {
+//   if (index < mapDataNewApi.length - 1) {
+//     return (
+//       <MapViewDirections
+//         key={`new-api-direction-${index}`}
+//         origin={mapDataNewApi[index]}
+//         destination={mapDataNewApi[index + 1]}
+//         apikey={"AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg"}
+//         strokeWidth={3}
+//         strokeColor="blue"
+//       />
+//     );
+//   }
+//   return null;
+// })}
 //       </MapView>
 //       <View style={{ padding: 10 }}>
 //         <Text>Total Distance: {totalDistance} km</Text>
@@ -286,7 +286,6 @@ import Geolocation from '@react-native-community/geolocation';
 import apiUrl from '../../reusable/apiUrl';
 
 const { width, height } = Dimensions.get('window');
-
 const getDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371; // Radius of the Earth in km
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -298,7 +297,6 @@ const getDistance = (lat1, lon1, lat2, lon2) => {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 };
-
 const Maps = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -310,7 +308,6 @@ const Maps = () => {
   const [isPunchedOut, setIsPunchedOut] = useState(false);
   const [totalDistance, setTotalDistance] = useState(0);
   const [lastRecordedLocation, setLastRecordedLocation] = useState(null); // Track the last recorded location
-
   useEffect(() => {
     getFirstLocation();
   }, []);
@@ -323,7 +320,6 @@ const Maps = () => {
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
       });
-
       let distance = 0;
       for (let i = 0; i < mapDataApi.length - 1; i++) {
         const point1 = mapDataApi[i];
@@ -386,7 +382,6 @@ const Maps = () => {
       }
     }
   };
-
   useEffect(() => {
     // Watch the user's location and send data if distance exceeds 200 meters
     const watchId = Geolocation.watchPosition(
@@ -407,7 +402,7 @@ const Maps = () => {
                 headers: { Token: token },
               };
               await axios.post(
-                `${apiUrl}/yourApiEndpoint`, 
+                `${apiUrl}/yourApiEndpoint`,
                 { latitude, longitude },
                 config
               );
@@ -423,12 +418,10 @@ const Maps = () => {
       },
       { enableHighAccuracy: true, distanceFilter: 10 } // Adjust distanceFilter as needed
     );
-
     return () => {
       Geolocation.clearWatch(watchId);
     };
   }, [lastRecordedLocation]);
-
   if (loading) {
     return <ActivityIndicator style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} size="large" />;
   }
@@ -454,8 +447,8 @@ const Maps = () => {
               coordinate.type === 'punch_in'
                 ? 'Punch In'
                 : coordinate.type === 'punch_out'
-                ? 'Punch Out'
-                : 'Last Recorded Location'
+                  ? 'Punch Out'
+                  : 'Last Recorded Location'
             }
             pinColor={coordinate.type === 'punch_in' ? 'blue' : 'red'}
           />
@@ -497,9 +490,16 @@ const styles = StyleSheet.create({
   distanceText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color:'#000'
+    color: '#000'
   },
 });
-
 export default Maps;
+
+
+
+
+
+
+
+
 

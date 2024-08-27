@@ -66,6 +66,7 @@ const ForgotPassword = ({ navigation }) => {
       
       axios.request(config)
       .then((response) => {
+        setloading(false);
         if (response.data.status== 1) {
           Popup.show({
             type: 'Success',
@@ -75,6 +76,7 @@ const ForgotPassword = ({ navigation }) => {
             buttonText: 'Ok',
             callback: () => [Popup.hide(), navigation.navigate('Enter your Pin',{email:email})]
           })
+          setemail('')
         }
         else if (response.data.status== 0){
           setloading(false)
@@ -196,7 +198,7 @@ const ForgotPassword = ({ navigation }) => {
                 }}>
                 Send
               </Text>
-              {loading ? <ActivityIndicator /> : null}
+              {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : null}
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => navigation.goBack()}

@@ -1156,6 +1156,8 @@ const Home = ({ navigation }) => {
     }
   };
 
+  /*
+
   //  This is used send live tracking location socketContext page Starting ..................................
 
   const punch = async () => {
@@ -1307,8 +1309,9 @@ const Home = ({ navigation }) => {
   // }, [currentPosition]);
 
   //  This is used send live tracking location socketContext page Ending ..................................
-
-  const renderItem = ({ item }) =>
+*/
+  
+const renderItem = ({ item }) =>
     // console.log("A.......", item)
     // let x = item?.id;
     // console.log(x);
@@ -1557,7 +1560,6 @@ const Home = ({ navigation }) => {
 
   const [locationArray, setLocationArray] = useState([]);
 
-
   const storeLocation = async (location) => {
     // Alert.alert('19 Secent', JSON.stringify(location))
     try {
@@ -1627,8 +1629,6 @@ const Home = ({ navigation }) => {
     }
   };
 
-
-
   useEffect(() => {
     let storeInterval = null;
     let sendInterval = null;
@@ -1662,6 +1662,7 @@ const Home = ({ navigation }) => {
     };
   }, [timerOn && locationtracking?.length > 0])
 
+  // console.log("locationtracking?.length.....", locationtracking?.length)
 
   const LOCATIONTRACKING = async () => {
     const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
@@ -1673,11 +1674,8 @@ const Home = ({ navigation }) => {
   }, [])
 
 
-
   //ending location.................tracking...................................
 
-
-  // console.log("locationtracking,.........", locationtracking)
 
   const renderItemLogs = ({ item, index }) => {
     const time = new Date(item?.punch_in_time);

@@ -18,12 +18,10 @@ import {
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
 import { Root, Popup } from 'popup-ui';
-
 import Themes from './Pending';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../reusable/apiUrl';
 import axios from 'axios';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Reload from '../../../../Reload';
 import Toast from 'react-native-simple-toast';
@@ -92,6 +90,7 @@ const Pending = ({ navigation }) => {
     let body = new FormData();
     body.append('task_id', item?.task_id);
     body.append('status', updatedStatus);
+    console.log(body, 'body')
     const config = {
       headers: {
         Token: token,
@@ -102,9 +101,11 @@ const Pending = ({ navigation }) => {
     axios
       .post(`${apiUrl}/SecondPhaseApi/update_task_status`, body, config)
       .then(response => {
+        console.log(response?.data, 'hello yash')
         get_employee_detail();
         setShow(response?.data);
         setModalVisible(false);
+
         Toast.show('This task is under progress.');
       })
       .catch(error => {
@@ -145,9 +146,9 @@ const Pending = ({ navigation }) => {
     Userdata.filter((item, index) => {
       return item.status == 0;
     });
-  if (data == null) {
-    return <Reload />;
-  }
+  // if (data == null) {
+  //   return <Reload />;
+  // }
   const onSearchList = async prev => {
     const filtered = data?.filter(
       item =>
@@ -1325,6 +1326,21 @@ const Pending = ({ navigation }) => {
                                   }}>
                                   <Text
                                     style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                                    Customer name:
+                                  </Text>
+                                  <Text
+                                    style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                                    {item?.customer_name ? item?.customer_name : 'N/A'}
+                                  </Text>
+                                </View>
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 2,
+                                  }}>
+                                  <Text
+                                    style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                                     Cr Balance:
                                   </Text>
                                   <Text
@@ -1452,22 +1468,6 @@ const Pending = ({ navigation }) => {
                                     {item?.dept_id ? item?.dept_id : 'N/A'}
                                   </Text>
                                 </View>
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    marginBottom: 2,
-                                  }}>
-                                  <Text
-                                    style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                                    Customer name:
-                                  </Text>
-                                  <Text
-                                    style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                                    {item?.customer_name ? item?.customer_name : 'N/A'}
-                                  </Text>
-                                </View>
-
                                 <View
                                   style={{
                                     flexDirection: 'row',
@@ -1803,7 +1803,7 @@ const Pending = ({ navigation }) => {
                                     {item?.location_coordinates ? item?.location_coordinates : 'N/A'}
                                   </Text>
                                 </View>
-                                <View
+                                {/* <View
                                   style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
@@ -1881,7 +1881,7 @@ const Pending = ({ navigation }) => {
                                     style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                                     {item?.create_at ? item?.create_at : 'N/A'}
                                   </Text>
-                                </View>
+                                </View> */}
                               </>
                             ) : (
                               <>
@@ -2320,54 +2320,6 @@ const Pending = ({ navigation }) => {
                                     {item?.legal_status ? item?.legal_status : 'N/A'}
                                   </Text>
                                 </View>
-
-                                {/* <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          Asign:
-                        </Text>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.assign}
-                        </Text>
-                      </View>
-
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          Assign by:
-                        </Text>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.assign_by}
-                        </Text>
-                      </View> */}
-                                {/* <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 2,
-                        }}>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          update_at:
-                        </Text>
-                        <Text
-                          style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                          {item?.update_at}
-                        </Text>
-                      </View> */}
-
                                 <View
                                   style={{
                                     flexDirection: 'row',
@@ -2402,7 +2354,7 @@ const Pending = ({ navigation }) => {
                                     {item?.location_coordinates ? item?.location_coordinates : 'N/A'}
                                   </Text>
                                 </View>
-                                <View
+                                {/* <View
                                   style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
@@ -2480,7 +2432,7 @@ const Pending = ({ navigation }) => {
                                     style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
                                     {item?.create_at ? item?.create_at : 'N/A'}
                                   </Text>
-                                </View>
+                                </View> */}
                               </>
                             ) : (
                               <>
@@ -2564,7 +2516,6 @@ const Pending = ({ navigation }) => {
                                     {item?.risk_address ? item?.risk_address : 'N/A'}
                                   </Text>
                                 </View>
-
                                 <View
                                   style={{
                                     flexDirection: 'row',
@@ -2584,8 +2535,6 @@ const Pending = ({ navigation }) => {
                             )}
                           </>
                     }
-
-
                   </View>
                 </>
               )}

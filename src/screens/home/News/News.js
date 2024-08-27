@@ -90,20 +90,19 @@ const News = ({ navigation }) => {
         }
       })
       .catch(error => {
-        
+
         setloading(false)
-        if(error.response.status=='401')
-        {
+        if (error.response.status == '401') {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:error.response.data.msg,
+            textBody: error.response.data.msg,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
             AsyncStorage.removeItem('UserData'),
             AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
+            navigation.navigate('Login')]
           });
         }
       });
@@ -117,60 +116,60 @@ const News = ({ navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: 'white', padding: 15 }}>
       <Root>
-    
-      {news.length == 0 && loading == false ? (
-        <Empty onPress={() => navigation.navigate('home')} />
-      ) : loading === false ? (
-        <PullToRefresh onRefresh={handleRefresh}>
-          <View>
-            <Text style={{ fontSize: 13, color: 'grey' }}>
-              {days[d.getDay()] +
-                ', ' +
-                d.getDate() +
-                ' ' +
-                monthNames[d.getMonth()]}
-            </Text>
-          </View>
-          <View style={{ marginTop: 15 }}>
-            <Text style={[{ fontSize: 22, fontWeight: '600' }, {color:Themes=='dark'?'#000':'#000'}]}>Latest news</Text>
-            {news.map((i, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() =>
-                  navigation.navigate('News Detail', {
-                    userId: user.userid,
-                    newsId: i.id,
-                  })
-                }
-                style={{
-                  marginTop: 15,
-                }}>
-                <Text style={[{ fontSize: 18, fontWeight: '500', marginTop: 10 }, {color:Themes=='dark'?'#000':'#000'}]}>
-                  {i.title}
-                </Text>
-                <Image
-                  style={styles.tinyLogo}
-                  // source={require('../../../images/meta.jpeg')}
-                  source={
-                    i.attacnment
-                      ? { uri: i.attacnment }
-                      : require('../../../images/image.png')
+
+        {news.length == 0 && loading == false ? (
+          <Empty onPress={() => navigation.navigate('home')} />
+        ) : loading === false ? (
+          <PullToRefresh onRefresh={handleRefresh}>
+            <View>
+              <Text style={{ fontSize: 13, color: 'grey' }}>
+                {days[d.getDay()] +
+                  ', ' +
+                  d.getDate() +
+                  ' ' +
+                  monthNames[d.getMonth()]}
+              </Text>
+            </View>
+            <View style={{ marginTop: 15 }}>
+              <Text style={[{ fontSize: 22, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>Latest news</Text>
+              {news.map((i, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() =>
+                    navigation.navigate('News Detail', {
+                      userId: user.userid,
+                      newsId: i.id,
+                    })
                   }
-                />
-                {/* <Text style={{fontSize: 16, fontWeight: '400', marginTop: 5}}>
+                  style={{
+                    marginTop: 15,
+                  }}>
+                  <Text style={[{ fontSize: 18, fontWeight: '500', marginTop: 10 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                    {i.title}
+                  </Text>
+                  <Image
+                    style={styles.tinyLogo}
+                    // source={require('../../../images/meta.jpeg')}
+                    source={
+                      i.attacnment
+                        ? { uri: i.attacnment }
+                        : require('../../../images/image.png')
+                    }
+                  />
+                  {/* <Text style={{fontSize: 16, fontWeight: '400', marginTop: 5}}>
                   {i.short_description}
                 </Text> */}
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </PullToRefresh>
+        ) : (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="small" color="#388aeb" />
           </View>
-        </PullToRefresh>
-      ) : (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="small" color="#388aeb" />
-        </View>
-      )}
-          
-          </Root>
+        )}
+
+      </Root>
     </View>
   );
 };

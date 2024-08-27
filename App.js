@@ -9,19 +9,19 @@ import {
   Alert,
   BackHandler,
 } from 'react-native';
-import React, {useEffect, useContext, useState} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {EssProvider, EssContext} from './Context/EssContext';
+import React, { useEffect, useContext, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { EssProvider, EssContext } from './Context/EssContext';
 import SplashScreen from 'react-native-splash-screen';
 import NetInfo from '@react-native-community/netinfo';
 import VersionCheck from 'react-native-version-check';
 import RNExitApp from 'react-native-exit-app';
-import Main, {H} from './Navigators/Main';
+import Main, { H } from './Navigators/Main';
 import HomeNavigator from './Navigators/HomeNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SocketProvider } from './src/tracking/SocketContext';
 
-const App = ({navigation}) => {
+const App = ({ navigation }) => {
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hide();
@@ -47,7 +47,7 @@ const App = ({navigation}) => {
           ignoreErrors: true,
         })
         const currentVersion = VersionCheck.getCurrentVersion();
-        // console.log(latestVersion, currentVersion);
+        console.log(latestVersion, currentVersion);
         if (latestVersion < currentVersion) {
           Alert.alert(
             'Update Required',
@@ -60,7 +60,7 @@ const App = ({navigation}) => {
                 },
               },
             ],
-            {cancelable: false},
+            { cancelable: false },
           );
         } else {
           // App is up-to-date, proceed with the app
@@ -97,7 +97,7 @@ const App = ({navigation}) => {
 
   return (
     <>
-      {/* {isConnected == 'true' && ( */}
+      {isConnected == 'true' && (
         <>
           <SocketProvider>
             <EssProvider>
@@ -107,9 +107,9 @@ const App = ({navigation}) => {
             </EssProvider>
           </SocketProvider>
         </>
-      {/* )} */}
+      )}
 
-      {/* {isConnected == 'false' && (
+      {isConnected == 'false' && (
         <Modal isVisible={isModalVisiblebeneficial} animationType="slide">
           <View
             style={{
@@ -117,6 +117,10 @@ const App = ({navigation}) => {
               justifyContent: 'center',
               backgroundColor: '#fff',
             }}>
+            <Image
+              style={{ width: 80, height: 80, alignSelf: 'center', margin: 5 }}
+              source={require('./src/images/no-signal.png')}
+            />
             <Text
               style={{
                 fontSize: 12,
@@ -126,13 +130,9 @@ const App = ({navigation}) => {
               }}>
               Please check your internet connection{' '}
             </Text>
-            <Image
-              style={{width: 80, height: 80, alignSelf: 'center', margin: 5}}
-              source={require('./src/images/internet.jpeg')}
-            />
           </View>
         </Modal>
-      )} */}
+      )}
     </>
   );
 };

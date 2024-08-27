@@ -312,7 +312,7 @@ const Login = () => {
                   }}>
                   Login
                 </Text>
-                {loading ? <ActivityIndicator size={'large'} color={"#fff"} /> : null}
+                {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : null}
               </TouchableOpacity>
               <View style={{ alignItems: 'center', marginTop: 40 }}>
                 <TouchableOpacity

@@ -72,6 +72,7 @@ import UserList from '../src/screens/Maps/UserList';
 import GetLocation from 'react-native-get-location';
 import GetLocation_id from '../src/screens/Maps/GetLocation';
 import ProcessingMessage from '../src/screens/Location/ProcessingTask/ProcessingMessage';
+import HomePayslipSkeleton from '../src/screens/Skeleton/HomePayslipSkeleton';
 
 const Stack = createNativeStackNavigator();
 
@@ -305,6 +306,10 @@ function MyStack() {
                 name="ProcessingMessage"
                 component={ProcessingMessage}
               />
+              <Stack.Screen
+                name="HomePayslipSkeleton"
+                component={HomePayslipSkeleton}
+              />
             </>
 
           ) : (
@@ -497,6 +502,10 @@ function MyStack() {
               <Stack.Screen
                 name="ProcessingMessage"
                 component={ProcessingMessage}
+              />
+              <Stack.Screen
+                name="HomePayslipSkeleton"
+                component={HomePayslipSkeleton}
               />
             </>
           )}

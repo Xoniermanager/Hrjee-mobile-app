@@ -90,7 +90,7 @@ const Pending = ({ navigation }) => {
     let body = new FormData();
     body.append('task_id', item?.task_id);
     body.append('status', updatedStatus);
-    console.log(body,'body')
+    console.log(body, 'body')
     const config = {
       headers: {
         Token: token,
@@ -101,11 +101,11 @@ const Pending = ({ navigation }) => {
     axios
       .post(`${apiUrl}/SecondPhaseApi/update_task_status`, body, config)
       .then(response => {
-        console.log(response?.data,'hello yash')
+        console.log(response?.data, 'hello yash')
         get_employee_detail();
         setShow(response?.data);
         setModalVisible(false);
-       
+
         Toast.show('This task is under progress.');
       })
       .catch(error => {
@@ -146,9 +146,9 @@ const Pending = ({ navigation }) => {
     Userdata.filter((item, index) => {
       return item.status == 0;
     });
-  if (data == null) {
-    return <Reload />;
-  }
+  // if (data == null) {
+  //   return <Reload />;
+  // }
   const onSearchList = async prev => {
     const filtered = data?.filter(
       item =>

@@ -16,7 +16,7 @@ import {
   Pressable,
   Platform,
 } from 'react-native';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import GlobalStyle from '../../../reusable/GlobalStyle';
 import {
   responsiveFontSize,
@@ -42,6 +42,8 @@ import { getDistance } from 'geolib';
 import { Dropdown } from 'react-native-element-dropdown';
 import ProcessingMessage from './ProcessingMessage';
 import PullToRefresh from '../../../reusable/PullToRefresh';
+import { SocketContext } from '../../../tracking/SocketContext';
+
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -52,7 +54,7 @@ const Processing = () => {
   const navigation = useNavigation();
   const theme = useColorScheme();
   const [selfieTrue, setSelfieTrue] = useState(false);
-
+  const { taskmaxradious, ManuAccessdetails } = useContext(SocketContext);
   const [modalVisible1, setModalVisible1] = useState(false);
   const [cameramodal, setCameramodal] = useState(false);
   const [cameramodal1, setCameramodal1] = useState(false);
@@ -246,6 +248,7 @@ const Processing = () => {
   };
   useEffect(() => {
     Disposition_Code();
+    ManuAccessdetails()
   }, []);
 
   useEffect(() => {
@@ -327,6 +330,8 @@ const Processing = () => {
 
   // Update task code start ........................
 
+  console.log("backend distance ", taskmaxradious)
+
   const tast_status_update = async item => {
     setloading(true);
     setShowAddress(showAddress + 1);
@@ -341,7 +346,8 @@ const Processing = () => {
           longitude: coordinates?.lng,
         },
       );
-      if (dis => 4000) {
+      console.log(dis,taskmaxradious,'hellotaskmaxradious')
+      if (dis <= taskmaxradious) {
         if (Platform.OS == 'android') {
           try {
             const granted = await PermissionsAndroid.request(
@@ -580,7 +586,8 @@ const Processing = () => {
             }
           }
         }
-      } else {
+      }
+      else {
         setModalVisible1(false);
         Popup.show({
           type: 'Warning',
@@ -1356,7 +1363,7 @@ const Processing = () => {
                                     numberOfLines={4}
                                     onChangeText={text => [
                                       setRemart(text),
-                                      setLocation(location + 1),
+                                      
                                     ]}
                                     onChange={() => setRemarkError(null)}
                                   />

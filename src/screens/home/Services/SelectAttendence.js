@@ -269,7 +269,7 @@ const SelectAttendence = () => {
               }}>
               Get Attendance
             </Text>
-            {loading ? <ActivityIndicator /> : null}
+            {loading ? <ActivityIndicator color={"#fff"} /> : null}
           </TouchableOpacity>
           <View>
             <Text style={[{ marginVertical: 20, fontSize: 19, fontWeight: 'bold' }, {
@@ -281,9 +281,6 @@ const SelectAttendence = () => {
               style={{
                 borderWidth: 1,
                 borderColor: 'grey',
-                borderRadius: 5,
-
-
               }}>
               <View
                 style={[
@@ -348,7 +345,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 15,
-    width: responsiveWidth(92),
+    width: responsiveWidth(91),
     alignSelf: 'center'
   },
   heading: {

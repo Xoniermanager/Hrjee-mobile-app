@@ -146,9 +146,7 @@ const Pending = ({ navigation }) => {
     Userdata.filter((item, index) => {
       return item.status == 0;
     });
-  // if (data == null) {
-  //   return <Reload />;
-  // }
+
   const onSearchList = async prev => {
     const filtered = data?.filter(
       item =>
@@ -169,7 +167,9 @@ const Pending = ({ navigation }) => {
     // Do something to refresh the data
     get_employee_detail();
   };
-
+  if (data == null) {
+    return <Reload />;
+  }
   return (
     <View style={styles.container}>
       <Root>

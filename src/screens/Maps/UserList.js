@@ -1,5 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import { useNavigation } from '@react-navigation/native';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -7,44 +7,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Reload from '../../../Reload';
 import UserListSkeleton from '../Skeleton/UserListSkeleton';
+import apiUrl from '../../reusable/apiUrl';
+import { SocketContext } from '../../tracking/SocketContext';
+
+
 
 const UserList = () => {
   const navigation = useNavigation()
-  const [list, setList] = useState(null)
+  const { livetrackingaccess,getList } = useContext(SocketContext);
+
   useEffect(async () => {
     getList()
   }, [])
-  const getList = async () => {
-    const token = await AsyncStorage.getItem('Token');
-    console.log(token, 'token')
-    let config = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: 'https://app.hrjee.com/api/get_employee_list',
-      headers: {
-        'Token': token,
-        'Cookie': 'ci_session=0bdnfjlm1c2i26gao0ocvmvld6sllmdk'
-      }
-    };
-
-    axios.request(config)
-      .then((response) => {
-
-        setList(response?.data?.data)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
 
 
-  if (list == null) {
+
+  if (livetrackingaccess.length == 0) {
     return <UserListSkeleton />
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      {list && list?.length == 0 ?
+      {livetrackingaccess && livetrackingaccess?.length == 0 ?
         <View
           style={{
             flex: 1,
@@ -59,7 +43,7 @@ const UserList = () => {
         </View>
         : null}
       <FlatList
-        data={list}
+        data={livetrackingaccess}
         renderItem={({ item, index }) =>
           <TouchableOpacity style={styles.cart_box} onPress={() => navigation.navigate('Maps', { userId: item?.userid })} key={index}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -14,7 +14,6 @@ import {
   Alert,
   useColorScheme,
   Platform,
-  Modal,
 } from 'react-native';
 import React, {
   useState,
@@ -44,8 +43,8 @@ import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
 import io from 'socket.io-client';
-import { SocketContext } from '../../tracking/SocketContext';
 import HomeSkeleton from '../Skeleton/HomeSkeleton';
+
 
 const { width } = Dimensions.get('window');
 // import messaging from '@react-native-firebas e/messaging';
@@ -58,9 +57,10 @@ import {
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
 import NotificationController from '../PushNotification/NotificationController';
+import { SocketContext } from '../../tracking/SocketContext';
+
 
 const Home = ({ navigation }) => {
-
   const theme = useColorScheme();
   const [modalVisible, setModalVisible] = useState(false);
   const [disabledBtn, setDisabledBtn] = useState(false);
@@ -68,27 +68,19 @@ const Home = ({ navigation }) => {
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
-  const { sendLocation } = useContext(SocketContext);
   const { setuser } = useContext(EssContext);
-  const [news, setnews] = useState([]);
   const [user, setuser1] = useState(null);
   const [inTime, setinTime] = useState(null);
   const [homeskelton, setHomeSkeleton] = useState(null)
-  const [outTime, setoutTime] = useState(null);
   const [punchIn, setpunchIn] = useState(false);
   const [loading, setloading] = useState(false);
-  const [currentLongitude, setCurrentLongitude] = useState('...');
-  const [currentLatitude, setCurrentLatitude] = useState('...');
-  const [training, settraining] = useState([]);
-  const [announcements, setannouncements] = useState([]);
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
-  const [show, setShow] = useState(true);
   const [radius, setRadius] = useState();
-  const [locationtracking, setLOCATIONTRACKING] = useState('');
+  // const [locationtracking, setLOCATIONTRACKING] = useState('');
+  const { livetrackingaccess,getList } = useContext(SocketContext);
 
-  // console.log("locationtracking length......", locationtracking?.length)
-  const socket = io('https://app.hrjee.com:6370');
+  // console.log("locationtracking length......", livetrackingaccess?.length)
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -212,6 +204,7 @@ const Home = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
+      getList()
       getActiveLocation();
       check_punchIn();
       // ProfileDetails();
@@ -222,6 +215,7 @@ const Home = ({ navigation }) => {
 
   const handleRefresh = async () => {
     // Do something to refresh the data
+    getList()
     getActiveLocation();
     check_punchIn();
     get_month_logs();
@@ -1351,38 +1345,38 @@ const renderItem = ({ item }) =>
       </TouchableOpacity>
     );
 
-  const ProfileDetails = async () => {
-    const token = await AsyncStorage.getItem('Token');
-    const config = {
-      headers: { Token: token },
-    };
-    axios
-      .post(`${apiUrl}/api/get_employee_detail`, {}, config)
-      .then(response => {
-        if (response.data.status === 1) {
-          try {
-            setUserdata({
-              name: response.data.data.FULL_NAME,
-              image: response.data.data.image,
-            });
-            // get_employee_detail();
-          } catch (e) {
-            console.log(e);
-          }
-        } else {
-          console.log('some error occured');
-        }
-      })
-      .catch(error => {
-        if (error.response.status == '401') {
-        }
-      });
-  };
+  // const ProfileDetails = async () => {
+  //   const token = await AsyncStorage.getItem('Token');
+  //   const config = {
+  //     headers: { Token: token },
+  //   };
+  //   axios
+  //     .post(`${apiUrl}/api/get_employee_detail`, {}, config)
+  //     .then(response => {
+  //       if (response.data.status === 1) {
+  //         try {
+  //           setUserdata({
+  //             name: response.data.data.FULL_NAME,
+  //             image: response.data.data.image,
+  //           });
+  //           // get_employee_detail();
+  //         } catch (e) {
+  //           console.log(e);
+  //         }
+  //       } else {
+  //         console.log('some error occured');
+  //       }
+  //     })
+  //     .catch(error => {
+  //       if (error.response.status == '401') {
+  //       }
+  //     });
+  // };
 
-  const getAtendenceApi = useApi(attendence.getAttendance);
+  // const getAtendenceApi = useApi(attendence.getAttendance);
 
-  const [locationStatus, setLocationStatus] = useState('');
-  const [location, setlocation] = useState();
+  // const [locationStatus, setLocationStatus] = useState('');
+  // const [location, setlocation] = useState();
   const [recentLogs, setrecentLogs] = useState([]);
 
   useEffect(() => {
@@ -1660,18 +1654,18 @@ const renderItem = ({ item }) =>
       clearInterval(storeInterval);
       clearInterval(sendInterval);
     };
-  }, [timerOn && locationtracking?.length > 0])
+  }, [timerOn && livetrackingaccess?.length > 0])
 
   // console.log("locationtracking?.length.....", locationtracking?.length)
 
-  const LOCATIONTRACKING = async () => {
-    const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
-    const finallocationtracking = JSON.parse(locationtracking);
-    setLOCATIONTRACKING(finallocationtracking)
-  }
-  useEffect(() => {
-    LOCATIONTRACKING();
-  }, [])
+  // const LOCATIONTRACKING = async () => {
+  //   const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
+  //   const finallocationtracking = JSON.parse(locationtracking);
+  //   setLOCATIONTRACKING(finallocationtracking)
+  // }
+  // useEffect(() => {
+  //   LOCATIONTRACKING();
+  // }, [])
 
 
   //ending location.................tracking...................................
@@ -1795,7 +1789,7 @@ const renderItem = ({ item }) =>
                 </View>
               </View>
               <View style={{ flexDirection: "row" }}>
-                {locationtracking && locationtracking?.length > 0 && (
+                {livetrackingaccess && livetrackingaccess?.length > 0 && (
                   <TouchableOpacity
                     onPress={() => navigation.navigate('UserList')}
                     style={{}}
@@ -2259,7 +2253,7 @@ const styles = StyleSheet.create({
     color: Themes == 'dark' ? '#000' : '#000',
   },
   recent_log_box: {
-    width: responsiveWidth(95),
+    width: responsiveWidth(92),
     marginTop: 15,
     alignSelf: 'center',
     padding: 10,

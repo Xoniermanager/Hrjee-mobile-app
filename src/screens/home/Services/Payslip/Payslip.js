@@ -29,15 +29,9 @@ const Payslip = ({ navigation }) => {
   const arr = [1, 2, 3, 4, 5, 6, 7, 8]
   const [empty, setempty] = useState(false);
   const [loading, setloading] = useState(true);
-  const [payslip, setpayslip] = useState([]);
+  const [payslip, setpayslip] = useState(null);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      (async () => {
-        get_payslip();
-      })();
-    }, []),
-  );
+
 
   const monthNames = [
     'Jan',
@@ -63,15 +57,18 @@ const Payslip = ({ navigation }) => {
     axios
       .post(`${apiUrl}/api/payslip`, {}, config)
       .then(response => {
+        console.log(response.data,'dbfbdfkbk')
         if (response.data.status == 1) {
           try {
             setloading(false);
             setpayslip(response.data.content);
+            console.log(response.data.content,'vvvvv')
           } catch (e) {
             setloading(false);
           }
         } else {
           setloading(false);
+          setpayslip([])
         }
       })
       .catch(error => {
@@ -99,65 +96,72 @@ const Payslip = ({ navigation }) => {
     // Do something to refresh the data
     get_payslip();
   };
+  useFocusEffect(
+    React.useCallback(() => {
+      (async () => {
+        get_payslip();
+      })();
+    }, []),
+  );
 
-  console.log("payslip", payslip)
+  if (payslip == null) {
+    return (
+      (
+        arr.map((val, index) => {
+          return (
+            <View key={index} style={{ borderColor: 'gray', alignSelf: "center" }}>
+              <HomePayslipSkeleton height={responsiveHeight(7)} width={responsiveWidth(95)} />
+            </View>
+          )
+        })
+
+      )
+
+    )
+  }
 
   return (
     <>
       <Root>
 
-        {payslip && payslip?.length == 0 && !loading && <Empty />}
+        {/* {payslip && payslip?.length == 0 && !loading && <Empty />} */}
 
-        {payslip ? (
-          payslip?.length > 0 ? (
-            <View style={{ flex: 1, backgroundColor: '#e3eefb', padding: 15 }}>
-              <PullToRefresh onRefresh={handleRefresh}>
+        {payslip.length!=0  ?
 
-                {payslip?.map((i, index) => (
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate('Doc', { url: i.doc })}
+          <View style={{ flex: 1, backgroundColor: '#e3eefb', padding: 15 }}>
+            <PullToRefresh onRefresh={handleRefresh}>
+              {payslip?.map((i, index) => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Doc', { url: i.doc })}
 
-                    key={index}
-                    style={[
-                      {
-                        marginTop: index > 0 ? 20 : 0,
-                        padding: 15,
-                        backgroundColor: 'white',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      },
-                      GlobalStyle.card,
-                    ]}>
-                    <Text style={[{ fontWeight: '600', fontSize: 16 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                      {monthNames[+i.month - 1] + ' ' + i.year}
-                    </Text>
-                    <AntDesign
-                      name="rightcircle"
-                      size={28}
-                      color="#0043ae"
-                      style={{ marginRight: 5 }}
-                    />
-                  </TouchableOpacity>
-                )
-                )}
-              </PullToRefresh>
-            </View>
-          )
-            :
-            (
-              arr.map((val, index) => {
-                return (
-                  <View key={index} style={{ borderColor: 'gray', alignSelf: "center" }}>
-                    <HomePayslipSkeleton height={responsiveHeight(7)} width={responsiveWidth(95)} />
-                  </View>
-                )
-              })
-
-            )
-        )
+                  key={index}
+                  style={[
+                    {
+                      marginTop: index > 0 ? 20 : 0,
+                      padding: 15,
+                      backgroundColor: 'white',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    },
+                    GlobalStyle.card,
+                  ]}>
+                  <Text style={[{ fontWeight: '600', fontSize: 16 }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                    {monthNames[+i.month - 1] + ' ' + i.year}
+                  </Text>
+                  <AntDesign
+                    name="rightcircle"
+                    size={28}
+                    color="#0043ae"
+                    style={{ marginRight: 5 }}
+                  />
+                </TouchableOpacity>
+              )
+              )}
+            </PullToRefresh>
+          </View>
           :
-          null
+          <Empty />
         }
 
       </Root>

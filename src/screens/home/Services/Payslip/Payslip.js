@@ -118,7 +118,7 @@ const Payslip = ({ navigation }) => {
     }, []),
   );
 
-  if (payslip !== null) {
+  if (payslip == null) {
     return (
       <View>
         <FlatList showsVerticalScrollIndicator={false}

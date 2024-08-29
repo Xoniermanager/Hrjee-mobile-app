@@ -7,7 +7,7 @@ import {
   FlatList,
   ImageBackground,
   TouchableOpacity,
-  ScrollView,
+  Modal,
   ActivityIndicator,
   Dimensions,
   RefreshControl,
@@ -2150,7 +2150,7 @@ const renderItem = ({ item }) =>
           </View> */}
           </View>
         </PullToRefresh>
-        {/* 
+        
         {modalVisible && (
           <View
             style={{
@@ -2160,7 +2160,9 @@ const renderItem = ({ item }) =>
               backgroundColor: 'rgba(255,255,255,0.8)',
               position: 'absolute',
               flex: 1,
-            }}></View>
+            }}>
+
+            </View>
         )}
         <Modal animationType="none" transparent={true} visible={modalVisible}>
           <View
@@ -2173,7 +2175,7 @@ const renderItem = ({ item }) =>
             }}>
             <ActivityIndicator size="large" color="#0528A5" />
           </View>
-        </Modal> */}
+        </Modal> 
       </Root>
     </SafeAreaView>
   );

@@ -61,7 +61,7 @@ const Processing = () => {
   const [docmodal, setDocmodal] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [photoPath, setPhotoPath] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false); // state to control modal visibility
+  const [cammeragalery, setCammeraGalary] = useState(false); // state to control modal visibility
   const [fileResponse, setFileResponse] = useState([]);
   const [currentLocation, setCurrentLocation] = useState();
   const [address, setAddress] = useState();
@@ -135,7 +135,6 @@ const Processing = () => {
         }
         else {
           setPhotoError(null);
-          console.log('image-------', image);
           setPhoto(image);
           setPhotoPath(image?.path);
           setCameramodal1(!cameramodal1);
@@ -330,8 +329,6 @@ const Processing = () => {
 
   // Update task code start ........................
 
-  console.log("backend distance ", taskmaxradious)
-
   const tast_status_update = async item => {
     setloading(true);
     setShowAddress(showAddress + 1);
@@ -346,7 +343,6 @@ const Processing = () => {
           longitude: coordinates?.lng,
         },
       );
-      console.log(dis,taskmaxradious,'hellotaskmaxradious')
       if (dis <= taskmaxradious) {
         if (Platform.OS == 'android') {
           try {
@@ -381,15 +377,25 @@ const Processing = () => {
                   }
                   data.append('status', updatedStatus);
                   data.append('disposition_code', codeName);
-                  photo?.map((ele, index) => {
-                    let obj = {
-                      name: ele.modificationDate + '.' + 'jpg',
-                      size: ele.size,
-                      type: ele.mime,
-                      uri: ele.path
-                    }
-                    data.append(`selfie_image[${index}]`, obj);
-                  });
+                  if (selfieTrue) {
+                    const selfie_image = {
+                      uri: photo?.path,
+                      type: photo?.mime,
+                      name: photo?.modificationDate + '.' + 'jpg',
+                    };
+                    data.append('selfie_image[]',selfie_image)
+                  }
+                  else {
+                    photo?.map((ele, index) => {
+                      const obj = {
+                        name: ele.modificationDate + '.' + 'jpg',
+                        size: ele.size,
+                        type: ele.mime,
+                        uri: ele.path
+                      }
+                      data.append(`selfie_image[${index}]`, obj);
+                    });
+                  }
                   data.append('lat_long_address', address);
                   if (remark.trim() === '') {
                     setRemarkError('Please enter some text');
@@ -500,15 +506,25 @@ const Processing = () => {
             data.append('image', fileResponse[0]);
             data.append('status', updatedStatus);
             data.append('disposition_code', codeName);
-            photo.map((ele, index) => {
-              let obj = {
-                name: ele.modificationDate + '.' + 'jpg',
-                size: ele.size,
-                type: ele.mime,
-                uri: ele.path
-              }
-              data.append(`selfie_image[${index}]`, obj);
-            });
+            if (selfieTrue) {
+              var selfie_image = {
+                uri: photo?.path,
+                type: photo?.mime,
+                name: photo?.modificationDate + '.' + 'jpg',
+              };
+              data.append('selfie_image[]', selfie_image)
+            }
+            else {
+              photo?.map((ele, index) => {
+                let obj = {
+                  name: ele.modificationDate + '.' + 'jpg',
+                  size: ele.size,
+                  type: ele.mime,
+                  uri: ele.path
+                }
+                data.append(`selfie_image[${index}]`, obj);
+              });
+            }
             data.append('lat_long_address', address);
             if (remark.trim() === '') {
               setRemarkError('Please enter some text');
@@ -1363,7 +1379,7 @@ const Processing = () => {
                                     numberOfLines={4}
                                     onChangeText={text => [
                                       setRemart(text),
-                                      
+
                                     ]}
                                     onChange={() => setRemarkError(null)}
                                   />

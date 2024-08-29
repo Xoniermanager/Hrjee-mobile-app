@@ -71,7 +71,7 @@ const App = ({ navigation }) => {
       }
     };
 
-    // checkAppVersion();
+    checkAppVersion();
   }, []);
 
   const [isConnected, setIsConnected] = useState('');

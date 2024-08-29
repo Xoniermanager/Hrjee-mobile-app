@@ -43,7 +43,6 @@ import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
 import io from 'socket.io-client';
-import HomeSkeleton from '../Skeleton/HomeSkeleton';
 
 
 const { width } = Dimensions.get('window');
@@ -58,6 +57,7 @@ import {
 } from 'react-native-responsive-dimensions';
 import NotificationController from '../PushNotification/NotificationController';
 import { SocketContext } from '../../tracking/SocketContext';
+import HomeSkeleton from '../Skeleton/HomeSkeleton';
 
 
 const Home = ({ navigation }) => {

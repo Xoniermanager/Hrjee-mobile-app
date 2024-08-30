@@ -300,6 +300,7 @@ const Maps = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const user_id = route?.params?.userId;
+  console.log("user_id", user_id)
   const mapRef = useRef(null);
   const [region, setRegion] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -340,6 +341,7 @@ const Maps = () => {
     };
     try {
       const response = await axios.get(`${apiUrl}/secondPhaseApi/get_locations?user_id=${user_id}`, config);
+      console.log("response--------------", response?.data?.data?.punch_in_details)
       if (response.data.status === 1) {
         const responseData = response?.data?.data;
         const finalCoordinates = [];
@@ -391,7 +393,7 @@ const Maps = () => {
             latitude,
             longitude
           );
-          if (distance >= 0.2) { // 200 meters in kilometers
+          if (distance >= 0) { // 200 meters in kilometers
             try {
               // Send location data to backend
               const token = await AsyncStorage.getItem('Token');
@@ -422,6 +424,7 @@ const Maps = () => {
   if (loading) {
     return <ActivityIndicator style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} size="large" />;
   }
+  console.log("mapDataApi......", mapDataApi)
   return (
     <View style={{ flex: 1 }}>
       <MapView

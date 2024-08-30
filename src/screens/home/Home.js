@@ -77,7 +77,7 @@ const Home = ({ navigation }) => {
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
   const [radius, setRadius] = useState();
-  // const [locationtracking, setLOCATIONTRACKING] = useState('');
+  const [locationtracking, setLOCATIONTRACKING] = useState('');
   const { livetrackingaccess,getList } = useContext(SocketContext);
 
   // console.log("locationtracking length......", livetrackingaccess?.length)
@@ -1616,7 +1616,7 @@ const renderItem = ({ item }) =>
         setLocationArray([]);
       }
     } catch (error) {
-      console.error('Error sending stored location:', error);
+      console.error('Error sending stored location:', error?.response?.data);
       await AsyncStorage.removeItem('CurrentLocation');
       // Clear the state array
       setLocationArray([]);
@@ -1654,18 +1654,18 @@ const renderItem = ({ item }) =>
       clearInterval(storeInterval);
       clearInterval(sendInterval);
     };
-  }, [timerOn && livetrackingaccess?.length > 0])
+  }, [timerOn && locationtracking?.length > 0])
 
   // console.log("locationtracking?.length.....", locationtracking?.length)
 
-  // const LOCATIONTRACKING = async () => {
-  //   const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
-  //   const finallocationtracking = JSON.parse(locationtracking);
-  //   setLOCATIONTRACKING(finallocationtracking)
-  // }
-  // useEffect(() => {
-  //   LOCATIONTRACKING();
-  // }, [])
+  const LOCATIONTRACKING = async () => {
+    const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
+    const finallocationtracking = JSON.parse(locationtracking);
+    setLOCATIONTRACKING(finallocationtracking)
+  }
+  useEffect(() => {
+    LOCATIONTRACKING();
+  }, [])
 
 
   //ending location.................tracking...................................

@@ -21,6 +21,7 @@ import HomeNavigator from './Navigators/HomeNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SocketProvider } from './src/tracking/SocketContext';
 
+
 const App = ({ navigation }) => {
   useEffect(() => {
     setTimeout(() => {
@@ -96,44 +97,45 @@ const App = ({ navigation }) => {
   }, []);
 
   return (
-    <>
-      {isConnected == 'true' && (
-        <>
-          <SocketProvider>
-            <EssProvider>
-              <NavigationContainer>
-                <HomeNavigator />
-              </NavigationContainer>
-            </EssProvider>
-          </SocketProvider>
-        </>
-      )}
+      <>
+        {isConnected == 'true' && (
+          <>
+            <SocketProvider>
+              <EssProvider>
+                <NavigationContainer>
+                  <HomeNavigator />
+                </NavigationContainer>
+              </EssProvider>
+            </SocketProvider>
+          </>
+        )}
 
-      {isConnected == 'false' && (
-        <Modal isVisible={isModalVisiblebeneficial} animationType="slide">
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              backgroundColor: '#fff',
-            }}>
-            <Image
-              style={{ width: 80, height: 80, alignSelf: 'center', margin: 5 }}
-              source={require('./src/images/no-signal.png')}
-            />
-            <Text
+        {isConnected == 'false' && (
+          <Modal isVisible={isModalVisiblebeneficial} animationType="slide">
+            <View
               style={{
-                fontSize: 12,
-                fontWeight: '500',
-                color: '#0D2BD3',
-                textAlign: 'center',
+                flex: 1,
+                justifyContent: 'center',
+                backgroundColor: '#fff',
               }}>
-              Please check your internet connection{' '}
-            </Text>
-          </View>
-        </Modal>
-      )}
-    </>
+              <Image
+                style={{ width: 80, height: 80, alignSelf: 'center', margin: 5 }}
+                source={require('./src/images/no-signal.png')}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: '500',
+                  color: '#0D2BD3',
+                  textAlign: 'center',
+                }}>
+                Please check your internet connection{' '}
+              </Text>
+            </View>
+          </Modal>
+        )}
+      </>
+
   );
 };
 

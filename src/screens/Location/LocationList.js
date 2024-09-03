@@ -17,10 +17,12 @@ const LocationList = () => {
         activeTintColor: '#000',
         inactiveTintColor: '#fff',
         indicatorStyle: { backgroundColor: '#fff', height: '100%' },
-        pressOpacity: 1,
+        pressOpacity: 1,       
     }
     return (
-        <Tab.Navigator tabBarOptions={tabBarOptions}>
+        <Tab.Navigator tabBarOptions={tabBarOptions}  screenOptions={{
+            swipeEnabled: false,  // Disable swipe gestures
+        }}>
             <Tab.Screen name="Pending" component={Pending} />
             <Tab.Screen name="Processing" component={Processing} />
             <Tab.Screen name="Done" component={Done} />

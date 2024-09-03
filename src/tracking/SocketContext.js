@@ -15,8 +15,12 @@ const SocketProvider = ({ children }) => {
   const [radius, setRadius] = useState()
   const [taskmaxradious, setTaskMaxRadious] = useState()
   const [livetrackingaccess, setLiveTrackingAccess] = useState()
+  const [updatedlivetrackingaccess, setUpdateLiveTrackingAccess] = useState()
+  const [manualusertackingaccess, setManualUserTrackingAccess] = useState()
+  const [locationblock, setLocationBlock] = useState()
 
-  const ManuAccessdetails = async () => {
+
+  const ManuAccessdetails_Socket = async () => {
     const token = await AsyncStorage.getItem('Token');
     let config = {
       method: 'get',
@@ -35,7 +39,9 @@ const SocketProvider = ({ children }) => {
         setRadius(response?.data?.config?.punchin_radius);
         setTaskMaxRadious(response?.data?.config?.task_maximum_radius);
         setPrm(response?.data?.users?.prm_assign);
-
+        setLocationBlock(response?.data?.users?.track_location);
+        const updatelocationpermissions = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Tracking");
+        setUpdateLiveTrackingAccess(updatelocationpermissions)
       })
       .catch(error => {
         console.log(error);
@@ -56,14 +62,16 @@ const SocketProvider = ({ children }) => {
 
     axios.request(config)
       .then((response) => {
+        console.log("res++++++", response?.data?.data)
         setLiveTrackingAccess(response?.data?.data)
+        setManualUserTrackingAccess(response?.data?.data)
       })
       .catch((error) => {
         console.log(error);
       });
   }
   useEffect(() => {
-    ManuAccessdetails()
+    ManuAccessdetails_Socket()
     getList()
   }, [])
 
@@ -79,7 +87,7 @@ const SocketProvider = ({ children }) => {
   // };
 
   return (
-    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, ManuAccessdetails, livetrackingaccess,getList }}>
+    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock }}>
       {children}
     </SocketContext.Provider>
   );

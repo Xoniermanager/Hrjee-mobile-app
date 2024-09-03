@@ -18,13 +18,13 @@ import {
 import React, {
   useState,
   useContext,
-  useEffect,
+  useEffect, createContext
 } from 'react';
 import { Root, Popup } from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Entypo from 'react-native-vector-icons/Entypo';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import BackgroundService from 'react-native-background-actions';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -43,6 +43,8 @@ import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
 import io from 'socket.io-client';
+
+export const LiveTrackingContext = createContext();
 
 
 const { width } = Dimensions.get('window');
@@ -77,10 +79,15 @@ const Home = ({ navigation }) => {
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
   const [radius, setRadius] = useState();
-  const [locationtracking, setLOCATIONTRACKING] = useState('');
-  const { livetrackingaccess,getList } = useContext(SocketContext);
+  // const [locationtracking, setLOCATIONTRACKING] = useState('');
 
-  // console.log("locationtracking length......", livetrackingaccess?.length)
+  const { updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket } = useContext(SocketContext);
+
+  // console.log("updatedlivetrackingaccess.......", updatedlivetrackingaccess?.length)
+  // console.log("livetracking user list.......", livetrackingaccess?.length)
+
+
+
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -126,6 +133,7 @@ const Home = ({ navigation }) => {
     'Saturday',
   ];
 
+  // console.log("livetrackingaccess......", livetrackingaccess?.length)
 
   const d = new Date();
   var mon = d.getMonth() + 1 <= 9 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1;
@@ -138,7 +146,7 @@ const Home = ({ navigation }) => {
       ? `0${d.getHours()}`
       : d.getHours() + ':' + d.getMinutes();
 
-  const [menuAccessData, setMenuAccessData] = useState();
+  const [menuAccessData1, setMenuAccessData] = useState();
   const [punchin_radius, setPunchin_radius] = useState();
 
 
@@ -210,6 +218,7 @@ const Home = ({ navigation }) => {
       // ProfileDetails();
       get_month_logs();
       ManuAccessdetails();
+      ManuAccessdetails_Socket();
     }, []),
   );
 
@@ -219,7 +228,7 @@ const Home = ({ navigation }) => {
     getActiveLocation();
     check_punchIn();
     get_month_logs();
-    // ProfileDetails();
+    ManuAccessdetails_Socket();
     ManuAccessdetails();
   };
 
@@ -433,6 +442,9 @@ const Home = ({ navigation }) => {
         var lat = parseFloat(location.latitude);
         var long = parseFloat(location.longitude);
         // console.log('loc-->', lat, long);
+        const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
+        const address = await axios.get(urlAddress)
+        console.log(address.data?.results[0].formatted_address, 'address.data?.results[0].formatted_address')
         setcurrentLocation({
           long: long,
           lat: lat,
@@ -458,7 +470,9 @@ const Home = ({ navigation }) => {
             location_id: activeLocation.location_id,
             latitude: lat,
             longitude: long,
+            current_address: address.data?.results[0]?.formatted_address,
           };
+          console.log("current address............................punch out...........................", body)
           axios
             .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
             .then(function (response) {
@@ -555,6 +569,7 @@ const Home = ({ navigation }) => {
               location_id: activeLocation.location_id,
               latitude: lat,
               longitude: long,
+              current_address: address.data?.results[0].formatted_address,
             };
             axios
               .post(
@@ -639,7 +654,8 @@ const Home = ({ navigation }) => {
               setloading(false);
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
-
+              const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
+              const address = await axios.get(urlAddress)
               // { Live tracking starting}
               // sendLocation({
               //   userId: userInfo?.userid,
@@ -649,6 +665,7 @@ const Home = ({ navigation }) => {
               //   },
               // });
               // { Live tracking ending }
+              console.log(address.data?.results[0]?.formatted_address)
 
               setcurrentLocation({
                 long: long,
@@ -677,7 +694,10 @@ const Home = ({ navigation }) => {
                   latitude: lat,
                   longitude: long,
                   login_type: 'mobile',
+                  current_address: address.data?.results[0]?.formatted_address,
+
                 };
+                console.log("current address............................punch in...........................", body)
 
                 axios
                   .post(
@@ -797,6 +817,7 @@ const Home = ({ navigation }) => {
                     latitude: lat,
                     longitude: long,
                     login_type: 'mobile',
+                    current_address: address.data?.results[0].formatted_address,
                   };
                   axios
                     .post(
@@ -943,6 +964,7 @@ const Home = ({ navigation }) => {
                 latitude: lat,
                 longitude: long,
                 login_type: 'mobile',
+                current_address: address.data?.results[0].formatted_address,
               };
 
               axios
@@ -1064,6 +1086,7 @@ const Home = ({ navigation }) => {
                   latitude: lat,
                   longitude: long,
                   login_type: 'mobile',
+                  current_address: address.data?.results[0].formatted_address,
                 };
 
                 axios
@@ -1304,8 +1327,8 @@ const Home = ({ navigation }) => {
 
   //  This is used send live tracking location socketContext page Ending ..................................
 */
-  
-const renderItem = ({ item }) =>
+
+  const renderItem = ({ item }) =>
     // console.log("A.......", item)
     // let x = item?.id;
     // console.log(x);
@@ -1568,64 +1591,106 @@ const renderItem = ({ item }) =>
     }
   };
 
+  const getDistance = (pointA, pointB) => {
+    const toRad = (x) => (x * Math.PI) / 180;
+    const R = 6371e3; // Earth's radius in meters
+
+    const lat1 = toRad(pointA.latitude);
+    const lat2 = toRad(pointB.latitude);
+    const deltaLat = toRad(pointB.latitude - pointA.latitude);
+    const deltaLon = toRad(pointB.longitude - pointA.longitude);
+
+    const a = Math.sin(deltaLat / 2) ** 2 +
+      Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(deltaLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  };
+
+  const calculateTotalDistance = (points) => {
+    if (!Array.isArray(points) || points.length < 2) return;
+
+    let totalDistance = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+      totalDistance += getDistance(
+        { latitude: points[i].latitude, longitude: points[i].longitude },
+        { latitude: points[i + 1].latitude, longitude: points[i + 1].longitude }
+      );
+    }
+
+    return totalDistance;
+  };
+
   const sendStoredLocation = async () => {
-    try {
-      const token = await AsyncStorage.getItem('Token');
-      const config = {
-        headers: { Token: token },
-      };
-      const userData = await AsyncStorage.getItem('UserData');
-      const userInfo = JSON.parse(userData);
-      const storedLocation = await AsyncStorage.getItem('CurrentLocation');
-      const date = new Date(); // Create a new date object
-
-      // Format the date as "YYYY-MM-DD HH:mm:ss"
-      const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')
-        }-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')
-        }:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')
-        }`;
-      if (storedLocation) {
-        const locations = JSON.parse(storedLocation).map((loc) => ({
-          latitude: loc.latitude.toString(),
-          longitude: loc.longitude.toString(),
-          timestamp: formattedDate // Add timestamp in the format you need
-        }));
-        // Alert.alert('1 minuts', JSON.stringify(locations))
-        const payload = {
-          user_id: userInfo?.userid,
-          locations
+    if (updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
+      try {
+        const token = await AsyncStorage.getItem('Token');
+        const config = {
+          headers: { Token: token },
         };
+        const userData = await AsyncStorage.getItem('UserData');
+        const userInfo = JSON.parse(userData);
+        const storedLocation = await AsyncStorage.getItem('CurrentLocation');
+        const date = new Date(); // Create a new date object
+
+        console.log('JSON.parse(storedLocation)', JSON.parse(storedLocation));
+
+        let travelDistance = calculateTotalDistance(JSON.parse(storedLocation));
+        console.log('travelDistance', travelDistance);
+
+        // Format the date as "YYYY-MM-DD HH:mm:ss"
+        const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')
+          }-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')
+          }:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')
+          }`;
+        if (storedLocation && travelDistance > 0.05) {
+          const locations = JSON.parse(storedLocation).map((loc) => ({
+            latitude: loc.latitude.toString(),
+            longitude: loc.longitude.toString(),
+            timestamp: formattedDate // Add timestamp in the format you need
+          }));
+          // Alert.alert('1 minuts', JSON.stringify(locations))
+          const payload = {
+            user_id: userInfo?.userid,
+            locations
+          };
 
 
-        // Send payload to the server
-        const response = await axios.post(
-          'https://hrjee.xonierconnect.com/secondPhaseApi/send_locations',
-          payload, config
-        );
-        console.log('Response from server:', response?.data);
+          // Send payload to the server
+          const response = await axios.post(
+            `${apiUrl}/secondPhaseApi/send_locations`,
+            payload, config
+          );
+          console.log('Response from server:', response?.data);
 
-        // Clear stored location after sending (optional)
-        await AsyncStorage.removeItem('CurrentLocation');
+          // Clear stored location after sending (optional)
+          await AsyncStorage.removeItem('CurrentLocation');
 
-        // Clear the state array
-        setLocationArray([]);
-      } else {
-        console.log('No stored location found.')
+          // Clear the state array
+          setLocationArray([]);
+        } else {
+          console.log('No stored location found.')
+          await AsyncStorage.removeItem('CurrentLocation');
+          // Clear the state array
+          setLocationArray([]);
+        }
+      } catch (error) {
+        console.error('Error sending stored location:', error?.response?.data);
         await AsyncStorage.removeItem('CurrentLocation');
         // Clear the state array
         setLocationArray([]);
       }
-    } catch (error) {
-      console.error('Error sending stored location:', error?.response?.data);
-      await AsyncStorage.removeItem('CurrentLocation');
-      // Clear the state array
-      setLocationArray([]);
+    } else {
+      console.log('sssssss');
     }
   };
 
   useEffect(() => {
     let storeInterval = null;
     let sendInterval = null;
+
+    console.log('calling.....');
 
     if (timerOn) {
       storeInterval = setInterval(() => {
@@ -1641,9 +1706,11 @@ const renderItem = ({ item }) =>
           });
       }, 19000); // Store current location every 10 seconds
 
-      sendInterval = setInterval(() => {
-        sendStoredLocation();
-      }, 60000); // Send stored location every 1 minute
+      if (updatedlivetrackingaccess?.length > 0) {
+        sendInterval = setInterval(() => {
+          sendStoredLocation();
+        }, 10000); // Send stored location every 1 minute
+      }
     } else {
       clearInterval(storeInterval);
       clearInterval(sendInterval);
@@ -1654,18 +1721,17 @@ const renderItem = ({ item }) =>
       clearInterval(storeInterval);
       clearInterval(sendInterval);
     };
-  }, [timerOn && locationtracking?.length > 0])
+  }, [timerOn && updatedlivetrackingaccess?.length > 0])
 
-  // console.log("locationtracking?.length.....", locationtracking?.length)
-
-  const LOCATIONTRACKING = async () => {
-    const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
-    const finallocationtracking = JSON.parse(locationtracking);
-    setLOCATIONTRACKING(finallocationtracking)
-  }
-  useEffect(() => {
-    LOCATIONTRACKING();
-  }, [])
+  // const LOCATIONTRACKING = async () => {
+  //   const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
+  //   console.log('locationtracking', locationtracking);
+  //   const finallocationtracking = JSON.parse(locationtracking);
+  //   setLOCATIONTRACKING(finallocationtracking)
+  // }
+  // useEffect(() => {
+  //   LOCATIONTRACKING();
+  // }, [])
 
 
   //ending location.................tracking...................................
@@ -1789,13 +1855,14 @@ const renderItem = ({ item }) =>
                 </View>
               </View>
               <View style={{ flexDirection: "row" }}>
-                {livetrackingaccess && livetrackingaccess?.length > 0 && (
+                {
+                  livetrackingaccess && livetrackingaccess?.length > 0 &&
                   <TouchableOpacity
                     onPress={() => navigation.navigate('UserList')}
                     style={{}}
                   >
-                    <Entypo
-                      name="location"
+                    <FontAwesome
+                      name="users"
                       style={{
                         fontSize: 25,
                         color: '#000',
@@ -1803,7 +1870,8 @@ const renderItem = ({ item }) =>
                       }}
                     />
                   </TouchableOpacity>
-                )}
+                }
+
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Notifications')}
                   style={{}}>
@@ -2150,7 +2218,7 @@ const renderItem = ({ item }) =>
           </View> */}
           </View>
         </PullToRefresh>
-        
+
         {modalVisible && (
           <View
             style={{
@@ -2162,7 +2230,7 @@ const renderItem = ({ item }) =>
               flex: 1,
             }}>
 
-            </View>
+          </View>
         )}
         <Modal animationType="none" transparent={true} visible={modalVisible}>
           <View
@@ -2175,7 +2243,7 @@ const renderItem = ({ item }) =>
             }}>
             <ActivityIndicator size="large" color="#0528A5" />
           </View>
-        </Modal> 
+        </Modal>
       </Root>
     </SafeAreaView>
   );

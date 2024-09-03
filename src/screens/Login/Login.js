@@ -11,7 +11,7 @@ import {
   useColorScheme, Linking, Platform, Alert
 } from 'react-native';
 import { Root, Popup } from 'popup-ui'
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, createContext } from 'react';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../reusable/apiUrl';
@@ -23,10 +23,15 @@ import { useNavigation } from '@react-navigation/native';
 import VersionCheck from 'react-native-version-check';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import messaging from '@react-native-firebase/messaging';
-const Login = () => {
+// import { Home } from '../home/Home'
+
+
+
+const Login = ({ children }) => {
   const theme = useColorScheme();
   const navigation = useNavigation()
   const { setuser, setlocation } = useContext(EssContext);
+
 
   const [email, setemail] = useState('');
   const [password, setpassword] = useState('');
@@ -37,7 +42,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [disabledBtn, setDisabledBtn] = useState(false);
 
-  const toggleShowPassword = () => {
+
+  const toggleShowPassword = ({ children }) => {
     setShowPassword(!showPassword);
   };
 
@@ -62,6 +68,8 @@ const Login = () => {
   useEffect(() => {
     requestUserPermission();
   }, [])
+
+
 
   const login = () => {
     setDisabledBtn(true)
@@ -97,9 +105,7 @@ const Login = () => {
           device_id: fcmtoken,
         })
         .then(response => {
-          console.log("res-------", response?.data?.location)
           if (response?.data?.status == 1) {
-
             if (response?.data?.data?.login_type === 'web') {
               Popup.show({
                 type: 'Warning',
@@ -138,7 +144,6 @@ const Login = () => {
               setloading(false);
               setDisabledBtn(false)
             }
-
             else {
               try {
                 setloading(false);
@@ -149,6 +154,9 @@ const Login = () => {
                   JSON.stringify(response.data.data),
                 );
                 setuser(response.data.data);
+                const filteredData = response?.data?.menu_access?.filter(item => item.menu_name == "Address Request");
+                // setLiveTrackingPermission(response?.data?.menu_access?.filter(item => item.menu_name == "Location Tracking"));
+              
                 AsyncStorage.setItem(
                   'UserLocation',
                   JSON.stringify(response.data.location),
@@ -177,22 +185,15 @@ const Login = () => {
                     })
                   }
                   return item;
-                });
-
-                const filteredData = response?.data?.menu_access?.filter(item => item.menu_name == "Address Request");
-                const filteredDataLocationAccess = response?.data?.menu_access?.filter(item => item.menu_name == "Location Tracking");
-                // console.log("filteredDataLocationAccess......", filteredDataLocationAccess)
-
+                })
+               
                 setAddRequest(filteredData);
-                console.log("object", filteredDataLocationAccess)
-                // setLocationTracking(filteredDataLocationAccess)
-
                 AsyncStorage.setItem(
                   'AddRequest', JSON.stringify(filteredData[0]?.menu_name),
                 );
-                AsyncStorage.setItem(
-                  'LOCATIONTRACKING', JSON.stringify(filteredDataLocationAccess),
-                );
+                // AsyncStorage.setItem(
+                //   'LOCATIONTRACKING', JSON.stringify(filteredDataLocationAccess),
+                // );
                 AsyncStorage.setItem(
                   'menu', JSON.stringify(options),
                 );
@@ -243,93 +244,97 @@ const Login = () => {
 
   const phoneNumber = '8989777878';
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <Root>
-        <ScrollView>
-          <View style={{ padding: 30 }}>
-            <View style={{ marginTop: 5 }}>
-              {/* <Text style={{fontSize: 22, fontWeight: '700'}}>Sign In</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+        <Root>
+          <ScrollView>
+            <View style={{ padding: 30 }}>
+              <View style={{ marginTop: 5 }}>
+                {/* <Text style={{fontSize: 22, fontWeight: '700'}}>Sign In</Text>
             <Text style={{fontSize: 14, marginTop: 5}}>
               Hi there! Nice to see you again.
             </Text> */}
-              <Image
-                style={{
-                  resizeMode: 'contain',
-                  alignSelf: 'center',
-                  height: responsiveHeight(35),
-                  width: responsiveWidth(55),
-                  marginTop: responsiveHeight(0)
-
-                }}
-                source={require('../../images/logo.png')}
-              />
-
-              <View style={styles.input_top_margin}>
-                <Text style={styles.input_title}>Employee Email/Id</Text>
-                <View style={{
-                  flexDirection: "row", borderBottomWidth: 1,
-                  justifyContent: "space-between"
-                }}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="username@gmail.com"
-                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-                    onChangeText={text => setemail(text.toLowerCase())}
-                  />
-
-                </View>
-
-              </View>
-              <View style={styles.input_top_margin}>
-                <Text style={styles.input_title}>Password</Text>
-                <View style={{
-                  flexDirection: "row", borderBottomWidth: 1,
-                  justifyContent: "space-between"
-                }}>
-                  <TextInput
-                    style={styles.input}
-                    secureTextEntry={!showPassword}
-                    placeholder="**********"
-                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-                    onChangeText={text => setpassword(text.toLowerCase())}
-                  />
-                  <MaterialCommunityIcons
-                    name={!showPassword ? 'eye-off' : 'eye'}
-                    size={24}
-                    color="#000"
-                    style={{ alignSelf: 'center' }}
-                    onPress={toggleShowPassword}
-                  />
-                </View>
-              </View>
-              <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn == true ? true : false}>
-                <Text
+                <Image
                   style={{
-                    color: 'white',
-                    fontWeight: '600',
-                    fontSize: 15,
-                    marginRight: 10,
+                    resizeMode: 'contain',
+                    alignSelf: 'center',
+                    height: responsiveHeight(35),
+                    width: responsiveWidth(55),
+                    marginTop: responsiveHeight(0)
+
+                  }}
+                  source={require('../../images/logo.png')}
+                />
+
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Employee Email/Id</Text>
+                  <View style={{
+                    flexDirection: "row", borderBottomWidth: 1,
+                    justifyContent: "space-between"
                   }}>
-                  Login
-                </Text>
-                {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : null}
-              </TouchableOpacity>
-              <View style={{ alignItems: 'center', marginTop: 40 }}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Forgot Password')}>
-                  <Text style={styles.text}>Forgot Password?</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="username@gmail.com"
+                      placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                      onChangeText={text => setemail(text.toLowerCase())}
+                    />
+
+                  </View>
+
+                </View>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Password</Text>
+                  <View style={{
+                    flexDirection: "row", borderBottomWidth: 1,
+                    justifyContent: "space-between"
+                  }}>
+                    <TextInput
+                      style={styles.input}
+                      secureTextEntry={!showPassword}
+                      placeholder="**********"
+                      placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                      onChangeText={text => setpassword(text.toLowerCase())}
+                    />
+                    <MaterialCommunityIcons
+                      name={!showPassword ? 'eye-off' : 'eye'}
+                      size={24}
+                      color="#000"
+                      style={{ alignSelf: 'center' }}
+                      onPress={toggleShowPassword}
+                    />
+                  </View>
+                </View>
+                <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn == true ? true : false}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: 15,
+                      marginRight: 10,
+                    }}>
+                    Login
+                  </Text>
+                  {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : null}
                 </TouchableOpacity>
-                {/* <TouchableOpacity
+                <View style={{ alignItems: 'center', marginTop: 40 }}>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('Forgot Password')}>
+                    <Text style={styles.text}>Forgot Password?</Text>
+                  </TouchableOpacity>
+                  {/* <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
                 <Text style={styles.text}>Contact HR for any login issue</Text>
               </TouchableOpacity> */}
+                </View>
               </View>
             </View>
-          </View>
-        </ScrollView>
-      </Root>
-    </SafeAreaView>
+          </ScrollView>
+        </Root>
+      </SafeAreaView>
   );
+
+
+
+
 };
 
 export default Login;

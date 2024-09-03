@@ -73,6 +73,8 @@ import GetLocation from 'react-native-get-location';
 import GetLocation_id from '../src/screens/Maps/GetLocation';
 import ProcessingMessage from '../src/screens/Location/ProcessingTask/ProcessingMessage';
 import HomePayslipSkeleton from '../src/screens/Skeleton/HomePayslipSkeleton';
+import TrackingScreen from '../src/screens/Maps/TrackingScreen';
+import AttendanceScreen from '../src/screens/Maps/AttendanceScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -310,6 +312,14 @@ function MyStack() {
                 name="HomePayslipSkeleton"
                 component={HomePayslipSkeleton}
               />
+              <Stack.Screen
+                name="TrackingScreen"
+                component={TrackingScreen}
+              />
+              <Stack.Screen
+                name="AttendanceScreen"
+                component={AttendanceScreen}
+              />
             </>
 
           ) : (
@@ -506,6 +516,14 @@ function MyStack() {
               <Stack.Screen
                 name="HomePayslipSkeleton"
                 component={HomePayslipSkeleton}
+              />
+              <Stack.Screen
+                name="TrackingScreen"
+                component={TrackingScreen}
+              />
+              <Stack.Screen
+                name="AttendanceScreen"
+                component={AttendanceScreen}
               />
             </>
           )}

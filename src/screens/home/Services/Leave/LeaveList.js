@@ -114,7 +114,7 @@ const LeaveList = ({ navigation }) => {
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log(response.data.message);
+            // console.log(response.data.message);
             setleaveList();
             get_leaves();
           } catch (e) {

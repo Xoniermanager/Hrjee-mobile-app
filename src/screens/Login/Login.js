@@ -59,9 +59,9 @@ const Login = ({ children }) => {
   }
 
   async function getFCMToken() {
-    console.log("yashu")
+    // console.log("yashu")
     const token = await messaging().getToken();
-    console.log(token, 'fcm token');
+    // console.log(token, 'fcm token');
     setfcmtoken(token);
   }
 

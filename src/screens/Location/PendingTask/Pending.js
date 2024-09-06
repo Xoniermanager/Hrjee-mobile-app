@@ -72,7 +72,7 @@ const Pending = ({ navigation }) => {
             ],
           });
         } else if (error.response.status == '400') {
-          console.log(first)
+          // console.log(first)
           Popup.show({
             type: 'Warning',
             title: 'Warning',
@@ -90,7 +90,7 @@ const Pending = ({ navigation }) => {
     let body = new FormData();
     body.append('task_id', item?.task_id);
     body.append('status', updatedStatus);
-    console.log(body, 'body')
+    // console.log(body, 'body')
     const config = {
       headers: {
         Token: token,
@@ -101,7 +101,7 @@ const Pending = ({ navigation }) => {
     axios
       .post(`${apiUrl}/SecondPhaseApi/update_task_status`, body, config)
       .then(response => {
-        console.log(response?.data, 'hello yash')
+        // console.log(response?.data, 'hello yash')
         get_employee_detail();
         setShow(response?.data);
         setModalVisible(false);

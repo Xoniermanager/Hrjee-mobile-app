@@ -65,7 +65,7 @@ const GetLocation_id = () => {
     axios
       .get(`${apiUrl}/secondPhaseApi/get_locations?user_id=${userId}`, config)
       .then(response => {
-        console.log("respone==============", response?.data?.data)
+        // console.log("respone==============", response?.data?.data)
         if (response.data.status == 1) {
           setloading(false);
           try {

@@ -49,8 +49,8 @@ const ApplyLeave = ({navigation}) => {
   const [phone, setphone] = useState(null);
   const [address, setaddress] = useState(null);
 
-  console.log('startopen---------', startopen);
-  console.log('endopen---------', endopen);
+  // console.log('startopen---------', startopen);
+  // console.log('endopen---------', endopen);
 
   const [form, setForm] = useState({
     name: '',
@@ -144,7 +144,7 @@ const ApplyLeave = ({navigation}) => {
           }
         } else {
           setloading(false);
-          console.log('some error occured');
+          // console.log('some error occured');
         }
       })
       .catch(error => {
@@ -272,7 +272,7 @@ const ApplyLeave = ({navigation}) => {
   }
 
   const apply_leave = async () => {
-    console.log('halfDay', halfDay);
+    // console.log('halfDay', halfDay);
 
     setDisabledBtn(true);
     

@@ -24,7 +24,7 @@ const Holidays = ({ navigation }) => {
   const theme = useColorScheme();
   const arr = [1, 2, 3, 4, 5, 6]
   const [holidays, setholidays] = useState(null);
-  console.log("holidays....", holidays)
+  // console.log("holidays....", holidays)
   const [selectedMonth, setselectedMonth] = useState(new Date().getMonth());
 
   useFocusEffect(

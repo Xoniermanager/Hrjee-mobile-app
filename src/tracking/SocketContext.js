@@ -49,7 +49,7 @@ const SocketProvider = ({ children }) => {
   };
   const getList = async () => {
     const token = await AsyncStorage.getItem('Token');
-    console.log(token, 'token')
+    // console.log(token, 'token')
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -62,7 +62,6 @@ const SocketProvider = ({ children }) => {
 
     axios.request(config)
       .then((response) => {
-        console.log("res++++++", response?.data?.data)
         setLiveTrackingAccess(response?.data?.data)
         setManualUserTrackingAccess(response?.data?.data)
       })
@@ -74,6 +73,17 @@ const SocketProvider = ({ children }) => {
     ManuAccessdetails_Socket()
     getList()
   }, [])
+
+  // useEffect(() => {
+  //   const intervalId = setInterval(()=> {
+  //     console.log('setinterval');
+  //     ManuAccessdetails_Socket()
+  //   }, 10000)
+
+  //   return (() => {
+  //     clearInterval(intervalId)
+  //   })
+  // }, [])
 
 
   // const sendLocation = (location) => {

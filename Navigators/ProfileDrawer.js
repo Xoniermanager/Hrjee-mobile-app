@@ -1149,6 +1149,7 @@ function CustomDrawerContent(props) {
     await AsyncStorage.removeItem('UserLocation');
     await AsyncStorage.removeItem('AddRequest');
     await AsyncStorage.removeItem('LOCATIONTRACKING');
+    await AsyncStorage.removeItem('CurrentLocation');
     props.navigation.closeDrawer();
     props.navigation.navigate('Login');
 

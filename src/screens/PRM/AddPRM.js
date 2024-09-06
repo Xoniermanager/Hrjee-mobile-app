@@ -113,8 +113,8 @@ const currentDate=new Date()
       });
   }
 
-  console.log(prmcategory_id,'prmcategory_id')
-  console.log(get_data?.id,'dncknfr')
+  // console.log(prmcategory_id,'prmcategory_id')
+  // console.log(get_data?.id,'dncknfr')
 
   const Post_prm_category = async (get_data) => {
     setloading(true)
@@ -133,7 +133,7 @@ const currentDate=new Date()
     data.append('amount', amount);
     data.append('payment_date', startdate.toISOString().split('T')[0]);
     data.append('image', fileResponse[0]);
-    console.log(data,'category')
+    // console.log(data,'category')
     axios
       .post(`${apiUrl}/SecondPhaseApi/update_prm_request`, data, config)
       .then(response => {
@@ -167,7 +167,7 @@ const currentDate=new Date()
     data.append('amount', amount);
     data.append('payment_date', startdate.toISOString().split('T')[0]);
     data.append('image', fileResponse[0]);
-    console.log(data,'datanejbb')
+    // console.log(data,'datanejbb')
     if (currentDate.valueOf()<startdate.valueOf())
     {
       Popup.show({

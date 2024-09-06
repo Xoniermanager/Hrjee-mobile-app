@@ -54,7 +54,7 @@ const Processing = () => {
   const navigation = useNavigation();
   const theme = useColorScheme();
   const [selfieTrue, setSelfieTrue] = useState(false);
-  const { taskmaxradious, ManuAccessdetails } = useContext(SocketContext);
+  const { taskmaxradious, ManuAccessdetails_Socket } = useContext(SocketContext);
   const [modalVisible1, setModalVisible1] = useState(false);
   const [cameramodal, setCameramodal] = useState(false);
   const [cameramodal1, setCameramodal1] = useState(false);
@@ -247,7 +247,7 @@ const Processing = () => {
   };
   useEffect(() => {
     Disposition_Code();
-    ManuAccessdetails()
+    ManuAccessdetails_Socket()
   }, []);
 
   useEffect(() => {

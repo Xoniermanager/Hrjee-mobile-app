@@ -48,7 +48,6 @@ const App = ({ navigation }) => {
           ignoreErrors: true,
         })
         const currentVersion = VersionCheck.getCurrentVersion();
-        console.log(latestVersion, currentVersion);
         if (latestVersion > currentVersion) {
           Alert.alert(
             'Update Required',

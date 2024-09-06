@@ -18,7 +18,7 @@ import {
 import React, {
   useState,
   useContext,
-  useEffect, createContext
+  useEffect, createContext, useRef
 } from 'react';
 import { Root, Popup } from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
@@ -36,7 +36,7 @@ import { PermissionsAndroid } from 'react-native';
 import useApi from '../../../api/useApi';
 import attendence from '../../../api/attendence';
 import GetLocation from 'react-native-get-location';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import { getDistance } from 'geolib';
 import moment from 'moment';
 import NetInfo from '@react-native-community/netinfo';
@@ -101,7 +101,8 @@ const Home = ({ navigation }) => {
   });
 
   const [locationOut, setlocationOut] = useState(null);
-
+  const [location, setLocation] = useState(null);
+  const [previousLocation, setPreviousLocation] = useState(null);
   const [timerOn, settimerOn] = useState(false);
   const [Userdata, setUserdata] = useState({
     image: '',
@@ -330,7 +331,6 @@ const Home = ({ navigation }) => {
     setModalVisible(true);
     settimerOn(false);
     const token = await AsyncStorage.getItem('Token');
-    console.log(token, 'yashuuuuu')
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
     setuser(JSON.parse(userData));
@@ -444,7 +444,7 @@ const Home = ({ navigation }) => {
         // console.log('loc-->', lat, long);
         const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
         const address = await axios.get(urlAddress)
-        console.log(address.data?.results[0].formatted_address, 'address.data?.results[0].formatted_address')
+        // console.log(address.data?.results[0].formatted_address, 'address.data?.results[0].formatted_address')
         setcurrentLocation({
           long: long,
           lat: lat,
@@ -472,7 +472,7 @@ const Home = ({ navigation }) => {
             longitude: long,
             current_address: address.data?.results[0]?.formatted_address,
           };
-          console.log("current address............................punch out...........................", body)
+          // console.log("current address............................punch out...........................", body)
           axios
             .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
             .then(function (response) {
@@ -665,7 +665,7 @@ const Home = ({ navigation }) => {
               //   },
               // });
               // { Live tracking ending }
-              console.log(address.data?.results[0]?.formatted_address)
+              // console.log(address.data?.results[0]?.formatted_address)
 
               setcurrentLocation({
                 long: long,
@@ -697,7 +697,7 @@ const Home = ({ navigation }) => {
                   current_address: address.data?.results[0]?.formatted_address,
 
                 };
-                console.log("current address............................punch in...........................", body)
+                // console.log("current address............................punch in...........................", body)
 
                 axios
                   .post(
@@ -1168,7 +1168,7 @@ const Home = ({ navigation }) => {
       } catch (err) {
         setloading(false);
         setDisabledBtn(false)
-        console.warn(err);
+        // console.warn(err);
       }
     }
   };
@@ -1177,7 +1177,6 @@ const Home = ({ navigation }) => {
 
   //  This is used send live tracking location socketContext page Starting ..................................
 
-  const punch = async () => {
     setloading(true);
 
     if (Platform.OS == 'android') {
@@ -1574,55 +1573,27 @@ const Home = ({ navigation }) => {
 
   // location..................tracking..................................
 
-
   const [locationArray, setLocationArray] = useState([]);
 
   const storeLocation = async (location) => {
-    // Alert.alert('19 Secent', JSON.stringify(location))
-    try {
-      setLocationArray((prevLocations) => {
-        const updatedLocations = [...prevLocations, location];
-        // Store all locations in AsyncStorage
-        AsyncStorage.setItem('CurrentLocation', JSON.stringify(updatedLocations));
-        return updatedLocations;
-      });
-    } catch (error) {
-      console.error('Error storing location:', error);
+    if (updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
+      try {
+        console.log("5 sec ......")
+        setLocationArray((prevLocations) => {
+          const updatedLocations = [...prevLocations, location];
+          AsyncStorage.setItem('CurrentLocation', JSON.stringify(updatedLocations));
+          return updatedLocations;
+        });
+      } catch (error) {
+        console.error('Error storing location:', error);
+      }
+    } else {
+      console.log('Location Tracking Blocked for this user');
     }
-  };
-
-  const getDistance = (pointA, pointB) => {
-    const toRad = (x) => (x * Math.PI) / 180;
-    const R = 6371e3; // Earth's radius in meters
-
-    const lat1 = toRad(pointA.latitude);
-    const lat2 = toRad(pointB.latitude);
-    const deltaLat = toRad(pointB.latitude - pointA.latitude);
-    const deltaLon = toRad(pointB.longitude - pointA.longitude);
-
-    const a = Math.sin(deltaLat / 2) ** 2 +
-      Math.cos(lat1) * Math.cos(lat2) *
-      Math.sin(deltaLon / 2) ** 2;
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c;
-  };
-
-  const calculateTotalDistance = (points) => {
-    if (!Array.isArray(points) || points.length < 2) return;
-
-    let totalDistance = 0;
-    for (let i = 0; i < points.length - 1; i++) {
-      totalDistance += getDistance(
-        { latitude: points[i].latitude, longitude: points[i].longitude },
-        { latitude: points[i + 1].latitude, longitude: points[i + 1].longitude }
-      );
-    }
-
-    return totalDistance;
   };
 
   const sendStoredLocation = async () => {
+    // console.log("1 mint........")
     if (updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
       try {
         const token = await AsyncStorage.getItem('Token');
@@ -1632,109 +1603,313 @@ const Home = ({ navigation }) => {
         const userData = await AsyncStorage.getItem('UserData');
         const userInfo = JSON.parse(userData);
         const storedLocation = await AsyncStorage.getItem('CurrentLocation');
-        const date = new Date(); // Create a new date object
-
-        console.log('JSON.parse(storedLocation)', JSON.parse(storedLocation));
-
-        let travelDistance = calculateTotalDistance(JSON.parse(storedLocation));
-        console.log('travelDistance', travelDistance);
-
-        // Format the date as "YYYY-MM-DD HH:mm:ss"
-        const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')
-          }-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')
-          }:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')
-          }`;
-        if (storedLocation && travelDistance > 0.05) {
+        // console.log("json location........", storedLocation)
+        if (storedLocation) {
           const locations = JSON.parse(storedLocation).map((loc) => ({
             latitude: loc.latitude.toString(),
-            longitude: loc.longitude.toString(),
-            timestamp: formattedDate // Add timestamp in the format you need
+            longitude: loc.longitude.toString()
           }));
-          // Alert.alert('1 minuts', JSON.stringify(locations))
           const payload = {
             user_id: userInfo?.userid,
             locations
           };
-
-
-          // Send payload to the server
           const response = await axios.post(
             `${apiUrl}/secondPhaseApi/send_locations`,
             payload, config
           );
-          console.log('Response from server:', response?.data);
-
-          // Clear stored location after sending (optional)
+          // console.error('Response from server:', response?.data);
           await AsyncStorage.removeItem('CurrentLocation');
-
-          // Clear the state array
           setLocationArray([]);
         } else {
-          console.log('No stored location found.')
+          // console.error('No stored location found.')
           await AsyncStorage.removeItem('CurrentLocation');
-          // Clear the state array
           setLocationArray([]);
         }
       } catch (error) {
-        console.error('Error sending stored location:', error?.response?.data);
+        // console.error('Error sending stored location:', error);
         await AsyncStorage.removeItem('CurrentLocation');
-        // Clear the state array
         setLocationArray([]);
       }
     } else {
-      console.log('sssssss');
+      console.log('Location Tracking Blocked for this user');
     }
   };
 
-  useEffect(() => {
-    let storeInterval = null;
-    let sendInterval = null;
-
-    console.log('calling.....');
-
-    if (timerOn) {
-      storeInterval = setInterval(() => {
-        GetLocation.getCurrentPosition({})
-          .then(location => {
-            const lat = parseFloat(location.latitude);
-            const long = parseFloat(location.longitude);
-            const currentLocation = { latitude: lat, longitude: long };
-            storeLocation(currentLocation);
-          })
-          .catch(error => {
-            console.error('Error getting current location:', error);
-          });
-      }, 19000); // Store current location every 10 seconds
-
-      if (updatedlivetrackingaccess?.length > 0) {
-        sendInterval = setInterval(() => {
-          sendStoredLocation();
-        }, 10000); // Send stored location every 1 minute
-      }
-    } else {
-      clearInterval(storeInterval);
-      clearInterval(sendInterval);
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'ios') {
+      return true;
     }
 
-    // Clean up intervals on component unmount
-    return () => {
-      clearInterval(storeInterval);
-      clearInterval(sendInterval);
-    };
-  }, [timerOn && updatedlivetrackingaccess?.length > 0])
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: "Location Permission",
+          message:
+            "We need access to your location " +
+            "so we can provide location-based services.",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK",
+        }
+      );
+      const backgroundGranted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+      );
 
-  // const LOCATIONTRACKING = async () => {
-  //   const locationtracking = await AsyncStorage.getItem('LOCATIONTRACKING');
-  //   console.log('locationtracking', locationtracking);
-  //   const finallocationtracking = JSON.parse(locationtracking);
-  //   setLOCATIONTRACKING(finallocationtracking)
-  // }
-  // useEffect(() => {
-  //   LOCATIONTRACKING();
-  // }, [])
+      if (backgroundGranted !== PermissionsAndroid.RESULTS.GRANTED) {
+        Alert.alert('Background location permission denied');
+        return false;
+      }
+
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
+
+  const previousLocationRef = useRef(null);
+
+  startLocationTracking = async () => {
+    const hasPermission = await requestLocationPermission();
+
+    if (!hasPermission) {
+      Alert.alert('Permission Denied', 'Location permission is required to fetch location.');
+      setTracking(false);
+      return;
+    }
+
+    watchId = Geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const newLocation = { latitude, longitude };
+
+        // console.log('position', position);
+
+        // Calculate distance from previous location
+        if (previousLocationRef.current) {
+          const distance = getDistance(previousLocationRef.current, newLocation);
+          if (distance > 10) {
+            console.log('distance is greater than 20 - new location', newLocation, distance);
+            console.log('distance is greater than 20 - previous location', previousLocationRef.current, distance);
+            previousLocationRef.current = newLocation;
+            setLocation(newLocation);
+            storeLocation(newLocation);
+          } else {
+            console.log('distance is less than 20 - new location', newLocation, distance);
+            console.log('distance is less than 20 - previous location', previousLocationRef.current, distance);
+          }
+        } else {
+          // console.log('setting previous locations....');
+          previousLocationRef.current = newLocation;
+        }
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+      },
+      {
+        enableHighAccuracy: true,
+        distanceFilter: 2,
+        interval: 1000,
+        maximumAge: 0,
+        showLocationDialog: true,
+      }
+    );
+  }
+
+  const getDistance = (loc1, loc2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 6371e3; // Radius of Earth in meters
+
+    const lat1 = toRad(loc1.latitude);
+    const lat2 = toRad(loc2.latitude);
+    const deltaLat = toRad(loc2.latitude - loc1.latitude);
+    const deltaLon = toRad(loc2.longitude - loc1.longitude);
+
+    const a =
+      Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in meters
+
+    return distance;
+  };
+
+  useEffect(() => {
+    async function fetchMyAPI() {
+      const token = await AsyncStorage.getItem('Token');
+      // console.log("token......", token)
+      if (token  && updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
+        startBackgroundService()
+      } else {
+        let sendInterval = null;
+        let watchId = null;
+        if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
+          // Watch for location changes
+          startLocationTracking()
+
+          // Send stored location periodically
+          const sendInterval = setInterval(() => {
+            sendStoredLocation();
+          }, 60000);
+
+          // Cleanup function
+          return () => {
+            Geolocation.clearWatch(watchId);
+            clearInterval(sendInterval);
+          };
+        } else {
+          // Cleanup if timer is turned off
+          Geolocation.clearWatch(watchId);
+          clearInterval(sendInterval);
+        }
+      }
+    }
+    fetchMyAPI()
+  }, [timerOn, updatedlivetrackingaccess?.length, locationblock])
+
+  const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
+  const startBackgroundService = async () => {
+    const veryIntensiveTask = async (taskDataArguments) => {
+      const { delay } = taskDataArguments;
+      await new Promise(async (resolve) => {
+        for (let i = 0; BackgroundService.isRunning(veryIntensiveTask); i++) {
+          let sendInterval = null;
+          let watchId = null;
+          if (timerOn) {
+            // Watch for location changes
+            startLocationTracking()
+
+            // Send stored location periodically
+            const sendInterval = setInterval(() => {
+              sendStoredLocation();
+            }, 60000);
+
+            // Cleanup function
+            return () => {
+              Geolocation.clearWatch(watchId);
+              clearInterval(sendInterval);
+            };
+          } else {
+            // Cleanup if timer is turned off
+            Geolocation.clearWatch(watchId);
+            clearInterval(sendInterval);
+          }
+          await sleep(delay);
+        }
+        resolve();
+      });
+    };
+    const options = {
+      taskName: 'HRJee Track your locations',
+      taskTitle: 'HRJee Track your locations',
+      taskDesc: 'Tracking start',
+      taskIcon: {
+        name: 'ic_launcher',
+        type: 'mipmap',
+      },
+      color: '#ff00ff',
+      linkingURI: 'yourSchemeHere://chat/jane',
+      parameters: {
+        delay: 900000, //15 minutes delay
+      },
+    };
+    try {
+      await BackgroundService.start(veryIntensiveTask, options);
+      await BackgroundService.updateNotification({ taskDesc: 'Tracking Start' });
+    } catch (e) {
+      console.error('Error starting background service:', e);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   //ending location.................tracking...................................
+
+  // // Define your background task
+  // const veryIntensiveTask = async (timerOn) => {
+  //   const { delay } = timerOn;
+
+  //   while (timerOn) {
+  //     // Perform your background task here
+  //     await sendStoredLocation(); // Call your existing function to send stored locations
+
+  //     // Keep the background service running
+  //     await new Promise((resolve) => setTimeout(resolve, delay));
+  //   }
+  // };
+
+  // // Define your options for the background task
+  // const option = {
+  //   taskName: 'Location Tracking',
+  //   taskTitle: 'Tracking location in the background',
+  //   taskDesc: 'Sending location data periodically',
+  //   taskIcon: {
+  //     name: 'ic_launcher', // Specify your icon here
+  //     type: 'mipmap',
+  //   },
+  //   color: '#ff0000',
+  //   link: 'https://yourappwebsite.com',
+  //   parameters: {
+  //     delay: 60000, // Task interval in milliseconds
+  //   },
+  // };
+
+
+  // useEffect(() => {
+  //   let sendInterval = null;
+
+  //   if (timerOn) {
+  //     // Start background service
+  //     BackgroundService.start(veryIntensiveTask, option);
+
+  //     // Watch for location changes
+  //     startLocationTracking();
+
+  //     // Send stored location periodically
+  //     sendInterval = setInterval(() => {
+  //       sendStoredLocation();
+  //     }, 60000);
+
+  //     // Cleanup function
+  //     return () => {
+  //       clearInterval(sendInterval);
+  //       BackgroundService.stop(); // Stop background service
+  //       // Geolocation.clearWatch(watchId); // Ensure `watchId` is set correctly if needed
+  //     };
+  //   } else {
+  //     // Cleanup if timer is turned off
+  //     clearInterval(sendInterval);
+  //     BackgroundService.stop(); // Stop background service
+  //     // Geolocation.clearWatch(watchId); // Ensure `watchId` is set correctly if needed
+  //   }
+  // }, [timerOn && updatedlivetrackingaccess?.length && locationblock]);
 
 
   const renderItemLogs = ({ item, index }) => {

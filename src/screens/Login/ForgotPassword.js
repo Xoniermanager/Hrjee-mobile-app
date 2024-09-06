@@ -92,7 +92,7 @@ const ForgotPassword = ({ navigation }) => {
        
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
          Popup.show({
             type: 'Warning',
             title: 'Warning',

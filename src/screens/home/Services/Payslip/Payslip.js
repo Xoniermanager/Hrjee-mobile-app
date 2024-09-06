@@ -71,12 +71,12 @@ const Payslip = ({ navigation }) => {
     axios
       .post(`${apiUrl}/api/payslip`, {}, config)
       .then(response => {
-        console.log(response.data, 'dbfbdfkbk')
+        // console.log(response.data, 'dbfbdfkbk')
         if (response.data.status == 1) {
           try {
             setloading(false);
             setpayslip(response.data.content);
-            console.log(response.data.content, 'vvvvv')
+            // console.log(response.data.content, 'vvvvv')
           } catch (e) {
             setloading(false);
           }

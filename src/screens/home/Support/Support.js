@@ -29,7 +29,7 @@ const Support = ({ navigation }) => {
   const [complainList, setcomplainList] = useState();
   const [loading, setloading] = useState(false);
 
-  console.log("complainList......", complainList)
+  // console.log("complainList......", complainList)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -49,12 +49,12 @@ const Support = ({ navigation }) => {
     };
 
     const body = {};
-    console.log('body1mon----->', body);
+    // console.log('body1mon----->', body);
     axios
       .post(`${apiUrl}/api/complain`, body, config)
       .then(response => {
         setloading(false);
-        console.log('response', response.data);
+        // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
             setcomplainList(response.data.content);
@@ -62,10 +62,10 @@ const Support = ({ navigation }) => {
             // setrecentLogs(response.data.content);
           } catch (e) {
             setloading(false);
-            console.log(e);
+            // console.log(e);
           }
         } else {
-          console.log(response.data.msg);
+          // console.log(response.data.msg);
           setloading(false);
         }
       })

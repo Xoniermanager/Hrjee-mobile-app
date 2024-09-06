@@ -42,7 +42,7 @@ const Notifications = ({navigation}) => {
     axios
       .post(`${apiUrl}/api/notification_list`, body, config)
       .then(response => {
-        console.log('Notification.....',response?.data)
+        // console.log('Notification.....',response?.data)
         if (response.data.status == 1) {
           try {
             setempty(false)

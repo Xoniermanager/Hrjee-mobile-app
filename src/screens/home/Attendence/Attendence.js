@@ -403,7 +403,7 @@ const Attendence = () => {
             latitude: lat,
             longitude: long,
           };
-          console.log('bodyin-->', body);
+          // console.log('bodyin-->', body);
           punchInApi.request(body, config);
         } else {
           setloading(false);

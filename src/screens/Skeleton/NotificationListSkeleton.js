@@ -24,26 +24,31 @@ function NotificationListSkeleton() {
             <CardSkeleton height={22} width={responsiveWidth(60)} />
 
 
-            {arr.map((val, index) => {
-                return (
-                    <>
-                        <View key={index} style={{ marginVertical: 10, borderWidth: 1, borderColor: 'gray', alignSelf: 'center', padding: 8, marginTop:15 }}>
-                            <View style={{ alignSelf: "center" }}>
-                                <CardSkeleton height={22} width={responsiveWidth(90)} />
-                                <View style={{ marginTop: 5 }}>
+            {arr?.length > 0 ?
+                arr.map((val, index) => {
+                    return (
+                        <>
+                            <View key={index} style={{ marginVertical: 10, borderWidth: 1, borderColor: 'gray', alignSelf: 'center', padding: 8, marginTop: 15 }}>
+                                <View style={{ alignSelf: "center" }}>
                                     <CardSkeleton height={22} width={responsiveWidth(90)} />
+                                    <View style={{ marginTop: 5 }}>
+                                        <CardSkeleton height={22} width={responsiveWidth(90)} />
+                                    </View>
+                                    <View style={{ marginTop: 5 }}>
+                                        <CardSkeleton height={22} width={responsiveWidth(90)} />
+                                    </View>
                                 </View>
-                                <View style={{ marginTop: 5 }}>
-                                    <CardSkeleton height={22} width={responsiveWidth(90)} />
-                                </View>
+
+
                             </View>
+                        </>
 
+                    )
+                })
 
-                        </View>
-                    </>
-
-                )
-            })}
+                :
+                null
+            }
 
         </ScrollView>
     );

@@ -56,6 +56,8 @@ import { RadioButton } from 'react-native-paper';
 import Themes from '../src/Theme/Theme';
 import Modal from "react-native-modal";
 import PullToRefresh from '../src/reusable/PullToRefresh';
+import BackgroundService from 'react-native-background-actions';
+
 function CustomDrawerContent(props) {
   const theme = useColorScheme();
   const [startopen, setstartopen] = useState(false);
@@ -1145,6 +1147,8 @@ function CustomDrawerContent(props) {
 
   const logout = async () => {
     await AsyncStorage.removeItem('Token');
+    BackgroundService.on('expiration', () => { console.log('Background service is being closed :('); });
+    await BackgroundService.stop()
     await AsyncStorage.removeItem('UserData');
     await AsyncStorage.removeItem('UserLocation');
     await AsyncStorage.removeItem('AddRequest');
@@ -1152,10 +1156,6 @@ function CustomDrawerContent(props) {
     await AsyncStorage.removeItem('CurrentLocation');
     props.navigation.closeDrawer();
     props.navigation.navigate('Login');
-
-
-
-
   };
 
 

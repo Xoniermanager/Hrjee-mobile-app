@@ -1,5 +1,6 @@
 PODS:
   - boost (1.83.0)
+  - BugfenderSDK (1.13.2)
   - BVLinearGradient (2.8.3):
     - React-Core
   - DoubleConversion (1.1.6)
@@ -1244,6 +1245,9 @@ PODS:
     - React-Core
   - rn-fetch-blob (0.12.0):
     - React-Core
+  - RnBugfender (2.2.1):
+    - BugfenderSDK (~> 1.10)
+    - React-Core
   - RNCAsyncStorage (1.22.0):
     - React-Core
   - RNExitApp (2.0.0):
@@ -1380,6 +1384,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeGetLocation (from `../node_modules/react-native-get-location`)
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
+  - "RnBugfender (from `../node_modules/@bugfender/rn-bugfender`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNExitApp (from `../node_modules/react-native-exit-app`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
@@ -1397,6 +1402,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - BugfenderSDK
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -1556,6 +1562,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-get-location"
   rn-fetch-blob:
     :path: "../node_modules/rn-fetch-blob"
+  RnBugfender:
+    :path: "../node_modules/@bugfender/rn-bugfender"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNExitApp:
@@ -1587,6 +1595,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
+  BugfenderSDK: 0eb1675df86a1792ec9ab8984369e85464f851cb
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   FBLazyVector: 84f6edbe225f38aebd9deaf1540a4160b1f087d7
@@ -1669,6 +1678,7 @@ SPEC CHECKSUMS:
   ReactCommon: 840a955d37b7f3358554d819446bffcf624b2522
   ReactNativeGetLocation: b4379a01dff72507d9abce5f4d569b98abef7761
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
+  RnBugfender: 14291bb209de4025e16e6cd0c153ebe163cd07d7
   RNCAsyncStorage: c43e6d71e13bb4748503797784839e0fbbf89d56
   RNExitApp: 00036cabe7bacbb413d276d5520bf74ba39afa6a
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8

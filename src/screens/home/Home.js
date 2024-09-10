@@ -81,6 +81,7 @@ const Home = ({ navigation }) => {
   const [radius, setRadius] = useState();
   // const [locationtracking, setLOCATIONTRACKING] = useState('');
 
+
   const { updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket } = useContext(SocketContext);
 
   // console.log("updatedlivetrackingaccess.......", updatedlivetrackingaccess?.length)
@@ -108,6 +109,7 @@ const Home = ({ navigation }) => {
     image: '',
     name: '',
   });
+
 
 
   const monthNames = [
@@ -330,6 +332,7 @@ const Home = ({ navigation }) => {
 
     setModalVisible(true);
     settimerOn(false);
+    shouldTrackLocation.current = false;
     const token = await AsyncStorage.getItem('Token');
     const userData = await AsyncStorage.getItem('UserData');
     const UserLocation = await AsyncStorage.getItem('UserLocation');
@@ -351,6 +354,7 @@ const Home = ({ navigation }) => {
             setinTime(data.in_time);
             setlocationOut(data?.out_location_id);
             settimerOn(true);
+            shouldTrackLocation.current = true;
             setloading(false);
             setModalVisible(false);
           } else {
@@ -362,6 +366,7 @@ const Home = ({ navigation }) => {
               setinTime(data.in_time);
               setlocationOut(data.out_location_id);
               settimerOn(false);
+              shouldTrackLocation.current = false;
               var timeEnd1 = moment(data.out_time);
               const startDate = moment(data.in_time);
               const timeEnd = moment(timeEnd1);
@@ -479,8 +484,7 @@ const Home = ({ navigation }) => {
               if (response.data.status == 1) {
                 check_punchIn();
                 get_month_logs();
-                // socket.emit('closeConnection', locations);
-
+                EndBackgroundService()
               } else {
                 setloading(false);
               }
@@ -581,7 +585,7 @@ const Home = ({ navigation }) => {
                 if (response.data.status == 1) {
                   check_punchIn();
                   get_month_logs();
-                  // socket.emit('closeConnection', locations);
+                  EndBackgroundService()
                 } else {
                   setloading(false);
                 }
@@ -1474,6 +1478,7 @@ const Home = ({ navigation }) => {
             setpunchIn(true);
             setinTime(data.in_time);
             settimerOn(true);
+            shouldTrackLocation.current = true;
             setloading(false);
           } else {
             if (data.in_time != '' && data.out_location_id != '') {
@@ -1482,6 +1487,7 @@ const Home = ({ navigation }) => {
               setloading(false);
               setpunchIn(false);
               settimerOn(false);
+              shouldTrackLocation.current = false;
               var timeEnd1 = moment(data.out_time);
               const startDate = moment(data.in_time);
               const timeEnd = moment(timeEnd1);
@@ -1576,7 +1582,7 @@ const Home = ({ navigation }) => {
   const [locationArray, setLocationArray] = useState([]);
 
   const storeLocation = async (location) => {
-    if (updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
+    if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && shouldTrackLocation.current) {
       try {
         console.log("5 sec ......")
         setLocationArray((prevLocations) => {
@@ -1594,7 +1600,7 @@ const Home = ({ navigation }) => {
 
   const sendStoredLocation = async () => {
     // console.log("1 mint........")
-    if (updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
+    if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && shouldTrackLocation.current) {
       try {
         const token = await AsyncStorage.getItem('Token');
         const config = {
@@ -1737,38 +1743,55 @@ const Home = ({ navigation }) => {
     return distance;
   };
 
+  const shouldTrackLocation = useRef(false)
+
   useEffect(() => {
     async function fetchMyAPI() {
       const token = await AsyncStorage.getItem('Token');
-      // console.log("token......", token)
-      if (token  && updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
+
+      console.log('iiii', punchIn, shouldTrackLocation.current ?  'trc' : 'no trc');
+
+      if (token && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && shouldTrackLocation.current) {
         startBackgroundService()
       } else {
-        let sendInterval = null;
-        let watchId = null;
-        if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1) {
-          // Watch for location changes
-          startLocationTracking()
+        EndBackgroundService()
 
-          // Send stored location periodically
-          const sendInterval = setInterval(() => {
-            sendStoredLocation();
-          }, 60000);
+        // let sendInterval = null; //Geolocation.stopObserving()
+        // let watchId = null;
 
-          // Cleanup function
-          return () => {
-            Geolocation.clearWatch(watchId);
-            clearInterval(sendInterval);
-          };
-        } else {
-          // Cleanup if timer is turned off
-          Geolocation.clearWatch(watchId);
-          clearInterval(sendInterval);
-        }
+
+        // console.log('----', timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && punchIn);
+
+        // if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && punchIn) {
+        //   // Watch for location changes
+        //   startLocationTracking()
+
+        //   // Send stored location periodically
+        //   const sendInterval = setInterval(() => {
+        //     sendStoredLocation();
+        //   }, 60000);
+
+        //   // Cleanup function
+        //   return () => {
+        //     Geolocation.clearWatch(watchId);
+        //     clearInterval(sendInterval);
+        //   };
+        // } else {
+        //   // Cleanup if timer is turned off
+        //   Geolocation.clearWatch(watchId);
+        //   clearInterval(sendInterval);
+        // }
       }
     }
     fetchMyAPI()
   }, [timerOn, updatedlivetrackingaccess?.length, locationblock])
+
+  const EndBackgroundService = async () => {
+    Geolocation.stopObserving()
+    BackgroundService.on('expiration', () => { console.log('Background service is being closed :('); });
+    await BackgroundService.stop()
+  }
+
 
   const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
   const startBackgroundService = async () => {
@@ -1813,12 +1836,11 @@ const Home = ({ navigation }) => {
       color: '#ff00ff',
       linkingURI: 'yourSchemeHere://chat/jane',
       parameters: {
-        delay: 900000, //15 minutes delay
+        delay: 5000, //15 minutes delay
       },
     };
     try {
       await BackgroundService.start(veryIntensiveTask, options);
-      await BackgroundService.updateNotification({ taskDesc: 'Tracking Start' });
     } catch (e) {
       console.error('Error starting background service:', e);
     }

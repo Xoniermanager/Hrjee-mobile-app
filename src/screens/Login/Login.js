@@ -53,9 +53,7 @@ const Login = () => {
   }
 
   async function getFCMToken() {
-    console.log("yashu")
     const token = await messaging().getToken();
-    console.log(token, 'fcm token');
     setfcmtoken(token);
   }
 

@@ -388,10 +388,10 @@ const Processing = () => {
                   else {
                     photo?.map((ele, index) => {
                       const obj = {
-                        name: ele.modificationDate + '.' + 'jpg',
-                        size: ele.size,
-                        type: ele.mime,
-                        uri: ele.path
+                        uri: ele?.path,
+                        type: ele?.mime,
+                        name: ele?.modificationDate + '.' + 'jpg',
+                        // size: ele.size,
                       }
                       data.append(`selfie_image[${index}]`, obj);
                     });

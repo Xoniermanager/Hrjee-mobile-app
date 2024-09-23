@@ -7,20 +7,20 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import GlobalStyle from '../GlobalStyle';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../apiUrl';
 import axios from 'axios';
-import {EssContext} from '../../../Context/EssContext';
+import { EssContext } from '../../../Context/EssContext';
 import ProgressiveImage from '../ProgressiveImage';
 import PullToRefresh from '../PullToRefresh';
 
-const List = ({navigation}) => {
+const List = ({ navigation }) => {
   const [empty, setempty] = useState(false);
   const [loading, setloading] = useState(false);
   const [announcement, setannouncement] = useState([]);
@@ -40,7 +40,7 @@ const List = ({navigation}) => {
     setloading(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
-      headers: {Token: token},
+      headers: { Token: token },
     };
 
     const body = {};
@@ -65,13 +65,12 @@ const List = ({navigation}) => {
       .catch(error => {
         // alert(error.request._response);
         setloading(false)
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+        if (error.response.status == '401') {
+          alert(error.response.data.msg)
+          AsyncStorage.removeItem('Token');
+          AsyncStorage.removeItem('UserData');
+          AsyncStorage.removeItem('UserLocation');
+          navigation.navigate('Login');
         }
       });
   };
@@ -106,7 +105,7 @@ const List = ({navigation}) => {
           {/* <Image style={styles.tinyImage} source={{uri: item.filename}} /> */}
           <ProgressiveImage
             defaultImageSource={require('../../images/default-img.png')}
-            source={{uri: item.filename}}
+            source={{ uri: item.filename }}
             style={styles.tinyImage}
             resizeMode="cover"
           />
@@ -117,8 +116,8 @@ const List = ({navigation}) => {
               justifyContent: 'space-between',
               alignItems: 'center',
             }}>
-            <Text style={{fontWeight: '600', fontSize: 20}}>{item.title}</Text>
-            <Text style={{fontSize: 13, color: 'grey'}}>
+            <Text style={{ fontWeight: '600', fontSize: 20 }}>{item.title}</Text>
+            <Text style={{ fontSize: 13, color: 'grey' }}>
               {item.publish_date}
             </Text>
           </View>
@@ -158,7 +157,7 @@ const List = ({navigation}) => {
           {/* <Image style={styles.tinyImage} source={{uri: item.filename}} /> */}
           <ProgressiveImage
             defaultImageSource={require('../../images/default-img.png')}
-            source={{uri: item.filename}}
+            source={{ uri: item.filename }}
             style={styles.tinyImage}
             resizeMode="cover"
           />
@@ -169,8 +168,8 @@ const List = ({navigation}) => {
               justifyContent: 'space-between',
               alignItems: 'center',
             }}>
-            <Text style={{fontWeight: '600', fontSize: 20}}>{item.title}</Text>
-            <Text style={{fontSize: 13, color: 'grey'}}>
+            <Text style={{ fontWeight: '600', fontSize: 20 }}>{item.title}</Text>
+            <Text style={{ fontSize: 13, color: 'grey' }}>
               {item.publish_date}
             </Text>
           </View>
@@ -216,7 +215,7 @@ const List = ({navigation}) => {
           {/* <Image style={styles.tinyImage} source={{uri: item.filename}} /> */}
           <ProgressiveImage
             defaultImageSource={require('../../images/default-img.png')}
-            source={{uri: item.filename}}
+            source={{ uri: item.filename }}
             style={styles.tinyImage}
             resizeMode="cover"
           />
@@ -227,8 +226,8 @@ const List = ({navigation}) => {
               justifyContent: 'space-between',
               alignItems: 'center',
             }}>
-            <Text style={{fontWeight: '600', fontSize: 20}}>{item.title}</Text>
-            <Text style={{fontSize: 13, color: 'grey'}}>
+            <Text style={{ fontWeight: '600', fontSize: 20 }}>{item.title}</Text>
+            <Text style={{ fontSize: 13, color: 'grey' }}>
               {item.publish_date}
             </Text>
           </View>
@@ -263,7 +262,7 @@ const List = ({navigation}) => {
           {/* <Image style={styles.tinyImage} source={{uri: item.filename}} /> */}
           <ProgressiveImage
             defaultImageSource={require('../../images/default-img.png')}
-            source={{uri: item.filename}}
+            source={{ uri: item.filename }}
             style={styles.tinyImage}
             resizeMode="cover"
           />
@@ -274,8 +273,8 @@ const List = ({navigation}) => {
               justifyContent: 'space-between',
               alignItems: 'center',
             }}>
-            <Text style={{fontWeight: '600', fontSize: 20}}>{item.title}</Text>
-            <Text style={{fontSize: 13, color: 'grey'}}>
+            <Text style={{ fontWeight: '600', fontSize: 20 }}>{item.title}</Text>
+            <Text style={{ fontSize: 13, color: 'grey' }}>
               {item.publish_date}
             </Text>
           </View>
@@ -285,7 +284,7 @@ const List = ({navigation}) => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: 'white'}}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       {empty && (
         <View
           style={{
@@ -301,14 +300,14 @@ const List = ({navigation}) => {
         </View>
       )}
       {loading && (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="small" color="#388aeb" />
         </View>
       )}
 
       {!loading && (
         <View
-          style={{flex: 1, backgroundColor: '#e3eefb', paddingHorizontal: 15}}>
+          style={{ flex: 1, backgroundColor: '#e3eefb', paddingHorizontal: 15 }}>
           <PullToRefresh onRefresh={handleRefresh}>
             {announcement
               ? announcement.map((i, index) => renderAnnouncement(i, index))
@@ -334,7 +333,7 @@ const List = ({navigation}) => {
             borderRadius: 5,
             alignItems: 'center',
           }}>
-          <Text style={{color: 'white', fontWeight: '700'}}>
+          <Text style={{ color: 'white', fontWeight: '700' }}>
             Back To Dashboard
           </Text>
         </TouchableOpacity>

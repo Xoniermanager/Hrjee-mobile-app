@@ -35,9 +35,9 @@ const App = ({ navigation }) => {
         ? 'https://apps.apple.com/in/app/hrjee/id6478102468'
         : 'https://play.google.com/store/apps/details?id=com.HRjee',
     );
-    await AsyncStorage.removeItem('Token');
-    await AsyncStorage.removeItem('UserData');
-    await AsyncStorage.removeItem('UserLocation');
+    // await AsyncStorage.removeItem('Token');
+    // await AsyncStorage.removeItem('UserData');
+    // await AsyncStorage.removeItem('UserLocation');
   };
 
   useEffect(() => {
@@ -196,5 +196,64 @@ const styles = StyleSheet.create({});
 // export default App;
 
 
+// import { StyleSheet, Text, View } from 'react-native';
+// import React, { useEffect } from 'react';
+// import BackgroundService from 'react-native-background-actions';
+
+// const App = () => {
+//   const sleep = (time) => new Promise((resolve) => setTimeout(() => resolve(), time));
+
+//   const veryIntensiveTask = async (taskDataArguments) => {
+//     const { delay } = taskDataArguments;
+//     await new Promise(async (resolve) => {
+//       for (let i = 0; BackgroundService.isRunning(); i++) {
+//         console.log(i);
+//         await sleep(delay);
+//       }
+//     });
+//   };
+
+//   const options = {
+//     taskName: 'Example',
+//     taskTitle: 'ExampleTask title',
+//     taskDesc: 'ExampleTask description',
+//     taskIcon: {
+//       name: 'ic_launcher',
+//       type: 'mipmap',
+//     },
+//     color: '#ff00ff',
+//     linkingURI: 'yourSchemeHere://chat/jane',
+//     parameters: {
+//       delay: 1000,
+//     },
+//     notification: {
+//       id: 'example-notification',
+//       title: 'Example Background Service',
+//       message: 'Running background task...',
+//     },
+//   };
+
+//   const startBackgroundService = async () => {
+//     await BackgroundService.start(veryIntensiveTask, options);
+//     // Optionally, you can update the notification or perform other actions
+//     // await BackgroundService.updateNotification({ taskDesc: 'New ExampleTask description' });
+//     // Avoid stopping immediately
+//     // await BackgroundService.stop();
+//   };
+
+//   useEffect(() => {
+//     startBackgroundService();
+//   }, []);
+
+//   return (
+//     <View>
+//       <Text>App</Text>
+//     </View>
+//   );
+// };
+
+// export default App;
+
+// const styles = StyleSheet.create({});
 
 

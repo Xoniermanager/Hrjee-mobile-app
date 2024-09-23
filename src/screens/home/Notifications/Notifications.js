@@ -130,21 +130,25 @@ const Notifications = ({navigation}) => {
                     styles.card,
                     {
                       marginTop: 20,
+                      padding: 15,
+                      borderWidth:1,
+                      borderColor: '#0528a5',
+                      borderRadius: 20,
                       marginBottom: index == notifications.length - 1 ? 80 : 0,
                     },
                   ]}
                   >
+                  <View style={{}}> 
+                    <Text style={{backgroundColor:'#0528a5',color:'#fff', padding:10,
+                  borderRadius:20,width:157,marginBottom:10,textAlign:'center',}}>{i.created_date}</Text>
+                  </View>
                   <View style={styles.separator}>
-                    <Text style={styles.heading}>Title:</Text>
+                    <Text style={{width:90,fontWeight:'bold',color:'#000000',marginBottom:10,}}>Title:</Text>
                     <Text style={styles.value}>{i.title}</Text>
                   </View>
                   <View style={styles.separator}>
-                    <Text style={styles.heading}>Message:</Text>
-                    <Text style={styles.value}> {i.message}</Text>
-                  </View>
-                  <View style={styles.separator}>
-                    <Text style={styles.heading}>Created Date:</Text>
-                    <Text style={styles.value}>{i.created_date}</Text>
+                    <Text style={{width:90,fontWeight:'bold',color:'#000000',}}>Message:</Text>
+                    <Text style={styles.value}>{i.message}</Text>
                   </View>
                 </View>
               ))

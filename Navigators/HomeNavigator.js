@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useContext,} from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
 import Home from '../src/screens/home/Home';
@@ -67,30 +67,30 @@ import PRM from '../src/screens/PRM/PRM';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
 import ChangePassword from '../src/screens/settings/ChangePassword';
 import ResetPassword from '../src/screens/Login/ResetPassword';
-import Maps from '../src/screens/Maps/Maps';
+import Maps from '../src/screens/Maps/Modal/Tracking/Maps';
 import UserList from '../src/screens/Maps/UserList';
 import GetLocation from 'react-native-get-location';
 import GetLocation_id from '../src/screens/Maps/GetLocation';
 import ProcessingMessage from '../src/screens/Location/ProcessingTask/ProcessingMessage';
 import HomePayslipSkeleton from '../src/screens/Skeleton/HomePayslipSkeleton';
-import TrackingScreen from '../src/screens/Maps/TrackingScreen';
-import AttendanceScreen from '../src/screens/Maps/AttendanceScreen';
+import PdfViewer from '../src/screens/Login/PdfViewer';
+import UserProfile from '../src/screens/Maps/Modal/Profile/UserProfile';
+import UserAttendence from '../src/screens/Maps/Modal/Attendence/UserAttendence';
+import UserLeave from '../src/screens/Maps/Modal/Leave/UserLeave';
+
 
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
   const [token, settoken] = useState(null);
   const [loading, setloading] = useState(true);
-  const [prmData, setPrmData] = useState()
+
 
   const retrieveData = () => {
     AsyncStorage.getItem('Token').then(res => {
       settoken(res);
     });
   };
-  AsyncStorage.getItem('PRMData').then(res => {
-    setPrmData(res);
-  });
 
   useEffect(() => {
     retrieveData();
@@ -117,6 +117,13 @@ function MyStack() {
                 }}
                 name="Login"
                 component={Login}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PdfViewer"
+                component={PdfViewer}
               />
               <Stack.Screen
                 options={{
@@ -313,13 +320,18 @@ function MyStack() {
                 component={HomePayslipSkeleton}
               />
               <Stack.Screen
-                name="TrackingScreen"
-                component={TrackingScreen}
+                name="Profile"
+                component={UserProfile}
               />
               <Stack.Screen
-                name="AttendanceScreen"
-                component={AttendanceScreen}
+                name=" Attendence"
+                component={UserAttendence}
               />
+              <Stack.Screen
+                name="Leave"
+                component={UserLeave}
+              />
+
             </>
 
           ) : (
@@ -484,6 +496,13 @@ function MyStack() {
                 name="Login"
                 component={Login}
               />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PdfViewer"
+                component={PdfViewer}
+              />
 
               <Stack.Screen
                 options={{
@@ -518,12 +537,16 @@ function MyStack() {
                 component={HomePayslipSkeleton}
               />
               <Stack.Screen
-                name="TrackingScreen"
-                component={TrackingScreen}
+                name="Profile"
+                component={UserProfile}
               />
               <Stack.Screen
-                name="AttendanceScreen"
-                component={AttendanceScreen}
+                name=" Attendence"
+                component={UserAttendence}
+              />
+              <Stack.Screen
+                name="Leave"
+                component={UserLeave}
               />
             </>
           )}

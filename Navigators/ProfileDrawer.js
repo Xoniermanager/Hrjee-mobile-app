@@ -11,11 +11,11 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
-  Linking, Pressable, useColorScheme, BackHandler
+  Linking, Pressable, Switch, useColorScheme, BackHandler
 
 } from 'react-native';
 import { Root, Popup } from 'popup-ui'
-
+import VersionCheck from 'react-native-version-check';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -27,12 +27,10 @@ import Profile from '../src/screens/profile/Profile';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Octicons from 'react-native-vector-icons/Octicons';
 import { IconButton, MD3Colors } from 'react-native-paper';
 import {
   useFocusEffect,
-  useRoute,
-  getFocusedRouteNameFromRoute,
-  useNavigation,
 } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -48,7 +46,7 @@ import ProfileNavigator from './ProfileNavigator';
 import { EssContext } from '../Context/EssContext';
 import Zocial from 'react-native-vector-icons/Zocial';
 import ImagePicker from 'react-native-image-crop-picker';
-import { moderateScale } from 'react-native-size-matters';
+import { SocketContext } from '../src/tracking/SocketContext';
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import Toast from 'react-native-simple-toast';
 import DatePicker from 'react-native-date-picker';
@@ -65,11 +63,51 @@ function CustomDrawerContent(props) {
   const [dateTxt, setdateTxt] = useState({
     txt1: 'select date',
   });
+  const { activeinactivetracking, setActiveInactiveTracking, ManuAccessdetails_Socket, updatedlivetrackingaccess, locationblock } = useContext(SocketContext);
+
+  const [isEnabled, setIsEnabled] = useState(activeinactivetracking == 1 ? true : false);
+  console.log(isEnabled, 'activeinactivetracking')
+  const toggleSwitch = async () => {
+    setIsEnabled(previousState => !previousState);
+    let data = {
+      "status": isEnabled ? 0 : 1
+    }
+    console.log(data)
+    const token = await AsyncStorage.getItem('Token');
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: `${apiUrl}/SecondPhaseApi/update_location_tracking_status`,
+      headers: {
+        Token: token,
+        'Content-Type': 'application/json',
+        'Cookie': 'ci_session=97r07e98gfv2r6m56ahtj2rk8lnijmnm'
+      },
+      data: data
+    };
+
+    axios.request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        setActiveInactiveTracking(isEnabled ? 0 : 1)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+  }
+
   const [checked, setChecked] = useState('male');
   const [isModalVisible, setIsModalVisible] = useState(false); // state to control modal visibility
   const [Userdata, setUserdata] = useState({
     EMPLOYEE_NUMBER: '',
     name: '',
+    account_number: '',
+    IFSC_code: '',
+    branch: '',
+    aadhar_no: '',
+    bank_name: '',
+    pan_no: '',
     email: '',
     phone: '',
     atWorkfor: '',
@@ -90,6 +128,7 @@ function CustomDrawerContent(props) {
   const [location, setlocation] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const [show, setshow] = useState('');
+  const [version, setVersion] = useState('');
   const [showInput, setshowInput] = useState(false);
   const [addressTitle, setaddressTitle] = useState('');
   const [addressTitleError, setaddressTitleError] = useState('');
@@ -108,7 +147,7 @@ function CustomDrawerContent(props) {
   const [address, setaddress] = useState('');
   const [manuallylocation, setManuallyLocation] = useState(null);
   const [error, setError] = useState(null);
-  const [showModal,setShowModal]=useState(false)
+  const [showModal, setShowModal] = useState(false)
   useEffect(() => {
     handleGetLocation()
   }, [address])
@@ -135,7 +174,7 @@ function CustomDrawerContent(props) {
         setError('Error fetching location');
         setManuallyLocation(null);
       });
-   
+
   };
 
   AsyncStorage.getItem("AddRequest").then(res => {
@@ -197,9 +236,11 @@ function CustomDrawerContent(props) {
   useFocusEffect(
     React.useCallback(() => {
       (async () => {
+        ManuAccessdetails_Socket()
         get_employee_detail();
         get_address();
         aboutUs()
+
       })();
     }, []),
   );
@@ -209,17 +250,13 @@ function CustomDrawerContent(props) {
       <View>
         <Modal>
           <View style={{ flex: 1 }}>
-          <ActivityIndicator />
+            <ActivityIndicator />
           </View>
         </Modal>
       </View>
     );
   }
   const get_employee_detail = async () => {
-
-
-
-
     setloading(true)
     const token = await AsyncStorage.getItem('Token');
 
@@ -237,6 +274,12 @@ function CustomDrawerContent(props) {
             setUserdata({
               EMPLOYEE_NUMBER: response.data.data.EMPLOYEE_NUMBER,
               name: response.data.data.FULL_NAME,
+              account_number: response.data.data.account_number,
+              IFSC_code: response.data.data.IFSC_code,
+              branch: response.data.data.branch,
+              bank_name: response.data.data.bank_name,
+              pan_no: response.data.data.pan_no,
+              aadhar_no: response.data.data.aadhar_no,
               email: response.data.data.email,
               phone: response.data.data.mobile_no,
               atWorkfor: response.data.data.at_work_for,
@@ -338,7 +381,7 @@ function CustomDrawerContent(props) {
       .then(response => {
         if (response.data.status === 1) {
           try {
-              // console.log(response.data.data,'response.data.data')
+            // console.log(response.data.data,'response.data.data')
             setlocation(response.data.data);
           } catch (e) {
           }
@@ -350,67 +393,67 @@ function CustomDrawerContent(props) {
       });
   };
   const add_address = async () => {
-      if(addressTitle.trim()==='' || address.trim()===''){
-        Toast.show('Please Enter some text')
-      }
-      else {
-        setloading(true);
-        GetLocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 15000,
-        })
-          .then(async location => {
-            var lat = parseFloat(manuallylocation.latitude);
-            var long = parseFloat(manuallylocation.longitude);
-            setloading(true);
-            const token = await AsyncStorage.getItem('Token');
-            const config = {
-              headers: { Token: token },
-            };
-            const body = {
-              location_name: addressTitle,
-              address1: address,
-              latitude: lat,
-              longitude: long,
-            };
-            axios
-              .post(`${apiUrl}/api/add_user_location`, body, config)
-              .then(response => {
-                Toast.show(response?.data?.msg);
-                setloading(false);
-                if (response.data.status == 1) {
-                  try {
-                    setaddressTitle('');
-                    setaddress('');
-                    get_address();
-                    setshowInput(false);
-                    Toast.show('Address added successfully, wait for admin approval');
-                  } catch (error) {
-                    console.log(error.request._response)
-                  }
-                } else if (response.data.status == 2) {
-                  setloading(false);
-                  Toast.show(response.data.msg)
-               
-    
-                } else {
-                  Toast.show(response.data.msg)
-
-                
+    if (addressTitle.trim() === '' || address.trim() === '') {
+      Toast.show('Please Enter some text')
+    }
+    else {
+      setloading(true);
+      GetLocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+      })
+        .then(async location => {
+          var lat = parseFloat(manuallylocation.latitude);
+          var long = parseFloat(manuallylocation.longitude);
+          setloading(true);
+          const token = await AsyncStorage.getItem('Token');
+          const config = {
+            headers: { Token: token },
+          };
+          const body = {
+            location_name: addressTitle,
+            address1: address,
+            latitude: lat,
+            longitude: long,
+          };
+          axios
+            .post(`${apiUrl}/api/add_user_location`, body, config)
+            .then(response => {
+              Toast.show(response?.data?.msg);
+              setloading(false);
+              if (response.data.status == 1) {
+                try {
+                  setaddressTitle('');
+                  setaddress('');
+                  get_address();
+                  setshowInput(false);
+                  Toast.show('Address added successfully, wait for admin approval');
+                } catch (error) {
+                  console.log(error.request._response)
                 }
-              })
-              .catch(error => {
-                setloading(false)
-                Toast.show(error.request._response)
-              });
-          })
-          .catch(error => {
-            const { code, message } = error;
-            Toast.show(message)
-            setloading(false)
-          });
-      }
-    
+              } else if (response.data.status == 2) {
+                setloading(false);
+                Toast.show(response.data.msg)
+
+
+              } else {
+                Toast.show(response.data.msg)
+
+
+              }
+            })
+            .catch(error => {
+              setloading(false)
+              Toast.show(error.request._response)
+            });
+        })
+        .catch(error => {
+          const { code, message } = error;
+          Toast.show(message)
+          setloading(false)
+        });
+    }
+
   };
 
   const delete_address = async id => {
@@ -487,10 +530,10 @@ function CustomDrawerContent(props) {
             } else if (response.data.status == 2) {
               setloading(false);
               Toast.show(response.data.msg)
-              
+
             } else {
               Toast.show(response.data.msg)
-              
+
             }
           })
           .catch(error => {
@@ -505,12 +548,12 @@ function CustomDrawerContent(props) {
         setloading(false);
         const { code, message } = error;
         Toast.show(message)
-        
+
       });
   };
 
   const makeActive = async id => {
-  setShowModal(true)
+    setShowModal(true)
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: { Token: token },
@@ -526,17 +569,17 @@ function CustomDrawerContent(props) {
           try {
             setShowModal(false)
             Toast.show(response.data.msg)
-           
+
             get_address();
           } catch (e) {
 
           }
         } else if (response.data.status == 2) {
-         setShowModal(false)
+          setShowModal(false)
 
           Toast.show(response.data.msg)
         } else {
-         setShowModal(false)
+          setShowModal(false)
           Toast.show(response.data.msg)
 
         }
@@ -863,88 +906,89 @@ function CustomDrawerContent(props) {
           </View>
         </View>
       );
-    } else if (show == 'OfficeAddress') {
+    }
+    else if (show == 'OfficeAddress') {
       return (
-        <PullToRefresh onRefresh={()=>get_address()}>
-        <View style={{marginHorizontal: 15}}>
-          
-          {location
-            ? location.map(
-              (i, index) =>
-                i.location_id != 209 && (
-                  <TouchableOpacity
-                    Key={index}
-                    onPress={() =>i.active_status==1?null:
-                      makeActive(i.location_id, i.location_name, i.address1)
-                    }
-                    style={{
-                      marginTop: index > 0 ? 20 : 10,
-                      padding: 10,
-                      borderWidth: 1,
-                      borderRadius: 5,
-                      borderColor: 'grey',
-                    }}>
-                    <View
+        <PullToRefresh onRefresh={() => get_address()}>
+          <View style={{ marginHorizontal: 15 }}>
+
+            {location
+              ? location.map(
+                (i, index) =>
+                  i.location_id != 209 && (
+                    <TouchableOpacity
+                      Key={index}
+                      onPress={() => i.active_status == 1 ? null :
+                        makeActive(i.location_id, i.location_name, i.address1)
+                      }
                       style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
+                        marginTop: index > 0 ? 20 : 10,
+                        padding: 10,
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        borderColor: 'grey',
                       }}>
                       <View
                         style={{
                           flexDirection: 'row',
+                          justifyContent: 'space-between',
                         }}>
-                        <Entypo
-                          name="location-pin"
-                          size={18}
-                          style={{ marginRight: 3, color: '#cd181f' }}
-                        />
-                        <View>
-                          <Text style={{ fontSize: 16, fontWeight: '500' }}>
-                            {i.location_name}
-                          </Text>
-                          <Text
-                            style={{
-                              marginTop: 3,
-                              color: 'grey',
-                              width: width / 1.5,
-                            }}>
-                            {i.address1}
-                          </Text>
-                          {
-                            addrequest && addrequest == "Address Request" ?
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                  marginTop: 15,
-                                }}>
-                            {i.active_status==1?null:<TouchableOpacity
-                                  style={{ marginRight: 20 }}
-                                  onPress={() => 
-                                    Alert.alert(
-                                      '',
-                                      'Are you sure you want to delete address?',
-                                      [
-                                        {
-                                          text: 'Cancel',
-                                          onPress: () => console.log('Cancel Pressed'),
-                                          style: 'cancel',
-                                        },
-                                        { text: 'OK', onPress: () => delete_address(i.location_id) },
-                                      ],
-                                    )
-                                  
-                                  }>
-                                  <Text
-                                    style={{
-                                      color: GlobalStyle.blueDark,
-                                      fontWeight: 'bold',
-                                      fontSize: 16,
-                                    }}>
-                                    Delete
-                                  </Text>
-                                </TouchableOpacity>}
-                                {/* <TouchableOpacity
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                          }}>
+                          <Entypo
+                            name="location-pin"
+                            size={18}
+                            style={{ marginRight: 3, color: '#cd181f' }}
+                          />
+                          <View>
+                            <Text style={{ fontSize: 16, fontWeight: '500' }}>
+                              {i.location_name}
+                            </Text>
+                            <Text
+                              style={{
+                                marginTop: 3,
+                                color: 'grey',
+                                width: width / 1.5,
+                              }}>
+                              {i.address1}
+                            </Text>
+                            {
+                              addrequest && addrequest == "Address Request" ?
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    marginTop: 15,
+                                  }}>
+                                  {i.active_status == 1 ? null : <TouchableOpacity
+                                    style={{ marginRight: 20 }}
+                                    onPress={() =>
+                                      Alert.alert(
+                                        '',
+                                        'Are you sure you want to delete address?',
+                                        [
+                                          {
+                                            text: 'Cancel',
+                                            onPress: () => console.log('Cancel Pressed'),
+                                            style: 'cancel',
+                                          },
+                                          { text: 'OK', onPress: () => delete_address(i.location_id) },
+                                        ],
+                                      )
+
+                                    }>
+                                    <Text
+                                      style={{
+                                        color: GlobalStyle.blueDark,
+                                        fontWeight: 'bold',
+                                        fontSize: 16,
+                                      }}>
+                                      Delete
+                                    </Text>
+                                  </TouchableOpacity>}
+                                  {/* <TouchableOpacity
                                   style={{}}
                                   onPress={() => {
                                     setshowInput(true),
@@ -962,149 +1006,232 @@ function CustomDrawerContent(props) {
                                     Edit
                                   </Text>
                                 </TouchableOpacity> */}
-                              </View>
-                              :
-                              null
-                          }
+                                </View>
+                                :
+                                null
+                            }
 
 
+                          </View>
                         </View>
+                        {i.active_status == 1 ? (
+                          <Fontisto
+                            name="checkbox-active"
+                            size={17}
+                            style={{ marginRight: 3, color: '#0e664e' }}
+                          />
+                        ) : (
+                          <Fontisto
+                            onPress={() =>
+                              makeActive(
+                                i.location_id,
+                                i.location_name,
+                                i.address1,
+                              )
+                            }
+                            name="checkbox-passive"
+                            size={17}
+                            style={{
+                              marginRight: 3,
+                              color: '#cd181f',
+                              // position: 'absolute',
+                              // left: 0,
+                            }}
+                          />
+                        )}
                       </View>
-                      {i.active_status == 1 ? (
-                        <Fontisto
-                          name="checkbox-active"
-                          size={17}
-                          style={{ marginRight: 3, color: '#0e664e' }}
-                        />
-                      ) : (
-                        <Fontisto
-                          onPress={() =>
-                            makeActive(
-                              i.location_id,
-                              i.location_name,
-                              i.address1,
-                            )
-                          }
-                          name="checkbox-passive"
-                          size={17}
-                          style={{
-                            marginRight: 3,
-                            color: '#cd181f',
-                            // position: 'absolute',
-                            // left: 0,
-                          }}
-                        />
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                ),
-            )
-            : null}
-          {showInput ? (
-            <View style={{ marginTop: 20 }}>
-              <View
-                style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={{ fontSize: 20, fontWeight: '600' }}>
-                  Add / Update Address
-                </Text>
-                <AntDesign
-                  onPress={() => {
-                    setshowInput(false), setshowUpdate(false);
-                  }}
-                  name="closecircle"
-                  size={18}
-                  style={{ marginRight: 3, color: 'red' }}
-                />
-              </View>
-
-              <View style={styles.input_top_margin}>
-                <Text style={styles.input_title}>Home / Office / Other</Text>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={setaddressTitle}
-                  value={addressTitle}
-                />
-              </View>
-              <View style={styles.input_top_margin}>
-                <Text style={styles.input_title}>Location</Text>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={setaddress}
-                  value={address}
-                />
-                {manuallylocation && (
-                  <Text style={styles.locationText}>
-                    Latitude: {manuallylocation.latitude}, Longitude: {manuallylocation.longitude}
-                  </Text>
-                )}
-                {error && (
-                  <Text style={styles.errorText}>
-                    {error}
-                  </Text>
-                )}
-              </View>
-            </View>
-          ) : null}
-          {showInput ? (
-            showUpdate ? (
-              <TouchableOpacity
-                onPress={() => update_address(updateId)}
-                style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
-                <Text
-                  style={{ color: 'white', fontWeight: 'bold', marginRight: 5 }}>
-                  Update
-                </Text>
-                {loading ? <ActivityIndicator color="white" /> : null}
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={()=> add_address()}
-                style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
-                <Text
-                  style={{ color: 'white', fontWeight: 'bold', marginRight: 5 }}>
-                  Submit
-                </Text>
-                {loading ? <ActivityIndicator color="white" /> : null}
-              </TouchableOpacity>
-            )
-          ) :
-            (
-              <>
-                {
-                  addrequest && addrequest == "Address Request" ?
-                    <TouchableOpacity
-                      onPress={() => {
-                        setshowInput(true),
-                          setshowUpdate(false),
-                          setaddressTitle(''),
-                          setaddress('');
-                      }}
-                      style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
-                      <Text style={{ color: 'white', fontWeight: 'bold' }}>
-                        Add new address
-                      </Text>
                     </TouchableOpacity>
-                    :
-                    null
-                }
+                  ),
+              )
+              : null}
+            {showInput ? (
+              <View style={{ marginTop: 20 }}>
+                <View
+                  style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                    Add / Update Address
+                  </Text>
+                  <AntDesign
+                    onPress={() => {
+                      setshowInput(false), setshowUpdate(false);
+                    }}
+                    name="closecircle"
+                    size={18}
+                    style={{ marginRight: 3, color: 'red' }}
+                  />
+                </View>
 
-              </>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Home / Office / Other</Text>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={setaddressTitle}
+                    value={addressTitle}
+                  />
+                </View>
+                <View style={styles.input_top_margin}>
+                  <Text style={styles.input_title}>Location</Text>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={setaddress}
+                    value={address}
+                  />
+                  {manuallylocation && (
+                    <Text style={styles.locationText}>
+                      Latitude: {manuallylocation.latitude}, Longitude: {manuallylocation.longitude}
+                    </Text>
+                  )}
+                  {error && (
+                    <Text style={styles.errorText}>
+                      {error}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            ) : null}
+            {showInput ? (
+              showUpdate ? (
+                <TouchableOpacity
+                  onPress={() => update_address(updateId)}
+                  style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
+                  <Text
+                    style={{ color: 'white', fontWeight: 'bold', marginRight: 5 }}>
+                    Update
+                  </Text>
+                  {loading ? <ActivityIndicator color="white" /> : null}
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => add_address()}
+                  style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
+                  <Text
+                    style={{ color: 'white', fontWeight: 'bold', marginRight: 5 }}>
+                    Submit
+                  </Text>
+                  {loading ? <ActivityIndicator color="white" /> : null}
+                </TouchableOpacity>
+              )
+            ) :
+              (
+                <>
+                  {
+                    addrequest && addrequest == "Address Request" ?
+                      <TouchableOpacity
+                        onPress={() => {
+                          setshowInput(true),
+                            setshowUpdate(false),
+                            setaddressTitle(''),
+                            setaddress('');
+                        }}
+                        style={[styles.btnStyle, { width: '100%', marginTop: 20 }]}>
+                        <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                          Add new address
+                        </Text>
+                      </TouchableOpacity>
+                      :
+                      null
+                  }
 
-            )}
+                </>
+
+              )}
             <Modal
-        isVisible={showModal}
-        // onBackdropPress={toggleModal}
-        animationIn="zoomIn"
-        animationOut="zoomOut"
-      >
-      
-      <ActivityIndicator size="large" color="#00ff00" />
-     
-      </Modal>
-        </View>
+              isVisible={showModal}
+              // onBackdropPress={toggleModal}
+              animationIn="zoomIn"
+              animationOut="zoomOut"
+            >
+
+              <ActivityIndicator size="large" color="#00ff00" />
+
+            </Modal>
+          </View>
         </PullToRefresh>
       );
     }
+    else if (show == 'BankDetails') {
+      return (
+        <View style={{ padding: 10 }}>
+          <View style={{ marginVertical: 10 }}>
+            <Text style={styles.heading_modal}>Account Holder Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Account Holder Name"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+              selectTextOnFocus={false}
+              value={Userdata.name}
+            />
+          </View>
+          <View style={{ marginVertical: 10 }}>
+            <Text style={styles.heading_modal}>Account Number</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Account Number"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+              editable={false}
+              selectTextOnFocus={false}
+              value={Userdata.account_number}
+            />
+          </View>
+          <View style={{ marginVertical: 10 }}>
+            <Text style={styles.heading_modal}>IFSC Code</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="IFSC Code"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+              editable={false}
+              selectTextOnFocus={false}
+              value={Userdata.IFSC_code}
+            />
+          </View>
+          <View style={{ marginVertical: 10 }}>
+            <Text style={styles.heading_modal}>Branch Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Branch Name"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+              editable={false}
+              selectTextOnFocus={false}
+              value={Userdata.branch}
+            />
+          </View>
+          <View style={{ marginVertical: 10 }}>
+            <Text style={styles.heading_modal}>Bank Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Bank Name"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+              editable={false}
+              selectTextOnFocus={false}
+              value={Userdata.bank_name}
+            />
+          </View>
+          <View style={{ marginVertical: 10 }}>
+            <Text style={styles.heading_modal}>PAN Card No</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="PAN Card No"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+              editable={false}
+              selectTextOnFocus={false}
+              value={Userdata.pan_no}
+            />
+          </View>
+          <View style={{ marginVertical: 10 }}>
+            <Text style={styles.heading_modal}>Adhar Card No</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Adhar Card No"
+              placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+              editable={false}
+              selectTextOnFocus={false}
+              value={Userdata.aadhar_no}
+            />
+          </View>
+        </View>
+      );
+    }
+
     else if (show == 'Aboutus') {
       const phoneNumber = '8989777878';
       return (
@@ -1112,15 +1239,29 @@ function CustomDrawerContent(props) {
           {
             contectdata?.map((element, indx) => {
               return (
-                <View key={indx} style={{ marginHorizontal: 10, marginBottom: 8 }}>
-                  <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                    <Text style={styles.heading_modal}>{element?.designation}</Text>
-                    <Text style={styles.heading_modal}>{element?.name}</Text>
-                    <TouchableOpacity onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
-                      <Text style={styles.heading_modal}>{element?.contact}</Text>
-                    </TouchableOpacity>
+                // <View key={indx} style={{ marginHorizontal: 10, marginBottom: 8 }}>
+                //   <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                //     <Text style={styles.heading_modal}>{element?.designation}</Text>
+                //     <Text style={styles.heading_modal}>{element?.name}</Text>
+                //     <TouchableOpacity onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
+                //       <Text style={styles.heading_modal}>{element?.contact}</Text>
+                //     </TouchableOpacity>
+                //   </View>
+                // </View>
+                <ScrollView>
+                  <View style={styles.card}>
+                    <Text style={styles.text}>
+                      <Text style={styles.bold}>Designation :</Text> {element?.designation}
+                    </Text>
+                    <Text style={styles.text}>
+                      <Text style={styles.bold}>Name :</Text> {element?.name}
+                    </Text>
+                    <Text style={styles.text}>
+                      <Text style={styles.bold}>Number :</Text> {element?.contact}
+                    </Text>
                   </View>
-                </View>
+                </ScrollView>
+
               )
 
             })
@@ -1157,6 +1298,24 @@ function CustomDrawerContent(props) {
     props.navigation.closeDrawer();
     props.navigation.navigate('Login');
   };
+
+  useEffect(() => {
+    const checkAppVersion = async () => {
+      try {
+        const latestVersion = await VersionCheck.getLatestVersion({
+          packageName: Platform.OS === 'ios' ? 'com.appHRjee' : 'com.HRjee', // Replace with your app's package name
+          ignoreErrors: true,
+        })
+        const currentVersion = VersionCheck.getCurrentVersion();
+        setVersion(currentVersion)
+      } catch (error) {
+        // Handle error while checking app version
+        console.error('Error checking app version:', error);
+      }
+    };
+
+    checkAppVersion();
+  }, []);
 
 
   return (
@@ -1244,6 +1403,16 @@ function CustomDrawerContent(props) {
             activeTintColor={'red'}
           />
           <DrawerItem
+            label="Bank Details"
+            icon={color => <MaterialCommunityIcons name="bank" size={18} color="#000"
+            />}
+            onPress={() => handleItemPress('BankDetails')}
+            style={
+              isItemActive('BankDetails') ? { backgroundColor: '#F5F5F5' } : null
+            }
+            activeTintColor={'red'}
+          />
+          <DrawerItem
             label="Contact us"
             icon={color => (
               <MaterialCommunityIcons
@@ -1258,6 +1427,39 @@ function CustomDrawerContent(props) {
             }
             activeTintColor={'red'}
           />
+          {
+            updatedlivetrackingaccess?.length > 0 && locationblock == 1 ?
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <DrawerItem
+                  label="Tracking"
+                  icon={color => (
+                    <Entypo
+                      name="location"
+                      size={18}
+                      color={color}
+                    />
+                  )}
+                  // onPress={() => handleItemPress('PersonalDetails')}
+                  style={
+                    isItemActive('PersonalDetails')
+                      ? { backgroundColor: '#F5F5F5', flex: 1 }
+                      : { flex: 1 }
+                  }
+                  activeTintColor={'red'}
+                />
+                <Switch
+                  style={{ marginLeft: 5 }}
+                  trackColor={{ false: '#767577', true: '#0c57d0' }}
+                  thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={() => toggleSwitch()}
+                  value={isEnabled}
+                />
+              </View>
+              :
+              null
+          }
+
           <DrawerItem
             label="Logout"
             icon={color => <AntDesign name="logout" size={18} color="#000"
@@ -1275,6 +1477,18 @@ function CustomDrawerContent(props) {
             }}
             style={isItemActive('Logout') ? { backgroundColor: '#F5F5F5' } : null}
           />
+          <DrawerItem
+            label={`Version ${version}`}
+            icon={color => (
+              <Octicons
+                name="versions"
+                size={25}
+              />
+            )}
+            style={isItemActive('Aboutus') ? { backgroundColor: '#F5F5F5' } : null}
+            activeTintColor={'red'}
+          />
+
         </DrawerContentScrollView>
         <Modal
           visible={isModalVisible}
@@ -1514,7 +1728,28 @@ const styles = StyleSheet.create({
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius:10,
+    borderRadius: 10,
     borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  card: {
+    backgroundColor: '#F7F8FC',
+    padding: 20,
+    marginBottom: 10,
+    borderRadius: 10,
+    borderColor: '#0058F6',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+    width: "90%", alignSelf: "center", marginTop: 5
+  },
+  text: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  bold: {
+    fontWeight: 'bold',
   },
 });

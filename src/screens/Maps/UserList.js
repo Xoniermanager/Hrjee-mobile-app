@@ -22,7 +22,7 @@ const UserList = () => {
   checkIfTrackingEnableForUser = (id) => {
     setSelectedUserId(id)
     livetrackingaccess.forEach(item => {
-      if(item.userid == id){
+      if (item.userid == id) {
         setOpenModel(item.track_location == 1 ? true : false)
       }
     });
@@ -39,23 +39,40 @@ const UserList = () => {
       onRequestClose={() => setModalVisible(false)}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-        <TouchableOpacity
+          <TouchableOpacity
             onPress={() => setModalVisible(!modalVisible)}
-            style={{alignSelf: 'flex-end'}}>
+            style={{ alignSelf: 'flex-end' }}>
             <AntDesign
               name="close"
               size={25}
               color="#000"
-              style={{alignSelf: 'flex-end'}}
+              style={{ alignSelf: 'flex-end' }}
             />
           </TouchableOpacity>
           {
             openModel ?
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={() => [setModalVisible(false) ,navigation.navigate('Maps', { userId: selectedUserId })]}>
-                <Text style={styles.modalButtonText}>Tracking</Text>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => [setModalVisible(false), navigation.navigate('Maps', { userId: selectedUserId })]}>
+                  <Text style={styles.modalButtonText}>Tracking</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => [setModalVisible(false), navigation.navigate('Profile', { userId: selectedUserId })]}>
+                  <Text style={styles.modalButtonText}>Profile</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => [setModalVisible(false), navigation.navigate(' Attendence', { userId: selectedUserId })]}>
+                  <Text style={styles.modalButtonText}>Attendence</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => [setModalVisible(false), navigation.navigate('Leave', { userId: selectedUserId })]}>
+                  <Text style={styles.modalButtonText}>Leave</Text>
+                </TouchableOpacity>
+              </>
               :
               <TouchableOpacity disabled
                 style={styles.modalButton1}

@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
       android:name=".MainApplication"
@@ -20,10 +21,20 @@
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="true"
-      android:theme="@style/AppTheme">
+      android:theme="@style/AppTheme"
+      android:usesCleartextTraffic="true"
+
+      >
+
+      <service android:name="com.asterinet.react.bgactions.RNBackgroundActionsTask" android:foregroundServiceType="shortService"/>
+      <!-- <service
+        android:name=".MyService"
+        android:foregroundServiceType="location"
+        android:exported="false">
+      </service> -->
       <meta-data
-  android:name="com.google.android.geo.API_KEY"
-  android:value="AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg" />
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg" />
 
       <activity
         android:name=".MainActivity"

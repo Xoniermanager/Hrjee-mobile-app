@@ -43,6 +43,8 @@ import NetInfo from '@react-native-community/netinfo';
 import useApi2 from '../../../api/useApi2';
 import PullToRefresh from '../../reusable/PullToRefresh';
 import io from 'socket.io-client';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+
 
 export const LiveTrackingContext = createContext();
 
@@ -82,7 +84,7 @@ const Home = ({ navigation }) => {
   // const [locationtracking, setLOCATIONTRACKING] = useState('');
 
 
-  const { updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket } = useContext(SocketContext);
+  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking } = useContext(SocketContext);
 
   // console.log("updatedlivetrackingaccess.......", updatedlivetrackingaccess?.length)
   // console.log("livetracking user list.......", livetrackingaccess?.length)
@@ -109,9 +111,6 @@ const Home = ({ navigation }) => {
     image: '',
     name: '',
   });
-
-
-
   const monthNames = [
     'Jan',
     'Feb',
@@ -930,7 +929,8 @@ const Home = ({ navigation }) => {
             setloading(false);
             var lat = parseFloat(location.latitude);
             var long = parseFloat(location.longitude);
-
+            const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
+            const address = await axios.get(urlAddress)
             // { Live tracking starting}
             // sendLocation({
             //   userId: userInfo?.userid,
@@ -1582,7 +1582,7 @@ const Home = ({ navigation }) => {
   const [locationArray, setLocationArray] = useState([]);
 
   const storeLocation = async (location) => {
-    if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && shouldTrackLocation.current) {
+    if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && activeinactivetracking == 1 && shouldTrackLocation.current) {
       try {
         console.log("5 sec ......")
         setLocationArray((prevLocations) => {
@@ -1600,7 +1600,7 @@ const Home = ({ navigation }) => {
 
   const sendStoredLocation = async () => {
     // console.log("1 mint........")
-    if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && shouldTrackLocation.current) {
+    if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && activeinactivetracking == 1 && shouldTrackLocation.current) {
       try {
         const token = await AsyncStorage.getItem('Token');
         const config = {
@@ -1643,35 +1643,47 @@ const Home = ({ navigation }) => {
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'ios') {
-      return true;
+      return new Promise((resolve, reject) => {
+        Geolocation.requestAuthorization('always')
+          .then((result) => {
+            // Handle the result or status if needed
+            resolve(result);
+          })
+          .catch((error) => {
+            // Handle any errors that might occur
+            reject(error);
+            return false;
+          });
+      });
     }
+    else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: "Location Permission",
+            message:
+              "We need access to your location " +
+              "so we can provide location-based services.",
+            buttonNeutral: "Ask Me Later",
+            buttonNegative: "Cancel",
+            buttonPositive: "OK",
+          }
+        );
+        const backgroundGranted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+        );
 
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: "Location Permission",
-          message:
-            "We need access to your location " +
-            "so we can provide location-based services.",
-          buttonNeutral: "Ask Me Later",
-          buttonNegative: "Cancel",
-          buttonPositive: "OK",
+        if (backgroundGranted !== PermissionsAndroid.RESULTS.GRANTED) {
+          Alert.alert('Background location permission denied');
+          return false;
         }
-      );
-      const backgroundGranted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-      );
 
-      if (backgroundGranted !== PermissionsAndroid.RESULTS.GRANTED) {
-        Alert.alert('Background location permission denied');
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
         return false;
       }
-
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    } catch (err) {
-      console.warn(err);
-      return false;
     }
   };
 
@@ -1679,7 +1691,6 @@ const Home = ({ navigation }) => {
 
   startLocationTracking = async () => {
     const hasPermission = await requestLocationPermission();
-
     if (!hasPermission) {
       Alert.alert('Permission Denied', 'Location permission is required to fetch location.');
       setTracking(false);
@@ -1746,45 +1757,21 @@ const Home = ({ navigation }) => {
   const shouldTrackLocation = useRef(false)
 
   useEffect(() => {
+    setStartBackgroundTracking(() => startBackgroundService);
+  }, [setStartBackgroundTracking]);
+
+  useEffect(() => {
     async function fetchMyAPI() {
       const token = await AsyncStorage.getItem('Token');
 
-      console.log('iiii', punchIn, shouldTrackLocation.current ?  'trc' : 'no trc');
-
-      if (token && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && shouldTrackLocation.current) {
+      if (token && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && activeinactivetracking == 1 && shouldTrackLocation.current) {
         startBackgroundService()
       } else {
         EndBackgroundService()
-
-        // let sendInterval = null; //Geolocation.stopObserving()
-        // let watchId = null;
-
-
-        // console.log('----', timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && punchIn);
-
-        // if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && punchIn) {
-        //   // Watch for location changes
-        //   startLocationTracking()
-
-        //   // Send stored location periodically
-        //   const sendInterval = setInterval(() => {
-        //     sendStoredLocation();
-        //   }, 60000);
-
-        //   // Cleanup function
-        //   return () => {
-        //     Geolocation.clearWatch(watchId);
-        //     clearInterval(sendInterval);
-        //   };
-        // } else {
-        //   // Cleanup if timer is turned off
-        //   Geolocation.clearWatch(watchId);
-        //   clearInterval(sendInterval);
-        // }
       }
     }
     fetchMyAPI()
-  }, [timerOn, updatedlivetrackingaccess?.length, locationblock])
+  }, [timerOn, updatedlivetrackingaccess?.length, locationblock, activeinactivetracking])
 
   const EndBackgroundService = async () => {
     Geolocation.stopObserving()
@@ -1792,43 +1779,54 @@ const Home = ({ navigation }) => {
     await BackgroundService.stop()
   }
 
-
   const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
+
   const startBackgroundService = async () => {
     const veryIntensiveTask = async (taskDataArguments) => {
       const { delay } = taskDataArguments;
-      await new Promise(async (resolve) => {
-        for (let i = 0; BackgroundService.isRunning(veryIntensiveTask); i++) {
-          let sendInterval = null;
-          let watchId = null;
-          if (timerOn) {
-            // Watch for location changes
-            startLocationTracking()
 
-            // Send stored location periodically
-            const sendInterval = setInterval(() => {
-              sendStoredLocation();
-            }, 60000);
-
-            // Cleanup function
-            return () => {
-              Geolocation.clearWatch(watchId);
-              clearInterval(sendInterval);
-            };
-          } else {
-            // Cleanup if timer is turned off
-            Geolocation.clearWatch(watchId);
-            clearInterval(sendInterval);
-          }
-          await sleep(delay);
+      const cleanup = () => {
+        // Clear watch and intervals
+        if (watchId !== null) {
+          Geolocation.clearWatch(watchId);
         }
-        resolve();
-      });
+        if (sendInterval !== null) {
+          clearInterval(sendInterval);
+        }
+      };
+
+      let sendInterval = null;
+      let watchId = null;
+
+      while (BackgroundService.isRunning(veryIntensiveTask)) {
+        console.log("Running task...");
+
+        if (timerOn) {
+          // Start location tracking
+          watchId = startLocationTracking();
+
+          // Send stored location periodically
+          sendInterval = setInterval(() => {
+            sendStoredLocation();
+          }, 60000);
+
+          // Wait for the specified delay before the next iteration
+          await sleep(delay);
+        } else {
+          // Cleanup if timer is turned off
+          cleanup();
+          break; // Exit the loop if timer is turned off
+        }
+      }
+
+      // Cleanup when the task is done
+      cleanup();
     };
+
     const options = {
-      taskName: 'HRJee Track your locations',
-      taskTitle: 'HRJee Track your locations',
-      taskDesc: 'Tracking start',
+      taskName: 'HRJee Track Your Locations',
+      taskTitle: 'HRJee Track Your Locations',
+      taskDesc: 'Tracking started',
       taskIcon: {
         name: 'ic_launcher',
         type: 'mipmap',
@@ -1836,9 +1834,10 @@ const Home = ({ navigation }) => {
       color: '#ff00ff',
       linkingURI: 'yourSchemeHere://chat/jane',
       parameters: {
-        delay: 5000, //15 minutes delay
+        delay: 5000, // Delay in milliseconds
       },
     };
+
     try {
       await BackgroundService.start(veryIntensiveTask, options);
     } catch (e) {

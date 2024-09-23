@@ -23,7 +23,7 @@ import { useNavigation } from '@react-navigation/native';
 import VersionCheck from 'react-native-version-check';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import messaging from '@react-native-firebase/messaging';
-// import { Home } from '../home/Home'
+import CheckBox from 'react-native-check-box';
 
 
 
@@ -31,8 +31,7 @@ const Login = ({ children }) => {
   const theme = useColorScheme();
   const navigation = useNavigation()
   const { setuser, setlocation } = useContext(EssContext);
-
-
+  const [isChecked, setIsChecked] = useState(false);
   const [email, setemail] = useState('');
   const [password, setpassword] = useState('');
   const [loading, setloading] = useState(false);
@@ -42,6 +41,10 @@ const Login = ({ children }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [disabledBtn, setDisabledBtn] = useState(false);
 
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+
+  };
 
   const toggleShowPassword = ({ children }) => {
     setShowPassword(!showPassword);
@@ -72,9 +75,11 @@ const Login = ({ children }) => {
 
 
   const login = () => {
-    setDisabledBtn(true)
+
+    // console.log("isChecked......", isChecked)
+
     if (email.trim() === '' || password.trim() === '') {
-      setDisabledBtn(false)
+
       Popup.show({
         type: 'Warning',
         title: 'Warning',
@@ -84,8 +89,6 @@ const Login = ({ children }) => {
         callback: () => [Popup.hide(),],
       });
     } else if (password.length < 6) {
-      setDisabledBtn(false)
-
       Popup.show({
         type: 'Warning',
         title: 'Warning',
@@ -94,9 +97,20 @@ const Login = ({ children }) => {
         buttonText: 'Ok',
         callback: () => [Popup.hide(),],
       });
-
+    }
+    else if (isChecked == false) {
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody: 'Please checked Terms and Condition',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide(),],
+      });
+      return;
     }
     else {
+      setDisabledBtn(true)
       setloading(true);
       axios
         .post(`${apiUrl}/users/login`, {
@@ -156,7 +170,7 @@ const Login = ({ children }) => {
                 setuser(response.data.data);
                 const filteredData = response?.data?.menu_access?.filter(item => item.menu_name == "Address Request");
                 // setLiveTrackingPermission(response?.data?.menu_access?.filter(item => item.menu_name == "Location Tracking"));
-              
+
                 AsyncStorage.setItem(
                   'UserLocation',
                   JSON.stringify(response.data.location),
@@ -186,7 +200,7 @@ const Login = ({ children }) => {
                   }
                   return item;
                 })
-               
+
                 setAddRequest(filteredData);
                 AsyncStorage.setItem(
                   'AddRequest', JSON.stringify(filteredData[0]?.menu_name),
@@ -243,93 +257,110 @@ const Login = ({ children }) => {
 
 
   const phoneNumber = '8989777878';
+
+  const openPdf = () => {
+    navigation.navigate('PdfViewer', {
+      url: 'https://hrjee.com/assets/img/terms_conditions_hrjee.pdf',
+    });
+  };
+
+
   return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-        <Root>
-          <ScrollView>
-            <View style={{ padding: 30 }}>
-              <View style={{ marginTop: 5 }}>
-                {/* <Text style={{fontSize: 22, fontWeight: '700'}}>Sign In</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <Root>
+        <ScrollView>
+          <View style={{ padding: 30 }}>
+            <View style={{ marginTop: 5 }}>
+              {/* <Text style={{fontSize: 22, fontWeight: '700'}}>Sign In</Text>
             <Text style={{fontSize: 14, marginTop: 5}}>
               Hi there! Nice to see you again.
             </Text> */}
-                <Image
-                  style={{
-                    resizeMode: 'contain',
-                    alignSelf: 'center',
-                    height: responsiveHeight(35),
-                    width: responsiveWidth(55),
-                    marginTop: responsiveHeight(0)
+              <Image
+                style={{
+                  resizeMode: 'contain',
+                  alignSelf: 'center',
+                  height: responsiveHeight(35),
+                  width: responsiveWidth(55),
+                  marginTop: responsiveHeight(0)
 
-                  }}
-                  source={require('../../images/logo.png')}
+                }}
+                source={require('../../images/logo.png')}
+              />
+
+              <View style={styles.input_top_margin}>
+                <Text style={styles.input_title}>Employee Email/Id</Text>
+                <View style={{
+                  flexDirection: "row", borderBottomWidth: 1,
+                  justifyContent: "space-between"
+                }}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="username@gmail.com"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    onChangeText={text => setemail(text.toLowerCase())}
+                  />
+
+                </View>
+
+              </View>
+              <View style={styles.input_top_margin}>
+                <Text style={styles.input_title}>Password</Text>
+                <View style={{
+                  flexDirection: "row", borderBottomWidth: 1,
+                  justifyContent: "space-between"
+                }}>
+                  <TextInput
+                    style={styles.input}
+                    secureTextEntry={!showPassword}
+                    placeholder="**********"
+                    placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+                    onChangeText={text => setpassword(text.toLowerCase())}
+                  />
+                  <MaterialCommunityIcons
+                    name={!showPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color="#000"
+                    style={{ alignSelf: 'center' }}
+                    onPress={toggleShowPassword}
+                  />
+                </View>
+              </View>
+              <View style={{ flexDirection: "row", width: "100%", alignItems: "center", marginTop: 10 }}>
+                <CheckBox
+                  isChecked={isChecked}
+                  onClick={handleCheckboxChange}
                 />
-
-                <View style={styles.input_top_margin}>
-                  <Text style={styles.input_title}>Employee Email/Id</Text>
-                  <View style={{
-                    flexDirection: "row", borderBottomWidth: 1,
-                    justifyContent: "space-between"
-                  }}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="username@gmail.com"
-                      placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-                      onChangeText={text => setemail(text.toLowerCase())}
-                    />
-
-                  </View>
-
-                </View>
-                <View style={styles.input_top_margin}>
-                  <Text style={styles.input_title}>Password</Text>
-                  <View style={{
-                    flexDirection: "row", borderBottomWidth: 1,
-                    justifyContent: "space-between"
-                  }}>
-                    <TextInput
-                      style={styles.input}
-                      secureTextEntry={!showPassword}
-                      placeholder="**********"
-                      placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-                      onChangeText={text => setpassword(text.toLowerCase())}
-                    />
-                    <MaterialCommunityIcons
-                      name={!showPassword ? 'eye-off' : 'eye'}
-                      size={24}
-                      color="#000"
-                      style={{ alignSelf: 'center' }}
-                      onPress={toggleShowPassword}
-                    />
-                  </View>
-                </View>
-                <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn == true ? true : false}>
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontWeight: '600',
-                      fontSize: 15,
-                      marginRight: 10,
-                    }}>
-                    Login
-                  </Text>
-                  {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : null}
+                <TouchableOpacity onPress={openPdf}>
+                  <Text style={{ marginHorizontal: 5, color: "blue", fontSize: 12 }}>Terms and Condition</Text>
                 </TouchableOpacity>
-                <View style={{ alignItems: 'center', marginTop: 40 }}>
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate('Forgot Password')}>
-                    <Text style={styles.text}>Forgot Password?</Text>
-                  </TouchableOpacity>
-                  {/* <TouchableOpacity
+              </View>
+              <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn == true ? true : false}>
+                <Text
+                  style={{
+                    color: 'white',
+                    fontWeight: '600',
+                    fontSize: 15,
+                    marginRight: 10,
+                  }}>
+                  Login
+                </Text>
+                {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : null}
+              </TouchableOpacity>
+              <View style={{ alignItems: 'center', marginTop: 40 }}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Forgot Password')}>
+                  <Text style={styles.text}>Forgot Password?</Text>
+                </TouchableOpacity>
+                {/* <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
                 <Text style={styles.text}>Contact HR for any login issue</Text>
               </TouchableOpacity> */}
-                </View>
               </View>
             </View>
-          </ScrollView>
-        </Root>
-      </SafeAreaView>
+          </View>
+        </ScrollView>
+      </Root>
+    </SafeAreaView>
   );
 
 

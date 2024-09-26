@@ -1,85 +1,306 @@
-import { StyleSheet, Text, ActivityIndicator, TextInput, View, TouchableOpacity, Image, useColorScheme, SafeAreaView, Platform } from 'react-native'
-import React, { useState } from 'react'
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import DatePicker from 'react-native-date-picker';
-import { responsiveHeight } from 'react-native-responsive-dimensions';
+// import { StyleSheet, Text, ActivityIndicator, TextInput, View, TouchableOpacity, Image, useColorScheme, SafeAreaView, Platform } from 'react-native'
+// import React, { useState } from 'react'
+// import AntDesign from 'react-native-vector-icons/AntDesign';
+// import DatePicker from 'react-native-date-picker';
+// import { responsiveHeight } from 'react-native-responsive-dimensions';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import axios from 'axios';
+// import apiUrl from '../../../../reusable/apiUrl';
+// import Themes from '../Resign/Resign';
+// import { Root, Popup } from 'popup-ui'
+// import { useNavigation } from '@react-navigation/core';
+
+
+// const Resign = () => {
+//     const theme = useColorScheme();
+
+//     const [startopen, setstartopen] = useState(false);
+//     const [status, setStatus] = useState(new Date());
+//     const [resignin, setResign] = useState('');
+//     const [show, setShow] = useState(false)
+//     const [resigndata, setResignData] = useState('');
+//     const [loading, setloading] = useState(false);
+//     const navigation = useNavigation()
+
+//     // console.log("status", status?.status)
+
+//     const resignShare = async () => {
+
+
+//         const token = await AsyncStorage.getItem('Token');
+//         const config = {
+//             headers: { Token: token },
+//         };
+//         const body = {
+//             reason: resignin
+//         };
+
+//         setloading(true);
+
+//         if (resignin == '') {
+//             Popup.show({
+//                 type: 'Warning',
+//                 title: 'Warning',
+//                 button: true,
+//                 textBody: 'Please enter some text',
+//                 buttonText: 'Ok',
+//                 callback: () => [Popup.hide()]
+//             })
+
+//             setloading(false);
+//         } else {
+//             setShow(true)
+//             axios
+//                 .post(`${apiUrl}/secondPhaseApi/submit_resignation`, body, config)
+//                 .then(response => {
+//                     setStatus(response?.data)
+//                     if (response.data.status == 1) {
+//                         try {
+//                             setloading(false);
+//                             setShow(false)
+//                             Popup.show({
+//                                 type: 'Success',
+//                                 title: 'Successful',
+//                                 button: true,
+//                                 textBody: response?.data?.message,
+//                                 buttonText: 'Ok',
+//                                 callback: () => [Popup.hide(), setResignData(response?.data), navigation.navigate('Home')]
+//                             })
+
+
+
+
+//                         } catch (e) {
+//                             setloading(false);
+//                             setShow(false)
+
+
+//                         }
+//                     } else if (response.data.status == 0) {
+//                         setloading(false);
+//                         setShow(false)
+
+//                         Popup.show({
+//                             type: 'Warning',
+//                             title: 'Warning',
+//                             button: true,
+//                             textBody: response?.data?.message,
+//                             buttonText: 'Ok',
+//                             callback: () => [Popup.hide()]
+//                         })
+
+//                     }
+//                 })
+//                 .catch(error => {
+//                     setShow(false)
+//                     setloading(false)
+//                     if (error.response.status == '401') {
+//                         Popup.show({
+//                             type: 'Warning',
+//                             title: 'Warning',
+//                             button: true,
+//                             textBody: error.response.data.msg,
+//                             buttonText: 'Ok',
+//                             callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
+//                             AsyncStorage.removeItem('UserData'),
+//                             AsyncStorage.removeItem('UserLocation'),
+//                             navigation.navigate('Login')]
+//                         });
+//                     }
+//                 });
+//         }
+//     };
+
+//     return (
+//         <SafeAreaView style={{ flex: 1, }}>
+//             <Root>
+
+//                 <View style={styles.container}>
+//                     <Image style={{ width: '100%', resizeMode: 'stretch', height: 300 }}
+//                         source={require('../../../../images/resign.jpeg')}
+//                     />
+//                     <Text style={styles.txtname}>Comment</Text>
+//                     <TextInput
+//                         placeholder='Comment...'
+//                         placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+//                         value={resignin}
+//                         multiline={true}
+//                         numberOfLines={4}
+//                         onChangeText={(text) => setResign(text)}
+//                         style={{ color: Themes == 'dark' ? '#000' : '#000', borderWidth: 0.5, textAlignVertical: 'top', height: Platform.OS === 'ios' ? 100 : null, borderRadius: 10 }}
+//                     />
+
+//                     <TouchableOpacity activeOpacity={0.8} onPress={() => resignShare()} disabled={show}>
+//                         <Text style={styles.subtxt}>Submit</Text>
+//                     </TouchableOpacity>
+//                     <View style={styles.viewstatus}>
+//                         {
+
+//                         }
+//                         <Text style={{ color: "#000", fontSize: 18 }}>Resignation status</Text>
+//                         <Text style={{ color: "#000", fontSize: 18 }}>:</Text>
+//                         {
+//                             status?.status === 0 ?
+//                                 <Text style={{ color: "#000", fontSize: 18 }}>Waiting for approval</Text>
+//                                 :
+//                                 <>
+//                                     <Text style={{ color: "#000", fontSize: 18 }}>N/A</Text>
+
+//                                     {/* <Text style={{ color: "#000", fontSize: 18 }}>Rejected</Text> */}
+//                                 </>
+//                         }
+//                     </View>
+//                 </View>
+
+//             </Root>
+//         </SafeAreaView>
+//     )
+// }
+
+// export default Resign
+
+// const styles = StyleSheet.create({
+//     container: {
+//         backgroundColor: "#fff",
+//         flex: 1,
+//         padding: 10
+//     },
+//     title: { fontSize: 16, marginVertical: 10, fontWeight: '600' },
+//     calender: {
+//         flexDirection: 'row',
+//         justifyContent: 'space-between',
+//         padding: 15,
+//         borderRadius: 5,
+//         borderBottomWidth: 1,
+//         borderBottomColor: 'grey',
+//     },
+//     txtname: {
+//         fontSize: 16, marginVertical: 10, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000'
+//     },
+//     underline: {
+//         borderWidth: 0.5,
+//         color: "#fff",
+//         opacity: 0.6
+//     },
+//     statustxt: {
+//         backgroundColor: "#0321a4",
+
+//     },
+//     subtxt: {
+//         color: "#fff",
+//         padding: 10,
+//         fontSize: 18,
+//         backgroundColor: "#0321a4",
+//         textAlign: "center",
+//         marginTop: 10,
+//         marginBottom: 5
+//     },
+//     viewstatus: {
+//         flexDirection: "row",
+//         justifyContent: "space-between",
+//         marginHorizontal: 10,
+//     }
+// })
+
+
+
+import { Image, SafeAreaView, StyleSheet, TextInput, Text, View, FlatList, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import LinearGradient from 'react-native-linear-gradient';
+import {
+    responsiveFontSize, responsiveHeight, responsiveWidth
+} from 'react-native-responsive-dimensions';
+import { NavigationContainer } from '@react-navigation/native';
+import Themes from '../../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
+import { useNavigation } from '@react-navigation/core';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import apiUrl from '../../../../reusable/apiUrl';
-import Themes from '../Resign/Resign';
-import { Root, Popup } from 'popup-ui'
-import { useNavigation } from '@react-navigation/core';
+import Reload from '../../../../../Reload';
 
+const Resign = ({ navigation }) => {
+    {/* THis code is less more */ }
 
-const Resign = () => {
-    const theme = useColorScheme();
+    const [expandedprofile, setExpandedProfile] = useState(false);
+
+    const toggleExpandedProfile = () => {
+        setExpandedProfile(!expandedprofile);
+    };
 
     const [startopen, setstartopen] = useState(false);
     const [status, setStatus] = useState(new Date());
-    const [resignin, setResign] = useState('');
+    const [resigninData, setResignData] = useState('');
     const [show, setShow] = useState(false)
-    const [resigndata, setResignData] = useState('');
+    const [typeresign, setTypeResign] = useState('');
+    console.log("resigndata>>>>>>>>>>>>>>>>>>>>>>", resigninData)
+    const [subject, setSubject] = useState('');
     const [loading, setloading] = useState(false);
-    const navigation = useNavigation()
-
-    // console.log("status", status?.status)
 
     const resignShare = async () => {
-
 
         const token = await AsyncStorage.getItem('Token');
         const config = {
             headers: { Token: token },
         };
         const body = {
-            reason: resignin
+            reason: typeresign
         };
 
         setloading(true);
 
-        if (resignin == '') {
+        if (subject == '') {
             Popup.show({
                 type: 'Warning',
                 title: 'Warning',
                 button: true,
-                textBody: 'Please enter some text',
+                textBody: 'Please enter subject',
                 buttonText: 'Ok',
                 callback: () => [Popup.hide()]
             })
 
             setloading(false);
-        } else {
+        }
+        else if (typeresign == '') {
+            Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody: 'Please type resigation',
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+            })
+
+            setloading(false);
+        }
+        else {
             setShow(true)
             axios
                 .post(`${apiUrl}/secondPhaseApi/submit_resignation`, body, config)
                 .then(response => {
                     setStatus(response?.data)
+                    console.log("res---------------------", response?.data)
                     if (response.data.status == 1) {
+                        setloading(false);
                         try {
                             setloading(false);
                             setShow(false)
+                            setResignData(response?.data)
                             Popup.show({
                                 type: 'Success',
                                 title: 'Successful',
                                 button: true,
                                 textBody: response?.data?.message,
                                 buttonText: 'Ok',
-                                callback: () => [Popup.hide(), setResignData(response?.data), navigation.navigate('Home')]
+                                callback: () => [Popup.hide(), setResignData(response?.data), navigation.navigate('ResignStatus')]
                             })
-
-
-
-
                         } catch (e) {
                             setloading(false);
                             setShow(false)
-
-
                         }
                     } else if (response.data.status == 0) {
                         setloading(false);
                         setShow(false)
-
                         Popup.show({
                             type: 'Warning',
                             title: 'Warning',
@@ -111,95 +332,99 @@ const Resign = () => {
         }
     };
 
+
+
     return (
-        <SafeAreaView style={{ flex: 1, }}>
+        <SafeAreaView style={styles.container}>
             <Root>
+                <ScrollView showsVerticalScrollIndicator={false}>
 
-                <View style={styles.container}>
-                    <Image style={{ width: '100%', resizeMode: 'stretch', height: 300 }}
-                        source={require('../../../../images/resign.jpeg')}
-                    />
-                    <Text style={styles.txtname}>Comment</Text>
-                    <TextInput
-                        placeholder='Comment...'
-                        placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-                        value={resignin}
-                        multiline={true}
-                        numberOfLines={4}
-                        onChangeText={(text) => setResign(text)}
-                        style={{ color: Themes == 'dark' ? '#000' : '#000', borderWidth: 0.5, textAlignVertical: 'top', height: Platform.OS === 'ios' ? 100 : null, borderRadius: 10 }}
-                    />
+                    {/* This is profile details */}
+                    <View style={{ marginTop: 10, alignSelf: "center", marginTop: responsiveHeight(1), borderTopLeftRadius: 10, borderBottomLeftRadius: expandedprofile == true ? 0 : 10, borderTopRightRadius: 10, borderBottomRightRadius: 10 }}>
 
-                    <TouchableOpacity activeOpacity={0.8} onPress={() => resignShare()} disabled={show}>
-                        <Text style={styles.subtxt}>Submit</Text>
-                    </TouchableOpacity>
-                    <View style={styles.viewstatus}>
+                        <Image style={{ height: 150, width: 150, alignSelf: "center", marginVertical: 20, resizeMode: "contain" }}
+                            source={require('../../../../images/regin.png')}
+                        />
+
+                        <View style={{ borderRadius: 30, marginBottom: 8, padding: 5, backgroundColor: "#EDFBFE", opacity: 1, elevation: 10, }}>
+                            <TextInput
+                                placeholder='Subject'
+                                placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
+                                color={Themes == 'dark' ? '#000' : '#000'}
+                                value={subject}
+                                onChangeText={text =>
+                                    setSubject(text)
+                                }
+                            />
+                        </View>
+                        <View style={{ marginBottom: expandedprofile == true ? 0 : 8, width: "95%", backgroundColor: "#EDFBFE", opacity: 1, elevation: 10, borderTopLeftRadius: 50, borderBottomLeftRadius: expandedprofile == true ? 0 : 50, borderTopRightRadius: 50, borderBottomRightRadius: expandedprofile == true ? 0 : 50, padding: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                            <Text style={{ color: "#000", fontSize: responsiveFontSize(2.3) }}>Send To</Text>
+                            <TouchableOpacity onPress={toggleExpandedProfile}>
+                                {
+                                    expandedprofile ?
+                                        <Image style={{ height: 30, width: 30, resizeMode: "contain" }} source={require('../../../../images/up.png')} />
+                                        :
+                                        <>
+                                            <Image style={{ height: 30, width: 30, resizeMode: "contain" }} source={require('../../../../images/down.png')} />
+                                        </>
+                                }
+                            </TouchableOpacity>
+                        </View>
                         {
-
+                            expandedprofile ?
+                                <View style={{ marginBottom: expandedprofile == true ? 8 : 0, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
+                                    <View style={{ borderTopWidth: expandedprofile == true ? 0 : 2, backgroundColor: "#EDFBFE", borderTopLeftRadius: 0, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
+                                        <TouchableOpacity activeOpacity={0.8} style={{ borderColor: "gray", borderWidth: 0.5, marginVertical: 5 }}>
+                                            <Text style={{ textAlign: "center", fontSize: 15, color: "#000", fontWeight: "bold" }}>Ashraf Ali</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity activeOpacity={0.8} style={{ borderColor: "gray", borderWidth: 0.5, marginVertical: 5 }}>
+                                            <Text style={{ textAlign: "center", fontSize: 15, color: "#000", fontWeight: "bold" }}>Shibli Sone</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity activeOpacity={0.8} style={{ borderColor: "gray", borderWidth: 0.5, marginVertical: 5 }}>
+                                            <Text style={{ textAlign: "center", fontSize: 15, color: "#000", fontWeight: "bold" }}>Vishnu</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View> :
+                                null
                         }
-                        <Text style={{ color: "#000", fontSize: 18 }}>Resignation status</Text>
-                        <Text style={{ color: "#000", fontSize: 18 }}>:</Text>
-                        {
-                            status?.status === 0 ?
-                                <Text style={{ color: "#000", fontSize: 18 }}>Waiting for approval</Text>
-                                :
-                                <>
-                                    <Text style={{ color: "#000", fontSize: 18 }}>N/A</Text>
 
-                                    {/* <Text style={{ color: "#000", fontSize: 18 }}>Rejected</Text> */}
-                                </>
-                        }
+                        <View style={{ borderRadius: 30, marginBottom: 8, padding: 5, backgroundColor: "#EDFBFE", opacity: 1, elevation: 10, }}>
+                            <TextInput
+                                placeholder='Type Resignation'
+                                numberOfLines={6}
+                                textAlignVertical={'top'}
+                                placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
+                                color={Themes == 'dark' ? '#000' : '#000'}
+                                value={typeresign}
+                                onChangeText={text =>
+                                    setTypeResign(text)
+                                }
+                            />
+                        </View>
+
                     </View>
-                </View>
 
+                    <TouchableOpacity onPress={() => resignShare()} style={{ marginBottom: 5, backgroundColor: "#0433DA", padding: 18, width: "90%", alignSelf: "center", borderRadius: 50 }}>
+                        {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : <Text style={{ textAlign: "center", color: "#fff", fontSize: 18, fontWeight: "bold" }}>Submit</Text>}
+                    </TouchableOpacity>
+                </ScrollView>
             </Root>
         </SafeAreaView>
-    )
-}
-
-export default Resign
-
+    );
+};
+export default Resign;
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: "#fff",
         flex: 1,
-        padding: 10
+        backgroundColor: '#fff',
     },
-    title: { fontSize: 16, marginVertical: 10, fontWeight: '600' },
-    calender: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 15,
-        borderRadius: 5,
-        borderBottomWidth: 1,
-        borderBottomColor: 'grey',
-    },
-    txtname: {
-        fontSize: 16, marginVertical: 10, fontWeight: '600', color: Themes == 'dark' ? '#000' : '#000'
-    },
-    underline: {
-        borderWidth: 0.5,
-        color: "#fff",
-        opacity: 0.6
-    },
-    statustxt: {
-        backgroundColor: "#0321a4",
 
-    },
-    subtxt: {
-        color: "#fff",
-        padding: 10,
-        fontSize: 18,
-        backgroundColor: "#0321a4",
+    name: {
+        color: '#fff',
+        fontSize: responsiveFontSize(3),
+        fontWeight: 'bold',
         textAlign: "center",
-        marginTop: 10,
-        marginBottom: 5
+        marginBottom: responsiveHeight(3)
     },
-    viewstatus: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginHorizontal: 10,
-    }
-})
-
+});
 

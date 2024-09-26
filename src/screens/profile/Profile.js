@@ -25,7 +25,6 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../reusable/apiUrl';
@@ -53,8 +52,9 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import Themes from '../../Theme/Theme';
-import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import Reload from '../../../Reload';
+import { SocketContext } from '../../tracking/SocketContext';
 
 const Drawer = createDrawerNavigator();
 
@@ -68,6 +68,7 @@ const Profile = ({ navigation }) => {
   const [modalVisibleImgUp, setModalVisibleImgUp] = useState(false);
   const [uploading, setuploading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const { diggitalidcard } = useContext(SocketContext);
   const [show, setshow] = useState('');
   const [Userdata, setUserdata] = useState({
     employee_id: '',
@@ -87,6 +88,9 @@ const Profile = ({ navigation }) => {
     joining_date: '',
     status: '',
     salary: '',
+    emergency: '',
+    Job_department: '',
+    blood_group: '',
     location: {},
   });
   const [loading, setloading] = useState(false);
@@ -188,6 +192,9 @@ const Profile = ({ navigation }) => {
               department: response.data.data.department,
               joining_date: response.data.data.joining_date,
               status: response.data.data.status,
+              emergency: response.data.data.family_contact_no,
+              Job_department: response.data.data.JOB_NAME,
+              blood_group: response.data.data.blood_group,
               salary: `${response.data.data.total_salary}`,
             });
             // get_employee_detail();
@@ -526,7 +533,7 @@ const Profile = ({ navigation }) => {
                     imageStyle={{ borderRadius: 50 }}>
                     {
                       // console.log("object", leavedata)
-                      leavedata?.length!=0?leavedata?.map((elements, index) => {
+                      leavedata?.length != 0 ? leavedata?.map((elements, index) => {
                         const total = parseInt(elements.taken_leave) + parseInt(elements.balance_leave);
                         return (
                           <View key={index}
@@ -540,7 +547,7 @@ const Profile = ({ navigation }) => {
                               flexDirection: "row"
                             }}>
                             <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                              {elements.balance_leave }
+                              {elements.balance_leave}
                             </Text>
                             <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
                               /
@@ -550,27 +557,27 @@ const Profile = ({ navigation }) => {
                             </Text>
                           </View>
                         )
-                      }):
-                      <View
-                      style={{
-                        height: 65,
-                        width: 65,
-                        borderRadius: 50,
-                        backgroundColor: '#ffffff95',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexDirection: "row"
-                      }}>
-                      <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                        {'0' }
-                      </Text>
-                      <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                        /
-                      </Text>
-                      <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
-                        {'0'}
-                      </Text>
-                    </View>
+                      }) :
+                        <View
+                          style={{
+                            height: 65,
+                            width: 65,
+                            borderRadius: 50,
+                            backgroundColor: '#ffffff95',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexDirection: "row"
+                          }}>
+                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                            {'0'}
+                          </Text>
+                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                            /
+                          </Text>
+                          <Text style={[{ fontSize: 20, fontWeight: '600' }, { color: Themes == 'dark' ? '#000' : '#000' }]}>
+                            {'0'}
+                          </Text>
+                        </View>
                     }
                   </ImageBackground>
                   <Text
@@ -615,6 +622,81 @@ const Profile = ({ navigation }) => {
                 </View>
               </View>
             </View>
+
+            {
+              diggitalidcard?.length > 0 ?
+                <>
+                  <View style={{ padding: 0 }}>
+                    <Text style={{ color: "#000", textAlign: 'center', fontSize: responsiveFontSize(2), marginTop: responsiveHeight(1.5), fontWeight: 'bold', textDecorationLine: 'underline' }}>ID Card</Text>
+                  </View>
+                  <View style={styles.container2}>
+                    <View style={styles.header}>
+                      <Image
+                        source={require('../../images/idcardlogo.png')} // Add HBS logo here
+                        style={styles.logo}
+                      />
+                    </View>
+
+                    <View style={styles.profileImageContainer}>
+                      <Image
+                        source={
+                          Userdata.image
+                            ? { uri: Userdata.image }
+                            : require('../../images/profile_pic.webp')
+                        } style={styles.profileImage}
+                      />
+                    </View>
+
+                    <Text style={styles.name}>{Userdata.name}</Text>
+                    <Text style={styles.position}>Executive</Text>
+
+                    <View style={styles.infoContainer}>
+                      <View style={{ width: "50%" }}>
+                        <View style={styles.infoRow}>
+                          <FontAwesome name="mobile-phone" color="#fff" size={20} />
+                          <Text style={styles.infoText}>{Userdata.phone}</Text>
+                        </View>
+
+                        <View style={styles.infoRow}>
+                          <Fontisto name="email" color="#fff" size={20} />
+                          <Text style={styles.infoText}>{Userdata.email}</Text>
+                        </View>
+
+                        <View style={styles.infoRow}>
+                          <AntDesign name="user" color="#fff" size={20} />
+                          <Text style={styles.infoText}>{Userdata?.employee_id}</Text>
+                        </View>
+
+                        <View style={styles.infoRow}>
+                          <Feather name="briefcase" color="#fff" size={20} />
+                          <Text style={styles.infoText}>{Userdata?.Job_department ? Userdata?.Job_department : 'N/A'}</Text>
+                        </View>
+                      </View>
+                      <View style={{ width: "50%" }}>
+                        <View style={styles.infoRow}>
+                          <Feather name="map-pin" color="#fff" size={20} />
+                          <Text style={styles.infoText}>{Userdata.permanentAddress}</Text>
+                        </View>
+
+                        <View style={styles.infoRow}>
+                          <Feather name="droplet" color="#fff" size={20} />
+                          <Text style={styles.infoText}>{Userdata?.blood_group ? Userdata?.blood_group : 'N/A'}</Text>
+                        </View>
+
+                        <View style={styles.infoRow}>
+                          <AntDesign name="phone" color="#fff" size={20} />
+                          <Text style={styles.infoText}>{Userdata?.emergency ? emergency : 'N/A'}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </>
+                :
+                null
+            }
+
+
+
           </PullToRefresh>
         )}
 
@@ -641,9 +723,10 @@ export default Profile;
 
 const styles = StyleSheet.create({
   tinyLogo: {
-    width: responsiveWidth(25),
-    height: responsiveHeight(13),
-    borderRadius: 50,
+    width: responsiveWidth(20),
+    height: responsiveHeight(10),
+    resizeMode: "cover",
+    borderRadius: 100,
     marginRight: 10,
     borderWidth: 1,
     borderColor: 'white',
@@ -654,7 +737,6 @@ const styles = StyleSheet.create({
   options: {
     width: 65,
     height: 65,
-
     // borderWidth: 1,
     // borderColor: 'white',
   },
@@ -771,6 +853,54 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  container2: {
+    flex: 1,
+    alignItems: 'center',
+    margin: 10,
+    backgroundColor: '#172B85',
+    borderWidth: 2, borderColor: "#2196F3", borderRadius: 20, width: "80%", alignSelf: "center",
+    padding: 10
+  },
+  header: {
+    width: '100%',
+  },
+  logo: {
+    width: 80,
+    height: 30,
+    resizeMode: 'contain', tintColor: "#fff", marginLeft: 10, marginTop: 5
+  },
+  profileImageContainer: {
+    marginVertical: 10,
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+    resizeMode: 'cover',
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  position: {
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 20,
+  },
+  infoContainer: {
+    flexDirection: "row", alignSelf: "center", justifyContent: "center", width: "95%"
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  infoText: {
+    marginLeft: 10,
+    fontSize: 12,
+    color: '#fff',
   },
 });
 

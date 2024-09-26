@@ -36,11 +36,11 @@ const AddPRM = ({ navigation }) => {
 
   const route = useRoute();
   // Access params from the route
-  const get_data  = route?.params?.item;
-  
+  const get_data = route?.params?.item;
 
 
-  const theme = useColorScheme(); 
+
+  const theme = useColorScheme();
   const [value, setValue] = useState(null);
   const [loading, setloading] = useState(false);
   const [reason, setReason] = useState('');
@@ -53,14 +53,14 @@ const AddPRM = ({ navigation }) => {
   const [remarkError, setRemarkError] = useState()
   const [catError, setCatError] = useState()
   const [documentError, setDocumentError] = useState()
-  const [amount,setAmount]=useState('')
+  const [amount, setAmount] = useState('')
   const [amountError, setAmountError] = useState()
 
-const currentDate=new Date()
+  const currentDate = new Date()
 
-  useEffect(()=> {
+  useEffect(() => {
 
-    if(route?.params?.item){
+    if (route?.params?.item) {
       setReason(route?.params?.item?.remark);
       setStartDate(new Date(route?.params?.item?.payment_date));
       setValue(route?.params?.item?.prmcategory_id)
@@ -91,23 +91,22 @@ const currentDate=new Date()
       .get(`${apiUrl}/SecondPhaseApi/get_prm_category_all`, config)
       .then(response => {
         if (response?.data?.status == 1) {
-         setPRM_category_data(response?.data?.data)
+          setPRM_category_data(response?.data?.data)
         }
       })
       .catch(error => {
-        
-        if(error.response.status=='401')
-        {
+
+        if (error.response.status == '401') {
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody:error.response.data.msg,
+            textBody: error.response.data.msg,
             buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
             AsyncStorage.removeItem('UserData'),
             AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
+            navigation.navigate('Login')]
           });
         }
       });
@@ -126,101 +125,98 @@ const currentDate=new Date()
       },
     }
     if (get_data) {
-    let data = new FormData();
-    data.append('prm_request_id',get_data?.id);
-    data.append('prmcategory_id',prmcategory_id?prmcategory_id:get_data?.prmcategory_id);
-    data.append('remark', reason);
-    data.append('amount', amount);
-    data.append('payment_date', startdate.toISOString().split('T')[0]);
-    data.append('image', fileResponse[0]);
-    // console.log(data,'category')
-    axios
-      .post(`${apiUrl}/SecondPhaseApi/update_prm_request`, data, config)
-      .then(response => {
-        setloading(false)
-        if (response?.data?.status == 1) {
-          navigation.goBack()
-        }
-      })
-      .catch(error => {
-      
-        setloading(false)
-        if(error.response.status=='401')
-        {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
-          });
-        }
-      });
-    } else {
-    let data = new FormData();
-    data.append('prmcategory_id', prmcategory_id);
-    data.append('remark', reason);
-    data.append('amount', amount);
-    data.append('payment_date', startdate.toISOString().split('T')[0]);
-    data.append('image', fileResponse[0]);
-    // console.log(data,'datanejbb')
-    if (currentDate.valueOf()<startdate.valueOf())
-    {
-      Popup.show({
-        type: 'Warning',
-        title: 'Warning',
-        button: true,
-        textBody:'Invalid Date',
-        buttonText: 'Ok',
-        callback: () => [Popup.hide()]
-      });
-      setloading(false)
-    }
-  else if (value == null) {
-      setCatError('Select Category');
-      setloading(false)
-    }
-    else if (reason.trim() === '') {
-      setRemarkError('Please enter reason');
-      setloading(false)
-    }
-    else if(amount.trim()===''){
-      setAmountError('Please Enter Amount')
-      setloading(false)
+      let data = new FormData();
+      data.append('prm_request_id', get_data?.id);
+      data.append('prmcategory_id', prmcategory_id ? prmcategory_id : get_data?.prmcategory_id);
+      data.append('remark', reason);
+      data.append('amount', amount);
+      data.append('payment_date', startdate.toISOString().split('T')[0]);
+      data.append('image', fileResponse[0]);
+      // console.log(data,'category')
+      axios
+        .post(`${apiUrl}/SecondPhaseApi/update_prm_request`, data, config)
+        .then(response => {
+          setloading(false)
+          if (response?.data?.status == 1) {
+            navigation.goBack()
+          }
+        })
+        .catch(error => {
 
-    }
-    else {
-    axios
-      .post(`${apiUrl}/SecondPhaseApi/add_prm_request`, data, config)
-      .then(response => {
+          setloading(false)
+          if (error.response.status == '401') {
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody: error.response.data.msg,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
+              AsyncStorage.removeItem('UserData'),
+              AsyncStorage.removeItem('UserLocation'),
+              navigation.navigate('Login')]
+            });
+          }
+        });
+    } else {
+      let data = new FormData();
+      data.append('prmcategory_id', prmcategory_id);
+      data.append('remark', reason);
+      data.append('amount', amount);
+      data.append('payment_date', startdate.toISOString().split('T')[0]);
+      data.append('image', fileResponse[0]);
+      // console.log(data,'datanejbb')
+      if (currentDate.valueOf() < startdate.valueOf()) {
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody: 'Invalid Date',
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        });
         setloading(false)
-        if (response?.data?.status == 1) {
-          navigation.goBack()
-        }
-      })
-      .catch(error => {
-       
+      }
+      else if (value == null) {
+        setCatError('Select Category');
         setloading(false)
-        if(error.response.status=='401')
-        {
-          Popup.show({
-            type: 'Warning',
-            title: 'Warning',
-            button: true,
-            textBody:error.response.data.msg,
-            buttonText: 'Ok',
-            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
-            AsyncStorage.removeItem('UserData'),
-            AsyncStorage.removeItem('UserLocation'),
-           navigation.navigate('Login')]
+      }
+      else if (reason.trim() === '') {
+        setRemarkError('Please enter reason');
+        setloading(false)
+      }
+      else if (amount.trim() === '') {
+        setAmountError('Please Enter Amount')
+        setloading(false)
+
+      }
+      else {
+        axios
+          .post(`${apiUrl}/SecondPhaseApi/add_prm_request`, data, config)
+          .then(response => {
+            setloading(false)
+            if (response?.data?.status == 1) {
+              navigation.goBack()
+            }
+          })
+          .catch(error => {
+
+            setloading(false)
+            if (error.response.status == '401') {
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody: error.response.data.msg,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
+                AsyncStorage.removeItem('UserData'),
+                AsyncStorage.removeItem('UserLocation'),
+                navigation.navigate('Login')]
+              });
+            }
           });
-        }
-      });
-    }
+      }
     }
   }
 
@@ -236,124 +232,124 @@ const currentDate=new Date()
     }>
       <Root>
 
-   
-      <ScrollView style={{
-        backgroundColor:
-          '#fff'
-      }}>
 
-        <Text
-          style={[
-            styles.reportType,
-            { color: Themes == 'dark' ? '#000' : '#000' },
-          ]}>
+        <ScrollView style={{
+          backgroundColor:
+            '#fff'
+        }}>
 
-          PRM Category{' '}
-        </Text>
-        <Dropdown
-          style={[styles.dropdown]}
-          placeholderStyle={{ color: Themes == 'dark' ? '#000' : '#000' }}
-          selectedTextStyle={[styles.selectedTextStyle, { color: Themes == 'dark' ? '#000' : '#000' }]}
-          data={prmcategorydata}
-          maxHeight={300}
-          labelField="title"
-          valueField="id"
-          placeholder={!isFocus ? 'Select Item...' : '....'}
-          value={value}
-          itemTextStyle={{ color: Themes == 'dark' ? '#000' : '#000' }}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
-          onChange={item => {
-            setValue(item?.id);
-            setIsFocus(false);
-            setPrmcategory_id(item?.id)
-            setCatError('')
-          }}
-        />
-{catError ? (
-                                <Text style={{
-                                  color: 'red',
-                                  marginBottom: 8,
-                                  textAlign: 'center', fontSize: 13, marginTop: 5
-                                }}>{catError}</Text>
-                              ) : null}
-        <Text
-          style={[
-            styles.reportType,
-            { color: Themes == 'dark' ? '#000' : '#000' },
-          ]}>
-          Payment Date
-        </Text>
-        <View style={styles.Date_box}>
-          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{startdate?.toISOString().split('T')[0]}</Text>
-          <TouchableOpacity onPress={() => setOpenStartDate(true)}>
-            <EvilIcons
-              name="calendar"
-              style={{
-                fontSize: 25,
-                color: Themes == 'dark' ? '#000' : '#000',
-                alignSelf: "center"
-              }}
-            />
-          </TouchableOpacity>
-        </View>
+          <Text
+            style={[
+              styles.reportType,
+              { color: Themes == 'dark' ? '#000' : '#000' },
+            ]}>
 
-        <Text
-          style={[
-            styles.reportType,
-            { color: Themes == 'dark' ? '#000' : '#000' }
+            PRM Category{' '}
+          </Text>
+          <Dropdown
+            style={[styles.dropdown]}
+            placeholderStyle={{ color: Themes == 'dark' ? '#000' : '#000' }}
+            selectedTextStyle={[styles.selectedTextStyle, { color: Themes == 'dark' ? '#000' : '#000' }]}
+            data={prmcategorydata}
+            maxHeight={300}
+            labelField="title"
+            valueField="id"
+            placeholder={!isFocus ? 'Select Item...' : '....'}
+            value={value}
+            itemTextStyle={{ color: Themes == 'dark' ? '#000' : '#000' }}
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => setIsFocus(false)}
+            onChange={item => {
+              setValue(item?.id);
+              setIsFocus(false);
+              setPrmcategory_id(item?.id)
+              setCatError('')
+            }}
+          />
+          {catError ? (
+            <Text style={{
+              color: 'red',
+              marginBottom: 8,
+              textAlign: 'center', fontSize: 13, marginTop: 5
+            }}>{catError}</Text>
+          ) : null}
+          <Text
+            style={[
+              styles.reportType,
+              { color: Themes == 'dark' ? '#000' : '#000' },
+            ]}>
+            Payment Date
+          </Text>
+          <View style={styles.Date_box}>
+            <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>{startdate?.toISOString().split('T')[0]}</Text>
+            <TouchableOpacity onPress={() => setOpenStartDate(true)}>
+              <EvilIcons
+                name="calendar"
+                style={{
+                  fontSize: 25,
+                  color: Themes == 'dark' ? '#000' : '#000',
+                  alignSelf: "center"
+                }}
+              />
+            </TouchableOpacity>
+          </View>
 
-          ]}>
-          Comment
-        </Text>
-        <TextInput
-          value={reason}
-          placeholder="Comments"
-          placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-          style={styles.input_Text}
-          onChangeText={prev => setReason(prev)}
-          onChange={()=>setRemarkError(null)}
-        />
-{remarkError ? (
-                                <Text style={{
-                                  color: 'red',
-                                  marginBottom: 8,
-                                  textAlign: 'center', fontSize: 13, marginTop: 5
-                                }}>{remarkError}</Text>
-                              ) : null}
-                                  <Text
-          style={[
-            styles.reportType,
-            { color: Themes == 'dark' ? '#000' : '#000' }
+          <Text
+            style={[
+              styles.reportType,
+              { color: Themes == 'dark' ? '#000' : '#000' }
 
-          ]}>
-          Amount
-        </Text>
-        <TextInput
-          value={amount}
-          placeholder="Amount..."
-          placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
-          keyboardType='number-pad'
-          style={styles.input_Text}
-          onChangeText={prev => setAmount(prev)}
-          onChange={()=>setAmountError(null)}
-        />
-{amountError ? (
-                                <Text style={{
-                                  color: 'red',
-                                  marginBottom: 8,
-                                  textAlign: 'center', fontSize: 13, marginTop: 5
-                                }}>{amountError}</Text>
-                              ) : null}
-        <Text
-          style={[
-            styles.reportType,
-            { color: Themes == 'dark' ? '#000' : '#000' }
+            ]}>
+            Comment
+          </Text>
+          <TextInput
+            value={reason}
+            placeholder="Comments"
+            placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+            style={styles.input_Text}
+            onChangeText={prev => setReason(prev)}
+            onChange={() => setRemarkError(null)}
+          />
+          {remarkError ? (
+            <Text style={{
+              color: 'red',
+              marginBottom: 8,
+              textAlign: 'center', fontSize: 13, marginTop: 5
+            }}>{remarkError}</Text>
+          ) : null}
+          <Text
+            style={[
+              styles.reportType,
+              { color: Themes == 'dark' ? '#000' : '#000' }
 
-          ]}>
-          Document
-        </Text>
-        {/* <TextInput
+            ]}>
+            Amount
+          </Text>
+          <TextInput
+            value={amount}
+            placeholder="Amount..."
+            placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
+            keyboardType='number-pad'
+            style={styles.input_Text}
+            onChangeText={prev => setAmount(prev)}
+            onChange={() => setAmountError(null)}
+          />
+          {amountError ? (
+            <Text style={{
+              color: 'red',
+              marginBottom: 8,
+              textAlign: 'center', fontSize: 13, marginTop: 5
+            }}>{amountError}</Text>
+          ) : null}
+          <Text
+            style={[
+              styles.reportType,
+              { color: Themes == 'dark' ? '#000' : '#000' }
+
+            ]}>
+            Document
+          </Text>
+          {/* <TextInput
           value={reason}
           placeholder="Reason..."
           placeholderTextColor={theme == 'dark' ? '#000' : '#000'}
@@ -361,50 +357,50 @@ const currentDate=new Date()
           onChangeText={prev => setReason(prev)}
         /> */}
 
-        <Pressable onPress={chooseDocumentLibrary}>
-          <View style={styles.document_pick_text}>
-            <Text style={styles.takepictext}>PICK Document</Text>
-          </View>
-        </Pressable>
-        {documentError ? (
-                                <Text style={{
-                                  color: 'red',
-                                  marginBottom: 8,
-                                  textAlign: 'center', fontSize: 13, marginTop: 5
-                                }}>{documentError}</Text>
-                              ) : null}
-        <TouchableOpacity
-          style={{
-            width: 150,
-            height: 40,
-            backgroundColor: '#0043ae',
-            borderRadius: 10,
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf: 'center',
-            marginVertical: 10,
-          }}
-          onPress={() => Post_prm_category(get_data)}>
-          {
-            loading ? <ActivityIndicator size="small" color="#fff" /> :
-              <Text style={{ color: '#fff' }}>{get_data?'Update':'Submit'}</Text>}
-        </TouchableOpacity>
-        <DatePicker
-          modal
-          open={openstartdate}
-          date={startdate}
-          theme='light'
-          mode="date"
-          onConfirm={startdate => {
-            setOpenStartDate(false);
-            setStartDate(startdate);
+          <Pressable onPress={chooseDocumentLibrary}>
+            <View style={styles.document_pick_text}>
+              <Text style={styles.takepictext}>PICK Document</Text>
+            </View>
+          </Pressable>
+          {documentError ? (
+            <Text style={{
+              color: 'red',
+              marginBottom: 8,
+              textAlign: 'center', fontSize: 13, marginTop: 5
+            }}>{documentError}</Text>
+          ) : null}
+          <TouchableOpacity
+            style={{
+              width: 150,
+              height: 40,
+              backgroundColor: '#0043ae',
+              borderRadius: 10,
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'center',
+              marginVertical: 10,
+            }}
+            onPress={() => Post_prm_category(get_data)}>
+            {
+              loading ? <ActivityIndicator size="small" color="#fff" /> :
+                <Text style={{ color: '#fff' }}>{get_data ? 'Update' : 'Submit'}</Text>}
+          </TouchableOpacity>
+          <DatePicker
+            modal
+            open={openstartdate}
+            date={startdate}
+            theme='light'
+            mode="date"
+            onConfirm={startdate => {
+              setOpenStartDate(false);
+              setStartDate(startdate);
 
-          }}
-          onCancel={() => {
-            setOpenStartDate(false);
-          }}
-        />
-      </ScrollView>
+            }}
+            onCancel={() => {
+              setOpenStartDate(false);
+            }}
+          />
+        </ScrollView>
       </Root>
     </SafeAreaView>
   );
@@ -517,7 +513,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginTop: 15,
     width: responsiveWidth(90),
-    alignSelf: 'center', justifyContent:"center",
+    alignSelf: 'center', justifyContent: "center",
     color: Themes == 'dark' ? '#000' : '#000'
   },
   Date_box: {

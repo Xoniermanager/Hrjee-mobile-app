@@ -24,9 +24,8 @@ const SocketProvider = ({ children }) => {
   const [activeinactivetracking, setActiveInactiveTracking] = useState()
   const [updatelocationmanagement, setUpdateLocationManagement] = useState()
   const [prmassignpermissions, setPRMAssignPermissions] = useState()
+  const [diggitalidcard, setDigitalIDCardPermissions] = useState()
   const [startBackgroundTracking, setStartBackgroundTracking] = useState(null);
-
-  console.log("status.......", activeinactivetracking)
 
   const ManuAccessdetails_Socket = async () => {
     const token = await AsyncStorage.getItem('Token');
@@ -52,9 +51,11 @@ const SocketProvider = ({ children }) => {
         const updatelocationpermissions = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Tracking")
         const locationmanagement = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Management")
         const prmassign = response?.data?.menu_access?.filter(item => item?.menu_name === "PRM Assign")
+        const digital_id_card = response?.data?.menu_access?.filter(item => item?.menu_name === "Digital ID Card")
         setUpdateLiveTrackingAccess(updatelocationpermissions)
         setUpdateLocationManagement(locationmanagement)
         setPRMAssignPermissions(prmassign)
+        setDigitalIDCardPermissions(digital_id_card)
       })
       .catch(error => {
         console.log(error);
@@ -131,7 +132,7 @@ const SocketProvider = ({ children }) => {
   // };
 
   return (
-    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions }}>
+    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard }}>
       {children}
     </SocketContext.Provider>
   );

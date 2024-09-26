@@ -79,7 +79,7 @@ const SelectAttendence = () => {
       end_date: `${endDate.getFullYear()}-${endDate.getMonth() + 1
         }-${endDate.getDate()}`,
     };
-    if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` > `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
+    if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` < `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
       setloading(false);
       Popup.show({
         type: 'Warning',

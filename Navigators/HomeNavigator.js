@@ -77,6 +77,7 @@ import PdfViewer from '../src/screens/Login/PdfViewer';
 import UserProfile from '../src/screens/Maps/Modal/Profile/UserProfile';
 import UserAttendence from '../src/screens/Maps/Modal/Attendence/UserAttendence';
 import UserLeave from '../src/screens/Maps/Modal/Leave/UserLeave';
+import ResignStatus from '../src/screens/home/Services/Resign/ResignStatus';
 
 
 const Stack = createNativeStackNavigator();
@@ -331,6 +332,10 @@ function MyStack() {
                 name="Leave"
                 component={UserLeave}
               />
+              <Stack.Screen
+                name="ResignStatus"
+                component={ResignStatus}
+              />
 
             </>
 
@@ -547,6 +552,10 @@ function MyStack() {
               <Stack.Screen
                 name="Leave"
                 component={UserLeave}
+              />
+              <Stack.Screen
+                name="ResignStatus"
+                component={ResignStatus}
               />
             </>
           )}

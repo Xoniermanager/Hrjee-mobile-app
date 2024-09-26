@@ -1,4 +1,4 @@
-import { FlatList, Image, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native'
+import { FlatList, Image, StyleSheet, Text, View, TouchableOpacity, Alert, TouchableWithoutFeedback } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
@@ -37,60 +37,68 @@ const UserList = () => {
       transparent={true}
       visible={modalVisible}
       onRequestClose={() => setModalVisible(false)}>
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <TouchableOpacity
-            onPress={() => setModalVisible(!modalVisible)}
-            style={{ alignSelf: 'flex-end' }}>
-            <AntDesign
-              name="close"
-              size={25}
-              color="#000"
-              style={{ alignSelf: 'flex-end' }}
-            />
-          </TouchableOpacity>
-          {
-            openModel ?
-              <>
+      <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              onPress={() => setModalVisible(!modalVisible)}
+              style={{ alignSelf: 'flex-end' }}>
+              <AntDesign
+                name="close"
+                size={25}
+                color="#000"
+                style={{ alignSelf: 'flex-end' }}
+              />
+            </TouchableOpacity>
+
+
+            {
+              openModel ?
                 <TouchableOpacity
                   style={styles.modalButton}
                   onPress={() => [setModalVisible(false), navigation.navigate('Maps', { userId: selectedUserId })]}>
                   <Text style={styles.modalButtonText}>Tracking</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => [setModalVisible(false), navigation.navigate('Profile', { userId: selectedUserId })]}>
-                  <Text style={styles.modalButtonText}>Profile</Text>
+                :
+                <TouchableOpacity disabled
+                  style={styles.modalButton1}
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                    // Handle Tracking button press
+                    Alert.alert("Tracking Button Pressed");
+                  }}>
+                  <Text style={styles.modalButtonText}>Tracking</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => [setModalVisible(false), navigation.navigate(' Attendence', { userId: selectedUserId })]}>
-                  <Text style={styles.modalButtonText}>Attendence</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => [setModalVisible(false), navigation.navigate('Leave', { userId: selectedUserId })]}>
-                  <Text style={styles.modalButtonText}>Leave</Text>
-                </TouchableOpacity>
-              </>
-              :
-              <TouchableOpacity disabled
-                style={styles.modalButton1}
-                onPress={() => {
-                  setModalVisible(!modalVisible);
-                  // Handle Tracking button press
-                  Alert.alert("Tracking Button Pressed");
-                }}>
-                <Text style={styles.modalButtonText}>Tracking</Text>
-              </TouchableOpacity>
-          }
-          {/* <TouchableOpacity
+            }
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => [setModalVisible(false), navigation.navigate('Profile', { userId: selectedUserId })]}>
+              <Text style={styles.modalButtonText}>Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => [setModalVisible(false), navigation.navigate(' Attendence', { userId: selectedUserId })]}>
+              <Text style={styles.modalButtonText}>Attendence</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => [setModalVisible(false), navigation.navigate('Leave', { userId: selectedUserId })]}>
+              <Text style={styles.modalButtonText}>Leave</Text>
+            </TouchableOpacity>
+
+
+
+
+
+            {/* <TouchableOpacity
             style={styles.modalButton}
             onPress={() => navigation.navigate('Attendence')}>
             <Text style={styles.modalButtonText}>Attendance</Text>
           </TouchableOpacity> */}
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
+
     </Modal>
   );
 
@@ -129,12 +137,12 @@ const UserList = () => {
               {item?.profile_img == "" ?
                 <Image
                   source={require('../../images/profile_pic.webp')}
-                  style={{ width: 85, height: responsiveHeight(10), }}
+                  style={{ width: responsiveHeight(10), height: responsiveHeight(10), borderRadius:100, resizeMode:"cover" }}
                 />
                 :
                 <Image
                   source={{ uri: item?.profile_img }}
-                  style={{ width: 85, height: responsiveHeight(10), }}
+                  style={{ width: responsiveHeight(10), height: responsiveHeight(10), borderRadius:100, resizeMode:"cover" }}
                 />}
               <View style={{ justifyContent: 'center', alignItems: 'center' }}>
 
@@ -172,6 +180,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     // Android shadow property
     elevation: 5,
+    borderRadius:15
   },
   tinyLogo: {
     width: 30,

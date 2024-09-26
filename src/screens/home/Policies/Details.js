@@ -212,7 +212,7 @@ const Details = ({navigation, route}) => {
               padding: 15,
               backgroundColor: 'white',
             }}>
-            {/* <TouchableOpacity
+            <TouchableOpacity
               onPress={navigateTo}
               style={{
                 padding: 15,
@@ -221,7 +221,7 @@ const Details = ({navigation, route}) => {
                 alignItems: 'center',
               }}>
               <Text style={{color: 'white', fontWeight: '700'}}>Open</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </View>
         </>
       ) : (

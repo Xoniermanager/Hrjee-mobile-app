@@ -45,7 +45,6 @@ import PullToRefresh from '../../reusable/PullToRefresh';
 import io from 'socket.io-client';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
-
 export const LiveTrackingContext = createContext();
 
 
@@ -62,6 +61,7 @@ import {
 import NotificationController from '../PushNotification/NotificationController';
 import { SocketContext } from '../../tracking/SocketContext';
 import HomeSkeleton from '../Skeleton/HomeSkeleton';
+import { checkIfConfigIsValid } from 'react-native-reanimated/lib/typescript/reanimated2/animation/springUtils';
 
 
 const Home = ({ navigation }) => {
@@ -80,17 +80,7 @@ const Home = ({ navigation }) => {
   const [loading, setloading] = useState(false);
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
-  const [radius, setRadius] = useState();
-  // const [locationtracking, setLOCATIONTRACKING] = useState('');
-
-
-  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking } = useContext(SocketContext);
-
-  // console.log("updatedlivetrackingaccess.......", updatedlivetrackingaccess?.length)
-  // console.log("livetracking user list.......", livetrackingaccess?.length)
-
-
-
+  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius } = useContext(SocketContext);
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -171,7 +161,6 @@ const Home = ({ navigation }) => {
       .then(response => {
         setMenuAccessData(response?.data?.menu_access);
         setPunchin_radius(response?.data);
-        setRadius(response?.data?.config?.punchin_radius);
         setHomeSkeleton(response?.data)
         setUserdata({
           name: response.data.users.FULL_NAME,
@@ -462,7 +451,7 @@ const Home = ({ navigation }) => {
           },
         );
 
-        if (radius <= 0) {
+        if (dis <= radius) {
           const token = await AsyncStorage.getItem('Token');
           const config = {
             headers: { Token: token },
@@ -683,7 +672,7 @@ const Home = ({ navigation }) => {
                 },
               );
 
-              if (radius <= 0) {
+              if (dis <= radius) {
                 const token = await AsyncStorage.getItem('Token');
                 const userData = await AsyncStorage.getItem('UserData');
                 const userInfo = JSON.parse(userData);
@@ -954,7 +943,7 @@ const Home = ({ navigation }) => {
               },
             );
 
-            if (radius <= 0) {
+            if (dis <= radius) {
               const token = await AsyncStorage.getItem('Token');
               const userData = await AsyncStorage.getItem('UserData');
               const userInfo = JSON.parse(userData);

@@ -1254,6 +1254,10 @@ PODS:
     - React-Core
   - RNCAsyncStorage (1.22.0):
     - React-Core
+  - RNCPicker (2.8.1):
+    - React-Core
+  - RNDateTimePicker (8.2.0):
+    - React-Core
   - RNExitApp (2.0.0):
     - React-Core
   - RNFastImage (8.6.3):
@@ -1393,6 +1397,8 @@ DEPENDENCIES:
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - "RnBugfender (from `../node_modules/@bugfender/rn-bugfender`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNExitApp (from `../node_modules/react-native-exit-app`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
@@ -1576,6 +1582,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@bugfender/rn-bugfender"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNCPicker:
+    :path: "../node_modules/@react-native-picker/picker"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNExitApp:
     :path: "../node_modules/react-native-exit-app"
   RNFastImage:
@@ -1693,6 +1703,8 @@ SPEC CHECKSUMS:
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RnBugfender: 14291bb209de4025e16e6cd0c153ebe163cd07d7
   RNCAsyncStorage: c43e6d71e13bb4748503797784839e0fbbf89d56
+  RNCPicker: 0b6860a6b208d4046227d2f626ad0722f99a969c
+  RNDateTimePicker: 40ffda97d071a98a10fdca4fa97e3977102ccd14
   RNExitApp: 00036cabe7bacbb413d276d5520bf74ba39afa6a
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFBApp: 1ae7462cddf74a49df206d3418bc0170f8fa53e5

@@ -54,7 +54,7 @@ const UserProfile = () => {
       <View style={styles.profileHeader}>
         <Image
           source={{
-            uri: !profileuser?.image || 'https://i.postimg.cc/2yhHnyQy/profile-pic.webp',
+            uri: profileuser?.image || 'https://i.postimg.cc/2yhHnyQy/profile-pic.webp',
           }}
           style={styles.profileImage}
         />

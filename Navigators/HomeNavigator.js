@@ -134,9 +134,6 @@ function MyStack() {
                 component={LocationList}
               />
               <Stack.Screen
-                options={{
-                  headerShown: false,
-                }}
                 name="Forgot Password"
                 component={ForgotPassword}
               />
@@ -510,9 +507,6 @@ function MyStack() {
               />
 
               <Stack.Screen
-                options={{
-                  headerShown: false,
-                }}
                 name="Forgot Password"
                 component={ForgotPassword}
               />

@@ -641,12 +641,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../../reusable/apiUrl';
 import Reload from '../../../../../Reload';
 import { useRoute } from '@react-navigation/native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   responsiveFontSize, responsiveHeight, responsiveWidth
 } from 'react-native-responsive-dimensions';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import RNPickerSelect from 'react-native-picker-select';
+
 
 const UserAttendence = () => {
   const route = useRoute();
@@ -756,36 +758,53 @@ const UserAttendence = () => {
       {/* Dropdown Section */}
       <View style={styles.filterContainer}>
         <TouchableOpacity style={styles.filterButton}>
-          <Picker
-            mode='dropdown'
-            dropdownIconColor="#007bff"
-            selectedValue={selectedMonth}
-            style={styles.picker}
-            onValueChange={(itemValue) => {
-              setSelectedMonth(itemValue);
+          <RNPickerSelect
+            onValueChange={(value) => {
+              setSelectedMonth(value);
               fetchProfileDetails(); // Fetch new data based on month
             }}
-          >
-            {months.map((month) => (
-              <Picker.Item key={month.value} label={month.label} value={month.value} />
-            ))}
-          </Picker>
+            items={months.map((month) => ({
+              label: month.label,
+              value: month.value,
+            }))}
+            value={selectedMonth}
+            style={{
+              inputIOS: styles.picker,
+              inputAndroid: styles.picker,
+              iconContainer: {
+                top: 10,
+                right: 12,
+              },
+            }}
+            Icon={() => {
+              return <Ionicons name="arrow-down" size={24} color="#007bff" />;
+            }}
+          />
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.filterButton}>
-          <Picker
-            mode='dropdown'
-            dropdownIconColor="#007bff"
-            selectedValue={selectedYear}
-            style={styles.picker}
-            onValueChange={(itemValue) => {
-              setSelectedYear(itemValue);
+          <RNPickerSelect
+            onValueChange={(value) => {
+              setSelectedYear(value);
               fetchProfileDetails(); // Fetch new data based on year
             }}
-          >
-            {years.map((year) => (
-              <Picker.Item key={year} label={year} value={year} />
-            ))}
-          </Picker>
+            items={years.map((year) => ({
+              label: year,
+              value: year,
+            }))}
+            value={selectedYear}
+            style={{
+              inputIOS: styles.picker,
+              inputAndroid: styles.picker,
+              iconContainer: {
+                top: 10,
+                right: 12,
+              },
+            }}
+            Icon={() => {
+              return <Ionicons name="arrow-down" size={24} color="#007bff" />;
+            }}
+          />
         </TouchableOpacity>
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -863,7 +882,9 @@ const styles = StyleSheet.create({
   picker: {
     width: 150,
     height: 50,
-  }
+    
+  },
+  
 });
 
 export default UserAttendence;

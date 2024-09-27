@@ -22,6 +22,7 @@ const SocketProvider = ({ children }) => {
   const [manualusertackingaccess, setManualUserTrackingAccess] = useState()
   const [locationblock, setLocationBlock] = useState()
   const [activeinactivetracking, setActiveInactiveTracking] = useState()
+  const [managerdetils, setManagerDetils] = useState()
   const [updatelocationmanagement, setUpdateLocationManagement] = useState()
   const [prmassignpermissions, setPRMAssignPermissions] = useState()
   const [diggitalidcard, setDigitalIDCardPermissions] = useState()
@@ -47,6 +48,7 @@ const SocketProvider = ({ children }) => {
         setTaskMaxRadious(response?.data?.config?.task_maximum_radius);
         setPrm(response?.data?.users?.prm_assign);
         setActiveInactiveTracking(response?.data?.users?.is_location_tracking_active);
+        setManagerDetils(response?.data?.users?.managerDetails);
         setLocationBlock(response?.data?.users?.track_location);
         const updatelocationpermissions = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Tracking")
         const locationmanagement = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Management")
@@ -132,7 +134,7 @@ const SocketProvider = ({ children }) => {
   // };
 
   return (
-    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard }}>
+    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard, managerdetils }}>
       {children}
     </SocketContext.Provider>
   );

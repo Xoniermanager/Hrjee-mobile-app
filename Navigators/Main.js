@@ -26,6 +26,7 @@ import Home from '../src/screens/home/Home';
 import PRM from '../src/screens/PRM/PRM';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
 import { SocketContext } from '../src/tracking/SocketContext';
+import { Platform } from 'react-native';
 
 
 const Tab = createBottomTabNavigator();
@@ -110,6 +111,10 @@ const Main = () => {
           <Tab.Screen
             options={{
               unmountOnBlur: true,
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                marginLeft: Platform.OS == 'ios' ? 0 : responsiveWidth(40),
+              },
               tabBarIcon: ({ color }) => (
                 <MaterialIcons
                   name="add-task"
@@ -127,6 +132,10 @@ const Main = () => {
       <Tab.Screen
         options={{
           unmountOnBlur: true,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            marginLeft: Platform.OS == 'ios' ? 0 : responsiveWidth(40),
+          },
           tabBarIcon: ({ color }) => (
             <AntDesign name="appstore-o" style={{ fontSize: 23, color: color }} />
           ),
@@ -147,7 +156,7 @@ const Main = () => {
             headerTintColor: '#fff',
             headerTitleStyle: {
               fontWeight: 'bold',
-              marginLeft: responsiveWidth(35),
+              marginLeft: Platform.OS == 'ios' ? 0 : responsiveWidth(40),
             },
             tabBarIcon: ({ color }) => (
               <FontAwesome

@@ -204,8 +204,8 @@
 
 
 
-import { Image, SafeAreaView, StyleSheet, TextInput, Text, View, FlatList, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import React, { useState } from 'react';
+import { Image, SafeAreaView, StyleSheet, Modal, TextInput, Text, View, FlatList, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {
     responsiveFontSize, responsiveHeight, responsiveWidth
@@ -218,11 +218,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import apiUrl from '../../../../reusable/apiUrl';
 import Reload from '../../../../../Reload';
+import { SocketContext } from '../../../../tracking/SocketContext'; { }
 
 const Resign = ({ navigation }) => {
     {/* THis code is less more */ }
 
     const [expandedprofile, setExpandedProfile] = useState(false);
+    const { managerdetils } = useContext(SocketContext);
 
     const toggleExpandedProfile = () => {
         setExpandedProfile(!expandedprofile);
@@ -233,9 +235,11 @@ const Resign = ({ navigation }) => {
     const [resigninData, setResignData] = useState('');
     const [show, setShow] = useState(false)
     const [typeresign, setTypeResign] = useState('');
-    console.log("resigndata>>>>>>>>>>>>>>>>>>>>>>", resigninData)
     const [subject, setSubject] = useState('');
     const [loading, setloading] = useState(false);
+    const [managerId, setManagerID] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedName, setSelectedName] = useState('Pick the manager name');
 
     const resignShare = async () => {
 
@@ -244,9 +248,10 @@ const Resign = ({ navigation }) => {
             headers: { Token: token },
         };
         const body = {
-            reason: typeresign
+            subject : subject,
+            submit_to : [managerId],
+            reason: typeresign,
         };
-
         setloading(true);
 
         if (subject == '') {
@@ -261,6 +266,17 @@ const Resign = ({ navigation }) => {
 
             setloading(false);
         }
+        else if (selectedName === 'Pick the manager name') {
+            Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody: 'Please pick manager name',
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+            })
+            setloading(false);
+        }
         else if (typeresign == '') {
             Popup.show({
                 type: 'Warning',
@@ -270,7 +286,6 @@ const Resign = ({ navigation }) => {
                 buttonText: 'Ok',
                 callback: () => [Popup.hide()]
             })
-
             setloading(false);
         }
         else {
@@ -346,7 +361,7 @@ const Resign = ({ navigation }) => {
                             source={require('../../../../images/regin.png')}
                         />
 
-                        <View style={{ borderRadius: 30, marginBottom: 8, padding: 5, backgroundColor: "#EDFBFE", opacity: 1, elevation: 10, }}>
+                        <View style={{ borderRadius: 30, marginBottom: 8, padding: Platform.OS == 'ios'? 15:5, backgroundColor: "#EDFBFE", opacity: 1, elevation: 10, }}>
                             <TextInput
                                 placeholder='Subject'
                                 placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
@@ -374,21 +389,45 @@ const Resign = ({ navigation }) => {
                             expandedprofile ?
                                 <View style={{ marginBottom: expandedprofile == true ? 8 : 0, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
                                     <View style={{ borderTopWidth: expandedprofile == true ? 0 : 2, backgroundColor: "#EDFBFE", borderTopLeftRadius: 0, borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}>
-                                        <TouchableOpacity activeOpacity={0.8} style={{ borderColor: "gray", borderWidth: 0.5, marginVertical: 5 }}>
-                                            <Text style={{ textAlign: "center", fontSize: 15, color: "#000", fontWeight: "bold" }}>Ashraf Ali</Text>
+                                        <TouchableOpacity
+                                            activeOpacity={0.8}
+                                            style={styles.dropdown}
+                                            onPress={() => setModalVisible(true)}
+                                        >
+                                            <Text style={styles.selectedText}>{selectedName}</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity activeOpacity={0.8} style={{ borderColor: "gray", borderWidth: 0.5, marginVertical: 5 }}>
-                                            <Text style={{ textAlign: "center", fontSize: 15, color: "#000", fontWeight: "bold" }}>Shibli Sone</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity activeOpacity={0.8} style={{ borderColor: "gray", borderWidth: 0.5, marginVertical: 5 }}>
-                                            <Text style={{ textAlign: "center", fontSize: 15, color: "#000", fontWeight: "bold" }}>Vishnu</Text>
-                                        </TouchableOpacity>
+
+                                        <Modal
+                                            transparent={true}
+                                            animationType="slide"
+                                            visible={modalVisible}
+                                            onRequestClose={() => setModalVisible(false)}
+                                        >
+                                            <View style={styles.modalBackground}>
+                                                <View style={styles.modalContainer}>
+                                                    {managerdetils.map((elements, index) => (
+                                                        <TouchableOpacity
+                                                            key={index}
+                                                            style={styles.option}
+                                                            onPress={() => {
+                                                                setSelectedName(elements?.FULL_NAME);
+                                                                setManagerID(elements?.EMPLOYEE_NUMBER)
+                                                                setModalVisible(false);
+                                                            }}
+                                                        >
+                                                            <Text style={styles.optionText}>{elements?.FULL_NAME}</Text>
+                                                        </TouchableOpacity>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        </Modal>
                                     </View>
-                                </View> :
+                                </View>
+                                :
                                 null
                         }
 
-                        <View style={{ borderRadius: 30, marginBottom: 8, padding: 5, backgroundColor: "#EDFBFE", opacity: 1, elevation: 10, }}>
+                        <View style={{ borderRadius: 30, marginBottom: 8, padding: Platform.OS == 'ios'?15:5, backgroundColor: "#EDFBFE", opacity: 1, elevation: 10, }}>
                             <TextInput
                                 placeholder='Type Resignation'
                                 numberOfLines={6}
@@ -425,6 +464,44 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: "center",
         marginBottom: responsiveHeight(3)
+    },
+    dropdown: {
+        borderColor: "gray",
+        borderWidth: 0.5,
+        marginVertical: 5,
+        padding: 10,
+        backgroundColor: "#EDFBFE",
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    selectedText: {
+        textAlign: "center",
+        fontSize: 15,
+        color: "#000",
+        fontWeight: "bold",
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContainer: {
+        width: 300,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        elevation: 5,
+    },
+    option: {
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    optionText: {
+        fontSize: 15,
+        color: "#000",
+        textAlign: 'center',
     },
 });
 

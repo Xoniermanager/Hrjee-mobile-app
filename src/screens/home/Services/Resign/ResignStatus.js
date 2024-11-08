@@ -108,7 +108,7 @@ export default ResignStatus;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#e3eefb',
     },
 
     name: {

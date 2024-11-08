@@ -39,6 +39,9 @@ const SelectAttendence = () => {
   const [recentLogs, setrecentLogs] = useState([]);
   const [loading, setloading] = useState(false);
 
+  console.log("startDate-----------", startDate)
+  console.log("endDate-----------", endDate)
+
 
   const days = [
     'Sunday',
@@ -79,7 +82,7 @@ const SelectAttendence = () => {
       end_date: `${endDate.getFullYear()}-${endDate.getMonth() + 1
         }-${endDate.getDate()}`,
     };
-    if (`${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}` < `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`) {
+    if (startDate > endDate) {
       setloading(false);
       Popup.show({
         type: 'Warning',
@@ -96,12 +99,7 @@ const SelectAttendence = () => {
         .then(response => {
           if (response.data.status == 1) {
             setloading(false);
-
-            try {
-              setrecentLogs(response.data.content);
-            } catch (e) {
-
-            }
+            setrecentLogs(response.data.content);
           } else {
             setloading(false);
             setrecentLogs([]);
@@ -192,7 +190,7 @@ const SelectAttendence = () => {
   };
 
   return (
-    <View style={{ flex: 1, padding: 15, backgroundColor: 'white' }}>
+    <View style={{ flex: 1, padding: 15, backgroundColor: '#e3eefb' }}>
       <Root>
         <PullToRefresh onRefresh={handleRefresh}>
           <View>

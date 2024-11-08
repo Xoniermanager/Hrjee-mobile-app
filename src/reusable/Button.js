@@ -29,7 +29,7 @@ export default Button;
 
 const styles = StyleSheet.create({
   btn_style: {
-    marginTop: 20,
+    marginTop: 10,
     backgroundColor: GlobalStyle.blueDark,
     padding: 15,
     borderRadius: 5,

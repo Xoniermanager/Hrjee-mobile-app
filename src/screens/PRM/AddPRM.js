@@ -233,10 +233,7 @@ const AddPRM = ({ navigation }) => {
       <Root>
 
 
-        <ScrollView style={{
-          backgroundColor:
-            '#fff'
-        }}>
+        <ScrollView >
 
           <Text
             style={[
@@ -409,6 +406,7 @@ export default AddPRM;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:"#e3eefb"
   },
   Dashboard_Text: {
     fontSize: responsiveFontSize(2),

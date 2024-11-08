@@ -1436,8 +1436,7 @@ function CustomDrawerContent(props) {
                     <Entypo
                       name="location"
                       size={18}
-                      color={color}
-                    />
+                      color="#000" />
                   )}
                   // onPress={() => handleItemPress('PersonalDetails')}
                   style={
@@ -1483,6 +1482,7 @@ function CustomDrawerContent(props) {
               <Octicons
                 name="versions"
                 size={25}
+                color="#000"
               />
             )}
             style={isItemActive('Aboutus') ? { backgroundColor: '#F5F5F5' } : null}
@@ -1532,6 +1532,15 @@ function ProfileDrawer() {
 
   return (
     <Drawer.Navigator
+      screenOptions={{
+        drawerStyle: {
+          backgroundColor: '#f0f0f0', // Set background color for drawer screens
+        },
+        headerStyle: {
+          backgroundColor: '#172B85', // Set background color for header
+        },
+        headerTintColor: '#ffffff', // Set color for header text and icons
+      }}
       drawerContent={props => <CustomDrawerContent {...props} />}>
       <Drawer.Screen
         options={{
@@ -1539,6 +1548,9 @@ function ProfileDrawer() {
           drawerIcon: ({ color, size }) => (
             <AntDesign name="user" size={size} color={color} />
           ), // set the icon component
+          contentStyle: {
+            backgroundColor: '#000', // Set background color for screen content
+          }
         }}
         name="Profile"
         component={ProfileNavigator}
@@ -1573,7 +1585,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderRadius: 5,
     backgroundColor: '#d3e3fd30',
-    borderColor: '#0c57d0',
+    borderColor: '#0043ae',
   },
   heading: { fontWeight: '500', fontSize: 15 },
   heading_grey: { fontSize: 14, color: 'grey', fontWeight: '300' },
@@ -1747,9 +1759,9 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 10, color: Themes == 'dark' ? '#000' : '#000'
   },
   bold: {
-    fontWeight: 'bold',
+    fontWeight: 'bold', color: Themes == 'dark' ? '#000' : '#000'
   },
 });

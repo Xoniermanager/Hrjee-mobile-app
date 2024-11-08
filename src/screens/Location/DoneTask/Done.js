@@ -110,15 +110,28 @@ const Done = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
-      <View style={{ width: responsiveScreenWidth(96), height: responsiveHeight(5), borderRadius: 10, borderWidth: 0.5, shadowColor: '#000', alignSelf: 'center', marginVertical: 10 }
-      }>
+      <View
+        style={{
+          width: responsiveScreenWidth(96),
+          height: responsiveHeight(5),
+          borderRadius: 10,
+          borderWidth: 0.5,
+          shadowColor: '#000',
+          alignSelf: 'center',
+          marginVertical: 10,
+          justifyContent: 'center',  // Ensure TextInput is vertically centered
+        }}>
         <TextInput
           placeholder="Search by pin code/customer name/loan no"
-          placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
-          style={{ color: Themes == 'dark' ? '#000' : '#000', }}
+          placeholderTextColor={Themes == 'dark' ? '#fff' : '#000'}
+          style={{
+            color: Themes == 'dark' ? '#fff' : '#000',
+            paddingHorizontal: 10,  // Add padding inside the TextInput
+            width: '100%',  // Ensure TextInput takes the full width
+            height: '100%', // Match TextInput height to the parent View
+          }}
           value={searchItem}
-          onChangeText={(prev) => onSearchList(prev)}
-
+          onChangeText={prev => onSearchList(prev)}
         />
       </View>
       <PullToRefresh onRefresh={handleRefresh}>

@@ -113,7 +113,7 @@ const UserList = () => {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: '#e3eefb' }}>
       {renderModal()}
       {livetrackingaccess && livetrackingaccess?.length == 0 ?
         <View

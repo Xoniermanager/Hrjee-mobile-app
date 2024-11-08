@@ -26,7 +26,10 @@ const SocketProvider = ({ children }) => {
   const [updatelocationmanagement, setUpdateLocationManagement] = useState()
   const [prmassignpermissions, setPRMAssignPermissions] = useState()
   const [diggitalidcard, setDigitalIDCardPermissions] = useState()
+  const [updatedfacereconization, setUpdatedFaceReconizationPermission] = useState()
+  const [casevisitpermission, setCaseVisitPermission] = useState()
   const [startBackgroundTracking, setStartBackgroundTracking] = useState(null);
+  const [employeeNumber, setEmployeeNumber] = useState('');
 
   const ManuAccessdetails_Socket = async () => {
     const token = await AsyncStorage.getItem('Token');
@@ -42,7 +45,8 @@ const SocketProvider = ({ children }) => {
 
     axios
       .request(config)
-      .then(response => {
+      .then(response => { 
+        setEmployeeNumber(response?.data?.users?.EMPLOYEE_NUMBER);
         setList(response?.data?.menu_access);
         setRadius(response?.data?.config?.punchin_radius);
         setTaskMaxRadious(response?.data?.config?.task_maximum_radius);
@@ -54,10 +58,14 @@ const SocketProvider = ({ children }) => {
         const locationmanagement = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Management")
         const prmassign = response?.data?.menu_access?.filter(item => item?.menu_name === "PRM Assign")
         const digital_id_card = response?.data?.menu_access?.filter(item => item?.menu_name === "Digital ID Card")
+        const facereconization = response?.data?.menu_access?.filter(item => item?.menu_name === "Face Recognition")
+        const caseVisit = response?.data?.menu_access?.filter(item => item?.menu_name === "Case Visit")
         setUpdateLiveTrackingAccess(updatelocationpermissions)
         setUpdateLocationManagement(locationmanagement)
         setPRMAssignPermissions(prmassign)
         setDigitalIDCardPermissions(digital_id_card)
+        setUpdatedFaceReconizationPermission(facereconization)
+        setCaseVisitPermission(caseVisit)
       })
       .catch(error => {
         console.log(error);
@@ -111,30 +119,10 @@ const SocketProvider = ({ children }) => {
     await BackgroundService.stop()
   }
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(()=> {
-  //     console.log('setinterval');
-  //     ManuAccessdetails_Socket()
-  //   }, 10000)
-
-  //   return (() => {
-  //     clearInterval(intervalId)
-  //   })
-  // }, [])
-
-
-  // const sendLocation = (location) => {
-  //     socket.emit('sendLocation', location);
-  //     // console.log(location,'location')
-
-  // };
-
-  // const requestLocationData = (userId) => {
-  //     socket.emit('requestLocationData', userId);
-  // };
+ 
 
   return (
-    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard, managerdetils }}>
+    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard, managerdetils, updatedfacereconization, casevisitpermission, employeeNumber }}>
       {children}
     </SocketContext.Provider>
   );

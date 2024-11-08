@@ -344,7 +344,7 @@ const Processing = () => {
         },
       );
       if (dis <= taskmaxradious) {
-        if (Platform.OS == 'android') {
+        if (Platform.OS === 'android') {
           try {
             const granted = await PermissionsAndroid.request(
               PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -383,7 +383,7 @@ const Processing = () => {
                       type: photo?.mime,
                       name: photo?.modificationDate + '.' + 'jpg',
                     };
-                    data.append('selfie_image[]',selfie_image)
+                    data.append('selfie_image[]', selfie_image)
                   }
                   else {
                     photo?.map((ele, index) => {
@@ -532,7 +532,8 @@ const Processing = () => {
               setValueError('Please select disposition');
             } else if (photo == null) {
               setPhotoError('Please Upload the Image');
-            } else {
+            }
+            else {
               axios
                 .post(
                   `${apiUrl}/SecondPhaseApi/update_task_status`,
@@ -541,7 +542,7 @@ const Processing = () => {
                 )
                 .then(response => {
                   setloading(false);
-                  // console.log("res++++++++++", response?.data)
+                  console.log("res++++++++++", response?.data)
                   if (response?.data?.status == 1) {
                     Toast.show(response?.data?.message);
                     get_employee_detail(),
@@ -569,20 +570,18 @@ const Processing = () => {
                   }
                 })
                 .catch(error => {
+                  alert(error?.response?.data?.message)
                   setloading(false);
-                  if (error.response.status == '401') {
-                    Popup.show({
-                      type: 'Warning',
-                      title: 'Warning',
-                      button: true,
-                      textBody: error.response.data.msg,
-                      buttonText: 'Ok',
-                      callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
-                      AsyncStorage.removeItem('UserData'),
-                      AsyncStorage.removeItem('UserLocation'),
-                      navigation.navigate('Login')]
-                    });
-                  }
+                  // if (error.response.data?.success == false) {
+                  //   Popup.show({
+                  //     type: 'Warning',
+                  //     title: 'Warning',
+                  //     button: true,
+                  //     textBody: error?.response?.data?.message,
+                  //     buttonText: 'Ok',
+                  //     callback: () => [Popup.hide()]
+                  //   });
+                  // }
                 });
             }
           } catch (error) {
@@ -642,11 +641,17 @@ const Processing = () => {
               shadowColor: '#000',
               alignSelf: 'center',
               marginVertical: 10,
+              justifyContent: 'center',  // Ensure TextInput is vertically centered
             }}>
             <TextInput
               placeholder="Search by pin code/customer name/loan no"
-              placeholderTextColor={Themes == 'dark' ? '#000' : '#000'}
-              style={{ color: Themes == 'dark' ? '#000' : '#000' }}
+              placeholderTextColor={Themes == 'dark' ? '#fff' : '#000'}
+              style={{
+                color: Themes == 'dark' ? '#fff' : '#000',
+                paddingHorizontal: 10,  // Add padding inside the TextInput
+                width: '100%',  // Ensure TextInput takes the full width
+                height: '100%', // Match TextInput height to the parent View
+              }}
               value={searchItem}
               onChangeText={prev => onSearchList(prev)}
             />
@@ -1368,18 +1373,17 @@ const Processing = () => {
                                       theme == 'dark' ? '#000' : '#000'
                                     }
                                     style={{
-                                      color: Themes == 'dark' ? '#000' : '#000',
+                                      color: theme == 'dark' ? '#000' : '#000',
                                       borderWidth: 1,
                                       borderRadius: 10,
-                                      textAlignVertical: 'top',
+                                      textAlignVertical: 'top', // Align text to the top in multiline
                                       padding: 5,
+                                      height: 100, // Adjust height to match number of lines
                                     }}
                                     multiline={true}
-                                    autoFocusOnLoad={true}
-                                    numberOfLines={4}
+                                    autoFocus={true} // autoFocusOnLoad should be replaced by autoFocus
                                     onChangeText={text => [
                                       setRemart(text),
-
                                     ]}
                                     onChange={() => setRemarkError(null)}
                                   />

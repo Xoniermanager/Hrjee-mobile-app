@@ -77,6 +77,7 @@ const ApplyLeave = ({navigation}) => {
     axios
       .post(`${apiUrl}/secondPhaseApi/leave_type`, body, config)
       .then(response => {
+        console.log("response-----------", response.data)
         setloading(false);
         if (response.data.status == 1) {
           setleaveType(response?.data?.data);
@@ -161,6 +162,8 @@ const ApplyLeave = ({navigation}) => {
     }, []),
   );
 
+  console.log("leaveType-----------", leaveType)
+
   if (leaveType == null) {
     return <Reload />;
   }
@@ -207,7 +210,7 @@ const ApplyLeave = ({navigation}) => {
       bodyFormData.append('exit_entry_visa_reqd', 1);
       bodyFormData.append('accept_leave_policy', isCheck ? 1 : 0);
       bodyFormData.append('current_approver_eno', user.employee_number);
-
+        console.log(bodyFormData,'yash dhat')
       axios({
         method: 'post',
         url: `${apiUrl}/secondPhaseApi/apply_for_leave`,
@@ -358,7 +361,7 @@ const ApplyLeave = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white', padding: 18}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#e3eefb', padding: 18}}>
       <Root>
         <ScrollView style={{marginHorizontal: 5}}>
           <View>

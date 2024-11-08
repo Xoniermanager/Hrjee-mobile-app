@@ -11,6 +11,8 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' } // Optional, depending on where Bugfender is hosted
+        maven { url 'https://repo.bugfender.com/maven' } // Hypothetical URL, replace if Bugfender documentation provides another
     }
     dependencies {
         classpath("com.android.tools.build:gradle")

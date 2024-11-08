@@ -57,18 +57,20 @@ const UserLeave = () => {
   }, [user_id]);
 
 
-  if(leaveData == "") {
-    return <Reload/>
+  if (leaveData == "") {
+    return <Reload />
   }
 
 
   return (
-    <FlatList
-      data={leaveData}
-      renderItem={({ item }) => <LeaveItem item={item} />}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.container}
-    />
+    <View style={{ flex: 1, backgroundColor: "#e3eefb" }}>
+      <FlatList
+        data={leaveData}
+        renderItem={({ item }) => <LeaveItem item={item} />}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.container}
+      />
+    </View>
   );
 };
 

@@ -36,7 +36,7 @@ const Reload = () => {
     <View style={styles.container}>
       <FastImage
         style={styles.image}
-        source={require('./src/images/loadergif.gif')}
+        source={require('./src/images/loader.gif')}
         resizeMode={FastImage.resizeMode.contain}
       />
     </View>

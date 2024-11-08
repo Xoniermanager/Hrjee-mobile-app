@@ -12,6 +12,7 @@ import {
   FlatList,
   Modal, PermissionsAndroid,
   Platform,
+  StatusBar,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -261,112 +262,115 @@ const PRM = () => {
       });
   };
   return (
-    <SafeAreaView showsVerticalScrollIndicator={false} style={styles.container}>
-      <Root>
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor="#e3eefb" />
+      <SafeAreaView style={{ flex: 1 }}>
+        <Root>
+          <View showsVerticalScrollIndicator={false} style={{marginBottom:20}}>
 
-        <TouchableOpacity activeOpacity={0.8}
-          style={{
-            backgroundColor: '#0043ae',
-            borderRadius: 10,
-            alignSelf: "flex-end", justifyContent: "center", width: responsiveWidth(30),
-            height: responsiveHeight(6), marginRight: 8, marginTop: 8
-          }}
-          onPress={() => navigation.navigate('AddPRM')}>
-          <Text style={{ color: '#fff', fontWeight: "bold", textAlign: "center" }}>+ Add PRM</Text>
-        </TouchableOpacity>
-        {loading ? <ActivityIndicator size='large' color="#0043ae" /> : null}
-        {prmdata?.length == 0 ? <Empty /> : null}
-        <FlatList
-          data={prmdata}
-          keyExtractor={(item, index) => `${item.key}${index}`}
-          renderItem={({ item, index }) =>
-            <View style={styles.Card_Box} key={index}>
-              <View
-                style={{
-                  width: responsiveWidth(95),
-                  height: responsiveHeight(2),
-                  backgroundColor: '#0043ae',
-                  borderTopLeftRadius: 10,
-                  borderTopRightRadius: 10,
-                  justifyContent: 'center',
-                }}></View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.card_textleft}>S.No</Text>
-                <Text style={styles.card_text}>{index + 1}</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.card_textleft}>Employee Name</Text>
-                <Text style={styles.card_text}>{item?.employee_name}</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.card_textleft}>Employee Number</Text>
-                <Text style={styles.card_text}>{item?.employee_number}</Text>
-              </View>
+            <TouchableOpacity activeOpacity={0.8}
+              style={{
+                backgroundColor: '#0043ae',
+                borderRadius: 10,
+                alignSelf: "flex-end", justifyContent: "center", width: responsiveWidth(30),
+                height: responsiveHeight(6), marginRight: 8, marginTop: 8
+              }}
+              onPress={() => navigation.navigate('AddPRM')}>
+              <Text style={{ color: '#fff', fontWeight: "bold", textAlign: "center" }}>+ Add PRM</Text>
+            </TouchableOpacity>
+            {loading ? <ActivityIndicator size='large' color="#0043ae" /> : null}
+            {prmdata?.length == 0 ? <Empty /> : null}
+            <FlatList
+              data={prmdata}
+              keyExtractor={(item, index) => `${item.key}${index}`}
+              renderItem={({ item, index }) =>
+                <View style={styles.Card_Box} key={index}>
+                  <View
+                    style={{
+                      width: responsiveWidth(95),
+                      height: responsiveHeight(2),
+                      backgroundColor: '#0043ae',
+                      borderTopLeftRadius: 10,
+                      borderTopRightRadius: 10,
+                      justifyContent: 'center',
+                    }}></View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={styles.card_textleft}>S.No</Text>
+                    <Text style={styles.card_text}>{index + 1}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={styles.card_textleft}>Employee Name</Text>
+                    <Text style={styles.card_text}>{item?.employee_name}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={styles.card_textleft}>Employee Number</Text>
+                    <Text style={styles.card_text}>{item?.employee_number}</Text>
+                  </View>
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.card_textleft}>Category Name:</Text>
-                <Text style={styles.card_text}>{item?.category_name}</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.card_textleft}> Payment Date:</Text>
-                <Text style={styles.card_text}>{item?.payment_date}</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.card_textleft}>Comments</Text>
-                <Text style={styles.card_text}>{item?.remark}</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.card_textleft}>Amount</Text>
-                <Text style={styles.card_text}>{item?.amount}</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                <Text style={styles.card_textleft}>Status</Text>
-                <Text style={styles.card_text}>{item?.status == 0 ? 'Approved' : 'Pending'}</Text>
-              </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={styles.card_textleft}>Category Name:</Text>
+                    <Text style={styles.card_text}>{item?.category_name}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={styles.card_textleft}> Payment Date:</Text>
+                    <Text style={styles.card_text}>{item?.payment_date}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={styles.card_textleft}>Comments</Text>
+                    <Text style={styles.card_text}>{item?.remark}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={styles.card_textleft}>Amount</Text>
+                    <Text style={styles.card_text}>{item?.amount}</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={styles.card_textleft}>Status</Text>
+                    <Text style={styles.card_text}>{item?.status == 0 ? 'Approved' : 'Pending'}</Text>
+                  </View>
 
-              <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: 'space-around', marginVertical: 20 }}>
-                <TouchableOpacity onPress={() => [setModalVisible(true), setDataItem(item)]} style={{ width: 100, height: 30, borderRadius: 10, backgroundColor: '#0043ae', justifyContent: 'center', alignItems: 'center' }}>
-                  {/* <AntDesign
+                  <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: 'space-around', marginVertical: 20 }}>
+                    <TouchableOpacity onPress={() => [setModalVisible(true), setDataItem(item)]} style={{ width: 100, height: 30, borderRadius: 10, backgroundColor: '#0043ae', justifyContent: 'center', alignItems: 'center' }}>
+                      {/* <AntDesign
                                         name="delete"
                                         style={{
                                             fontSize: 25,
@@ -374,10 +378,10 @@ const PRM = () => {
                                             marginRight: 10
                                         }}
                                     /> */}
-                  <Text style={{ color: '#fff' }}>Delete</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => [historyDownload(item), setInd(index)]} style={{ width: 100, height: 30, borderRadius: 10, backgroundColor: '#0043ae', justifyContent: 'center', alignItems: 'center' }}>
-                  {/* <AntDesign
+                      <Text style={{ color: '#fff' }}>Delete</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => [historyDownload(item), setInd(index)]} style={{ width: 100, height: 30, borderRadius: 10, backgroundColor: '#0043ae', justifyContent: 'center', alignItems: 'center' }}>
+                      {/* <AntDesign
                                         name="delete"
                                         style={{
                                             fontSize: 25,
@@ -385,71 +389,76 @@ const PRM = () => {
                                             marginRight: 10
                                         }}
                                     /> */}
-                  {show && ind == index ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ color: '#fff' }}>View Report</Text>}
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => Post_edit_category(item)} style={{ width: 100, height: 30, borderRadius: 10, backgroundColor: '#0043ae', justifyContent: 'center', alignItems: 'center' }}>
-                  <Text style={{ color: '#fff' }}>Edit</Text>
+                      {show && ind == index ? <ActivityIndicator size="small" color="#fff" /> : <Text style={{ color: '#fff' }}>View Report</Text>}
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => Post_edit_category(item)} style={{ width: 100, height: 30, borderRadius: 10, backgroundColor: '#0043ae', justifyContent: 'center', alignItems: 'center' }}>
+                      <Text style={{ color: '#fff' }}>Edit</Text>
 
-                </TouchableOpacity>
+                    </TouchableOpacity>
 
+                  </View>
+                  <View
+                    style={{
+                      width: responsiveWidth(95),
+                      height: responsiveHeight(2),
+                      backgroundColor: '#0043ae',
+                      borderBottomLeftRadius: 10,
+                      borderBottomRightRadius: 10,
+                      justifyContent: 'center',
+                      bottom: 0,
+                      position: 'absolute',
+                    }}></View>
+                </View>
+              }
+            />
+            {modalVisible && <View style={{ width: '100%', height: '100%', zIndex: 99, backgroundColor: 'rgba(0,0,0,0.3)', position: 'absolute', flex: 1 }}></View>}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => {
+                alert('Modal has been closed.');
+                setModalVisible(!modalVisible);
+              }}>
+              <View style={{
+                width: responsiveWidth(95),
+                backgroundColor: "#fff", alignSelf: "center",
+                marginVertical: responsiveHeight(30), borderRadius: 10,
+                padding: 10
+
+              }}>
+
+                <Text style={{
+                  fontSize: 17, fontWeight: '400', color: '#000',
+                  marginTop: 10, alignSelf: 'center'
+                }}>
+                  Are you sure you want to delete this item?
+                </Text>
+                <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", }}>
+                  <TouchableOpacity style={styles.Download} onPress={() => setModalVisible(false)}>
+                    <Text style={{ color: '#fff' }}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.Download} onPress={() => prm_delete()}>
+                    <Text style={{ color: '#fff' }}>Confirm</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View
-                style={{
-                  width: responsiveWidth(95),
-                  height: responsiveHeight(2),
-                  backgroundColor: '#0043ae',
-                  borderBottomLeftRadius: 10,
-                  borderBottomRightRadius: 10,
-                  justifyContent: 'center',
-                  bottom: 0,
-                  position: 'absolute',
-                }}></View>
-            </View>
-          }
-        />
-        {modalVisible && <View style={{ width: '100%', height: '100%', zIndex: 99, backgroundColor: 'rgba(0,0,0,0.3)', position: 'absolute', flex: 1 }}></View>}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            alert('Modal has been closed.');
-            setModalVisible(!modalVisible);
-          }}>
-          <View style={{
-            width: responsiveWidth(95),
-            backgroundColor: "#fff", alignSelf: "center",
-            marginVertical: responsiveHeight(30), borderRadius: 10,
-            padding: 10
+            </Modal>
 
-          }}>
-
-            <Text style={{
-              fontSize: 17, fontWeight: '400', color: '#000',
-              marginTop: 10, alignSelf: 'center'
-            }}>
-              Are you sure you want to delete this item?
-            </Text>
-            <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", }}>
-              <TouchableOpacity style={styles.Download} onPress={() => setModalVisible(false)}>
-                <Text style={{ color: '#fff' }}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.Download} onPress={() => prm_delete()}>
-                <Text style={{ color: '#fff' }}>Confirm</Text>
-              </TouchableOpacity>
-            </View>
           </View>
-        </Modal>
+        </Root>
+      </SafeAreaView>
 
-      </Root>
-    </SafeAreaView>
+
+    </>
+
   );
 };
 export default PRM;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#e3eefb'
 
   },
   Dashboard_Text: {
@@ -499,7 +508,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 5,
     elevation: 10,
-    marginBottom: 5
+    marginBottom: 5,
+    // Add these properties for iOS
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   card_text: {
     fontSize: responsiveFontSize(1.9),

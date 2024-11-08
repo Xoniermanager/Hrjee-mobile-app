@@ -28,7 +28,10 @@ target 'HRjee' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-
+  # Add the react-native-camera pod with subspecs
+  pod 'react-native-camera', :path => '../node_modules/react-native-camera', :subspecs => [
+    'FaceDetectorMLKit'
+  ]
 
   target 'HRjeeTests' do
     inherit! :complete

@@ -12,7 +12,8 @@ import {
   Alert,
   ActivityIndicator,
   FlatList,
-  useColorScheme
+  useColorScheme,
+  StatusBar
 } from 'react-native';
 // import React, {useState, useContext} from 'react';
 import React, { useState, useContext, useCallback, useMemo, useRef } from 'react';
@@ -91,6 +92,8 @@ const Profile = ({ navigation }) => {
     emergency: '',
     Job_department: '',
     blood_group: '',
+    company_logo: '',
+    job_deg : '',
     location: {},
   });
   const [loading, setloading] = useState(false);
@@ -176,7 +179,7 @@ const Profile = ({ navigation }) => {
         if (response.data.status === 1) {
           try {
             setUserdata({
-              employee_id: response.data.data.EMP_ID,
+              employee_id: response.data.data.EMPLOYEE_NUMBER,
               name: response.data.data.FULL_NAME,
               email: response.data.data.email,
               phone: response.data.data.mobile_no,
@@ -195,6 +198,8 @@ const Profile = ({ navigation }) => {
               emergency: response.data.data.family_contact_no,
               Job_department: response.data.data.JOB_NAME,
               blood_group: response.data.data.blood_group,
+              company_logo: response.data.data.company_logo,
+              job_deg: response?.data?.data?.designation,
               salary: `${response.data.data.total_salary}`,
             });
             // get_employee_detail();
@@ -359,14 +364,13 @@ const Profile = ({ navigation }) => {
   };
 
 
-
-
   if (Userdata == null) {
     return <Reload />
   }
 
   return (
     <>
+      <StatusBar barStyle="light-content" backgroundColor="#172B85" />
       <Root>
         {loading && renderPlaceholder()}
         {!loading && (
@@ -389,18 +393,6 @@ const Profile = ({ navigation }) => {
                         : require('../../images/profile_pic.webp')
                     }
                   />
-                  {/* {
-                  photoPath ?
-                    <Image
-                      source={{ uri: photoPath }}
-                      style={styles.tinyLogo}
-                    />
-                    :
-                    <Image
-                      source={{ uri: `https://i.postimg.cc/0y72NN2K/user.png` }}
-                      style={styles.tinyLogo}
-                    />
-                } */}
                   <View>
                     <Text
                       style={[
@@ -466,12 +458,6 @@ const Profile = ({ navigation }) => {
                     </View>
                   </View>
                 </View>
-                {/* <Feather
-                name="menu"
-                size={25}
-                color="white"
-                onPress={() => handleExpandPress()}
-              /> */}
               </View>
               <View
                 style={{
@@ -626,14 +612,19 @@ const Profile = ({ navigation }) => {
             {
               diggitalidcard?.length > 0 ?
                 <>
-                  <View style={{ padding: 0 }}>
-                    <Text style={{ color: "#000", textAlign: 'center', fontSize: responsiveFontSize(2), marginTop: responsiveHeight(1.5), fontWeight: 'bold', textDecorationLine: 'underline' }}>ID Card</Text>
-                  </View>
+                  <Text style={{ color: "#000", textAlign: 'center', fontSize: responsiveFontSize(2), marginTop: responsiveHeight(1.5), fontWeight: 'bold', textDecorationLine: 'underline' }}>ID Card</Text>
                   <View style={styles.container2}>
                     <View style={styles.header}>
+                      {/* <Text>{Userdata?.company_logo}</Text> */}
                       <Image
-                        source={require('../../images/idcardlogo.png')} // Add HBS logo here
+                        // source={require('../../images/idcardlogo.png')} // Add HBS logo here company_logo
+                        source={
+                          Userdata?.company_logo
+                            ? { uri: Userdata?.company_logo }
+                            : require('../../images/profile_pic.webp')
+                        }
                         style={styles.logo}
+                      // style={{width:100,height:100}}
                       />
                     </View>
 
@@ -648,45 +639,47 @@ const Profile = ({ navigation }) => {
                     </View>
 
                     <Text style={styles.name}>{Userdata.name}</Text>
-                    <Text style={styles.position}>Executive</Text>
+                    <Text style={styles.position}>{Userdata?.job_deg || 'N/A'}</Text>
 
                     <View style={styles.infoContainer}>
-                      <View style={{ width: "50%" }}>
+                      <View style={[styles.infoColumn, { width: width < 600 ? '100%' : '50%' }]}>
                         <View style={styles.infoRow}>
-                          <FontAwesome name="mobile-phone" color="#fff" size={20} />
-                          <Text style={styles.infoText}>{Userdata.phone}</Text>
+                          <FontAwesome name="mobile-phone" color="#000" size={20} />
+                          <Text style={styles.infoText}>{Userdata.phone || 'N/A'}</Text>
+                        </View>
+
+
+
+                        <View style={styles.infoRow}>
+                          <AntDesign name="user" color="#000" size={20} />
+                          <Text style={styles.infoText}>{Userdata?.employee_id || 'N/A'}</Text>
                         </View>
 
                         <View style={styles.infoRow}>
-                          <Fontisto name="email" color="#fff" size={20} />
-                          <Text style={styles.infoText}>{Userdata.email}</Text>
-                        </View>
-
-                        <View style={styles.infoRow}>
-                          <AntDesign name="user" color="#fff" size={20} />
-                          <Text style={styles.infoText}>{Userdata?.employee_id}</Text>
-                        </View>
-
-                        <View style={styles.infoRow}>
-                          <Feather name="briefcase" color="#fff" size={20} />
-                          <Text style={styles.infoText}>{Userdata?.Job_department ? Userdata?.Job_department : 'N/A'}</Text>
+                          <Feather name="briefcase" color="#000" size={20} />
+                          <Text style={styles.infoText}>{Userdata?.Job_department || 'N/A'}</Text>
                         </View>
                       </View>
-                      <View style={{ width: "50%" }}>
+
+                      <View style={[styles.infoColumn, { width: width < 600 ? '100%' : '50%' }]}>
                         <View style={styles.infoRow}>
-                          <Feather name="map-pin" color="#fff" size={20} />
-                          <Text style={styles.infoText}>{Userdata.permanentAddress}</Text>
+                          <Feather name="droplet" color="#000" size={20} />
+                          <Text style={styles.infoText}>{Userdata?.blood_group || 'N/A'}</Text>
                         </View>
 
                         <View style={styles.infoRow}>
-                          <Feather name="droplet" color="#fff" size={20} />
-                          <Text style={styles.infoText}>{Userdata?.blood_group ? Userdata?.blood_group : 'N/A'}</Text>
+                          <AntDesign name="phone" color="#000" size={20} />
+                          <Text style={styles.infoText}>{Userdata?.emergency || 'N/A'}</Text>
                         </View>
 
-                        <View style={styles.infoRow}>
-                          <AntDesign name="phone" color="#fff" size={20} />
-                          <Text style={styles.infoText}>{Userdata?.emergency ? emergency : 'N/A'}</Text>
-                        </View>
+                      </View>
+                      <View style={styles.infoRow}>
+                        <Fontisto name="email" color="#000" size={20} />
+                        <Text style={styles.infoText}>{Userdata.email}</Text>
+                      </View>
+                      <View style={styles.infoRow}>
+                        <Feather name="map-pin" color="#000" size={20} />
+                        <Text style={styles.infoText}>{Userdata.permanentAddress}</Text>
                       </View>
                     </View>
                   </View>
@@ -699,21 +692,6 @@ const Profile = ({ navigation }) => {
 
           </PullToRefresh>
         )}
-
-        {/* {!loading && (
-        <View style={{flex: 1, marginTop: -150}}>
-          <Tab.Navigator
-            screenOptions={{
-              tabBarLabelStyle: {fontSize: 11},
-              tabBarItemStyle: {width: 128},
-              // tabBarStyle: {backgroundColor: 'powderblue'},
-            }}>
-            <Tab.Screen name="New" component={New} />
-            <Tab.Screen name="All" component={All} />
-            <Tab.Screen name="Videos" component={Videos} />
-          </Tab.Navigator>
-        </View>
-      )} */}
       </Root>
     </>
   );
@@ -732,7 +710,8 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   profileFont: {
-    color: 'white', width: responsiveWidth(55)
+    color: 'white',
+    width:"75%", 
   },
   options: {
     width: 65,
@@ -858,9 +837,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     margin: 10,
-    backgroundColor: '#172B85',
-    borderWidth: 2, borderColor: "#2196F3", borderRadius: 20, width: "80%", alignSelf: "center",
-    padding: 10
+    backgroundColor: '#fff',
+    borderWidth: 1, borderColor: "#172B85", borderRadius: 20, width: "80%", alignSelf: "center",
+    padding: 0
   },
   header: {
     width: '100%',
@@ -868,10 +847,10 @@ const styles = StyleSheet.create({
   logo: {
     width: 80,
     height: 30,
-    resizeMode: 'contain', tintColor: "#fff", marginLeft: 10, marginTop: 5
+    resizeMode: 'center', marginLeft: 10, marginTop: 5
   },
   profileImageContainer: {
-    marginVertical: 10,
+    marginVertical: 5, borderWidth: 1, borderRadius: 50, borderColor: "#172B85"
   },
   profileImage: {
     width: 80,
@@ -882,25 +861,31 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#000',
   },
   position: {
     fontSize: 16,
-    color: '#fff',
-    marginBottom: 20,
+    color: '#000',
   },
   infoContainer: {
-    flexDirection: "row", alignSelf: "center", justifyContent: "center", width: "95%"
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    padding: 10,
+  },
+  infoColumn: {
+    flexBasis: '48%', // Adjusts for spacing
+    marginVertical: 5,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 5, 
   },
   infoText: {
+    color: '#000',
     marginLeft: 10,
-    fontSize: 12,
-    color: '#fff',
   },
+
 });
 

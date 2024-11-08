@@ -86,7 +86,6 @@ const Main = () => {
       <Tab.Screen
         options={({ route }) => ({
           unmountOnBlur: true,
-          // tabBarStyle: { display: getRouteName(route) },
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Entypo name="home" style={{ fontSize: 23, color: color }} />
@@ -95,26 +94,13 @@ const Main = () => {
         name="Home"
         component={Home}
       />
-      {/* <Tab.Screen
-        options={{
-          unmountOnBlur: true,
-          tabBarIcon: ({color}) => (
-            <FontAwesome name="rupee" style={{fontSize: 23, color: color}} />
-          ),
-        }}
-        name="Payslip"
-        component={Payslip}
-      /> */}
 
       {
         updatelocationmanagement?.length > 0 ?
           <Tab.Screen
             options={{
               unmountOnBlur: true,
-              headerTitleStyle: {
-                fontWeight: 'bold',
-                marginLeft: Platform.OS == 'ios' ? 0 : responsiveWidth(40),
-              },
+              headerShown: false,
               tabBarIcon: ({ color }) => (
                 <MaterialIcons
                   name="add-task"
@@ -132,10 +118,7 @@ const Main = () => {
       <Tab.Screen
         options={{
           unmountOnBlur: true,
-          headerTitleStyle: {
-            fontWeight: 'bold',
-            marginLeft: Platform.OS == 'ios' ? 0 : responsiveWidth(40),
-          },
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <AntDesign name="appstore-o" style={{ fontSize: 23, color: color }} />
           ),
@@ -148,11 +131,7 @@ const Main = () => {
         <Tab.Screen
           options={{
             unmountOnBlur: true,
-            title: 'PRM',
-            headerBackTitleVisible: false,
-            headerStyle: {
-              backgroundColor: '#0043ae',
-            },
+            headerShown: false, 
             headerTintColor: '#fff',
             headerTitleStyle: {
               fontWeight: 'bold',

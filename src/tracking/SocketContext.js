@@ -30,6 +30,7 @@ const SocketProvider = ({ children }) => {
   const [casevisitpermission, setCaseVisitPermission] = useState()
   const [startBackgroundTracking, setStartBackgroundTracking] = useState(null);
   const [employeeNumber, setEmployeeNumber] = useState('');
+  const [firsttimelogin, setFirstTimeLogin] = useState('');
 
   const ManuAccessdetails_Socket = async () => {
     const token = await AsyncStorage.getItem('Token');
@@ -52,6 +53,7 @@ const SocketProvider = ({ children }) => {
         setTaskMaxRadious(response?.data?.config?.task_maximum_radius);
         setPrm(response?.data?.users?.prm_assign);
         setActiveInactiveTracking(response?.data?.users?.is_location_tracking_active);
+        setFirstTimeLogin(response?.data?.users?.first_time_login);
         setManagerDetils(response?.data?.users?.managerDetails);
         setLocationBlock(response?.data?.users?.track_location);
         const updatelocationpermissions = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Tracking")
@@ -122,7 +124,7 @@ const SocketProvider = ({ children }) => {
  
 
   return (
-    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard, managerdetils, updatedfacereconization, casevisitpermission, employeeNumber }}>
+    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard, managerdetils, updatedfacereconization, casevisitpermission, employeeNumber, firsttimelogin }}>
       {children}
     </SocketContext.Provider>
   );

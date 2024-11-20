@@ -14,7 +14,7 @@ import {
   useColorScheme,
   Platform,
   StatusBar,
-  Button,
+  Button, TextInput
 } from 'react-native';
 import React, {
   useState,
@@ -66,7 +66,11 @@ import { RNCamera } from 'react-native-camera';
 import { ViewPropTypes } from 'deprecated-react-native-prop-types';
 import { useRoute } from '@react-navigation/native';
 import * as Progress from 'react-native-progress'; // Import Progress from react-native-progress
-import {accessKeyId, secretAccessKey, region} from "@env"
+import { accessKeyId, secretAccessKey, region } from "@env"
+import Icon from 'react-native-vector-icons/Ionicons'; // Ensure you have react-native-vector-icons installed
+import { showMessage } from "react-native-flash-message";
+import FlashMessage from "react-native-flash-message";
+
 
 
 
@@ -91,9 +95,10 @@ const Home = ({ navigation }) => {
   const [homeskelton, setHomeSkeleton] = useState(null)
   const [punchIn, setpunchIn] = useState(false);
   const [loading, setloading] = useState(false);
+  const [firsttimepasswordloader, setFirstTimePasswordLoader] = useState(false);
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
-  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber } = useContext(SocketContext);
+  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber, firsttimelogin } = useContext(SocketContext);
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -104,8 +109,9 @@ const Home = ({ navigation }) => {
     long: '',
     lat: '',
   });
+  console.log("firsttimelogin--------", firsttimelogin)
   const [locationOut, setlocationOut] = useState(null);
-
+  const [isModalVisiblePassword, setIsModalVisiblePassword] = useState(true);
   const [location, setLocation] = useState(null);
   const [previousLocation, setPreviousLocation] = useState(null);
   const [timerOn, settimerOn] = useState(false);
@@ -607,8 +613,6 @@ const Home = ({ navigation }) => {
   }, [kYCModal, faceModal, faceNotModal])
 
   // face dedection end.............................................
-
-
 
   const showAlert = () => {
     Alert.alert(
@@ -3326,6 +3330,131 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     padding: 5,
+  },
+  container1: {
+    padding: 15,
+    backgroundColor: '#fff', borderRadius: 15, marginHorizontal: 10
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+  username: {
+    fontSize: 25,
+    textAlign: 'center',
+  },
+  userId: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#777',
+    marginBottom: 20,
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  inputContainer: {
+    marginBottom: 15, marginHorizontal: 10
+  },
+  label: {
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 8,
+  },
+  changeButton: {
+    backgroundColor: '#0F3E87',
+    padding: 12,
+    borderRadius: 5, marginHorizontal: 10,
+    alignItems: 'center', marginBottom: 5
+  },
+  changeButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+
+  cancelButton: {
+    backgroundColor: '#87CEEB',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  cancelButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalButton: {
+    backgroundColor: '#0E0E64',
+    padding: 10,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  strengthContainer: {
+    marginTop: 5,
+  },
+  strengthBar: {
+    height: 5,
+    borderRadius: 2.5,
+    width: '100%',
+    backgroundColor: '#ccc',
+  },
+  weak: {
+    backgroundColor: 'red',
+    width: '33%',
+  },
+  medium: {
+    backgroundColor: 'orange',
+    width: '66%',
+  },
+  strong: {
+    backgroundColor: 'green',
+    width: '100%',
+  },
+  feedbackText: {
+    marginTop: 5,
+    fontSize: 14,
+    color: '#666',
+  },
+  validationText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
   },
 });
 

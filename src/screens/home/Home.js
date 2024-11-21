@@ -98,7 +98,7 @@ const Home = ({ navigation }) => {
   const [firsttimepasswordloader, setFirstTimePasswordLoader] = useState(false);
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
-  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber, firsttimelogin } = useContext(SocketContext);
+  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber } = useContext(SocketContext);
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -109,7 +109,6 @@ const Home = ({ navigation }) => {
     long: '',
     lat: '',
   });
-  console.log("firsttimelogin--------", firsttimelogin)
   const [locationOut, setlocationOut] = useState(null);
   const [location, setLocation] = useState(null);
   const [previousLocation, setPreviousLocation] = useState(null);

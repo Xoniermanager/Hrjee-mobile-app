@@ -111,7 +111,6 @@ const Home = ({ navigation }) => {
   });
   console.log("firsttimelogin--------", firsttimelogin)
   const [locationOut, setlocationOut] = useState(null);
-  const [isModalVisiblePassword, setIsModalVisiblePassword] = useState(true);
   const [location, setLocation] = useState(null);
   const [previousLocation, setPreviousLocation] = useState(null);
   const [timerOn, settimerOn] = useState(false);
@@ -188,8 +187,6 @@ const Home = ({ navigation }) => {
         console.log(error);
       });
   };
-
-
 
   useEffect(() => {
     const getData = async () => {

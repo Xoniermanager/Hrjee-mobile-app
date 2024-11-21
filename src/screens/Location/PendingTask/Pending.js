@@ -128,6 +128,7 @@ const Pending = ({ navigation }) => {
       });
   };
 
+
   const update_show_hide = async (task_id, show) => {
     if (task_id == currentDisplayedTask) {
       setCurrentDisplayedTask(null);

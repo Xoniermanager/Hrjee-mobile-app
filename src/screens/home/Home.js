@@ -614,6 +614,139 @@ const Home = ({ navigation }) => {
 
   // face dedection end.............................................
 
+
+
+  // starting first time password modal.............................................
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] = useState(false);
+  const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+  const [isModalVisible1, setIsModalVisible1] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState('');
+  const [passwordFeedback, setPasswordFeedback] = useState('');
+
+
+  const handlePasswordChange = () => {
+    if (newPassword === confirmPassword) {
+      // Handle password change logic
+      setIsModalVisible(true); // Show success modal
+    } else {
+      alert('New password and confirm password do not match!');
+    }
+  };
+
+  const FirstTimePasswordSet = async () => {
+    const token = await AsyncStorage.getItem('Token');
+    let isValid = true;
+
+    // Reset validation messages
+    setValidationMessages({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+
+    if (currentPassword === '') {
+      setValidationMessages(prev => ({ ...prev, currentPassword: 'Please enter current password' }));
+      isValid = false;
+    } else if (currentPassword.length < 6) {
+      setValidationMessages(prev => ({ ...prev, currentPassword: 'Current Password must be at least 6 characters' }));
+      isValid = false;
+    }
+
+    if (newPassword === '') {
+      setValidationMessages(prev => ({ ...prev, newPassword: 'Please enter new password' }));
+      isValid = false;
+    } else if (newPassword.length < 6) {
+      setValidationMessages(prev => ({ ...prev, newPassword: 'New Password must be at least 6 characters' }));
+      isValid = false;
+    }
+
+    if (confirmPassword === '') {
+      setValidationMessages(prev => ({ ...prev, confirmPassword: 'Please enter confirm password' }));
+      isValid = false;
+    } else if (confirmPassword.length < 6) {
+      setValidationMessages(prev => ({ ...prev, confirmPassword: 'Confirm Password must be at least 6 characters' }));
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    setFirstTimePasswordLoader(true)
+    const config = {
+      headers: { Token: token },
+    };
+    const data = {
+      old_password: currentPassword,
+      new_password: newPassword,
+      confirm_password: confirmPassword,
+    };
+
+    axios
+      .post(`${apiUrl}/secondPhaseApi/change_password`, data, config)
+      .then(response => {
+        if (response?.data?.status === 1) {
+          showMessage({
+            message: response?.data?.message,
+            type: "success",
+          });
+          setFirstTimePasswordLoader(false);
+          setIsModalVisiblePassword(false);
+
+        } else {
+          showMessage({
+            message: response?.data?.message,
+            type: "danger",
+          });
+          setFirstTimePasswordLoader(false);
+        }
+      })
+      .catch(error => {
+        showMessage({
+          message: error?.data?.message,
+          type: "danger",
+        });
+        setFirstTimePasswordLoader(false);
+      });
+  };
+
+  // In your component state
+  const [validationMessages, setValidationMessages] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  // Function to determine password strength and provide feedback
+  const evaluatePasswordStrength = (password) => {
+    if (password.length === 0) {
+      setPasswordStrength('');
+      setPasswordFeedback('');
+      return;
+    }
+
+    if (password.length < 6) {
+      setPasswordStrength('weak');
+      setPasswordFeedback('Your password is too short.');
+    } else if (password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/)) {
+      setPasswordStrength('strong');
+      setPasswordFeedback('Your password is great. Nice work!');
+    } else {
+      setPasswordStrength('medium');
+      setPasswordFeedback('Your password could be stronger.');
+    }
+  };
+
+  const handleNewPasswordChange = (password) => {
+    setNewPassword(password);
+    evaluatePasswordStrength(password);
+  };
+  //ending change password modal.............................................
+
+
+
   const showAlert = () => {
     Alert.alert(
       'Log Out',
@@ -3053,6 +3186,102 @@ const Home = ({ navigation }) => {
                   null
               }
 
+              {
+                firsttimelogin == 1 ?
+                  <Modal
+                    isVisible={isModalVisiblePassword}
+                    animationIn="zoomIn"
+                    animationOut="zoomOut"
+                  >
+                    <View style={styles.container1}>
+                      <Image
+                        source={require('../../images/reset-password.png')}
+                        style={{ width: responsiveWidth(18), height: responsiveHeight(12), resizeMode: "contain", alignSelf: "center" }}
+                      />
+                      <View style={styles.inputContainer}>
+                        <View style={styles.inputWrapper}>
+                          <TextInput
+                            style={styles.input}
+                            secureTextEntry={!isCurrentPasswordVisible}
+                            value={currentPassword}
+                            onChangeText={setCurrentPassword}
+                            placeholder="Enter current password"
+                            placeholderTextColor="#999"
+                          />
+                          <TouchableOpacity onPress={() => setIsCurrentPasswordVisible(!isCurrentPasswordVisible)}>
+                            <Icon name={isCurrentPasswordVisible ? 'eye' : 'eye-off'} size={20} />
+                          </TouchableOpacity>
+                        </View>
+                        {validationMessages.currentPassword ? (
+                          <Text style={styles.validationText}>{validationMessages.currentPassword}</Text>
+                        ) : null}
+                      </View>
+                      <View style={styles.inputContainer}>
+                        {/* <Text style={styles.label}>New password</Text> */}
+                        <View style={styles.inputWrapper}>
+                          <TextInput
+                            style={styles.input}
+                            secureTextEntry={!isNewPasswordVisible}
+                            value={newPassword}
+                            onChangeText={handleNewPasswordChange}
+                            placeholder="Enter new password"
+                            placeholderTextColor="#999"
+                          />
+                          <TouchableOpacity onPress={() => setIsNewPasswordVisible(!isNewPasswordVisible)}>
+                            <Icon name={isNewPasswordVisible ? 'eye' : 'eye-off'} size={20} />
+                          </TouchableOpacity>
+                        </View>
+                        {validationMessages.newPassword ? (
+                          <Text style={styles.validationText}>{validationMessages.newPassword}</Text>
+                        ) : null}
+                        {/* Strength Indicator */}
+                        {passwordStrength ? (
+                          <View style={styles.strengthContainer}>
+                            <View
+                              style={[
+                                styles.strengthBar,
+                                passwordStrength === 'weak' && styles.weak,
+                                passwordStrength === 'medium' && styles.medium,
+                                passwordStrength === 'strong' && styles.strong,
+                              ]}
+                            />
+                            <Text style={styles.feedbackText}>{passwordFeedback}</Text>
+                          </View>
+                        ) : null}
+                      </View>
+                      <View style={styles.inputContainer}>
+                        {/* <Text style={styles.label}>Confirm password</Text> */}
+                        <View style={styles.inputWrapper}>
+                          <TextInput
+                            style={styles.input}
+                            secureTextEntry={!isConfirmPasswordVisible}
+                            value={confirmPassword}
+                            onChangeText={setConfirmPassword}
+                            placeholder="Confirm new password"
+                            placeholderTextColor="#999"
+                          />
+                          <TouchableOpacity onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}>
+                            <Icon name={isConfirmPasswordVisible ? 'eye' : 'eye-off'} size={20} />
+                          </TouchableOpacity>
+                        </View>
+                        {validationMessages.confirmPassword ? (
+                          <Text style={styles.validationText}>{validationMessages.confirmPassword}</Text>
+                        ) : null}
+                      </View>
+                      <TouchableOpacity style={styles.changeButton} onPress={() => FirstTimePasswordSet()}>
+                        {firsttimepasswordloader ? (
+                          <ActivityIndicator size="small" color="#fff" />
+                        ) : (
+                          <Text style={styles.changeButtonText}>Submit</Text>
+                        )}
+                      </TouchableOpacity>
+                      <FlashMessage position="top" />
+                    </View>
+                  </Modal>
+                  :
+                  null
+              }
+
               <Modal
                 isVisible={kYCModal}
 
@@ -3293,7 +3522,7 @@ const styles = StyleSheet.create({
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 10, 
     borderColor: 'rgba(0, 0, 0, 0.1)',
   },
   preview: {
@@ -3403,13 +3632,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: 300,
-    padding: 20,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    alignItems: 'center',
   },
   modalText: {
     fontSize: 16,

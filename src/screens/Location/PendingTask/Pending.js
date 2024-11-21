@@ -235,19 +235,40 @@ const Pending = ({ navigation }) => {
                         alignItems: 'center',
                       }}>
                       <TouchableOpacity
+                        disabled={item?.is_visit_required == 0} // Disable if is_visit_required is 0
                         onPress={() => [
                           tast_status_update(item),
                           setModalVisible(true),
                         ]}
-                        style={{ backgroundColor: '#0043ae', borderRadius: 10 }}>
+                        style={{
+                          backgroundColor: item?.is_visit_required == 0 ? '#cccccc' : '#0043ae', // Change background color based on disabled state
+                          borderRadius: 10
+                        }}>
                         <Text
                           style={{
-                            color: Themes == 'dark' ? '#fff' : '#fff',
+                            color: Themes === 'dark' ? '#fff' : '#fff',
                             fontWeight: 'bold',
                             fontSize: 16,
                             padding: 5,
-                          }}>
-                          Select{' '}
+                          }}
+                        >
+                          {
+                            item?.is_visit_required == 0 ?
+                              <>
+                                <View style={{ flexDirection: "row", justifyContent: "center", alignSelf: "center", alignItems: "center" }}>
+                                  <View>
+                                    <AntDesign
+                                      name="close"
+                                      style={{ fontSize: 24, color: '#cd181f', justifyContent: "center", alignSelf: "center", alignItems: "center" }}
+                                    />
+                                  </View>
+                                  <Text style={{ color: "#cd181f", textAlign: "center" }}> Visit not required</Text>
+                                </View>
+
+                              </>
+                              :
+                              <Text>Select</Text>
+                          }
                         </Text>
                       </TouchableOpacity>
 

@@ -86,8 +86,9 @@ const Processing = () => {
   const [codeName, setCodeName] = useState();
   const [coordinates, setCoordinates] = useState(null);
   const [error, setError] = useState('');
-
-
+  const [currentPage, setCurrentPage] = useState(0)
+  const [isLoader, setIsLoader] = useState([])
+  const [nextFetch,setNextFetch]=useState()
   const row = [
     { id: 1, title: 'abc' },
     {
@@ -178,10 +179,12 @@ const Processing = () => {
         lat: lat,
       });
     });
-  }, [showAddress]);
+  }, [showAddress])
+  
   const latitude = currentLocation?.lat;
   const longitude = currentLocation?.long;
   const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
+  
   const getAddress = async () => {
     axios.get(urlAddress).then(res => {
       console.log(
@@ -196,8 +199,14 @@ const Processing = () => {
 
   // console.log(Userdata, "processing")
 
+  const data =
+    Userdata &&
+    Userdata.filter((item, index) => {
+      return item.status == 1;
+    });
+
   const get_employee_detail = async () => {
-    setloading(true);
+    setIsLoader(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: { Token: token },
@@ -208,7 +217,8 @@ const Processing = () => {
       .then(response => {
         setloading(false);
         if (response?.data?.status == 200) {
-          setUserdata(response?.data?.data);
+          setUserdata(response?.data?.data?.data);
+          setNextFetch(response?.data?.data?.next)
         }
       })
       .catch(error => {
@@ -222,6 +232,60 @@ const Processing = () => {
       });
   };
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      get_employee_detail();
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const handleRefresh = async () => {
+    // Do something to refresh the data
+    get_employee_detail();
+  };
+
+  const fetchMore = async () => {
+    console.log("calling--------")
+    const token = await AsyncStorage.getItem('Token');
+    console.log(token,'token')
+    if(nextFetch!=null){
+      const config = {
+        headers: { Token: token },
+      };
+      const nextPage = currentPage + 1;
+      axios
+        .get(`${apiUrl}/SecondPhaseApi/get_user_task?page=${nextPage}`, config)
+        .then(response => {
+          setloading(false);
+          if (response?.data?.status == 200) {
+            console.log(response?.data.data.next,'hh')
+            setIsLoader(response?.data?.data?.data.filter((item) => {
+              return item.status == 1;
+            }));
+            setCurrentPage(nextPage);
+            setUserdata(prevData => [...prevData, ...response?.data.data.data]);
+            setNextFetch(response?.data.data.next)
+          }
+        })
+        .catch(error => {
+          setloading(false);
+          if (error.response.status == '401') {
+            AsyncStorage.removeItem('Token');
+            AsyncStorage.removeItem('UserData');
+            AsyncStorage.removeItem('UserLocation');
+            navigation.navigate('Login');
+          }
+        });
+    }
+    else{
+      setIsLoader([])
+    }
+   
+   
+  };
+
+ 
   // Disposition_Code
 
   const Disposition_Code = async () => {
@@ -254,18 +318,7 @@ const Processing = () => {
     getAddress();
   }, [location]);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      get_employee_detail();
-    });
 
-    return unsubscribe;
-  }, []);
-
-  const handleRefresh = async () => {
-    // Do something to refresh the data
-    get_employee_detail();
-  };
 
 
   const update_show_hide = async (task_id, show) => {
@@ -280,11 +333,7 @@ const Processing = () => {
     }
   };
 
-  const data =
-    Userdata &&
-    Userdata.filter((item, index) => {
-      return item.status == 1;
-    });
+
 
   if (data == null) {
     return <Reload />;
@@ -693,403 +742,673 @@ const Processing = () => {
                 </Text>
               </View>
             )}
-            <FlatList
-              data={filterData ? filterData : data}
-              renderItem={({ item, index }) => (
-                <>
-                  <View activeOpacity={0.2} style={styles.maincard}>
+
+            <View style={styles.centeredView}>
+              <Modal
+                animationType="none"
+                transparent={true}
+                visible={modalVisible1}
+                onRequestClose={() => {
+                  Popup.show({
+                    type: 'Warning',
+                    title: 'Warning',
+                    button: true,
+                    textBody: 'screen has been closed.',
+                    buttonText: 'Ok',
+                    callback: () => [Popup.hide()],
+                  });
+
+                  setModalVisible1(!modalVisible1);
+                }}>
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <View style={{ padding: 10 }}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                        }}>
+                        <Text
+                          style={[
+                            { fontSize: 16, fontWeight: 'bold' },
+                            {
+                              color:
+                                Themes == 'dark'
+                                  ? '#2196F3'
+                                  : '#2196F3',
+                              marginBottom: 5,
+                            },
+                          ]}>
+                          Remark
+                        </Text>
+                      </View>
+                      <TextInput
+                        placeholder="Notes"
+                        value={remark}
+                        placeholderTextColor={
+                          theme == 'dark' ? '#000' : '#000'
+                        }
+                        style={{
+                          color: theme == 'dark' ? '#000' : '#000',
+                          borderWidth: 1,
+                          borderRadius: 10,
+                          textAlignVertical: 'top', // Align text to the top in multiline
+                          padding: 5,
+                          height: 100, // Adjust height to match number of lines
+                        }}
+                        multiline={true}
+                        autoFocus={true} // autoFocusOnLoad should be replaced by autoFocus
+                        onChangeText={text => [
+                          setRemart(text),
+                        ]}
+                        onChange={() => setRemarkError(null)}
+                      />
+                      {remarkError ? (
+                        <Text
+                          style={{
+                            color: 'red',
+                            marginBottom: 8,
+                            textAlign: 'center',
+                            fontSize: 13,
+                            marginTop: 5,
+                          }}>
+                          {remarkError}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <View style={{ margin: 20, alignSelf: 'center' }}>
+                      <Pressable onPress={() => takePhotoFromCamera()}>
+                        <View style={styles.takepic}>
+                          <Text style={styles.takepictext}>
+                            PICK FROM CAMERA
+                          </Text>
+                          {cameramodal ? (
+                            <AntDesign
+                              name="check"
+                              size={20}
+                              color="#fff"
+                            />
+                          ) : null}
+                        </View>
+                      </Pressable>
+                      <TouchableOpacity
+                        onPress={() => choosePhotoFromLibrary()}>
+                        <View style={styles.takepic1}>
+                          <Text style={styles.takepictext}>
+                            PICK FROM GALLERY
+                          </Text>
+                          {cameramodal1 ? (
+                            <AntDesign
+                              name="check"
+                              size={20}
+                              color="#fff"
+                            />
+                          ) : null}
+                        </View>
+                      </TouchableOpacity>
+
+                      {photoError ? (
+                        <Text
+                          style={{
+                            color: 'red',
+                            marginBottom: 8,
+                            textAlign: 'center',
+                            fontSize: 13,
+                            marginTop: 5,
+                          }}>
+                          {photoError}
+                        </Text>
+                      ) : null}
+                      <Pressable
+                        onPress={() => chooseDocumentLibrary()}>
+                        <View style={styles.takepic1}>
+                          <Text style={styles.takepictext}>
+                            PICK Document
+                          </Text>
+                          {docmodal ? (
+                            <AntDesign
+                              name="check"
+                              size={20}
+                              color="#fff"
+                            />
+                          ) : null}
+                        </View>
+                      </Pressable>
+
+                      <Dropdown
+                        style={[
+                          styles.dropdown,
+                          {
+                            borderBottomLeftRadius: isFocus ? 0 : 8,
+                            borderBottomRightRadius: isFocus ? 0 : 8,
+                          },
+                        ]}
+                        placeholderStyle={{
+                          color: Themes == 'dark' ? '#fff' : '#fff',
+                          textAlign: 'center',
+                        }}
+                        itemContainerStyle={{ height: 60 }}
+                        containerStyle={{ height: responsiveHeight(20) }}
+                        selectedTextStyle={[
+                          styles.selectedTextStyle,
+                          { color: Themes == 'dark' ? '#fff' : '#fff' },
+                        ]}
+                        data={disposition}
+                        maxHeight={300}
+                        labelField="title"
+                        valueField="id"
+                        placeholder={
+                          !isFocus ? 'Disposition codes' : 'codes'
+                        }
+                        iconStyle={styles.iconStyle}
+                        value={value}
+                        itemTextStyle={{
+                          color: Themes == 'dark' ? '#000' : '#000',
+                          textAlign: 'center',
+                        }}
+                        onFocus={() => setIsFocus(true)}
+                        onBlur={() => setIsFocus(false)}
+                        onChange={item => {
+                          setValue(item?.id);
+                          setCodeName(item.title);
+                          setIsFocus(false);
+                          setValueError(null);
+                        }}
+                      />
+                      {valueerror ? (
+                        <Text
+                          style={{
+                            color: 'red',
+                            marginBottom: 8,
+                            textAlign: 'center',
+                            fontSize: 13,
+                            marginTop: 5,
+                          }}>
+                          {valueerror}
+                        </Text>
+                      ) : null}
+                    </View>
                     <View
                       style={{
                         flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignContent: 'center',
-                        alignItems: 'center',
+                        alignSelf: 'center',
                       }}>
-                      <TouchableOpacity
-                        style={{ backgroundColor: '#0043ae', borderRadius: 10 }}
-                        onPress={() => [
-                          setModalVisible1(true),
-                          setShowAddress(showAddress + 1),
-                          setID(item),
-                          getCoordinates(item?.risk_address),
-                          getAddress(),
-                        ]}>
+                      {loading1 ? (
+                        <>
+                          <Pressable
+                            disabled={true}
+                            style={[
+                              styles.button,
+                              styles.buttonSubmit,
+                            ]}>
+                            <Text
+                              style={[
+                                { textAlign: 'center' },
+                                {
+                                  color:
+                                    Themes == 'dark' ? '#000' : '#000',
+                                },
+                              ]}>
+                              Submit
+                            </Text>
+
+                          </Pressable>
+                        </>
+                      ) : (
+                        <>
+                          <Pressable
+                            style={[
+                              styles.button,
+                              styles.buttonSubmit1,
+                            ]}
+                            onPress={() => tast_status_update(iD)}>
+                            <Text
+                              style={[
+                                { textAlign: 'center' },
+                                {
+                                  color:
+                                    Themes == 'dark' ? '#fff' : '#fff',
+                                },
+                              ]}>
+                              Submit
+                            </Text>
+                            {
+                              loading ?
+                                <ActivityIndicator
+                                  marginHorizontal={8}
+                                  size="small"
+                                  color="#fff"
+                                />
+                                :
+                                null
+                            }
+
+                          </Pressable>
+                        </>
+                      )}
+                      <Pressable
+                        style={[styles.button, styles.buttonClose]}
+                        onPress={() =>
+                          setModalVisible1(!modalVisible1)
+                        }>
+                        <Text
+                          style={[
+                            { textAlign: 'center' },
+                            { color: Themes == 'dark' ? '#fff' : '#fff' },
+                          ]}>
+                          Cancel
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                </View>
+              </Modal>
+            </View>
+
+
+          </PullToRefresh>
+          <FlatList
+            data={(filterData ? filterData : data)} // Limit to first 5 items
+            onEndReached={() => fetchMore()}
+            onEndReachedThreshold={0.1}
+            ListFooterComponent={() =>
+              isLoader && isLoader.length == 0 ? null : <Reload />
+            }
+            renderItem={({ item, index }) => (
+              <>
+                <View activeOpacity={0.2} style={styles.maincard}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <TouchableOpacity
+                      style={{ backgroundColor: '#0043ae', borderRadius: 10 }}
+                      onPress={() => [
+                        setModalVisible1(true),
+                        setShowAddress(showAddress + 1),
+                        setID(item),
+                        getCoordinates(item?.risk_address),
+                        getAddress(),
+                      ]}>
+                      <Text
+                        style={{
+                          color: Themes == 'dark' ? '#fff' : '#fff',
+                          fontWeight: 'bold',
+                          fontSize: 16,
+                          padding: 5,
+                        }}>
+                        Update
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => update_show_hide(item?.task_id, true)}
+                      style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <View>
                         <Text
                           style={{
-                            color: Themes == 'dark' ? '#fff' : '#fff',
+                            color: Themes == 'dark' ? '#0043ae' : '#0043ae',
                             fontWeight: 'bold',
                             fontSize: 16,
-                            padding: 5,
+                            marginRight: 5,
                           }}>
-                          Update
+                          {currentDisplayedTask != item.task_id ? 'More' : 'Hide'}
                         </Text>
-                      </TouchableOpacity>
+                      </View>
+                      <View>
+                        <AntDesign name="down" size={20} color="#000" />
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                  {currentDisplayedTask &&
+                    currentDisplayedTask == item?.task_id ? (
+                    <>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Dept id:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(70),
+                            textAlign: 'right',
+                          }}>
+                          {item?.dept_id ? item?.dept_id : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Customer name:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.customer_name ? item?.customer_name : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Mobile Number:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.mobile_no ? item?.mobile_no : 'N/A'}
+                        </Text>
+                      </View>
 
-                      <TouchableOpacity
-                        onPress={() => update_show_hide(item?.task_id, true)}
-                        style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#0043ae' : '#0043ae',
-                              fontWeight: 'bold',
-                              fontSize: 16,
-                              marginRight: 5,
-                            }}>
-                            {currentDisplayedTask != item.task_id ? 'More' : 'Hide'}
-                          </Text>
-                        </View>
-                        <View>
-                          <AntDesign name="down" size={20} color="#000" />
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                    {currentDisplayedTask &&
-                      currentDisplayedTask == item?.task_id ? (
-                      <>
-                        <View
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Dept id:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              width: responsiveWidth(70),
-                              textAlign: 'right',
-                            }}>
-                            {item?.dept_id ? item?.dept_id : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          Loan no:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Customer name:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.customer_name ? item?.customer_name : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Mobile Number:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.mobile_no ? item?.mobile_no : 'N/A'}
-                          </Text>
-                        </View>
+                          {item?.loan_no ? item?.loan_no : 'N/A'}
+                        </Text>
+                      </View>
 
-                        <View
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Loan no:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.loan_no ? item?.loan_no : 'N/A'}
-                          </Text>
-                        </View>
+                          Visit Address:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(60),
+                            textAlign: 'right',
+                          }}>
+                          {item?.risk_address ? item?.risk_address : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          State:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.state ? item?.state : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          City:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.city ? item?.city : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Pincode:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.pincode ? item?.pincode : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Total Amount:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.total_amount ? item?.total_amount : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Principal:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.principle ? item?.principle : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          Emi amount:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
+                          }}>
+                          {item?.emi_amount ? item?.emi_amount : 'N/A'}
+                        </Text>
+                      </View>
 
-                        <View
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Visit Address:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              width: responsiveWidth(60),
-                              textAlign: 'right',
-                            }}>
-                            {item?.risk_address ? item?.risk_address : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          Builder name:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            State:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.state ? item?.state : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          {item?.builder_name ? item?.builder_name : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            City:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.city ? item?.city : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          Banker name:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Pincode:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.pincode ? item?.pincode : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          {item?.banker_name ? item?.banker_name : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Total Amount:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.total_amount ? item?.total_amount : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          Loan center:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Principal:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.principle ? item?.principle : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Emi amount:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.emi_amount ? item?.emi_amount : 'N/A'}
-                          </Text>
-                        </View>
+                            color: Themes == 'dark' ? '#000' : '#000',
 
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            width: responsiveWidth(60),
+                            textAlign: 'right',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Builder name:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.builder_name ? item?.builder_name : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Banker name:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.banker_name ? item?.banker_name : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Loan center:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
+                          {item?.loan_center ? item?.loan_center : 'N/A'}
+                        </Text>
+                      </View>
 
-                              width: responsiveWidth(60),
-                              textAlign: 'right',
-                            }}>
-                            {item?.loan_center ? item?.loan_center : 'N/A'}
-                          </Text>
-                        </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Proparty address:
+                        </Text>
+                        <Text
+                          style={{
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(59),
+                            textAlign: 'right',
+                          }}>
+                          {item?.proparty_address
+                            ? item?.proparty_address
+                            : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Alternate no:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.alternate_no ? item?.alternate_no : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Legal status:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.legal_status ? item?.legal_status : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Created Date:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.create_at ? item?.create_at : 'N/A'}
+                        </Text>
+                      </View>
 
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Proparty address:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              width: responsiveWidth(59),
-                              textAlign: 'right',
-                            }}>
-                            {item?.proparty_address
-                              ? item?.proparty_address
-                              : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Alternate no:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.alternate_no ? item?.alternate_no : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Legal status:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.legal_status ? item?.legal_status : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Created Date:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.create_at ? item?.create_at : 'N/A'}
-                          </Text>
-                        </View>
-
-                        {/* <View
+                      {/* <View
                         style={{
                           flexDirection: 'row',
                           justifyContent: 'space-between',
@@ -1120,7 +1439,7 @@ const Processing = () => {
                           {item?.assign_by}
                         </Text>
                       </View> */}
-                        {/* <View
+                      {/* <View
                         style={{
                           flexDirection: 'row',
                           justifyContent: 'space-between',
@@ -1136,467 +1455,202 @@ const Processing = () => {
                         </Text>
                       </View> */}
 
-                        <View
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Manager remark:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(60),
+                            textAlign: 'right',
                           }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Manager remark:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              width: responsiveWidth(60),
-                              textAlign: 'right',
-                            }}>
-                            {item?.description ? item?.description : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          {item?.description ? item?.description : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Location coordinates:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.location_coordinates
+                            ? item?.location_coordinates
+                            : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Home address:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(60),
+                            textAlign: 'right',
                           }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Location coordinates:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.location_coordinates
-                              ? item?.location_coordinates
-                              : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Home address:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              width: responsiveWidth(60),
-                              textAlign: 'right',
-                            }}>
-                            {item?.home_address ? item?.home_address : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
-                          }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            pos amount:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.pos_amount ? item?.pos_amount : 'N/A'}
-                          </Text>
-                        </View>
+                          {item?.home_address ? item?.home_address : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          pos amount:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.pos_amount ? item?.pos_amount : 'N/A'}
+                        </Text>
+                      </View>
 
-                        <View
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Product:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(70),
+                            textAlign: 'right',
                           }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Product:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              width: responsiveWidth(70),
-                              textAlign: 'right',
-                            }}>
-                            {item?.product ? item?.product : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          {item?.product ? item?.product : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Process name:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.process_name ? item?.process_name : 'N/A'}
+                        </Text>
+                      </View>
+                    </>
+                  ) : (
+                    <>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Process name:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.process_name ? item?.process_name : 'N/A'}
-                          </Text>
-                        </View>
-                      </>
-                    ) : (
-                      <>
-                        <View
+                          Loan no:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Loan no:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.loan_no ? item?.loan_no : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          {item?.loan_no ? item?.loan_no : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Customer name:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.customer_name ? item?.customer_name : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Customer name:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.customer_name ? item?.customer_name : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          Pincode:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Pincode:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            {item?.pincode ? item?.pincode : 'N/A'}
-                          </Text>
-                        </View>
-                        <View
+                          {item?.pincode ? item?.pincode : 'N/A'}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            textAlign: 'center',
                           }}>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              textAlign: 'center',
-                            }}>
-                            Visit Address:
-                          </Text>
-                          <Text
-                            style={{
-                              color: Themes == 'dark' ? '#000' : '#000',
-                              width: responsiveWidth(60),
-                              textAlign: 'right',
-                            }}>
-                            {item?.risk_address ? item?.risk_address : 'N/A'}
-                          </Text>
-                        </View>
-
-                        <View
+                          Visit Address:
+                        </Text>
+                        <Text
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginBottom: 2,
+                            color: Themes == 'dark' ? '#000' : '#000',
+                            width: responsiveWidth(60),
+                            textAlign: 'right',
                           }}>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            Created Date:
-                          </Text>
-                          <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
-                            {item?.create_at ? item?.create_at : 'N/A'}
-                          </Text>
-                        </View>
+                          {item?.risk_address ? item?.risk_address : 'N/A'}
+                        </Text>
+                      </View>
 
-                        <View style={styles.centeredView}>
-                          <Modal
-                            animationType="none"
-                            transparent={true}
-                            visible={modalVisible1}
-                            onRequestClose={() => {
-                              Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'screen has been closed.',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                              });
-
-                              setModalVisible1(!modalVisible1);
-                            }}>
-                            <View style={styles.centeredView}>
-                              <View style={styles.modalView}>
-                                <View style={{ padding: 10 }}>
-                                  <View
-                                    style={{
-                                      flexDirection: 'row',
-                                      justifyContent: 'space-between',
-                                    }}>
-                                    <Text
-                                      style={[
-                                        { fontSize: 16, fontWeight: 'bold' },
-                                        {
-                                          color:
-                                            Themes == 'dark'
-                                              ? '#2196F3'
-                                              : '#2196F3',
-                                          marginBottom: 5,
-                                        },
-                                      ]}>
-                                      Remark
-                                    </Text>
-                                  </View>
-                                  <TextInput
-                                    placeholder="Notes"
-                                    value={remark}
-                                    placeholderTextColor={
-                                      theme == 'dark' ? '#000' : '#000'
-                                    }
-                                    style={{
-                                      color: theme == 'dark' ? '#000' : '#000',
-                                      borderWidth: 1,
-                                      borderRadius: 10,
-                                      textAlignVertical: 'top', // Align text to the top in multiline
-                                      padding: 5,
-                                      height: 100, // Adjust height to match number of lines
-                                    }}
-                                    multiline={true}
-                                    autoFocus={true} // autoFocusOnLoad should be replaced by autoFocus
-                                    onChangeText={text => [
-                                      setRemart(text),
-                                    ]}
-                                    onChange={() => setRemarkError(null)}
-                                  />
-                                  {remarkError ? (
-                                    <Text
-                                      style={{
-                                        color: 'red',
-                                        marginBottom: 8,
-                                        textAlign: 'center',
-                                        fontSize: 13,
-                                        marginTop: 5,
-                                      }}>
-                                      {remarkError}
-                                    </Text>
-                                  ) : null}
-                                </View>
-                                <View style={{ margin: 20, alignSelf: 'center' }}>
-                                  <Pressable onPress={() => takePhotoFromCamera()}>
-                                    <View style={styles.takepic}>
-                                      <Text style={styles.takepictext}>
-                                        PICK FROM CAMERA
-                                      </Text>
-                                      {cameramodal ? (
-                                        <AntDesign
-                                          name="check"
-                                          size={20}
-                                          color="#fff"
-                                        />
-                                      ) : null}
-                                    </View>
-                                  </Pressable>
-                                  <TouchableOpacity
-                                    onPress={() => choosePhotoFromLibrary()}>
-                                    <View style={styles.takepic1}>
-                                      <Text style={styles.takepictext}>
-                                        PICK FROM GALLERY
-                                      </Text>
-                                      {cameramodal1 ? (
-                                        <AntDesign
-                                          name="check"
-                                          size={20}
-                                          color="#fff"
-                                        />
-                                      ) : null}
-                                    </View>
-                                  </TouchableOpacity>
-
-                                  {photoError ? (
-                                    <Text
-                                      style={{
-                                        color: 'red',
-                                        marginBottom: 8,
-                                        textAlign: 'center',
-                                        fontSize: 13,
-                                        marginTop: 5,
-                                      }}>
-                                      {photoError}
-                                    </Text>
-                                  ) : null}
-                                  <Pressable
-                                    onPress={() => chooseDocumentLibrary()}>
-                                    <View style={styles.takepic1}>
-                                      <Text style={styles.takepictext}>
-                                        PICK Document
-                                      </Text>
-                                      {docmodal ? (
-                                        <AntDesign
-                                          name="check"
-                                          size={20}
-                                          color="#fff"
-                                        />
-                                      ) : null}
-                                    </View>
-                                  </Pressable>
-
-                                  <Dropdown
-                                    style={[
-                                      styles.dropdown,
-                                      {
-                                        borderBottomLeftRadius: isFocus ? 0 : 8,
-                                        borderBottomRightRadius: isFocus ? 0 : 8,
-                                      },
-                                    ]}
-                                    placeholderStyle={{
-                                      color: Themes == 'dark' ? '#fff' : '#fff',
-                                      textAlign: 'center',
-                                    }}
-                                    itemContainerStyle={{ height: 60 }}
-                                    containerStyle={{ height: responsiveHeight(20) }}
-                                    selectedTextStyle={[
-                                      styles.selectedTextStyle,
-                                      { color: Themes == 'dark' ? '#fff' : '#fff' },
-                                    ]}
-                                    data={disposition}
-                                    maxHeight={300}
-                                    labelField="title"
-                                    valueField="id"
-                                    placeholder={
-                                      !isFocus ? 'Disposition codes' : 'codes'
-                                    }
-                                    iconStyle={styles.iconStyle}
-                                    value={value}
-                                    itemTextStyle={{
-                                      color: Themes == 'dark' ? '#000' : '#000',
-                                      textAlign: 'center',
-                                    }}
-                                    onFocus={() => setIsFocus(true)}
-                                    onBlur={() => setIsFocus(false)}
-                                    onChange={item => {
-                                      setValue(item?.id);
-                                      setCodeName(item.title);
-                                      setIsFocus(false);
-                                      setValueError(null);
-                                    }}
-                                  />
-                                  {valueerror ? (
-                                    <Text
-                                      style={{
-                                        color: 'red',
-                                        marginBottom: 8,
-                                        textAlign: 'center',
-                                        fontSize: 13,
-                                        marginTop: 5,
-                                      }}>
-                                      {valueerror}
-                                    </Text>
-                                  ) : null}
-                                </View>
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    alignSelf: 'center',
-                                  }}>
-                                  {loading1 ? (
-                                    <>
-                                      <Pressable
-                                        disabled={true}
-                                        style={[
-                                          styles.button,
-                                          styles.buttonSubmit,
-                                        ]}>
-                                        <Text
-                                          style={[
-                                            { textAlign: 'center' },
-                                            {
-                                              color:
-                                                Themes == 'dark' ? '#000' : '#000',
-                                            },
-                                          ]}>
-                                          Submit
-                                        </Text>
-
-                                      </Pressable>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Pressable
-                                        style={[
-                                          styles.button,
-                                          styles.buttonSubmit1,
-                                        ]}
-                                        onPress={() => tast_status_update(item)}>
-                                        <Text
-                                          style={[
-                                            { textAlign: 'center' },
-                                            {
-                                              color:
-                                                Themes == 'dark' ? '#fff' : '#fff',
-                                            },
-                                          ]}>
-                                          Submit
-                                        </Text>
-                                        {
-                                          loading ?
-                                            <ActivityIndicator
-                                              marginHorizontal={8}
-                                              size="small"
-                                              color="#fff"
-                                            />
-                                            :
-                                            null
-                                        }
-
-                                      </Pressable>
-                                    </>
-                                  )}
-                                  <Pressable
-                                    style={[styles.button, styles.buttonClose]}
-                                    onPress={() =>
-                                      setModalVisible1(!modalVisible1)
-                                    }>
-                                    <Text
-                                      style={[
-                                        { textAlign: 'center' },
-                                        { color: Themes == 'dark' ? '#fff' : '#fff' },
-                                      ]}>
-                                      Cancel
-                                    </Text>
-                                  </Pressable>
-                                </View>
-                              </View>
-                            </View>
-                          </Modal>
-                        </View>
-
-                      </>
-                    )}
-                  </View>
-                </>
-              )}
-            />
-          </PullToRefresh>
-
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 2,
+                        }}>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          Created Date:
+                        </Text>
+                        <Text style={{ color: Themes == 'dark' ? '#000' : '#000' }}>
+                          {item?.create_at ? item?.create_at : 'N/A'}
+                        </Text>
+                      </View>
+                    </>
+                  )}
+                </View>
+              </>
+            )}
+          />
         </Root>
 
       </View>

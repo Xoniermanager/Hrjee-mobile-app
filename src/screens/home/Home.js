@@ -569,13 +569,13 @@ const Home = ({ navigation }) => {
         if (err.message === 'Requested image should either contain bytes or s3 object.') {
           setShowKyc(false)
           setIsModalVisible(true); // Show the modal
-        } else {
+        } else if(err.message === 'Request has invalid parameters') {
           // Show the popup with the error message for other errors
           Popup.show({
             type: 'Warning',
             title: 'Warning',
             button: true,
-            textBody: err.message, // Display the actual error message
+            textBody: 'Please keep your face facing the camera', // Display the actual error message
             buttonText: 'Ok',
             callback: () => Popup.hide()
           });

@@ -37,17 +37,21 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>This will allow you to choose the picture to set your profile image</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Program requires GPS to track cars and job orders</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Program requires GPS to track cars and job orders</string>
 	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
 	<dict>
 		<key>Location</key>
 		<string>We need your location to provide location-based services.</string>
 	</dict>
+
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location is needed to assist with task navigation, confirm progress, and provide real-time updates to managers during task completion.</string>
+
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to help you navigate to assigned tasks and ensure timely updates for task progress tracking.</string>
+
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Program requires GPS to track cars and job orders</string>
+	<string>We use your location to guide you to assigned locations and provide real-time task updates while you work.</string>
+
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Your message to user when the microphone is accessed for the first time</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -78,10 +82,7 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>fetch</string>
 		<string>location</string>
-		<string>processing</string>
-		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

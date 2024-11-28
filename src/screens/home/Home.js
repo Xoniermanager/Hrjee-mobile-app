@@ -19,7 +19,7 @@ import {
 import React, {
   useState,
   useContext,
-  useEffect, createContext, useRef
+  useEffect, createContext, useRef, Pressable
 } from 'react';
 import { Root, Popup } from 'popup-ui';
 import LinearGradient from 'react-native-linear-gradient';
@@ -2469,6 +2469,9 @@ const Home = ({ navigation }) => {
 
   // location..................tracking..................................
 
+
+  console.log("kYCModal=======>", kYCModal)
+
   const [locationArray, setLocationArray] = useState([]);
 
   const storeLocation = async (location) => {
@@ -3281,21 +3284,17 @@ const Home = ({ navigation }) => {
                   :
                   null
               }
-
               <Modal
                 isVisible={kYCModal}
 
                 animationIn="zoomIn"
                 animationOut="zoomOut"
               >
-                <View style={styles.modalContent}>
-                  <Image
-                    source={require('../../images/kycsuccess.png')}
-                    style={{ width: responsiveWidth(90), height: responsiveHeight(20), resizeMode: 'contain', alignSelf: 'center' }}
-                  />
-                  <Text style={{ color: '#000', fontSize: responsiveFontSize(2), fontWeight: 'bold', marginTop: responsiveHeight(1) }}>Your KYC has been</Text>
-                  <Text style={{ color: '#000', fontSize: responsiveFontSize(2), fontWeight: 'bold', marginTop: responsiveHeight(1) }}>successfully completed.</Text>
-                  <Text style={{ color: '#0043ae', fontSize: responsiveFontSize(2), fontWeight: 'bold', marginTop: responsiveHeight(1) }}>Thank you!</Text>
+                <View style={styles.containerpunchinmodal}>
+                  <Text style={styles.text}>Click on the button to mark your attendance.</Text>
+                  <Pressable style={styles.button}>
+                    <Text style={styles.buttonText}>Punch In</Text>
+                  </Pressable>
                 </View>
               </Modal>
               {/* <Modal
@@ -3522,7 +3521,7 @@ const styles = StyleSheet.create({
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10, 
+    borderRadius: 10,
     borderColor: 'rgba(0, 0, 0, 0.1)',
   },
   preview: {
@@ -3678,6 +3677,35 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 5,
   },
+  containerpunchinmodal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  text: {
+    fontSize: 18,
+    color: '#000000',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  button: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: '#0052CC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5, // For shadow on Android
+    shadowColor: '#000', // For shadow on iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
 });
-
 

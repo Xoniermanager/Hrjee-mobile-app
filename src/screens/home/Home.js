@@ -70,8 +70,7 @@ import { accessKeyId, secretAccessKey, region } from "@env"
 import Icon from 'react-native-vector-icons/Ionicons'; // Ensure you have react-native-vector-icons installed
 import { showMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
-
-
+import PunchINPage from './PunchINPage';
 
 
 const Home = ({ navigation }) => {
@@ -119,6 +118,7 @@ const Home = ({ navigation }) => {
     image: '',
     name: '',
   });
+  const [modalVisible1, setModalVisible1] = useState(false);
   const monthNames = [
     'Jan',
     'Feb',
@@ -434,7 +434,7 @@ const Home = ({ navigation }) => {
   const [suggestion, setSuggestion] = useState(false)
   const [showkyc, setShowKyc] = useState(false)
   const [modalkycpermissions, setModalKycPermission] = useState(false)
-
+    
 
   const s3 = new S3({
     accessKeyId: accessKeyId,
@@ -524,7 +524,6 @@ const Home = ({ navigation }) => {
     })
       .then(response => response.json())
       .then(response => {
-
         setModalKycPermission(response?.data?.face_kyc)
         if (response?.data?.face_kyc == 1) {
           setFace_kyc_img(response?.data?.face_kyc_img)
@@ -571,6 +570,10 @@ const Home = ({ navigation }) => {
     rekognition.compareFaces(params, (err, data) => {
       if (err) {
         if (err.message === 'Requested image should either contain bytes or s3 object.') {
+          setShowKyc(false)
+          setIsModalVisible(true); // Show the modal
+        } 
+        else if (err.message === 'Request has invalid parameters') {
           setShowKyc(false)
           setIsModalVisible(true); // Show the modal
         } else {
@@ -744,7 +747,6 @@ const Home = ({ navigation }) => {
     evaluatePasswordStrength(password);
   };
   //ending change password modal.............................................
-
 
 
   const showAlert = () => {
@@ -2423,6 +2425,7 @@ const Home = ({ navigation }) => {
     }, 1500);
   }, [getActiveLocationApi.loading]);
 
+
   const get_month_logs = async () => {
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -2737,7 +2740,13 @@ const Home = ({ navigation }) => {
       console.error('Error starting background service:', e);
     }
   };
-
+  // console.log("face_kyc_img---------->", face_kyc_img)
+  if(face_kyc_img){
+    if(inTime == null){
+      return <PunchINPage/>
+    }
+  }
+ 
   const renderItemLogs = ({ item, index }) => {
     const time = new Date(item?.punch_in_time);
     const getTime = time.toLocaleTimeString();
@@ -2811,6 +2820,7 @@ const Home = ({ navigation }) => {
     return <HomeSkeleton />
   }
 
+  console.log("updatedfacereconization?.length > 0 && modalkycpermissions == 0------------->", modalkycpermissions)
 
   return (
     <>
@@ -3047,9 +3057,6 @@ const Home = ({ navigation }) => {
                                   }}>
                                   Punch Out
                                 </Text>
-                                {loading ? (
-                                  <ActivityIndicator color="white" />
-                                ) : null}
                               </TouchableOpacity>
                             </>
                           )}
@@ -3149,10 +3156,7 @@ const Home = ({ navigation }) => {
 
                   </View>
                 </View>
-
               </PullToRefresh>
-              {/* <Button title="Show Modal" onPress={toggleModal} />   */}
-
               {
                 updatedfacereconization?.length > 0 && modalkycpermissions == 0 ?
                   <Modal
@@ -3284,36 +3288,8 @@ const Home = ({ navigation }) => {
                   :
                   null
               }
-              <Modal
-                isVisible={kYCModal}
 
-                animationIn="zoomIn"
-                animationOut="zoomOut"
-              >
-                <View style={styles.containerpunchinmodal}>
-                  <Text style={styles.text}>Click on the button to mark your attendance.</Text>
-                  <Pressable style={styles.button}>
-                    <Text style={styles.buttonText}>Punch In</Text>
-                  </Pressable>
-                </View>
-              </Modal>
               {/* <Modal
-                isVisible={faceModal}
-
-                animationOut="zoomOut"
-              >
-                <View style={styles.modalContent}>
-                  <Image
-                    source={require('../../images/kycsuccess.png')}
-                    style={{ width: responsiveWidth(90), height: responsiveHeight(20), resizeMode: 'contain', alignSelf: 'center' }}
-                  />
-                  <Text style={{ color: '#000', fontSize: responsiveFontSize(2), fontWeight: 'bold', marginTop: responsiveHeight(1) }}>Face match detected!</Text>
-                  <TouchableOpacity onPress={() => setFaceModal(!faceModal)}>
-                    <Text style={{ color: '#0043ae', fontSize: responsiveFontSize(2), fontWeight: 'bold', marginTop: responsiveHeight(1) }}>Thank you!</Text>
-                  </TouchableOpacity>
-                </View>
-              </Modal> */}
-              <Modal
                 isVisible={faceNotModal}
                 // onBackdropPress={toggleModal}
                 animationIn="zoomIn"
@@ -3328,7 +3304,7 @@ const Home = ({ navigation }) => {
                   <Text style={{ color: '#0043ae', fontSize: responsiveFontSize(2), fontWeight: 'bold', marginTop: responsiveHeight(1) }}>Please try again.</Text>
 
                 </View>
-              </Modal>
+              </Modal> */}
               {modalVisible && (
                 <View
                   style={{
@@ -3707,5 +3683,35 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  outerCircle: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: '#D3D3D3', // Light gray (Outermost border)
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15
+  },
+  middleCircle: {
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#FFFFFF', // White (Second border)
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  innerCircle: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonTextPUnchInPopup: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF', // White text for the button
+  },
+
 });
 

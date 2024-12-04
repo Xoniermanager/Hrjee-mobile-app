@@ -108,7 +108,6 @@ const Home = ({ navigation }) => {
     long: '',
     lat: '',
   });
-  console.log("firsttimelogin--------", firsttimelogin)
   const [locationOut, setlocationOut] = useState(null);
   const [isModalVisiblePassword, setIsModalVisiblePassword] = useState(true);
   const [location, setLocation] = useState(null);
@@ -142,8 +141,6 @@ const Home = ({ navigation }) => {
     'Friday',
     'Saturday',
   ];
-
-  // console.log("livetrackingaccess......", livetrackingaccess?.length)
 
   const d = new Date();
   var mon = d.getMonth() + 1 <= 9 ? '0' + (d.getMonth() + 1) : d.getMonth() + 1;
@@ -2473,7 +2470,6 @@ const Home = ({ navigation }) => {
   // location..................tracking..................................
 
 
-  console.log("kYCModal=======>", kYCModal)
 
   const [locationArray, setLocationArray] = useState([]);
 
@@ -2820,7 +2816,6 @@ const Home = ({ navigation }) => {
     return <HomeSkeleton />
   }
 
-  console.log("updatedfacereconization?.length > 0 && modalkycpermissions == 0------------->", modalkycpermissions)
 
   return (
     <>

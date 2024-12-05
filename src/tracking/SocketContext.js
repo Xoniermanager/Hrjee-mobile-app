@@ -46,7 +46,7 @@ const SocketProvider = ({ children }) => {
 
     axios
       .request(config)
-      .then(response => { 
+      .then(response => {
         setEmployeeNumber(response?.data?.users?.EMPLOYEE_NUMBER);
         setList(response?.data?.menu_access);
         setRadius(response?.data?.config?.punchin_radius);
@@ -110,7 +110,7 @@ const SocketProvider = ({ children }) => {
     if (activeinactivetracking == 0) {
       EndBackgroundService()
       console.log('end...');
-    }else{
+    } else {
       triggerBackgroundService()
     }
   }, [activeinactivetracking])
@@ -121,7 +121,7 @@ const SocketProvider = ({ children }) => {
     await BackgroundService.stop()
   }
 
- 
+
 
   return (
     <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard, managerdetils, updatedfacereconization, casevisitpermission, employeeNumber, firsttimelogin }}>

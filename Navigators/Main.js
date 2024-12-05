@@ -26,7 +26,7 @@ import Home from '../src/screens/home/Home';
 import PRM from '../src/screens/PRM/PRM';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
 import { SocketContext } from '../src/tracking/SocketContext';
-import { Platform } from 'react-native';
+import { Platform, Text } from 'react-native';
 
 
 const Tab = createBottomTabNavigator();
@@ -56,6 +56,7 @@ const DUMMY_MENUS = [
 ]
 
 const Main = () => {
+  // return <Text>Hello</Text>
   const { list, prm } = useContext(SocketContext)
   const [companyid, setCompany_id] = useState('');
   const [prmData, setPrmData] = useState();

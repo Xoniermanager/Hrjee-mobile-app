@@ -34,7 +34,7 @@ import { EssContext } from '../../../Context/EssContext';
 
 
 const PunchINPage = () => {
-    const navigation=useNavigation()
+    const navigation = useNavigation()
     const [disabledBtn, setDisabledBtn] = useState(false);
     const [loading, setloading] = useState(false);
     const [kYCModal, setKYCModal] = useState(false)
@@ -45,7 +45,7 @@ const PunchINPage = () => {
     const [timerOn, settimerOn] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [user, setuser1] = useState(null);
-    const { setuser } = useContext(EssContext);
+    const { setuser, setIsPunchedIn } = useContext(EssContext);
     const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber, firsttimelogin } = useContext(SocketContext);
     console.log("updatedfacereconization============>", updatedfacereconization.length)
     const route = useRoute();
@@ -60,17 +60,26 @@ const PunchINPage = () => {
     });
     const [officetiming, setOfficeTiming] = useState('');
 
+    const handlePopupCallback = () => {
+        Popup.hide();
+        setShowKyc(false);
+        setIsPunchedIn(true);
+        setTimeout(() => {
+            navigation.navigate('Main');
+        }, 300);
+    };
+
 
     useEffect(() => {
         const getData = async () => {
-          AsyncStorage.getItem('UserData').then(res => {
-            setuser1(JSON.parse(res));
-            setuser(JSON.parse(res));
-            setOfficeTiming(JSON.parse(res));
-          });
+            AsyncStorage.getItem('UserData').then(res => {
+                setuser1(JSON.parse(res));
+                setuser(JSON.parse(res));
+                setOfficeTiming(JSON.parse(res));
+            });
         };
         getData();
-      }, []);
+    }, []);
 
     useFocusEffect(
         useCallback(() => {
@@ -243,7 +252,7 @@ const PunchINPage = () => {
                         button: true,
                         textBody: 'Keep Your Face front to the camera',
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
+                        callback: () => [Popup.hide(), setShowKyc(false)]
                     });
                     // setShowKyc(false)
                 }
@@ -254,7 +263,7 @@ const PunchINPage = () => {
                         button: true,
                         textBody: 'Keep Your Face front to the camera',
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
+                        callback: () => [Popup.hide(), setShowKyc(false)]
                     });
                     // setShowKyc(false)
                 } else {
@@ -265,7 +274,7 @@ const PunchINPage = () => {
                         button: true,
                         textBody: err.message, // Display the actual error message
                         buttonText: 'Ok',
-                        callback: () => Popup.hide()
+                        callback: () => [Popup.hide(), setShowKyc(false)]
                     });
                     // setShowKyc(false)
                 }
@@ -277,7 +286,7 @@ const PunchINPage = () => {
                     button: true,
                     textBody: 'Faces do not match',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()]
+                    callback: () => [Popup.hide(), setShowKyc(false)]
                 });
                 // setShowKyc(false)
             }
@@ -1050,19 +1059,18 @@ const PunchINPage = () => {
                                     .then(function (response) {
                                         if (response.data.status == 1) {
                                             check_punchIn();
-                                            // Popup.show({
-                                            //     type: 'Success',
-                                            //     title: 'Success',
-                                            //     button: true,
-                                            //     textBody: response.data.message,
-                                            //     buttonText: 'Ok',
-                                            //     callback: () => [Popup.hide()]
-                                            // });
+                                            Popup.show({
+                                                type: 'Success',
+                                                title: 'Success',
+                                                button: true,
+                                                textBody: response.data.message,
+                                                buttonText: 'Ok',
+                                                callback: handlePopupCallback
+                                            });
                                             setIsModalVisible(false)
-                                            setShowKyc(false)
                                             setloading(false);
                                             setDisabledBtn(false)
-                                            navigation.navigate('Home')
+                                            navigation.navigate('Main', { PunchNavigate :  'PunchNavigate'});
 
                                         } else {
                                             Popup.show({
@@ -1071,9 +1079,8 @@ const PunchINPage = () => {
                                                 button: true,
                                                 textBody: response.data.message,
                                                 buttonText: 'Ok',
-                                                callback: () => [Popup.hide()]
+                                                callback: () => [Popup.hide(), setShowKyc(false)]
                                             });
-                                            setShowKyc(false)
                                             setloading(false);
                                             setDisabledBtn(false)
 
@@ -1132,15 +1139,14 @@ const PunchINPage = () => {
                                             .then(function (response) {
                                                 if (response.data.status == 1) {
                                                     check_punchIn();
-                                                    // Popup.show({
-                                                    //     type: 'Success',
-                                                    //     title: 'Success',
-                                                    //     button: true,
-                                                    //     textBody: response.data.message,
-                                                    //     buttonText: 'Ok',
-                                                    //     callback: () => [Popup.hide()]
-                                                    // });
-                                                    setShowKyc(false)
+                                                    Popup.show({
+                                                        type: 'Success',
+                                                        title: 'Success',
+                                                        button: true,
+                                                        textBody: response.data.message,
+                                                        buttonText: 'Ok',
+                                                        callback: () => [Popup.hide(), setShowKyc(false)]
+                                                    });
                                                     setloading(false);
                                                     setDisabledBtn(false)
                                                     setIsModalVisible(false)
@@ -1155,10 +1161,8 @@ const PunchINPage = () => {
                                                         button: true,
                                                         textBody: response.data.message,
                                                         buttonText: 'Ok',
-                                                        callback: () => [Popup.hide()]
+                                                        callback: () => [Popup.hide(), setShowKyc(false)]
                                                     });
-                                                    setShowKyc(false)
-
                                                 }
                                             })
                                             .catch(function (error) {

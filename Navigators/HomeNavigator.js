@@ -80,6 +80,8 @@ import Face_detection from '../src/screens/FaceReconization/Face_detection';
 import AddTask from '../src/screens/Location/AddTask';
 import OnboardingScreen from '../src/Onboarding/OnboardingScreen';
 import Splash from '../src/Splash';
+import PunchINPage from '../src/screens/home/PunchINPage';
+import PunchOutPage from '../src/screens/home/PunchOutPage';
 
 
 const Stack = createNativeStackNavigator();
@@ -150,6 +152,20 @@ function MyStack() {
                 }}
                 name="Main"
                 component={Main}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PunchINPage"
+                component={PunchINPage}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PunchOutPage"
+                component={PunchOutPage}
               />
 
 
@@ -429,7 +445,20 @@ function MyStack() {
                 name="Main"
                 component={Main}
               />
-
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PunchINPage"
+                component={PunchINPage}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PunchOutPage"
+                component={PunchOutPage}
+              />
               <Stack.Screen options={{
                 headerShown: true,
                 headerStyle: { backgroundColor: '#e3eefb' }

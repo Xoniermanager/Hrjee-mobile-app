@@ -88,7 +88,7 @@ const Home = ({ navigation }) => {
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
-  const { setuser } = useContext(EssContext);
+  const { setuser, isPunchedIn, setIsPunchedIn } = useContext(EssContext);
   const [user, setuser1] = useState(null);
   const [inTime, setinTime] = useState(null);
   const [homeskelton, setHomeSkeleton] = useState(null)
@@ -186,8 +186,6 @@ const Home = ({ navigation }) => {
       });
   };
 
-
-
   useEffect(() => {
     const getData = async () => {
       AsyncStorage.getItem('UserData').then(res => {
@@ -235,6 +233,12 @@ const Home = ({ navigation }) => {
     ManuAccessdetails();
     getUserFace()
   };
+
+  useEffect(() => {
+    if (isPunchedIn) {
+      handleRefresh()
+    }
+  }, [isPunchedIn]);
 
   const getActiveLocation = async () => {
     const token = await AsyncStorage.getItem('Token');
@@ -419,7 +423,7 @@ const Home = ({ navigation }) => {
   };
 
 
-  // face dedection start...........................................
+  // face dedection start..........................................
   const [firstImage, setFirstImage] = useState(false)
   const [showCamera, setShowCamera] = useState(false)
   const [menu_access, setMenuaccess] = useState()
@@ -431,7 +435,7 @@ const Home = ({ navigation }) => {
   const [suggestion, setSuggestion] = useState(false)
   const [showkyc, setShowKyc] = useState(false)
   const [modalkycpermissions, setModalKycPermission] = useState(false)
-    
+
 
   const s3 = new S3({
     accessKeyId: accessKeyId,
@@ -569,7 +573,7 @@ const Home = ({ navigation }) => {
         if (err.message === 'Requested image should either contain bytes or s3 object.') {
           setShowKyc(false)
           setIsModalVisible(true); // Show the modal
-        } 
+        }
         else if (err.message === 'Request has invalid parameters') {
           setShowKyc(false)
           setIsModalVisible(true); // Show the modal
@@ -1361,17 +1365,6 @@ const Home = ({ navigation }) => {
               var long = parseFloat(location.longitude);
               const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
               const address = await axios.get(urlAddress)
-              // { Live tracking starting}
-              // sendLocation({
-              //   userId: userInfo?.userid,
-              //   location: {
-              //     longitude: long,
-              //     latitude: lat,
-              //   },
-              // });
-              // { Live tracking ending }
-              // console.log(address.data?.results[0]?.formatted_address)
-
               setcurrentLocation({
                 long: long,
                 lat: lat,
@@ -2308,7 +2301,7 @@ const Home = ({ navigation }) => {
         callback: () => [Popup.hide()],
       });
     }
-  }, [punchInApi.loading,]);
+  }, [punchInApi.loading, isPunchedIn]);
 
   useEffect(() => {
     if (punchOutApi.data != null) {
@@ -2486,7 +2479,7 @@ const Home = ({ navigation }) => {
         console.error('Error storing location:', error);
       }
     } else {
-      console.log('Location Tracking Blocked for this user');
+      // console.log('Location Tracking Blocked for this user');
     }
   };
 
@@ -2529,7 +2522,7 @@ const Home = ({ navigation }) => {
         setLocationArray([]);
       }
     } else {
-      console.log('Location Tracking Blocked for this user');
+      // console.log('Location Tracking Blocked for this user');
     }
   };
 
@@ -2737,12 +2730,13 @@ const Home = ({ navigation }) => {
     }
   };
   // console.log("face_kyc_img---------->", face_kyc_img)
-  if(face_kyc_img){
-    if(inTime == null){
-      return <PunchINPage/>
+
+  if (face_kyc_img) {
+    if (inTime == null && !isPunchedIn) {
+      return <PunchINPage />
     }
   }
- 
+
   const renderItemLogs = ({ item, index }) => {
     const time = new Date(item?.punch_in_time);
     const getTime = time.toLocaleTimeString();

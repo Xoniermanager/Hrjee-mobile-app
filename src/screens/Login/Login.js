@@ -25,8 +25,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import messaging from '@react-native-firebase/messaging';
 import CheckBox from 'react-native-check-box';
 
-
-
 const Login = ({ children }) => {
   const theme = useColorScheme();
   const navigation = useNavigation()
@@ -88,6 +86,7 @@ const Login = ({ children }) => {
         buttonText: 'Ok',
         callback: () => [Popup.hide(),],
       });
+
     } else if (password.length < 6) {
       Popup.show({
         type: 'Warning',
@@ -269,115 +268,115 @@ const Login = ({ children }) => {
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#e3eefb" />
       <SafeAreaView style={{ flex: 1, backgroundColor: '#e3eefb' }}>
-      <Root>
+        <Root>
 
-        <ScrollView>
+          <ScrollView>
 
-          <Image
-            style={{
-              alignSelf: 'center',
-              marginTop: 30,
-              height: responsiveHeight(25), width: responsiveWidth(45), resizeMode: "contain"
-            }}
-            source={require('../../images/logo.png')}
-          />
-          <Text style={{
-            textAlign: 'center',
-            color: '#000',
-            fontSize: responsiveFontSize(3),
-            fontWeight: '600',
-            marginTop: 10,
-          }}>
-            Login to your Account
-          </Text>
-          <View style={styles.input_top_margin}>
-            <Text style={styles.input_title}>Employee Email/Id</Text>
-
-            <View style={{
-              width: responsiveWidth(79),
-              borderRadius: 20,
-              alignSelf: 'center',
-              backgroundColor: '#fff',
-              marginTop: 7,
-              padding: Platform.OS === 'ios' ? 12 : 2,
-              color: '#000',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <TextInput
-                style={styles.input}
-                placeholder="username@gmail.com"
-                placeholderTextColor={theme == 'dark' ? '#8e8e8e' : '#8e8e8e'}
-                onChangeText={text => setemail(text.toLowerCase())}
-              />
-              <Image
-                source={require('../../images/user.png')}
-                style={{ width: 25, height: 25, marginRight: 10 }}
-              />
-            </View>
-          </View>
-          <View style={styles.input_top_margin}>
-            <Text style={styles.input_title}>Password</Text>
-            <View style={{
-              width: responsiveWidth(79),
-              borderRadius: 20,
-              alignSelf: 'center',
-              backgroundColor: '#fff',
-              marginTop: 7,
-              padding: Platform.OS === 'ios' ? 12 : 2,
-              color: '#000',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
-              <TextInput
-                style={styles.input}
-                secureTextEntry={!showPassword}
-                placeholder="**********"
-                placeholderTextColor={theme == 'dark' ? '#8e8e8e' : '#8e8e8e'}
-                onChangeText={text => setpassword(text.toLowerCase())}
-              />
-              <MaterialCommunityIcons
-                name={!showPassword ? 'eye-off' : 'eye'}
-                size={24}
-                color="#000"
-                style={{ alignSelf: 'center' }}
-                onPress={toggleShowPassword}
-              />
-            </View>
-          </View>
-          <View style={{ marginLeft: 40, flexDirection: "row", width: "100%", alignItems: "center", marginTop: 10 }}>
-            <CheckBox
-              isChecked={isChecked}
-              onClick={handleCheckboxChange}
-              checkBoxColor="#000" />
-            <TouchableOpacity onPress={openPdf}>
-              <Text style={{ marginLeft: 5, color: "#000", fontSize: 12 }}>Terms and Condition</Text>
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn == true ? true : false}>
-
-            {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : <Text
+            <Image
               style={{
-                color: '#fff',
-                fontSize: responsiveFontSize(2.1),
-                fontWeight: '500',
+                alignSelf: 'center',
+                marginTop: 30,
+                height: responsiveHeight(25), width: responsiveWidth(45), resizeMode: "contain"
+              }}
+              source={require('../../images/logo.png')}
+            />
+            <Text style={{
+              textAlign: 'center',
+              color: '#000',
+              fontSize: responsiveFontSize(3),
+              fontWeight: '600',
+              marginTop: 10,
+            }}>
+              Login to your Account
+            </Text>
+            <View style={styles.input_top_margin}>
+              <Text style={styles.input_title}>Employee Email/Id</Text>
+
+              <View style={{
+                width: responsiveWidth(79),
+                borderRadius: 20,
+                alignSelf: 'center',
+                backgroundColor: '#fff',
+                marginTop: 7,
+                padding: Platform.OS === 'ios' ? 12 : 2,
+                color: '#000',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between'
               }}>
-              Login
-            </Text>}
-          </TouchableOpacity>
-          <View style={{ marginTop: 10 }}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Forgot Password')}>
-              <Text style={styles.text}>Forgot Password?</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="username@gmail.com"
+                  placeholderTextColor={theme == 'dark' ? '#8e8e8e' : '#8e8e8e'}
+                  onChangeText={text => setemail(text.toLowerCase())}
+                />
+                <Image
+                  source={require('../../images/user.png')}
+                  style={{ width: 25, height: 25, marginRight: 10 }}
+                />
+              </View>
+            </View>
+            <View style={styles.input_top_margin}>
+              <Text style={styles.input_title}>Password</Text>
+              <View style={{
+                width: responsiveWidth(79),
+                borderRadius: 20,
+                alignSelf: 'center',
+                backgroundColor: '#fff',
+                marginTop: 7,
+                padding: Platform.OS === 'ios' ? 12 : 2,
+                color: '#000',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <TextInput
+                  style={styles.input}
+                  secureTextEntry={!showPassword}
+                  placeholder="**********"
+                  placeholderTextColor={theme == 'dark' ? '#8e8e8e' : '#8e8e8e'}
+                  onChangeText={text => setpassword(text.toLowerCase())}
+                />
+                <MaterialCommunityIcons
+                  name={!showPassword ? 'eye-off' : 'eye'}
+                  size={24}
+                  color="#000"
+                  style={{ alignSelf: 'center' }}
+                  onPress={toggleShowPassword}
+                />
+              </View>
+            </View>
+            <View style={{ marginLeft: 40, flexDirection: "row", width: "100%", alignItems: "center", marginTop: 10 }}>
+              <CheckBox
+                isChecked={isChecked}
+                onClick={handleCheckboxChange}
+                checkBoxColor="#000" />
+              <TouchableOpacity onPress={openPdf}>
+                <Text style={{ marginLeft: 5, color: "#000", fontSize: 12 }}>Terms and Condition</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={[styles.btn_style]} onPress={() => login()} disabled={disabledBtn == true ? true : false}>
+
+              {loading ? <ActivityIndicator size={'small'} color={"#fff"} /> : <Text
+                style={{
+                  color: '#fff',
+                  fontSize: responsiveFontSize(2.1),
+                  fontWeight: '500',
+                }}>
+                Login
+              </Text>}
             </TouchableOpacity>
-            {/* <TouchableOpacity
+            <View style={{ marginTop: 10 }}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Forgot Password')}>
+                <Text style={styles.text}>Forgot Password?</Text>
+              </TouchableOpacity>
+              {/* <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${phoneNumber}`)}>
                 <Text style={styles.text}>Contact HR for any login issue</Text>
               </TouchableOpacity> */}
-          </View>
-        </ScrollView>
+            </View>
+          </ScrollView>
         </Root>
 
       </SafeAreaView>

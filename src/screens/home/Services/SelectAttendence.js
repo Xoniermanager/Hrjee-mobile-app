@@ -39,8 +39,7 @@ const SelectAttendence = () => {
   const [recentLogs, setrecentLogs] = useState([]);
   const [loading, setloading] = useState(false);
 
-  console.log("startDate-----------", startDate)
-  console.log("endDate-----------", endDate)
+
 
 
   const days = [

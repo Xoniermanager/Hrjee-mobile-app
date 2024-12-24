@@ -427,6 +427,7 @@ function MyStack() {
                 component={OnboardingScreen}
               />
 
+
             </>
 
           ) : (
@@ -727,6 +728,9 @@ function MyStack() {
                 name="OnboardingScreen"
                 component={OnboardingScreen}
               />
+
+
+
             </>
           )}
         </Stack.Navigator>

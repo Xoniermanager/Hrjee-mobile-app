@@ -50,7 +50,6 @@ const LeaveDetails = ({ navigation, route }) => {
         // console.log('response', response.data);
         if (response.data.status == 1) {
           try {
-            console.log("resp====================", response.data.data);
             // setrecentLogs(response.data.content);
             setleaveDetails(response.data.data);
             setapprovalHist(response.data.data.approval_history);

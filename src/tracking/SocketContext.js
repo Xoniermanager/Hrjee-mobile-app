@@ -31,6 +31,7 @@ const SocketProvider = ({ children }) => {
   const [startBackgroundTracking, setStartBackgroundTracking] = useState(null);
   const [employeeNumber, setEmployeeNumber] = useState('');
   const [firsttimelogin, setFirstTimeLogin] = useState('');
+  const [userouttime, setUserOutTime] = useState('');
 
   const ManuAccessdetails_Socket = async () => {
     const token = await AsyncStorage.getItem('Token');
@@ -56,6 +57,7 @@ const SocketProvider = ({ children }) => {
         setFirstTimeLogin(response?.data?.users?.first_time_login);
         setManagerDetils(response?.data?.users?.managerDetails);
         setLocationBlock(response?.data?.users?.track_location);
+        setUserOutTime(response?.data?.user_out_time);
         const updatelocationpermissions = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Tracking")
         const locationmanagement = response?.data?.menu_access?.filter(item => item?.menu_name === "Location Management")
         const prmassign = response?.data?.menu_access?.filter(item => item?.menu_name === "PRM Assign")
@@ -124,7 +126,7 @@ const SocketProvider = ({ children }) => {
 
 
   return (
-    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard, managerdetils, updatedfacereconization, casevisitpermission, employeeNumber, firsttimelogin }}>
+    <SocketContext.Provider value={{ contextState, setContextState, list, prm, radius, taskmaxradious, activeinactivetracking, setActiveInactiveTracking, updatedlivetrackingaccess, livetrackingaccess, ManuAccessdetails_Socket, getList, manualusertackingaccess, locationblock, setStartBackgroundTracking, updatelocationmanagement, prmassignpermissions, diggitalidcard, managerdetils, updatedfacereconization, casevisitpermission, employeeNumber, firsttimelogin, userouttime }}>
       {children}
     </SocketContext.Provider>
   );

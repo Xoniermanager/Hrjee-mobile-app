@@ -23,7 +23,6 @@ import { Root, Popup } from 'popup-ui'
 const Details = ({navigation, route}) => {
   const [loading, setloading] = useState(true);
   const [policyDetail, setpolicyDetail] = useState({});
-  console.log("route.params.policy_id.....", policyDetail)
 
   const monthNames = [
     'January',

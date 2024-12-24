@@ -12,6 +12,7 @@ const EssProvider = ({children}) => {
   const [fcmtoken, setfcmtoken] = useState();
   const [showDrawerHeader, setShowDrawerHeader] = useState(true);
   const [isPunchedIn, setIsPunchedIn] = useState(false);
+  const [isPunchedOut, setIsPunchedOut] = useState(false);
 
   return (
     <EssContext.Provider
@@ -33,7 +34,9 @@ const EssProvider = ({children}) => {
         showDrawerHeader,
         setShowDrawerHeader,
         isPunchedIn,
-        setIsPunchedIn
+        setIsPunchedIn,
+        isPunchedOut,
+        setIsPunchedOut
       }}>
       {children}
     </EssContext.Provider>

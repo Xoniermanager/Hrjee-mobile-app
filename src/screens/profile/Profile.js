@@ -631,8 +631,8 @@ const Profile = ({ navigation }) => {
                     <View style={styles.profileImageContainer}>
                       <Image
                         source={
-                          Userdata.image
-                            ? { uri: Userdata.image }
+                          Userdata?.image
+                            ? { uri: Userdata?.image }
                             : require('../../images/profile_pic.webp')
                         } style={styles.profileImage}
                       />
@@ -880,7 +880,7 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 5, 
+    marginVertical: 5,  width:"98%"
   },
   infoText: {
     color: '#000',

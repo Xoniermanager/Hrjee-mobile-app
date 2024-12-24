@@ -44,7 +44,6 @@ const Policies = ({navigation}) => {
             setpolicies(response.data.content);
           } catch (e) {
             setloading(false);
-            console.log(e);
           }
         } else {
           setloading(false);

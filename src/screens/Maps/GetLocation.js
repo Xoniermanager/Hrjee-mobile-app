@@ -78,7 +78,6 @@ const GetLocation_id = () => {
         }
       })
       .catch(error => {
-        console.log("erro.....", error?.response?.data)
         setloading(false)
         if (error.response.status == '401') {
           AsyncStorage.removeItem('UserData'),

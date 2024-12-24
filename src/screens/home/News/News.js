@@ -85,8 +85,6 @@ const News = ({ navigation }) => {
           }
         } else {
           setloading(false);
-
-          console.log(response.data.msg);
         }
       })
       .catch(error => {

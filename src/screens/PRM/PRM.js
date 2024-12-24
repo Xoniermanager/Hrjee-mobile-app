@@ -47,7 +47,6 @@ const PRM = () => {
   const [dataItem, setDataItem] = useState()
   const [show, setShow] = useState(false)
   const [ind, setInd] = useState()
-  console.log("prmdata.........", prmdata)
   const get_employee_detail = async () => {
     setloading(true)
     const token = await AsyncStorage.getItem('Token');
@@ -264,7 +263,7 @@ const PRM = () => {
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#e3eefb" />
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#e3eefb', }}>
         <Root>
           <View showsVerticalScrollIndicator={false} style={{marginBottom:20}}>
 
@@ -507,7 +506,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignSelf: 'center',
     marginTop: 5,
-    elevation: 10,
+    elevation: 2,
     marginBottom: 5,
     // Add these properties for iOS
     shadowColor: '#000',

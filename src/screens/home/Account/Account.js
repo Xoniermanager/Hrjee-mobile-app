@@ -48,7 +48,6 @@ const FirstTimeUploadImage = async (uri) => {
 
   // Check if there are any faces detected
   if (rekognitionResponse.FaceDetails.length === 0) {
-    console.log("No human faces detected. Upload aborted.");
     return;
   }
 
@@ -60,6 +59,5 @@ const FirstTimeUploadImage = async (uri) => {
     ContentType: 'image/jpeg',
   };
 
-  console.log(s3Params, 'params');
   return s3.upload(s3Params).promise();
 };

@@ -26,10 +26,6 @@ const UserAttendence = () => {
   const [profileData, setProfileData] = useState([]);
   const [attendencedata, setAttendenceData] = useState([]);
 
-  console.log("attendencedata........", attendencedata)
-  console.log("attendencedata........", selectedMonth)
-  console.log("selectedYear........", selectedYear)
-
   const months = [
     { label: 'January', value: 'January' },
     { label: 'February', value: 'February' },
@@ -64,7 +60,6 @@ const UserAttendence = () => {
   };
 
   const monthAsDigit = monthMapping[selectedMonth];
-  console.log("monthAsDigit.....", monthAsDigit)
 
   const fetchProfileDetails = async () => {
     try {
@@ -76,7 +71,6 @@ const UserAttendence = () => {
         `${apiUrl}/SecondPhaseApi/getUserProfile/${user_id}?year=${selectedYear}&month=${monthAsDigit}`,
         config
       );
-      console.log("response.....................", response?.data)
       if (response.data.status === 1) {
         setProfileData(response?.data?.data?.leaveDetails);
         setAttendenceData(response?.data?.data?.userAttendance);

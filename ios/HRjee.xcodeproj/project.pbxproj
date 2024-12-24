@@ -573,7 +573,7 @@
 				CODE_SIGN_ENTITLEMENTS = HRjee/HRjee.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5.0.0.5;
+				CURRENT_PROJECT_VERSION = 5.0.3;
 				DEVELOPMENT_TEAM = MV8X238WS5;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = HRjee/Info.plist;
@@ -607,7 +607,7 @@
 				CODE_SIGN_ENTITLEMENTS = HRjee/HRjee.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5.0.0.5;
+				CURRENT_PROJECT_VERSION = 5.0.3;
 				DEVELOPMENT_TEAM = MV8X238WS5;
 				INFOPLIST_FILE = HRjee/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HRJee;

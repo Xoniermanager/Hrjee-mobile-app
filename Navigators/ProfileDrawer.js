@@ -65,14 +65,13 @@ function CustomDrawerContent(props) {
   });
   const { activeinactivetracking, setActiveInactiveTracking, ManuAccessdetails_Socket, updatedlivetrackingaccess, locationblock } = useContext(SocketContext);
 
-  const [isEnabled, setIsEnabled] = useState(activeinactivetracking == 1 ? true : false);
-  console.log(isEnabled, 'activeinactivetracking')
+  // const [isEnabled, setIsEnabled] = useState(activeinactivetracking == 1 ? true : false);
+  const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = async () => {
     setIsEnabled(previousState => !previousState);
     let data = {
       "status": isEnabled ? 0 : 1
     }
-    console.log(data)
     const token = await AsyncStorage.getItem('Token');
     let config = {
       method: 'post',
@@ -88,7 +87,6 @@ function CustomDrawerContent(props) {
 
     axios.request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
         setActiveInactiveTracking(isEnabled ? 0 : 1)
       })
       .catch((error) => {

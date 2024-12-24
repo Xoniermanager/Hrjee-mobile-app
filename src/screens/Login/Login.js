@@ -8,10 +8,10 @@ import {
   TextInput,
   ActivityIndicator,
   ScrollView,
-  useColorScheme, Linking, Platform, Alert, StatusBar
+  useColorScheme, Animated, Platform, Alert, StatusBar
 } from 'react-native';
 import { Root, Popup } from 'popup-ui'
-import React, { useState, useContext, useEffect, createContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../reusable/apiUrl';
@@ -263,6 +263,44 @@ const Login = ({ children }) => {
     });
   };
 
+  const borderAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Looping the border animation
+    Animated.loop(
+      Animated.timing(borderAnimation, {
+        toValue: 1,
+        duration: 4000, // Duration of one full loop
+        useNativeDriver: false,
+      })
+    ).start();
+  }, []);
+
+  // Border animations
+  const topBorderWidth = borderAnimation.interpolate({
+    inputRange: [0, 0.25],
+    outputRange: ['0%', '100%'], // Top grows first
+    extrapolate: 'clamp',
+  });
+
+  const rightBorderHeight = borderAnimation.interpolate({
+    inputRange: [0.25, 0.5],
+    outputRange: ['0%', '100%'], // Right grows second
+    extrapolate: 'clamp',
+  });
+
+  const bottomBorderWidth = borderAnimation.interpolate({
+    inputRange: [0.5, 0.75],  // This range starts after the right border animation completes
+    outputRange: ['100%', '0%'], // Bottom grows third
+    extrapolate: 'clamp',
+  });
+
+  const leftBorderHeight = borderAnimation.interpolate({
+    inputRange: [0.75, 1],
+    outputRange: ['100%', '0%'], // Left grows last
+    extrapolate: 'clamp',
+  });
+
 
   return (
     <>
@@ -365,6 +403,55 @@ const Login = ({ children }) => {
                 }}>
                 Login
               </Text>}
+
+              {/* Left Border */}
+              <Animated.View
+                style={[
+                  styles.border,
+                  {
+                    height: leftBorderHeight,
+                    left: 0,
+                    top: 0,
+                  },
+                ]}
+              />
+
+              {/* Top Border */}
+              <Animated.View
+                style={[
+                  styles.border,
+                  {
+                    width: topBorderWidth,
+                    left: 0,
+                    top: 0,
+                  },
+                ]}
+              />
+
+              {/* Right Border */}
+              <Animated.View
+                style={[
+                  styles.border,
+                  {
+                    height: rightBorderHeight,
+                    right: 0,
+                    top: 0,
+                  },
+                ]}
+              />
+
+              {/* Bottom Border */}
+              <Animated.View
+                style={[
+                  styles.border,
+                  {
+                    width: bottomBorderWidth,
+                    left: 0,
+                    bottom: 0,
+                  },
+                ]}
+              />
+
             </TouchableOpacity>
             <View style={{ marginTop: 10 }}>
               <TouchableOpacity
@@ -420,13 +507,19 @@ const styles = StyleSheet.create({
     color: Themes == 'dark' ? '#000' : '#000',
   },
   btn_style: {
-    width: responsiveWidth(79),
-    borderRadius: 20,
+    width: responsiveWidth(70),
     alignSelf: 'center',
     backgroundColor: '#0433DA',
     marginTop: responsiveHeight(5),
     height: responsiveHeight(6.25),
     justifyContent: 'center',
     alignItems: 'center',
+  },
+ 
+  border: {
+    position: 'absolute',
+    backgroundColor: '#D8F1FE', // Border color
+    width: 2, // Fixed width for vertical borders
+    height: 2, // Fixed height for horizontal borders,
   },
 });

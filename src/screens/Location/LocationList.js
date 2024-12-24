@@ -79,7 +79,6 @@ const LocationListTabs = () => {
 
 const LocationList = ({ navigation }) => {
     const { casevisitpermission, ManuAccessdetails_Socket } = useContext(SocketContext);
-    console.log("casevisitpermission=>", casevisitpermission)
 
     useEffect(() => {
         ManuAccessdetails_Socket()

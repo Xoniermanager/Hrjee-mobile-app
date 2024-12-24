@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, Platform, Dimensions, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image, Platform, Dimensions, ActivityIndicator, Alert } from 'react-native'
 import React, { useState, useRef, useEffect, useContext, createContext, useCallback } from 'react'
 import LinearGradient from 'react-native-linear-gradient';
 import AWS, { Rekognition, S3, } from 'aws-sdk';
@@ -45,9 +45,11 @@ const PunchINPage = () => {
     const [timerOn, settimerOn] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [user, setuser1] = useState(null);
+    const [locationOut, setlocationOut] = useState(null);
     const { setuser, setIsPunchedIn } = useContext(EssContext);
+    const [punchIn, setpunchIn] = useState(false);
+    const [inTime, setinTime] = useState(undefined);
     const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber, firsttimelogin } = useContext(SocketContext);
-    console.log("updatedfacereconization============>", updatedfacereconization.length)
     const route = useRoute();
     const [currentLocation, setcurrentLocation] = useState({
         long: '',
@@ -103,10 +105,9 @@ const PunchINPage = () => {
     // face dedection start...........................................
     const [firstImage, setFirstImage] = useState(false)
     const [showCamera, setShowCamera] = useState(false)
-    const [menu_access, setMenuaccess] = useState()
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [face_kyc_img, setFace_kyc_img] = useState()
-    const [faces, setFaces] = useState([]);
+    const [faceskyc, setFacesKyc] = useState(false);
     const [progress, setProgress] = useState(0);
     const [imageUri, setImageUri] = useState(null);
     const [suggestion, setSuggestion] = useState(false)
@@ -114,7 +115,6 @@ const PunchINPage = () => {
     const [modalkycpermissions, setModalKycPermission] = useState(false)
     const [detecting, setDetecting] = useState(false);
 
-    console.log("modalkycpermissions========", modalkycpermissions)
 
     const s3 = new S3({
         accessKeyId: accessKeyId,
@@ -154,11 +154,8 @@ const PunchINPage = () => {
             const data = await cameraRef.current.takePictureAsync(options);
             setBlob(data)
             setCapturedImage(data.uri);
-            console.log(data.uri, 'hello')
             const uploadResult = await uploadTmpimage(data.uri);
-            console.log(uploadResult, 'uploadResult')
             const s3ObjectKey = uploadResult.Key;
-            console.log("S3 object data ------------->", s3ObjectKey)
             const ss = await compareFaces(s3ObjectKey)
 
 
@@ -183,7 +180,6 @@ const PunchINPage = () => {
             Body: blob,
             ContentType: 'image/jpeg',
         };
-        console.log("params during punch_in face deduction-----------------", params)
         return s3.upload(params).promise();
     };
     const getUserFace = async () => {
@@ -197,14 +193,13 @@ const PunchINPage = () => {
         })
             .then(response => response.json())
             .then(response => {
-                console.log("response?.data?.face_kyc==========>", response?.data?.face_kyc)
                 setModalKycPermission(response?.data?.face_kyc)
                 if (response?.data?.face_kyc == 1) {
                     setFace_kyc_img(response?.data?.face_kyc_img)
                     setShowKyc(false)
                 }
                 else {
-                    setIsModalVisible(true)
+                    setIsModalVisible(false)
                     setShowKyc(false)
                 }
 
@@ -222,7 +217,6 @@ const PunchINPage = () => {
     // end kyc check api
 
     const compareFaces = async (s3ObjectKey) => {
-        console.log("compareFaces----------")
         // setIsModalVisible(false)
         const token = await AsyncStorage.getItem('Token');
         const userData = await AsyncStorage.getItem('UserData');
@@ -230,7 +224,7 @@ const PunchINPage = () => {
             SourceImage: {
                 S3Object: {
                     Bucket: 'face-recoginition',
-                    Name: s3ObjectKey  // The image you want to compare with
+                    Name: s3ObjectKey // The image you want to compare with
                 },
             },
             TargetImage: {
@@ -244,7 +238,6 @@ const PunchINPage = () => {
 
         rekognition.compareFaces(params, (err, data) => {
             if (err) {
-                console.log("errr------", err?.message)
                 if (err.message === 'Requested image should either contain bytes or s3 object.') {
                     Popup.show({
                         type: 'Warning',
@@ -291,7 +284,6 @@ const PunchINPage = () => {
                 // setShowKyc(false)
             }
             else {
-                console.log("else part")
                 setShowCamera(false)
                 setFaceModal(true)
                 setloading(false);
@@ -308,22 +300,6 @@ const PunchINPage = () => {
     }, [kYCModal, faceModal, faceNotModal])
 
     // face dedection end.............................................
-
-    const showAlert = () => {
-        Alert.alert(
-            'Log Out',
-            'Are you sure you want to punch out?',
-            [
-                {
-                    text: 'Cancel',
-                    // onPress: handleCancelButtonPress,
-                    style: 'cancel',
-                },
-                { text: 'OK', onPress: () => punch_out() },
-            ],
-            { cancelable: false },
-        );
-    };
 
     const check_punchIn = async () => {
         // setloading(true)
@@ -343,7 +319,6 @@ const PunchINPage = () => {
         axios
             .post(`${apiUrl}/api/today_attendance`, body, config)
             .then(function (response) {
-                console.log("res------------------", response?.data?.data)
                 if (response.data.status == 1) {
                     const data = response.data.data;
                     if (data.in_time != '' && data.out_location_id == null) {
@@ -415,575 +390,6 @@ const PunchINPage = () => {
                 }
             });
     };
-
-    const punch_out = async () => {
-        setloading(true);
-        const userData = await AsyncStorage.getItem('UserData');
-        const userInfo = JSON.parse(userData);
-        let company_id = userInfo?.company_id;
-        GetLocation.getCurrentPosition({
-            enableHighAccuracy: true,
-            timeout: 15000,
-        })
-            .then(async location => {
-                var lat = parseFloat(location.latitude);
-                var long = parseFloat(location.longitude);
-                // console.log('loc-->', lat, long);
-                const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
-                const address = await axios.get(urlAddress)
-                // console.log(address.data?.results[0].formatted_address, 'address.data?.results[0].formatted_address')
-                setcurrentLocation({
-                    long: long,
-                    lat: lat,
-                });
-                let locations = { userId: userInfo?.userid, location: { longitude: long, latitude: lat } }
-                var dis = getDistance(
-                    { latitude: lat, longitude: long },
-                    {
-                        latitude: activeLocation.latitude,
-                        longitude: activeLocation.longitude,
-                    },
-                );
-
-                if (radius <= 0) {
-                    const token = await AsyncStorage.getItem('Token');
-                    const config = {
-                        headers: { Token: token },
-                    };
-                    const body = {
-                        user_id: user.userid,
-                        employee_number: user.employee_number,
-                        email: user.email,
-                        location_id: activeLocation.location_id,
-                        latitude: lat,
-                        longitude: long,
-                        current_address: address.data?.results[0]?.formatted_address,
-                    };
-                    // console.log("current address............................punch out...........................", body)
-                    axios
-                        .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
-                        .then(function (response) {
-                            if (response.data.status == 1) {
-                                check_punchIn();
-                                EndBackgroundService()
-                            } else {
-                                setloading(false);
-                            }
-                        })
-                        .catch(function (error) {
-                            if (error.response.status == '401') {
-                                Popup.show({
-                                    type: 'Warning',
-                                    title: 'Warning',
-                                    button: true,
-                                    textBody: error.response.data.msg,
-                                    buttonText: 'Ok',
-                                    callback: () => [
-                                        AsyncStorage.removeItem('Token'),
-                                        AsyncStorage.removeItem('UserData'),
-                                        AsyncStorage.removeItem('UserLocation'),
-                                        navigation.navigate('Login'),
-                                    ],
-                                });
-                            }
-                        });
-                }
-                else if (radius > 0) {
-                    if (radius >= dis) {
-                        const token = await AsyncStorage.getItem('Token');
-                        const config = {
-                            headers: { Token: token },
-                        };
-                        const body = {
-                            user_id: user.userid,
-                            employee_number: user.employee_number,
-                            email: user.email,
-                            location_id: activeLocation.location_id,
-                            latitude: lat,
-                            longitude: long,
-                            current_address: address.data?.results[0]?.formatted_address,
-                        };
-                        // console.log("current address............................punch out...........................", body)
-                        axios
-                            .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
-                            .then(function (response) {
-                                if (response.data.status == 1) {
-                                    check_punchIn();
-                                    EndBackgroundService()
-                                } else {
-                                    setloading(false);
-                                }
-                            })
-                            .catch(function (error) {
-                                if (error.response.status == '401') {
-                                    Popup.show({
-                                        type: 'Warning',
-                                        title: 'Warning',
-                                        button: true,
-                                        textBody: error.response.data.msg,
-                                        buttonText: 'Ok',
-                                        callback: () => [
-                                            AsyncStorage.removeItem('Token'),
-                                            AsyncStorage.removeItem('UserData'),
-                                            AsyncStorage.removeItem('UserLocation'),
-                                            navigation.navigate('Login'),
-                                        ],
-                                    });
-                                }
-                            });
-                    } else {
-                        if (lat == null || lat == '') {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'Location not find',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-
-                            setloading(false);
-                            return;
-                        } else if (long == null || long == '') {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'Location not find',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-                            setloading(false);
-                            return;
-                        } else if (
-                            activeLocation.latitude == null ||
-                            activeLocation.latitude == ''
-                        ) {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'Please set active location',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-
-                            setloading(false);
-                            return;
-                        } else if (
-                            activeLocation.longitude == null ||
-                            activeLocation.longitude == ''
-                        ) {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'Please set active location',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-                            setloading(false);
-                            return;
-                        }
-                        if (radius >= dis) {
-                            const token = await AsyncStorage.getItem('Token');
-                            const config = {
-                                headers: { Token: token },
-                            };
-                            const body = {
-                                user_id: user.userid,
-                                employee_number: user.employee_number,
-                                email: user.email,
-                                location_id: activeLocation.location_id,
-                                latitude: lat,
-                                longitude: long,
-                                current_address: address.data?.results[0].formatted_address,
-                            };
-                            axios
-                                .post(
-                                    `${apiUrl}/secondPhaseApi/mark_attendance_out`,
-                                    body,
-                                    config,
-                                )
-                                .then(function (response) {
-                                    if (response.data.status == 1) {
-                                        check_punchIn();
-                                        EndBackgroundService()
-                                    } else {
-                                        setloading(false);
-                                    }
-                                })
-                                .catch(function (error) {
-                                    if (error.response.status == '401') {
-                                        Popup.show({
-                                            type: 'Warning',
-                                            title: 'Warning',
-                                            button: true,
-                                            textBody: error.response.data.msg,
-                                            buttonText: 'Ok',
-                                            callback: () => [
-                                                AsyncStorage.removeItem('Token'),
-                                                AsyncStorage.removeItem('UserData'),
-                                                AsyncStorage.removeItem('UserLocation'),
-                                                navigation.navigate('Login'),
-                                            ],
-                                        });
-                                    }
-                                });
-                        } else {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'You are not in the radius',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-
-                            setloading(false);
-                        }
-                    }
-                }
-                else {
-                    if (lat == null || lat == '') {
-                        Popup.show({
-                            type: 'Warning',
-                            title: 'Warning',
-                            button: true,
-                            textBody: 'Location not find',
-                            buttonText: 'Ok',
-                            callback: () => [Popup.hide()],
-                        });
-
-                        setloading(false);
-                        setDisabledBtn(false)
-                        return;
-                    } else if (long == null || long == '') {
-                        Popup.show({
-                            type: 'Warning',
-                            title: 'Warning',
-                            button: true,
-                            textBody: 'Location not find',
-                            buttonText: 'Ok',
-                            callback: () => [Popup.hide()],
-                        });
-                        setloading(false);
-                        setDisabledBtn(false)
-                        return;
-                    } else if (
-                        activeLocation.latitude == null ||
-                        activeLocation.latitude == ''
-                    ) {
-                        Popup.show({
-                            type: 'Warning',
-                            title: 'Warning',
-                            button: true,
-                            textBody: 'Please set active location',
-                            buttonText: 'Ok',
-                            callback: () => [Popup.hide()],
-                        });
-                        setloading(false);
-                        setDisabledBtn(false)
-                        return;
-                    } else if (
-                        activeLocation.longitude == null ||
-                        activeLocation.longitude == ''
-                    ) {
-                        Popup.show({
-                            type: 'Warning',
-                            title: 'Warning',
-                            button: true,
-                            textBody: 'Please set active location',
-                            buttonText: 'Ok',
-                            callback: () => [Popup.hide()],
-                        });
-                        setloading(false);
-                        setDisabledBtn(false)
-                        return;
-                    }
-
-                    if (radius <= 0) {
-                        const token = await AsyncStorage.getItem('Token');
-                        const userData = await AsyncStorage.getItem('UserData');
-                        const userInfo = JSON.parse(userData);
-
-                        const config = {
-                            headers: { Token: token },
-                        };
-                        const body = {
-                            email: userInfo.email,
-                            location_id: activeLocation.location_id,
-                            latitude: lat,
-                            longitude: long,
-                            login_type: 'mobile',
-                            current_address: address.data?.results[0].formatted_address,
-                        };
-                        axios
-                            .post(
-                                `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                                body,
-                                config,
-                            )
-                            .then(function (response) {
-                                if (response.data.status == 1) {
-                                    check_punchIn();
-                                    setloading(false);
-                                    setDisabledBtn(false)
-                                } else {
-                                    Popup.show({
-                                        type: 'Warning',
-                                        title: 'Warning',
-                                        button: true,
-                                        textBody: response.data.message,
-                                        buttonText: 'Ok',
-                                        callback: () => [Popup.hide()],
-                                    });
-
-                                    setloading(false);
-                                    setDisabledBtn(false)
-                                }
-                            })
-                            .catch(function (error) {
-                                setloading(false);
-                                setDisabledBtn(false)
-                                if (error.response.status == '401') {
-                                    Popup.show({
-                                        type: 'Warning',
-                                        title: 'Warning',
-                                        button: true,
-                                        textBody: error.response.data.msg,
-                                        buttonText: 'Ok',
-                                        callback: () => [
-                                            AsyncStorage.removeItem('Token'),
-                                            AsyncStorage.removeItem('UserData'),
-                                            AsyncStorage.removeItem('UserLocation'),
-                                            navigation.navigate('Login'),
-                                        ],
-                                    });
-                                }
-                            });
-                    }
-                    else if (radius > 0) {
-                        if (radius >= dis) {
-                            const token = await AsyncStorage.getItem('Token');
-                            const userData = await AsyncStorage.getItem('UserData');
-                            const userInfo = JSON.parse(userData);
-
-                            const config = {
-                                headers: { Token: token },
-                            };
-                            const body = {
-                                email: userInfo.email,
-                                location_id: activeLocation.location_id,
-                                latitude: lat,
-                                longitude: long,
-                                login_type: 'mobile',
-                                current_address: address.data?.results[0].formatted_address,
-                            };
-                            axios
-                                .post(
-                                    `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                                    body,
-                                    config,
-                                )
-                                .then(function (response) {
-                                    if (response.data.status == 1) {
-                                        check_punchIn();
-                                        setloading(false);
-                                        setDisabledBtn(false)
-                                    } else {
-                                        Popup.show({
-                                            type: 'Warning',
-                                            title: 'Warning',
-                                            button: true,
-                                            textBody: response.data.message,
-                                            buttonText: 'Ok',
-                                            callback: () => [Popup.hide()],
-                                        });
-
-                                        setloading(false);
-                                        setDisabledBtn(false)
-                                    }
-                                })
-                                .catch(function (error) {
-                                    setloading(false);
-                                    setDisabledBtn(false)
-                                    if (error.response.status == '401') {
-                                        Popup.show({
-                                            type: 'Warning',
-                                            title: 'Warning',
-                                            button: true,
-                                            textBody: error.response.data.msg,
-                                            buttonText: 'Ok',
-                                            callback: () => [
-                                                AsyncStorage.removeItem('Token'),
-                                                AsyncStorage.removeItem('UserData'),
-                                                AsyncStorage.removeItem('UserLocation'),
-                                                navigation.navigate('Login'),
-                                            ],
-                                        });
-                                    }
-                                });
-                        } else {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'You are not in the radius',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-                            setloading(false);
-                            setDisabledBtn(false)
-                        }
-                    }
-                    else {
-                        if (lat == null || lat == '') {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'Location not find',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-
-                            setloading(false);
-                            setDisabledBtn(false)
-                            return;
-                        } else if (long == null || long == '') {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'Location not find',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-                            setloading(false);
-                            setDisabledBtn(false)
-                            return;
-                        } else if (
-                            activeLocation.latitude == null ||
-                            activeLocation.latitude == ''
-                        ) {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'Please set active location',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-                            setloading(false);
-                            setDisabledBtn(false)
-                            return;
-                        } else if (
-                            activeLocation.longitude == null ||
-                            activeLocation.longitude == ''
-                        ) {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'Please set active location',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-                            setloading(false);
-                            setDisabledBtn(false)
-                            return;
-                        }
-
-                        if (radius >= dis) {
-                            const token = await AsyncStorage.getItem('Token');
-                            const userData = await AsyncStorage.getItem('UserData');
-                            const userInfo = JSON.parse(userData);
-
-                            const config = {
-                                headers: { Token: token },
-                            };
-                            const body = {
-                                email: userInfo.email,
-                                location_id: activeLocation.location_id,
-                                latitude: lat,
-                                longitude: long,
-                                login_type: 'mobile',
-                                current_address: address.data?.results[0].formatted_address,
-                            };
-                            axios
-                                .post(
-                                    `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                                    body,
-                                    config,
-                                )
-                                .then(function (response) {
-                                    if (response.data.status == 1) {
-                                        check_punchIn();
-                                        setloading(false);
-                                        setDisabledBtn(false)
-                                    } else {
-                                        Popup.show({
-                                            type: 'Warning',
-                                            title: 'Warning',
-                                            button: true,
-                                            textBody: response.data.message,
-                                            buttonText: 'Ok',
-                                            callback: () => [Popup.hide()],
-                                        });
-
-                                        setloading(false);
-                                        setDisabledBtn(false)
-                                    }
-                                })
-                                .catch(function (error) {
-                                    setloading(false);
-                                    setDisabledBtn(false)
-                                    if (error.response.status == '401') {
-                                        Popup.show({
-                                            type: 'Warning',
-                                            title: 'Warning',
-                                            button: true,
-                                            textBody: error.response.data.msg,
-                                            buttonText: 'Ok',
-                                            callback: () => [
-                                                AsyncStorage.removeItem('Token'),
-                                                AsyncStorage.removeItem('UserData'),
-                                                AsyncStorage.removeItem('UserLocation'),
-                                                navigation.navigate('Login'),
-                                            ],
-                                        });
-                                    }
-                                });
-                        } else {
-                            Popup.show({
-                                type: 'Warning',
-                                title: 'Warning',
-                                button: true,
-                                textBody: 'You are not in the radius',
-                                buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
-                            });
-
-                            setloading(false);
-                            setDisabledBtn(false)
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                setloading(false);
-                const { code, message } = error;
-                Popup.show({
-                    type: 'Warning',
-                    title: 'Warning',
-                    button: true,
-                    textBody: message,
-                    buttonText: 'Ok',
-                    callback: () => [Popup.hide()],
-                });
-            });
-    };
     const punch_in = async () => {
         setDisabledBtn(true)
         setloading(true);
@@ -1003,27 +409,41 @@ const PunchINPage = () => {
                         timeout: 15000,
                     })
                         .then(async location => {
-                            console.log("location>>>>>>>>>>>>>", location)
                             setloading(false);
                             var lat = parseFloat(location.latitude);
                             var long = parseFloat(location.longitude);
                             const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
                             const address = await axios.get(urlAddress)
-                            // { Live tracking starting}
-                            // sendLocation({
-                            //   userId: userInfo?.userid,
-                            //   location: {
-                            //     longitude: long,
-                            //     latitude: lat,
-                            //   },
-                            // });
-                            // { Live tracking ending }
-                            // console.log(address.data?.results[0]?.formatted_address)
 
-                            setcurrentLocation({
-                                long: long,
-                                lat: lat,
+                            let activeLocation = null;
+                            getActiveLocationApi?.data?.data?.map(i => {
+                                if (i.active_status == 1) {
+                                    setactiveLocation({
+                                        latitude: i.latitude,
+                                        longitude: i.longitude,
+                                        address: i.address1,
+                                        location_id: i.location_id,
+                                    });
+
+                                    activeLocation = {
+                                        latitude: i.latitude,
+                                        longitude: i.longitude,
+                                        address: i.address1,
+                                        location_id: i.location_id,
+                                    }
+                                }
                             });
+
+                            if (activeLocation) {
+
+                                setcurrentLocation({
+                                    long: long,
+                                    lat: lat,
+                                });
+                            } else {
+                                console.log('still no active location');
+                            }
+
 
                             var dis = getDistance(
                                 { latitude: lat, longitude: long },
@@ -1070,7 +490,7 @@ const PunchINPage = () => {
                                             setIsModalVisible(false)
                                             setloading(false);
                                             setDisabledBtn(false)
-                                            navigation.navigate('Main', { PunchNavigate :  'PunchNavigate'});
+                                            navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
 
                                         } else {
                                             Popup.show({
@@ -1087,23 +507,22 @@ const PunchINPage = () => {
                                         }
                                     })
                                     .catch(function (error) {
-                                        console.log("error============>", error)
                                         setloading(false);
                                         setDisabledBtn(false)
                                         // if (error.response.status == '401') {
-                                        //     Popup.show({
-                                        //         type: 'Warning',
-                                        //         title: 'Warning',
-                                        //         button: true,
-                                        //         textBody: error.response.data.msg,
-                                        //         buttonText: 'Ok',
-                                        //         callback: () => [
-                                        //             AsyncStorage.removeItem('Token'),
-                                        //             AsyncStorage.removeItem('UserData'),
-                                        //             AsyncStorage.removeItem('UserLocation'),
-                                        //             navigation.navigate('Login'),
-                                        //         ],
-                                        //     });
+                                        // Popup.show({
+                                        // type: 'Warning',
+                                        // title: 'Warning',
+                                        // button: true,
+                                        // textBody: error.response.data.msg,
+                                        // buttonText: 'Ok',
+                                        // callback: () => [
+                                        // AsyncStorage.removeItem('Token'),
+                                        // AsyncStorage.removeItem('UserData'),
+                                        // AsyncStorage.removeItem('UserLocation'),
+                                        // navigation.navigate('Login'),
+                                        // ],
+                                        // });
                                         // }
                                     });
                             }
@@ -1112,6 +531,77 @@ const PunchINPage = () => {
                                     if (updatedfacereconization?.length > 0) {
                                         setShowCamera(true)
                                         setFirstImage(false)
+                                        const token = await AsyncStorage.getItem('Token');
+                                        const userData = await AsyncStorage.getItem('UserData');
+                                        const userInfo = JSON.parse(userData);
+
+                                        const config = {
+                                            headers: { Token: token },
+                                        };
+                                        const body = {
+                                            email: userInfo.email,
+                                            location_id: activeLocation.location_id,
+                                            latitude: lat,
+                                            longitude: long,
+                                            login_type: 'mobile',
+                                            current_address: address.data?.results[0]?.formatted_address,
+
+                                        };
+                                        axios
+                                            .post(
+                                                `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                                                body,
+                                                config,
+                                            )
+                                            .then(function (response) {
+                                                if (response.data.status == 1) {
+                                                    check_punchIn();
+                                                    Popup.show({
+                                                        type: 'Success',
+                                                        title: 'Success',
+                                                        button: true,
+                                                        textBody: response.data.message,
+                                                        buttonText: 'Ok',
+                                                        callback: handlePopupCallback
+                                                    });
+                                                    setIsModalVisible(false)
+                                                    setloading(false);
+                                                    setDisabledBtn(false)
+                                                    navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+                                                } else {
+                                                    setloading(false);
+                                                    setloading(false);
+                                                    setDisabledBtn(false)
+                                                    Popup.show({
+                                                        type: 'Success',
+                                                        title: 'Success',
+                                                        button: true,
+                                                        textBody: response.data.message,
+                                                        buttonText: 'Ok',
+                                                        callback: () => [Popup.hide(), setShowKyc(false)]
+                                                    });
+                                                }
+                                            })
+                                            .catch(function (error) {
+                                                setloading(false);
+                                                setDisabledBtn(false)
+                                                if (error.response.status == '401') {
+                                                    Popup.show({
+                                                        type: 'Warning',
+                                                        title: 'Warning',
+                                                        button: true,
+                                                        textBody: error.response.data.msg,
+                                                        buttonText: 'Ok',
+                                                        callback: () => [
+                                                            AsyncStorage.removeItem('Token'),
+                                                            AsyncStorage.removeItem('UserData'),
+                                                            AsyncStorage.removeItem('UserLocation'),
+                                                            navigation.navigate('Login'),
+                                                        ],
+                                                    });
+                                                }
+                                            });
+
                                     }
                                     else {
                                         const token = await AsyncStorage.getItem('Token');
@@ -1145,12 +635,12 @@ const PunchINPage = () => {
                                                         button: true,
                                                         textBody: response.data.message,
                                                         buttonText: 'Ok',
-                                                        callback: () => [Popup.hide(), setShowKyc(false)]
+                                                        callback: handlePopupCallback
                                                     });
+                                                    setIsModalVisible(false)
                                                     setloading(false);
                                                     setDisabledBtn(false)
-                                                    setIsModalVisible(false)
-
+                                                    navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
                                                 } else {
                                                     setloading(false);
                                                     setloading(false);
@@ -1194,7 +684,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'Location not find',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide()],
+                                            callback: () => [Popup.hide(), setShowKyc(false)],
                                         });
 
                                         setloading(false);
@@ -1207,7 +697,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'Location not find',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide()],
+                                            callback: () => [Popup.hide(), setShowKyc(false)],
                                         });
                                         setloading(false);
                                         setDisabledBtn(false)
@@ -1222,7 +712,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'Please set active location',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide()],
+                                            callback: () => [Popup.hide(), setShowKyc(false)],
                                         });
                                         setloading(false);
                                         setDisabledBtn(false)
@@ -1237,7 +727,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'Please set active location',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide()],
+                                            callback: () => [Popup.hide(), setShowKyc(false)],
                                         });
                                         setloading(false);
                                         setDisabledBtn(false)
@@ -1275,11 +765,12 @@ const PunchINPage = () => {
                                                         button: true,
                                                         textBody: response.data.message,
                                                         buttonText: 'Ok',
-                                                        callback: () => [Popup.hide()]
+                                                        callback: handlePopupCallback
                                                     });
-                                                    setShowKyc(false)
+                                                    setIsModalVisible(false)
                                                     setloading(false);
                                                     setDisabledBtn(false)
+                                                    navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
                                                 } else {
                                                     Popup.show({
                                                         type: 'Warning',
@@ -1287,7 +778,7 @@ const PunchINPage = () => {
                                                         button: true,
                                                         textBody: response.data.message,
                                                         buttonText: 'Ok',
-                                                        callback: () => [Popup.hide()]
+                                                        callback: () => [Popup.hide(), setShowKyc(false)]
                                                     });
                                                     setShowKyc(false)
                                                     setloading(false);
@@ -1320,7 +811,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'You are not in the radius',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide()],
+                                            callback: () => [Popup.hide(), setShowKyc(false)],
                                         });
 
                                         setloading(false);
@@ -1337,7 +828,7 @@ const PunchINPage = () => {
                                 button: true,
                                 textBody: message,
                                 buttonText: 'Ok',
-                                callback: () => [Popup.hide()],
+                                callback: () => [Popup.hide(), setShowKyc(false)],
                             });
                             setloading(false);
                             setDisabledBtn(false)
@@ -1349,7 +840,7 @@ const PunchINPage = () => {
                         button: true,
                         textBody: 'Location permission denied',
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()],
+                        callback: () => [Popup.hide(), setShowKyc(false)],
                     });
 
                     setloading(false);
@@ -1376,20 +867,35 @@ const PunchINPage = () => {
                         var long = parseFloat(location.longitude);
                         const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
                         const address = await axios.get(urlAddress)
-                        // { Live tracking starting}
-                        // sendLocation({
-                        //   userId: userInfo?.userid,
-                        //   location: {
-                        //     longitude: long,
-                        //     latitude: lat,
-                        //   },
-                        // });
-                        // { Live tracking starting}
 
-                        setcurrentLocation({
-                            long: long,
-                            lat: lat,
+                        let activeLocation = null;
+                        getActiveLocationApi?.data?.data?.map(i => {
+                            if (i.active_status == 1) {
+                                setactiveLocation({
+                                    latitude: i.latitude,
+                                    longitude: i.longitude,
+                                    address: i.address1,
+                                    location_id: i.location_id,
+                                });
+
+                                activeLocation = {
+                                    latitude: i.latitude,
+                                    longitude: i.longitude,
+                                    address: i.address1,
+                                    location_id: i.location_id,
+                                }
+                            }
                         });
+
+                        if (activeLocation) {
+                            setcurrentLocation({
+                                long: long,
+                                lat: lat,
+                            });
+                        } else {
+                            console.log('still no active location');
+                        }
+
 
                         var dis = getDistance(
                             { latitude: lat, longitude: long },
@@ -1398,7 +904,6 @@ const PunchINPage = () => {
                                 longitude: activeLocation.longitude,
                             },
                         );
-
 
                         if (radius <= 0) {
                             const token = await AsyncStorage.getItem('Token');
@@ -1414,9 +919,9 @@ const PunchINPage = () => {
                                 latitude: lat,
                                 longitude: long,
                                 login_type: 'mobile',
-                                current_address: address.data?.results[0].formatted_address,
-                            };
+                                current_address: address.data?.results[0]?.formatted_address,
 
+                            };
                             axios
                                 .post(
                                     `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -1432,11 +937,13 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: response.data.message,
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide()]
+                                            callback: handlePopupCallback
                                         });
-                                        setShowKyc(false)
-                                        setDisabledBtn(false)
+                                        setIsModalVisible(false)
                                         setloading(false);
+                                        setDisabledBtn(false)
+                                        navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+
                                     } else {
                                         Popup.show({
                                             type: 'Warning',
@@ -1444,106 +951,183 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: response.data.message,
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide()]
+                                            callback: () => [Popup.hide(), setShowKyc(false)]
                                         });
-                                        setShowKyc(false)
-
                                         setloading(false);
                                         setDisabledBtn(false)
+
                                     }
                                 })
                                 .catch(function (error) {
                                     setloading(false);
                                     setDisabledBtn(false)
-                                    if (error.response.status == '401') {
-                                        Popup.show({
-                                            type: 'Warning',
-                                            title: 'Warning',
-                                            button: true,
-                                            textBody: error.response.data.msg,
-                                            buttonText: 'Ok',
-                                            callback: () => [
-                                                Popup.hide(),
-                                                AsyncStorage.removeItem('Token'),
-                                                AsyncStorage.removeItem('UserData'),
-                                                AsyncStorage.removeItem('UserLocation'),
-                                                navigation.navigate('Login'),
-                                            ],
-                                        });
-                                    }
+                                    // if (error.response.status == '401') {
+                                    // Popup.show({
+                                    // type: 'Warning',
+                                    // title: 'Warning',
+                                    // button: true,
+                                    // textBody: error.response.data.msg,
+                                    // buttonText: 'Ok',
+                                    // callback: () => [
+                                    // AsyncStorage.removeItem('Token'),
+                                    // AsyncStorage.removeItem('UserData'),
+                                    // AsyncStorage.removeItem('UserLocation'),
+                                    // navigation.navigate('Login'),
+                                    // ],
+                                    // });
+                                    // }
                                 });
                         }
                         else if (radius > 0) {
                             if (radius >= dis) {
-                                const token = await AsyncStorage.getItem('Token');
-                                const userData = await AsyncStorage.getItem('UserData');
-                                const userInfo = JSON.parse(userData);
+                                if (updatedfacereconization?.length > 0) {
+                                    setShowCamera(true)
+                                    setFirstImage(false)
+                                    const token = await AsyncStorage.getItem('Token');
+                                    const userData = await AsyncStorage.getItem('UserData');
+                                    const userInfo = JSON.parse(userData);
 
-                                const config = {
-                                    headers: { Token: token },
-                                };
-                                const body = {
-                                    email: userInfo.email,
-                                    location_id: activeLocation.location_id,
-                                    latitude: lat,
-                                    longitude: long,
-                                    login_type: 'mobile',
-                                    current_address: address.data?.results[0].formatted_address,
-                                };
+                                    const config = {
+                                        headers: { Token: token },
+                                    };
+                                    const body = {
+                                        email: userInfo.email,
+                                        location_id: activeLocation.location_id,
+                                        latitude: lat,
+                                        longitude: long,
+                                        login_type: 'mobile',
+                                        current_address: address.data?.results[0]?.formatted_address,
 
-                                axios
-                                    .post(
-                                        `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                                        body,
-                                        config,
-                                    )
-                                    .then(function (response) {
-                                        if (response.data.status == 1) {
-                                            check_punchIn();
-                                            Popup.show({
-                                                type: 'Success',
-                                                title: 'Success',
-                                                button: true,
-                                                textBody: response.data.message,
-                                                buttonText: 'Ok',
-                                                callback: () => [Popup.hide()]
-                                            });
-                                            setShowKyc(false)
-                                            setDisabledBtn(false)
+                                    };
+                                    axios
+                                        .post(
+                                            `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                                            body,
+                                            config,
+                                        )
+                                        .then(function (response) {
+                                            if (response.data.status == 1) {
+                                                check_punchIn();
+                                                Popup.show({
+                                                    type: 'Success',
+                                                    title: 'Success',
+                                                    button: true,
+                                                    textBody: response.data.message,
+                                                    buttonText: 'Ok',
+                                                    callback: handlePopupCallback
+                                                });
+                                                setIsModalVisible(false)
+                                                setloading(false);
+                                                setDisabledBtn(false)
+                                                navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+                                            } else {
+                                                setloading(false);
+                                                setloading(false);
+                                                setDisabledBtn(false)
+                                                Popup.show({
+                                                    type: 'Success',
+                                                    title: 'Success',
+                                                    button: true,
+                                                    textBody: response.data.message,
+                                                    buttonText: 'Ok',
+                                                    callback: () => [Popup.hide(), setShowKyc(false)]
+                                                });
+                                            }
+                                        })
+                                        .catch(function (error) {
                                             setloading(false);
-                                        } else {
-                                            Popup.show({
-                                                type: 'Warning',
-                                                title: 'Warning',
-                                                button: true,
-                                                textBody: response.data.message,
-                                                buttonText: 'Ok',
-                                                callback: () => [Popup.hide()]
-                                            });
-                                            setShowKyc(false)
+                                            setDisabledBtn(false)
+                                            if (error.response.status == '401') {
+                                                Popup.show({
+                                                    type: 'Warning',
+                                                    title: 'Warning',
+                                                    button: true,
+                                                    textBody: error.response.data.msg,
+                                                    buttonText: 'Ok',
+                                                    callback: () => [
+                                                        AsyncStorage.removeItem('Token'),
+                                                        AsyncStorage.removeItem('UserData'),
+                                                        AsyncStorage.removeItem('UserLocation'),
+                                                        navigation.navigate('Login'),
+                                                    ],
+                                                });
+                                            }
+                                        });
+
+                                }
+                                else {
+                                    const token = await AsyncStorage.getItem('Token');
+                                    const userData = await AsyncStorage.getItem('UserData');
+                                    const userInfo = JSON.parse(userData);
+
+                                    const config = {
+                                        headers: { Token: token },
+                                    };
+                                    const body = {
+                                        email: userInfo.email,
+                                        location_id: activeLocation.location_id,
+                                        latitude: lat,
+                                        longitude: long,
+                                        login_type: 'mobile',
+                                        current_address: address.data?.results[0]?.formatted_address,
+
+                                    };
+                                    axios
+                                        .post(
+                                            `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                                            body,
+                                            config,
+                                        )
+                                        .then(function (response) {
+                                            if (response.data.status == 1) {
+                                                check_punchIn();
+                                                Popup.show({
+                                                    type: 'Success',
+                                                    title: 'Success',
+                                                    button: true,
+                                                    textBody: response.data.message,
+                                                    buttonText: 'Ok',
+                                                    callback: handlePopupCallback
+                                                });
+                                                setIsModalVisible(false)
+                                                setloading(false);
+                                                setDisabledBtn(false)
+                                                navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+                                            } else {
+                                                setloading(false);
+                                                setloading(false);
+                                                setDisabledBtn(false)
+                                                Popup.show({
+                                                    type: 'Success',
+                                                    title: 'Success',
+                                                    button: true,
+                                                    textBody: response.data.message,
+                                                    buttonText: 'Ok',
+                                                    callback: () => [Popup.hide(), setShowKyc(false)]
+                                                });
+                                            }
+                                        })
+                                        .catch(function (error) {
                                             setloading(false);
                                             setDisabledBtn(false)
-                                        }
-                                    })
-                                    .catch(function (error) {
-                                        setloading(false);
-                                        setDisabledBtn(false)
-                                        if (error.response.status == '401') {
-                                            Popup.show({
-                                                type: 'Warning',
-                                                title: 'Warning',
-                                                button: true,
-                                                textBody: error.response.data.msg,
-                                                buttonText: 'Ok',
-                                                callback: () => [
-                                                    AsyncStorage.removeItem('Token'),
-                                                    AsyncStorage.removeItem('UserData'),
-                                                    AsyncStorage.removeItem('UserLocation'),
-                                                    navigation.navigate('Login'),
-                                                ],
-                                            });
-                                        }
-                                    });
+                                            if (error.response.status == '401') {
+                                                Popup.show({
+                                                    type: 'Warning',
+                                                    title: 'Warning',
+                                                    button: true,
+                                                    textBody: error.response.data.msg,
+                                                    buttonText: 'Ok',
+                                                    callback: () => [
+                                                        AsyncStorage.removeItem('Token'),
+                                                        AsyncStorage.removeItem('UserData'),
+                                                        AsyncStorage.removeItem('UserLocation'),
+                                                        navigation.navigate('Login'),
+                                                    ],
+                                                });
+                                            }
+                                        });
+
+                                }
                             } else {
                                 if (lat == null || lat == '') {
                                     Popup.show({
@@ -1552,7 +1136,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'Location not find',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide()],
+                                        callback: () => [Popup.hide(), setShowKyc(false)],
                                     });
 
                                     setloading(false);
@@ -1565,7 +1149,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'Location not find',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide()],
+                                        callback: () => [Popup.hide(), setShowKyc(false)],
                                     });
                                     setloading(false);
                                     setDisabledBtn(false)
@@ -1580,9 +1164,8 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'Please set active location',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide()],
+                                        callback: () => [Popup.hide(), setShowKyc(false)],
                                     });
-
                                     setloading(false);
                                     setDisabledBtn(false)
                                     return;
@@ -1596,7 +1179,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'Please set active location',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide()],
+                                        callback: () => [Popup.hide(), setShowKyc(false)],
                                     });
                                     setloading(false);
                                     setDisabledBtn(false)
@@ -1619,7 +1202,6 @@ const PunchINPage = () => {
                                         login_type: 'mobile',
                                         current_address: address.data?.results[0].formatted_address,
                                     };
-
                                     axios
                                         .post(
                                             `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -1635,11 +1217,12 @@ const PunchINPage = () => {
                                                     button: true,
                                                     textBody: response.data.message,
                                                     buttonText: 'Ok',
-                                                    callback: () => [Popup.hide()]
+                                                    callback: handlePopupCallback
                                                 });
-                                                setShowKyc(false)
-                                                setDisabledBtn(false)
+                                                setIsModalVisible(false)
                                                 setloading(false);
+                                                setDisabledBtn(false)
+                                                navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
                                             } else {
                                                 Popup.show({
                                                     type: 'Warning',
@@ -1647,10 +1230,9 @@ const PunchINPage = () => {
                                                     button: true,
                                                     textBody: response.data.message,
                                                     buttonText: 'Ok',
-                                                    callback: () => [Popup.hide()]
+                                                    callback: () => [Popup.hide(), setShowKyc(false)]
                                                 });
                                                 setShowKyc(false)
-
                                                 setloading(false);
                                                 setDisabledBtn(false)
                                             }
@@ -1658,7 +1240,6 @@ const PunchINPage = () => {
                                         .catch(function (error) {
                                             setloading(false);
                                             setDisabledBtn(false)
-
                                             if (error.response.status == '401') {
                                                 Popup.show({
                                                     type: 'Warning',
@@ -1682,7 +1263,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'You are not in the radius',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide()],
+                                        callback: () => [Popup.hide(), setShowKyc(false)],
                                     });
 
                                     setloading(false);
@@ -1699,7 +1280,7 @@ const PunchINPage = () => {
                             button: true,
                             textBody: message,
                             buttonText: 'Ok',
-                            callback: () => [Popup.hide()],
+                            callback: () => [Popup.hide(), setShowKyc(false)],
                         });
 
                         setloading(false);
@@ -1723,7 +1304,7 @@ const PunchINPage = () => {
                 button: true,
                 textBody: punchInApi.data.message,
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
             });
         }
     }, [punchInApi.loading,]);
@@ -1738,7 +1319,7 @@ const PunchINPage = () => {
                 button: true,
                 textBody: punchOutApi.data.message,
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
             });
         }
     }, [punchOutApi.loading]);
@@ -1765,7 +1346,6 @@ const PunchINPage = () => {
     const storeLocation = async (location) => {
         if (timerOn && updatedlivetrackingaccess?.length > 0 && locationblock == 1 && activeinactivetracking == 1 && shouldTrackLocation.current) {
             try {
-                console.log("5 sec ......")
                 setLocationArray((prevLocations) => {
                     const updatedLocations = [...prevLocations, location];
                     AsyncStorage.setItem('CurrentLocation', JSON.stringify(updatedLocations));
@@ -1889,8 +1469,6 @@ const PunchINPage = () => {
                 if (previousLocationRef.current) {
                     const distance = getDistance(previousLocationRef.current, newLocation);
                     if (distance > 10) {
-                        console.log('distance is greater than 20 - new location', newLocation, distance);
-                        console.log('distance is greater than 20 - previous location', previousLocationRef.current, distance);
                         previousLocationRef.current = newLocation;
                         setLocation(newLocation);
                         storeLocation(newLocation);
@@ -1916,24 +1494,24 @@ const PunchINPage = () => {
         );
     }
 
-    const getDistance = (loc1, loc2) => {
-        const toRad = (value) => (value * Math.PI) / 180;
-        const R = 6371e3; // Radius of Earth in meters
+    // const getDistance = (loc1, loc2) => {
+    // const toRad = (value) => (value * Math.PI) / 180;
+    // const R = 6371e3; // Radius of Earth in meters
 
-        const lat1 = toRad(loc1.latitude);
-        const lat2 = toRad(loc2.latitude);
-        const deltaLat = toRad(loc2.latitude - loc1.latitude);
-        const deltaLon = toRad(loc2.longitude - loc1.longitude);
+    // const lat1 = toRad(loc1.latitude);
+    // const lat2 = toRad(loc2.latitude);
+    // const deltaLat = toRad(loc2.latitude - loc1.latitude);
+    // const deltaLon = toRad(loc2.longitude - loc1.longitude);
 
-        const a =
-            Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-            Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+    // const a =
+    // Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    // Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
 
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c; // Distance in meters
+    // const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    // const distance = R * c; // Distance in meters
 
-        return distance;
-    };
+    // return distance;
+    // };
 
     const shouldTrackLocation = useRef(false)
 
@@ -1980,8 +1558,6 @@ const PunchINPage = () => {
             let watchId = null;
 
             while (BackgroundService.isRunning(veryIntensiveTask)) {
-                console.log("Running task...");
-
                 if (timerOn) {
                     // Start location tracking
                     watchId = startLocationTracking();
@@ -2027,7 +1603,7 @@ const PunchINPage = () => {
     };
 
 
-    console.log("modalkycpermissions--------->", modalkycpermissions)
+
 
     return (
         <>
@@ -2089,15 +1665,54 @@ const PunchINPage = () => {
                                                     colors={['#FF5200', '#FF8F00', '#FF6700']} // Gradient colors
                                                     style={styles.innerCircle}
                                                 >
-                                                    <Text style={styles.buttonTextPUnchInPopup}>Punch In</Text>
+                                                    {loading ? <ActivityIndicator color="white" /> : <Text style={styles.buttonTextPUnchInPopup}>Punch In</Text>}
+
                                                 </LinearGradient>
-                                                {loading ? <ActivityIndicator color="white" /> : null}
                                             </TouchableOpacity>
 
                                         </View>
                                     </View>
                                 </View>
                             </View>
+
+                            {
+                                isModalVisible ?
+                                    <Modal
+                                        isVisible={isModalVisible}
+                                        animationIn="zoomIn"
+                                        animationOut="zoomOut"
+                                    >
+                                        <View style={styles.modalContent}>
+                                            <View style={{ alignSelf: "flex-end" }}>
+                                                <AntDesign
+                                                    name="close"
+                                                    size={22}
+                                                    style={{
+                                                        marginBottom: 5
+                                                    }}
+                                                    color="red"
+                                                    onPress={() => setIsModalVisible(!isModalVisible)}
+                                                />
+                                            </View>
+                                            <Image
+                                                source={require('../../images/kycicon.png')}
+                                                style={{ width: responsiveWidth(90), height: responsiveHeight(28), resizeMode: 'contain', alignSelf: 'center' }}
+                                            />
+                                            <Text style={{ color: '#000', fontSize: responsiveFontSize(2), fontWeight: 'bold', marginTop: responsiveHeight(1) }}>Please complete your
+                                                KYC.</Text>
+                                            <TouchableOpacity style={{ width: responsiveWidth(30), height: responsiveHeight(5), backgroundColor: '#0043ae', borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: responsiveHeight(1) }}
+                                                onPress={() => [navigation.navigate('Face detection'), setShowCamera(true), setFirstImage(true), setSuggestion(true), setIsModalVisible(false)]}
+                                            >
+                                                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: responsiveFontSize(1.7) }}>Camera</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </Modal>
+                                    :
+                                    null
+                            }
+
+
+
                             {modalVisible && (
                                 <View
                                     style={{
@@ -2166,26 +1781,26 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     outerCircle: {
-        width: 380,
-        height: 380,
-        borderRadius: 200,
+        width: responsiveWidth(90),
+        height: responsiveWidth(90),
+        borderRadius: responsiveHeight(100),
         backgroundColor: '#D3D3D3', // Light gray (Outermost border)
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 15
     },
     middleCircle: {
-        width: 350,
-        height: 350,
-        borderRadius: 300,
+        width: responsiveWidth(85),
+        height: responsiveWidth(85),
+        borderRadius: responsiveHeight(100),
         backgroundColor: '#FFFFFF', // White (Second border)
         justifyContent: 'center',
         alignItems: 'center',
     },
     innerCircle: {
-        width: 330,
-        height: 330,
-        borderRadius: 400,
+        width: responsiveWidth(80),
+        height: responsiveWidth(80),
+        borderRadius: responsiveHeight(100),
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -2201,4 +1816,47 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-})
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10,
+        borderColor: 'rgba(0, 0, 0, 0.1)',
+      },
+      preview: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        width: '100%',
+        height: '80%',
+      },
+      captureButtonContainer: {
+        flex: 0,
+        flexDirection: 'row',
+        justifyContent: 'center',
+      },
+      captureButton: {
+        fontSize: 14,
+        padding: 10,
+        backgroundColor: '#fff',
+        borderRadius: 5,
+        margin: 20,
+      },
+      capturedImage: {
+        width: 200,
+        height: 200,
+        marginTop: 20,
+      },
+      progressContainer: {
+        position: 'absolute',
+        bottom: 50,
+        width: '100%',
+        alignItems: 'center',
+      },
+      cardsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        padding: 5,
+      },
+}) 

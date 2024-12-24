@@ -49,7 +49,6 @@ export const LiveTrackingContext = createContext();
 const { width } = Dimensions.get('window');
 // import messaging from '@react-native-firebas e/messaging';
 import Empty from '../../reusable/Empty';
-import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import Themes from '../../Theme/Theme';
 import {
   responsiveFontSize,
@@ -71,6 +70,8 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Ensure you have react-
 import { showMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
 import PunchINPage from './PunchINPage';
+import PunchOutPage from './PunchOutPage';
+import Reload from '../../../Reload';
 
 
 const Home = ({ navigation }) => {
@@ -88,16 +89,16 @@ const Home = ({ navigation }) => {
   const punchOutApi = useApi2(attendence.punchOut);
   const todayAtendenceApi = useApi2(attendence.todayAttendence);
   const getActiveLocationApi = useApi2(attendence.getActiveLocation);
-  const { setuser, isPunchedIn, setIsPunchedIn } = useContext(EssContext);
+  const { setuser, isPunchedIn, setIsPunchedIn, isPunchedOut, setIsPunchedOut } = useContext(EssContext);
   const [user, setuser1] = useState(null);
-  const [inTime, setinTime] = useState(null);
+  const [inTime, setinTime] = useState(undefined);
   const [homeskelton, setHomeSkeleton] = useState(null)
   const [punchIn, setpunchIn] = useState(false);
   const [loading, setloading] = useState(false);
   const [firsttimepasswordloader, setFirstTimePasswordLoader] = useState(false);
   const [fullTime, setfullTime] = useState(null);
   const [officetiming, setOfficeTiming] = useState('');
-  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber, firsttimelogin } = useContext(SocketContext);
+  const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber, firsttimelogin, userouttime } = useContext(SocketContext);
   const [activeLocation, setactiveLocation] = useState({
     latitude: '',
     longitude: '',
@@ -186,6 +187,15 @@ const Home = ({ navigation }) => {
       });
   };
 
+  // const handlePopupCallback = () => {
+  //   Popup.hide();
+  //   setShowKyc(false);
+  //   setIsPunchedIn(true);
+  //   setTimeout(() => {
+  //     navigation.navigate('Main');
+  //   }, 300);
+  // };
+
   useEffect(() => {
     const getData = async () => {
       AsyncStorage.getItem('UserData').then(res => {
@@ -231,7 +241,8 @@ const Home = ({ navigation }) => {
     get_month_logs();
     ManuAccessdetails_Socket();
     ManuAccessdetails();
-    getUserFace()
+    getUserFace();
+    setIsPunchedIn(false);
   };
 
   useEffect(() => {
@@ -239,6 +250,12 @@ const Home = ({ navigation }) => {
       handleRefresh()
     }
   }, [isPunchedIn]);
+
+  useEffect(() => {
+    if (isPunchedOut) {
+      handleRefresh()
+    }
+  }, [isPunchedOut]);
 
   const getActiveLocation = async () => {
     const token = await AsyncStorage.getItem('Token');
@@ -480,11 +497,8 @@ const Home = ({ navigation }) => {
       const data = await cameraRef.current.takePictureAsync(options);
       setBlob(data)
       setCapturedImage(data.uri);
-      console.log(data.uri, 'hello')
       const uploadResult = await uploadTmpimage(data.uri);
-      console.log(uploadResult, 'uploadResult')
       const s3ObjectKey = uploadResult.Key;
-      console.log("S3 object data ------------->", s3ObjectKey)
       const ss = await compareFaces(s3ObjectKey)
 
 
@@ -509,7 +523,6 @@ const Home = ({ navigation }) => {
       Body: blob,
       ContentType: 'image/jpeg',
     };
-    console.log("params during punch_in face deduction-----------------", params)
     return s3.upload(params).promise();
   };
 
@@ -548,67 +561,83 @@ const Home = ({ navigation }) => {
 
   // end kyc check api
 
-  const compareFaces = async (s3ObjectKey) => {
-    // setIsModalVisible(false)
-    const token = await AsyncStorage.getItem('Token');
-    const userData = await AsyncStorage.getItem('UserData');
-    const params = {
-      SourceImage: {
-        S3Object: {
-          Bucket: 'face-recoginition',
-          Name: s3ObjectKey  // The image you want to compare with
-        },
-      },
-      TargetImage: {
-        S3Object: {
-          Bucket: 'face-recoginition',
-          Name: face_kyc_img, // The uploaded image
-        },
-      },
-      SimilarityThreshold: 90,
-    };
 
-    rekognition.compareFaces(params, (err, data) => {
-      if (err) {
-        if (err.message === 'Requested image should either contain bytes or s3 object.') {
-          setShowKyc(false)
-          setIsModalVisible(true); // Show the modal
-        }
-        else if (err.message === 'Request has invalid parameters') {
-          setShowKyc(false)
-          setIsModalVisible(true); // Show the modal
-        } else {
-          // Show the popup with the error message for other errors
+
+  const compareFaces = async (s3ObjectKey) => {
+    try {
+      const token = await AsyncStorage.getItem('Token');
+      const userData = await AsyncStorage.getItem('UserData');
+
+      const params = {
+        SourceImage: {
+          S3Object: {
+            Bucket: 'face-recoginition',
+            Name: s3ObjectKey, // The image you want to compare with
+          },
+        },
+        TargetImage: {
+          S3Object: {
+            Bucket: 'face-recoginition',
+            Name: face_kyc_img, // The uploaded image
+          },
+        },
+        SimilarityThreshold: 90,
+      };
+
+      rekognition.compareFaces(params, (err, data) => {
+        if (err) {
+          console.error("AWS Rekognition Error:", err); // Developer debug logs
+          handleAwsError(err);
+        } else if (data?.UnmatchedFaces.length > 0) {
           Popup.show({
             type: 'Warning',
-            title: 'Warning',
+            title: 'Verification Failed',
             button: true,
-            textBody: err.message, // Display the actual error message
+            textBody: 'Faces do not match. Please try again.',
             buttonText: 'Ok',
-            callback: () => Popup.hide()
+            callback: () => [Popup.hide(), setShowKyc(false)],
           });
-          setShowKyc(false)
+        } else {
+          // Successful match case
+          setShowCamera(false);
+          setFaceModal(true);
+          setloading(false);
+          punch_in(); // Execute successful action
         }
-      }
-      else if (data?.UnmatchedFaces.length > 0) {
-        Popup.show({
-          type: 'Warning',
-          title: 'Warning',
-          button: true,
-          textBody: 'Faces do not match',
-          buttonText: 'Ok',
-          callback: () => [Popup.hide()]
-        });
-        setShowKyc(false)
-      }
-      else {
-        setShowCamera(false)
-        setFaceModal(true)
-        setloading(false);
-        punch_in()
-      }
+      });
+    } catch (error) {
+      console.error("Unexpected Error:", error); // Handle unexpected async/await issues
+      Popup.show({
+        type: 'Warning',
+        title: 'Error',
+        button: true,
+        textBody: 'An unexpected error occurred. Please try again later.',
+        buttonText: 'Ok',
+        callback: () => Popup.hide(),
+      });
+    }
+  };
+
+  const handleAwsError = (err) => {
+    // Map AWS Rekognition errors to user-friendly messages
+    let errorMessage = 'An error occurred. Please try again.';
+
+    if (err.message === 'Requested image should either contain bytes or s3 object.') {
+      errorMessage = 'Ensure your face is clearly visible in the camera.';
+    } else if (err.message === 'Request has invalid parameters') {
+      errorMessage = 'Invalid image parameters. Try re-uploading the image.';
+    }
+
+    Popup.show({
+      type: 'Warning',
+      title: 'Verification Error',
+      button: true,
+      textBody: errorMessage,
+      buttonText: 'Ok',
+      callback: () => [Popup.hide(), setShowKyc(false)],
     });
   };
+
 
   useEffect(() => {
     if (kYCModal == true) {
@@ -778,15 +807,38 @@ const Home = ({ navigation }) => {
       .then(async location => {
         var lat = parseFloat(location.latitude);
         var long = parseFloat(location.longitude);
-        // console.log('loc-->', lat, long);
         const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
         const address = await axios.get(urlAddress)
-        // console.log(address.data?.results[0].formatted_address, 'address.data?.results[0].formatted_address')
-        setcurrentLocation({
-          long: long,
-          lat: lat,
+
+        let activeLocation = null;
+        getActiveLocationApi?.data?.data?.map(i => {
+          if (i.active_status == 1) {
+            setactiveLocation({
+              latitude: i.latitude,
+              longitude: i.longitude,
+              address: i.address1,
+              location_id: i.location_id,
+            });
+
+            activeLocation = {
+              latitude: i.latitude,
+              longitude: i.longitude,
+              address: i.address1,
+              location_id: i.location_id,
+            }
+          }
         });
-        let locations = { userId: userInfo?.userid, location: { longitude: long, latitude: lat } }
+
+        if (activeLocation) {
+          setcurrentLocation({
+            long: long,
+            lat: lat,
+          });
+        } else {
+          console.log('still no active location');
+        }
+
+
         var dis = getDistance(
           { latitude: lat, longitude: long },
           {
@@ -794,6 +846,7 @@ const Home = ({ navigation }) => {
             longitude: activeLocation.longitude,
           },
         );
+
 
         if (radius <= 0) {
           const token = await AsyncStorage.getItem('Token');
@@ -891,7 +944,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Location not find',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
 
               setloading(false);
@@ -903,7 +956,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Location not find',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
               setloading(false);
               return;
@@ -917,7 +970,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Please set active location',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
 
               setloading(false);
@@ -932,7 +985,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Please set active location',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
               setloading(false);
               return;
@@ -990,7 +1043,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'You are not in the radius',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
 
               setloading(false);
@@ -1005,7 +1058,7 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: 'Location not find',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()],
+              callback: () => [Popup.hide(), setShowKyc(false)],
             });
 
             setloading(false);
@@ -1018,7 +1071,7 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: 'Location not find',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()],
+              callback: () => [Popup.hide(), setShowKyc(false)],
             });
             setloading(false);
             setDisabledBtn(false)
@@ -1033,7 +1086,7 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: 'Please set active location',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()],
+              callback: () => [Popup.hide(), setShowKyc(false)],
             });
             setloading(false);
             setDisabledBtn(false)
@@ -1048,7 +1101,7 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: 'Please set active location',
               buttonText: 'Ok',
-              callback: () => [Popup.hide()],
+              callback: () => [Popup.hide(), setShowKyc(false)],
             });
             setloading(false);
             setDisabledBtn(false)
@@ -1090,7 +1143,7 @@ const Home = ({ navigation }) => {
                     button: true,
                     textBody: response.data.message,
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()],
+                    callback: () => [Popup.hide(), setShowKyc(false)],
                   });
 
                   setloading(false);
@@ -1153,7 +1206,7 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: response.data.message,
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()],
+                      callback: () => [Popup.hide(), setShowKyc(false)],
                     });
 
                     setloading(false);
@@ -1186,7 +1239,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'You are not in the radius',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
               setloading(false);
               setDisabledBtn(false)
@@ -1200,7 +1253,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Location not find',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
 
               setloading(false);
@@ -1213,7 +1266,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Location not find',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
               setloading(false);
               setDisabledBtn(false)
@@ -1228,7 +1281,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Please set active location',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
               setloading(false);
               setDisabledBtn(false)
@@ -1243,7 +1296,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Please set active location',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
               setloading(false);
               setDisabledBtn(false)
@@ -1285,7 +1338,7 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: response.data.message,
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()],
+                      callback: () => [Popup.hide(), setShowKyc(false)],
                     });
 
                     setloading(false);
@@ -1318,7 +1371,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'You are not in the radius',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
 
               setloading(false);
@@ -1336,7 +1389,7 @@ const Home = ({ navigation }) => {
           button: true,
           textBody: message,
           buttonText: 'Ok',
-          callback: () => [Popup.hide()],
+          callback: () => [Popup.hide(), setShowKyc(false)],
         });
       });
   };
@@ -1359,16 +1412,40 @@ const Home = ({ navigation }) => {
             timeout: 15000,
           })
             .then(async location => {
-              console.log("location>>>>>>>>>>>>>", location)
               setloading(false);
               var lat = parseFloat(location.latitude);
               var long = parseFloat(location.longitude);
               const urlAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyCAdzVvYFPUpI3mfGWUTVXLDTerw1UWbdg`;
               const address = await axios.get(urlAddress)
-              setcurrentLocation({
-                long: long,
-                lat: lat,
+
+              let activeLocation = null;
+              getActiveLocationApi?.data?.data?.map(i => {
+                if (i.active_status == 1) {
+                  setactiveLocation({
+                    latitude: i.latitude,
+                    longitude: i.longitude,
+                    address: i.address1,
+                    location_id: i.location_id,
+                  });
+
+                  activeLocation = {
+                    latitude: i.latitude,
+                    longitude: i.longitude,
+                    address: i.address1,
+                    location_id: i.location_id,
+                  }
+                }
               });
+
+              if (activeLocation) {
+                setcurrentLocation({
+                  long: long,
+                  lat: lat,
+                });
+              } else {
+                console.log('still no active location');
+              }
+
 
               var dis = getDistance(
                 { latitude: lat, longitude: long },
@@ -1403,6 +1480,22 @@ const Home = ({ navigation }) => {
                   )
                   .then(function (response) {
                     if (response.data.status == 1) {
+                      // check_punchIn();
+                      // Popup.show({
+                      //   type: 'Success',
+                      //   title: 'Success',
+                      //   button: true,
+                      //   textBody: response.data.message,
+                      //   buttonText: 'Ok',
+                      //   callback: handlePopupCallback
+                      // });
+                      // setShowKyc(false)
+                      // setloading(false);
+                      // setDisabledBtn(false)
+                      // setIsModalVisible(false)
+                      // get_month_logs()
+                      // navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+
                       check_punchIn();
                       Popup.show({
                         type: 'Success',
@@ -1410,12 +1503,12 @@ const Home = ({ navigation }) => {
                         button: true,
                         textBody: response.data.message,
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
+                        callback: () => [Popup.hide(), setShowKyc(false)]
                       });
-                      setShowKyc(false)
                       setloading(false);
                       setDisabledBtn(false)
                       get_month_logs()
+
                     } else {
                       Popup.show({
                         type: 'Warning',
@@ -1423,7 +1516,7 @@ const Home = ({ navigation }) => {
                         button: true,
                         textBody: response.data.message,
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
+                        callback: () => [Popup.hide(), setShowKyc(false)]
                       });
                       setShowKyc(false)
                       setloading(false);
@@ -1456,6 +1549,92 @@ const Home = ({ navigation }) => {
                   if (updatedfacereconization?.length > 0) {
                     setShowCamera(true)
                     setFirstImage(false)
+                    const token = await AsyncStorage.getItem('Token');
+                    const userData = await AsyncStorage.getItem('UserData');
+                    const userInfo = JSON.parse(userData);
+
+                    const config = {
+                      headers: { Token: token },
+                    };
+                    const body = {
+                      email: userInfo.email,
+                      location_id: activeLocation.location_id,
+                      latitude: lat,
+                      longitude: long,
+                      login_type: 'mobile',
+                      current_address: address.data?.results[0]?.formatted_address,
+
+                    };
+                    axios
+                      .post(
+                        `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+                        body,
+                        config,
+                      )
+                      .then(function (response) {
+                        if (response.data.status == 1) {
+                          // check_punchIn();
+                          // Popup.show({
+                          //   type: 'Success',
+                          //   title: 'Success',
+                          //   button: true,
+                          //   textBody: response.data.message,
+                          //   buttonText: 'Ok',
+                          //   callback: handlePopupCallback
+                          // });
+                          // setShowKyc(false)
+                          // setloading(false);
+                          // setDisabledBtn(false)
+                          // setIsModalVisible(false)
+                          // get_month_logs()
+                          // navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+
+                          check_punchIn();
+                          Popup.show({
+                            type: 'Success',
+                            title: 'Success',
+                            button: true,
+                            textBody: response.data.message,
+                            buttonText: 'Ok',
+                            callback: () => [Popup.hide(), setShowKyc(false)]
+                          });
+                          setloading(false);
+                          setDisabledBtn(false)
+                          get_month_logs()
+
+                        } else {
+                          setloading(false);
+                          setloading(false);
+                          setDisabledBtn(false)
+                          Popup.show({
+                            type: 'Success',
+                            title: 'Success',
+                            button: true,
+                            textBody: response.data.message,
+                            buttonText: 'Ok',
+                            callback: () => [Popup.hide(), setShowKyc(false)]
+                          });
+                        }
+                      })
+                      .catch(function (error) {
+                        setloading(false);
+                        setDisabledBtn(false)
+                        if (error.response.status == '401') {
+                          Popup.show({
+                            type: 'Warning',
+                            title: 'Warning',
+                            button: true,
+                            textBody: error.response.data.msg,
+                            buttonText: 'Ok',
+                            callback: () => [
+                              AsyncStorage.removeItem('Token'),
+                              AsyncStorage.removeItem('UserData'),
+                              AsyncStorage.removeItem('UserLocation'),
+                              navigation.navigate('Login'),
+                            ],
+                          });
+                        }
+                      });
                   }
                   else {
                     const token = await AsyncStorage.getItem('Token');
@@ -1482,6 +1661,22 @@ const Home = ({ navigation }) => {
                       )
                       .then(function (response) {
                         if (response.data.status == 1) {
+                          // check_punchIn();
+                          // Popup.show({
+                          //   type: 'Success',
+                          //   title: 'Success',
+                          //   button: true,
+                          //   textBody: response.data.message,
+                          //   buttonText: 'Ok',
+                          //   callback: handlePopupCallback
+                          // });
+                          // setShowKyc(false)
+                          // setloading(false);
+                          // setDisabledBtn(false)
+                          // setIsModalVisible(false)
+                          // get_month_logs()
+                          // navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+
                           check_punchIn();
                           Popup.show({
                             type: 'Success',
@@ -1489,13 +1684,11 @@ const Home = ({ navigation }) => {
                             button: true,
                             textBody: response.data.message,
                             buttonText: 'Ok',
-                            callback: () => [Popup.hide()]
+                            callback: () => [Popup.hide(), setShowKyc(false)]
                           });
-                          setShowKyc(false)
                           setloading(false);
                           setDisabledBtn(false)
                           get_month_logs()
-
 
                         } else {
                           setloading(false);
@@ -1507,10 +1700,8 @@ const Home = ({ navigation }) => {
                             button: true,
                             textBody: response.data.message,
                             buttonText: 'Ok',
-                            callback: () => [Popup.hide()]
+                            callback: () => [Popup.hide(), setShowKyc(false)]
                           });
-                          setShowKyc(false)
-
                         }
                       })
                       .catch(function (error) {
@@ -1542,7 +1733,7 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: 'Location not find',
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()],
+                      callback: () => [Popup.hide(), setShowKyc(false)],
                     });
 
                     setloading(false);
@@ -1555,7 +1746,7 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: 'Location not find',
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()],
+                      callback: () => [Popup.hide(), setShowKyc(false)],
                     });
                     setloading(false);
                     setDisabledBtn(false)
@@ -1570,7 +1761,7 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: 'Please set active location',
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()],
+                      callback: () => [Popup.hide(), setShowKyc(false)],
                     });
                     setloading(false);
                     setDisabledBtn(false)
@@ -1585,7 +1776,7 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: 'Please set active location',
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()],
+                      callback: () => [Popup.hide(), setShowKyc(false)],
                     });
                     setloading(false);
                     setDisabledBtn(false)
@@ -1616,6 +1807,22 @@ const Home = ({ navigation }) => {
                       )
                       .then(function (response) {
                         if (response.data.status == 1) {
+                          // check_punchIn();
+                          // Popup.show({
+                          //   type: 'Success',
+                          //   title: 'Success',
+                          //   button: true,
+                          //   textBody: response.data.message,
+                          //   buttonText: 'Ok',
+                          //   callback: handlePopupCallback
+                          // });
+                          // setShowKyc(false)
+                          // setloading(false);
+                          // setDisabledBtn(false)
+                          // setIsModalVisible(false)
+                          // get_month_logs()
+                          // navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+
                           check_punchIn();
                           Popup.show({
                             type: 'Success',
@@ -1623,12 +1830,12 @@ const Home = ({ navigation }) => {
                             button: true,
                             textBody: response.data.message,
                             buttonText: 'Ok',
-                            callback: () => [Popup.hide()]
+                            callback: () => [Popup.hide(), setShowKyc(false)]
                           });
-                          setShowKyc(false)
                           setloading(false);
                           setDisabledBtn(false)
                           get_month_logs()
+
                         } else {
                           Popup.show({
                             type: 'Warning',
@@ -1636,7 +1843,7 @@ const Home = ({ navigation }) => {
                             button: true,
                             textBody: response.data.message,
                             buttonText: 'Ok',
-                            callback: () => [Popup.hide()]
+                            callback: () => [Popup.hide(), setShowKyc(false)]
                           });
                           setShowKyc(false)
                           setloading(false);
@@ -1669,7 +1876,7 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: 'You are not in the radius',
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()],
+                      callback: () => [Popup.hide(), setShowKyc(false)],
                     });
 
                     setloading(false);
@@ -1686,7 +1893,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: message,
                 buttonText: 'Ok',
-                callback: () => [Popup.hide()],
+                callback: () => [Popup.hide(), setShowKyc(false)],
               });
               setloading(false);
               setDisabledBtn(false)
@@ -1698,7 +1905,7 @@ const Home = ({ navigation }) => {
             button: true,
             textBody: 'Location permission denied',
             buttonText: 'Ok',
-            callback: () => [Popup.hide()],
+            callback: () => [Popup.hide(), setShowKyc(false)],
           });
 
           setloading(false);
@@ -1749,6 +1956,8 @@ const Home = ({ navigation }) => {
             );
 
 
+
+
             if (radius <= 0) {
               const token = await AsyncStorage.getItem('Token');
               const userData = await AsyncStorage.getItem('UserData');
@@ -1774,6 +1983,22 @@ const Home = ({ navigation }) => {
                 )
                 .then(function (response) {
                   if (response.data.status == 1) {
+                    // check_punchIn();
+                    // Popup.show({
+                    //   type: 'Success',
+                    //   title: 'Success',
+                    //   button: true,
+                    //   textBody: response.data.message,
+                    //   buttonText: 'Ok',
+                    //   callback: handlePopupCallback
+                    // });
+                    // setShowKyc(false)
+                    // setloading(false);
+                    // setDisabledBtn(false)
+                    // setIsModalVisible(false)
+                    // get_month_logs()
+                    // navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+
                     check_punchIn();
                     Popup.show({
                       type: 'Success',
@@ -1781,12 +2006,12 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: response.data.message,
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()]
+                      callback: () => [Popup.hide(), setShowKyc(false)]
                     });
-                    setShowKyc(false)
-                    setDisabledBtn(false)
                     setloading(false);
+                    setDisabledBtn(false)
                     get_month_logs()
+
                   } else {
                     Popup.show({
                       type: 'Warning',
@@ -1794,7 +2019,7 @@ const Home = ({ navigation }) => {
                       button: true,
                       textBody: response.data.message,
                       buttonText: 'Ok',
-                      callback: () => [Popup.hide()]
+                      callback: () => [Popup.hide(), setShowKyc(false)]
                     });
                     setShowKyc(false)
 
@@ -1849,6 +2074,22 @@ const Home = ({ navigation }) => {
                   )
                   .then(function (response) {
                     if (response.data.status == 1) {
+                      // check_punchIn();
+                      // Popup.show({
+                      //   type: 'Success',
+                      //   title: 'Success',
+                      //   button: true,
+                      //   textBody: response.data.message,
+                      //   buttonText: 'Ok',
+                      //   callback: handlePopupCallback
+                      // });
+                      // setShowKyc(false)
+                      // setloading(false);
+                      // setDisabledBtn(false)
+                      // setIsModalVisible(false)
+                      // get_month_logs()
+                      // navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+
                       check_punchIn();
                       Popup.show({
                         type: 'Success',
@@ -1856,12 +2097,12 @@ const Home = ({ navigation }) => {
                         button: true,
                         textBody: response.data.message,
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
+                        callback: () => [Popup.hide(), setShowKyc(false)]
                       });
-                      setShowKyc(false)
-                      setDisabledBtn(false)
                       setloading(false);
+                      setDisabledBtn(false)
                       get_month_logs()
+
                     } else {
                       Popup.show({
                         type: 'Warning',
@@ -1869,7 +2110,7 @@ const Home = ({ navigation }) => {
                         button: true,
                         textBody: response.data.message,
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide()]
+                        callback: () => [Popup.hide(), setShowKyc(false)]
                       });
                       setShowKyc(false)
                       setloading(false);
@@ -1903,7 +2144,7 @@ const Home = ({ navigation }) => {
                     button: true,
                     textBody: 'Location not find',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()],
+                    callback: () => [Popup.hide(), setShowKyc(false)],
                   });
 
                   setloading(false);
@@ -1916,7 +2157,7 @@ const Home = ({ navigation }) => {
                     button: true,
                     textBody: 'Location not find',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()],
+                    callback: () => [Popup.hide(), setShowKyc(false)],
                   });
                   setloading(false);
                   setDisabledBtn(false)
@@ -1931,7 +2172,7 @@ const Home = ({ navigation }) => {
                     button: true,
                     textBody: 'Please set active location',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()],
+                    callback: () => [Popup.hide(), setShowKyc(false)],
                   });
 
                   setloading(false);
@@ -1947,7 +2188,7 @@ const Home = ({ navigation }) => {
                     button: true,
                     textBody: 'Please set active location',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()],
+                    callback: () => [Popup.hide(), setShowKyc(false)],
                   });
                   setloading(false);
                   setDisabledBtn(false)
@@ -1979,6 +2220,22 @@ const Home = ({ navigation }) => {
                     )
                     .then(function (response) {
                       if (response.data.status == 1) {
+                        // check_punchIn();
+                        // Popup.show({
+                        //   type: 'Success',
+                        //   title: 'Success',
+                        //   button: true,
+                        //   textBody: response.data.message,
+                        //   buttonText: 'Ok',
+                        //   callback: handlePopupCallback
+                        // });
+                        // setShowKyc(false)
+                        // setloading(false);
+                        // setDisabledBtn(false)
+                        // setIsModalVisible(false)
+                        // get_month_logs()
+                        // navigation.navigate('Main', { PunchNavigate: 'PunchNavigate' });
+
                         check_punchIn();
                         Popup.show({
                           type: 'Success',
@@ -1986,12 +2243,12 @@ const Home = ({ navigation }) => {
                           button: true,
                           textBody: response.data.message,
                           buttonText: 'Ok',
-                          callback: () => [Popup.hide()]
+                          callback: () => [Popup.hide(), setShowKyc(false)]
                         });
-                        setShowKyc(false)
-                        setDisabledBtn(false)
                         setloading(false);
+                        setDisabledBtn(false)
                         get_month_logs()
+
                       } else {
                         Popup.show({
                           type: 'Warning',
@@ -1999,7 +2256,7 @@ const Home = ({ navigation }) => {
                           button: true,
                           textBody: response.data.message,
                           buttonText: 'Ok',
-                          callback: () => [Popup.hide()]
+                          callback: () => [Popup.hide(), setShowKyc(false)]
                         });
                         setShowKyc(false)
 
@@ -2034,7 +2291,7 @@ const Home = ({ navigation }) => {
                     button: true,
                     textBody: 'You are not in the radius',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide()],
+                    callback: () => [Popup.hide(), setShowKyc(false)],
                   });
 
                   setloading(false);
@@ -2051,7 +2308,7 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: message,
               buttonText: 'Ok',
-              callback: () => [Popup.hide()],
+              callback: () => [Popup.hide(), setShowKyc(false)],
             });
 
             setloading(false);
@@ -2298,7 +2555,7 @@ const Home = ({ navigation }) => {
         button: true,
         textBody: punchInApi.data.message,
         buttonText: 'Ok',
-        callback: () => [Popup.hide()],
+        callback: () => [Popup.hide(), setShowKyc(false)],
       });
     }
   }, [punchInApi.loading, isPunchedIn]);
@@ -2313,7 +2570,7 @@ const Home = ({ navigation }) => {
         button: true,
         textBody: punchOutApi.data.message,
         buttonText: 'Ok',
-        callback: () => [Popup.hide()],
+        callback: () => [Popup.hide(), setShowKyc(false)],
       });
     }
   }, [punchOutApi.loading]);
@@ -2593,14 +2850,11 @@ const Home = ({ navigation }) => {
         if (previousLocationRef.current) {
           const distance = getDistance(previousLocationRef.current, newLocation);
           if (distance > 10) {
-            console.log('distance is greater than 20 - new location', newLocation, distance);
-            console.log('distance is greater than 20 - previous location', previousLocationRef.current, distance);
             previousLocationRef.current = newLocation;
             setLocation(newLocation);
             storeLocation(newLocation);
           } else {
-            console.log('distance is less than 20 - new location', newLocation, distance);
-            console.log('distance is less than 20 - previous location', previousLocationRef.current, distance);
+
           }
         } else {
           // console.log('setting previous locations....');
@@ -2641,6 +2895,8 @@ const Home = ({ navigation }) => {
 
   const shouldTrackLocation = useRef(false)
 
+
+
   useEffect(() => {
     setStartBackgroundTracking(() => startBackgroundService);
   }, [setStartBackgroundTracking]);
@@ -2657,6 +2913,9 @@ const Home = ({ navigation }) => {
     }
     fetchMyAPI()
   }, [timerOn, updatedlivetrackingaccess?.length, locationblock, activeinactivetracking])
+
+
+
 
   const EndBackgroundService = async () => {
     Geolocation.stopObserving()
@@ -2684,7 +2943,6 @@ const Home = ({ navigation }) => {
       let watchId = null;
 
       while (BackgroundService.isRunning(veryIntensiveTask)) {
-        console.log("Running task...");
 
         if (timerOn) {
           // Start location tracking
@@ -2729,13 +2987,6 @@ const Home = ({ navigation }) => {
       console.error('Error starting background service:', e);
     }
   };
-  // console.log("face_kyc_img---------->", face_kyc_img)
-
-  if (face_kyc_img) {
-    if (inTime == null && !isPunchedIn) {
-      return <PunchINPage />
-    }
-  }
 
   const renderItemLogs = ({ item, index }) => {
     const time = new Date(item?.punch_in_time);
@@ -2806,9 +3057,63 @@ const Home = ({ navigation }) => {
     );
   }
 
-  if (homeskelton == null) {
-    return <HomeSkeleton />
+  if (face_kyc_img) {
+    const userOutTime = userouttime;  // This can come from the API
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');  // Month is 0-based, so add 1
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    const currentDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
+
+
+    if (inTime !== "undefined") {
+      if (inTime === null && !isPunchedIn) {
+        return <PunchINPage />
+      }
+      else if (userOutTime === currentDateTime && !isPunchedOut) {
+        return <PunchOutPage />;
+      }
+    }
   }
+  else {
+    const userOutTime = userouttime;  // This can come from the API
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');  // Month is 0-based, so add 1
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    const currentDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
+
+    if (inTime !== "undefined") {
+      if (inTime === null && !isPunchedIn) {
+        return <PunchINPage />
+      }
+      else if (userOutTime === currentDateTime && !isPunchedOut) {
+        return <PunchOutPage />;
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+ 
+
+
+  // if (homeskelton == null) {
+  //   return <HomeSkeleton />
+  // }
+
+
 
 
   return (
@@ -2912,11 +3217,13 @@ const Home = ({ navigation }) => {
                   </View>
 
                   <View style={{}}>
-                    <FlatList showsHorizontalScrollIndicator={false}
+                    <FlatList
+                      scrollEnabled={false}
+                      showsHorizontalScrollIndicator={false}
                       horizontal
                       data={options}
                       renderItem={renderItem}
-                      keyExtractor={item => item?.id}
+                      keyExtractor={item => `options-${item?.id}`} // Prefix key
                     />
                   </View>
                   <View style={{ padding: 15, marginTop: 0 }}>
@@ -3129,9 +3436,10 @@ const Home = ({ navigation }) => {
                     </Text>
 
                     <FlatList
+                      scrollEnabled={false}
                       data={lastSevenDaysLogs}
                       renderItem={renderItemLogs}
-                      keyExtractor={item => item?.id}
+                      keyExtractor={item => `logs-${item?.id}`} // Prefix key
                       ListEmptyComponent={
                         <Text
                           style={{
@@ -3145,8 +3453,102 @@ const Home = ({ navigation }) => {
 
                   </View>
                 </View>
+
+                {/* {
+                  firsttimelogin == 1 ?
+                    <Modal
+                      isVisible={isModalVisiblePassword}
+                      animationIn="zoomIn"
+                      animationOut="zoomOut"
+                    >
+                      <View style={styles.container1}>
+                        <Image
+                          source={require('../../images/reset-password.png')}
+                          style={{ width: responsiveWidth(18), height: responsiveHeight(12), resizeMode: "contain", alignSelf: "center" }}
+                        />
+                        <View style={styles.inputContainer}>
+                          <View style={styles.inputWrapper}>
+                            <TextInput
+                              style={styles.input}
+                              secureTextEntry={!isCurrentPasswordVisible}
+                              value={currentPassword}
+                              onChangeText={setCurrentPassword}
+                              placeholder="Enter current password"
+                              placeholderTextColor="#999"
+                            />
+                            <TouchableOpacity onPress={() => setIsCurrentPasswordVisible(!isCurrentPasswordVisible)}>
+                              <Icon name={isCurrentPasswordVisible ? 'eye' : 'eye-off'} size={20} />
+                            </TouchableOpacity>
+                          </View>
+                          {validationMessages.currentPassword ? (
+                            <Text style={styles.validationText}>{validationMessages.currentPassword}</Text>
+                          ) : null}
+                        </View>
+                        <View style={styles.inputContainer}>
+                          <View style={styles.inputWrapper}>
+                            <TextInput
+                              style={styles.input}
+                              secureTextEntry={!isNewPasswordVisible}
+                              value={newPassword}
+                              onChangeText={handleNewPasswordChange}
+                              placeholder="Enter new password"
+                              placeholderTextColor="#999"
+                            />
+                            <TouchableOpacity onPress={() => setIsNewPasswordVisible(!isNewPasswordVisible)}>
+                              <Icon name={isNewPasswordVisible ? 'eye' : 'eye-off'} size={20} />
+                            </TouchableOpacity>
+                          </View>
+                          {validationMessages.newPassword ? (
+                            <Text style={styles.validationText}>{validationMessages.newPassword}</Text>
+                          ) : null}
+                          {passwordStrength ? (
+                            <View style={styles.strengthContainer}>
+                              <View
+                                style={[
+                                  styles.strengthBar,
+                                  passwordStrength === 'weak' && styles.weak,
+                                  passwordStrength === 'medium' && styles.medium,
+                                  passwordStrength === 'strong' && styles.strong,
+                                ]}
+                              />
+                              <Text style={styles.feedbackText}>{passwordFeedback}</Text>
+                            </View>
+                          ) : null}
+                        </View>
+                        <View style={styles.inputContainer}>
+                          <View style={styles.inputWrapper}>
+                            <TextInput
+                              style={styles.input}
+                              secureTextEntry={!isConfirmPasswordVisible}
+                              value={confirmPassword}
+                              onChangeText={setConfirmPassword}
+                              placeholder="Confirm new password"
+                              placeholderTextColor="#999"
+                            />
+                            <TouchableOpacity onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}>
+                              <Icon name={isConfirmPasswordVisible ? 'eye' : 'eye-off'} size={20} />
+                            </TouchableOpacity>
+                          </View>
+                          {validationMessages.confirmPassword ? (
+                            <Text style={styles.validationText}>{validationMessages.confirmPassword}</Text>
+                          ) : null}
+                        </View>
+                        <TouchableOpacity style={styles.changeButton} onPress={() => FirstTimePasswordSet()}>
+                          {firsttimepasswordloader ? (
+                            <ActivityIndicator size="small" color="#fff" />
+                          ) : (
+                            <Text style={styles.changeButtonText}>Submit</Text>
+                          )}
+                        </TouchableOpacity>
+                        <FlashMessage position="top" />
+                      </View>
+                    </Modal>
+                    :
+                    null
+                } */}
+
               </PullToRefresh>
-              {
+              {/* {
                 updatedfacereconization?.length > 0 && modalkycpermissions == 0 ?
                   <Modal
                     isVisible={isModalVisible}
@@ -3180,103 +3582,7 @@ const Home = ({ navigation }) => {
                   </Modal>
                   :
                   null
-              }
-
-              {
-                firsttimelogin == 1 ?
-                  <Modal
-                    isVisible={isModalVisiblePassword}
-                    animationIn="zoomIn"
-                    animationOut="zoomOut"
-                  >
-                    <View style={styles.container1}>
-                      <Image
-                        source={require('../../images/reset-password.png')}
-                        style={{ width: responsiveWidth(18), height: responsiveHeight(12), resizeMode: "contain", alignSelf: "center" }}
-                      />
-                      <View style={styles.inputContainer}>
-                        <View style={styles.inputWrapper}>
-                          <TextInput
-                            style={styles.input}
-                            secureTextEntry={!isCurrentPasswordVisible}
-                            value={currentPassword}
-                            onChangeText={setCurrentPassword}
-                            placeholder="Enter current password"
-                            placeholderTextColor="#999"
-                          />
-                          <TouchableOpacity onPress={() => setIsCurrentPasswordVisible(!isCurrentPasswordVisible)}>
-                            <Icon name={isCurrentPasswordVisible ? 'eye' : 'eye-off'} size={20} />
-                          </TouchableOpacity>
-                        </View>
-                        {validationMessages.currentPassword ? (
-                          <Text style={styles.validationText}>{validationMessages.currentPassword}</Text>
-                        ) : null}
-                      </View>
-                      <View style={styles.inputContainer}>
-                        {/* <Text style={styles.label}>New password</Text> */}
-                        <View style={styles.inputWrapper}>
-                          <TextInput
-                            style={styles.input}
-                            secureTextEntry={!isNewPasswordVisible}
-                            value={newPassword}
-                            onChangeText={handleNewPasswordChange}
-                            placeholder="Enter new password"
-                            placeholderTextColor="#999"
-                          />
-                          <TouchableOpacity onPress={() => setIsNewPasswordVisible(!isNewPasswordVisible)}>
-                            <Icon name={isNewPasswordVisible ? 'eye' : 'eye-off'} size={20} />
-                          </TouchableOpacity>
-                        </View>
-                        {validationMessages.newPassword ? (
-                          <Text style={styles.validationText}>{validationMessages.newPassword}</Text>
-                        ) : null}
-                        {/* Strength Indicator */}
-                        {passwordStrength ? (
-                          <View style={styles.strengthContainer}>
-                            <View
-                              style={[
-                                styles.strengthBar,
-                                passwordStrength === 'weak' && styles.weak,
-                                passwordStrength === 'medium' && styles.medium,
-                                passwordStrength === 'strong' && styles.strong,
-                              ]}
-                            />
-                            <Text style={styles.feedbackText}>{passwordFeedback}</Text>
-                          </View>
-                        ) : null}
-                      </View>
-                      <View style={styles.inputContainer}>
-                        {/* <Text style={styles.label}>Confirm password</Text> */}
-                        <View style={styles.inputWrapper}>
-                          <TextInput
-                            style={styles.input}
-                            secureTextEntry={!isConfirmPasswordVisible}
-                            value={confirmPassword}
-                            onChangeText={setConfirmPassword}
-                            placeholder="Confirm new password"
-                            placeholderTextColor="#999"
-                          />
-                          <TouchableOpacity onPress={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}>
-                            <Icon name={isConfirmPasswordVisible ? 'eye' : 'eye-off'} size={20} />
-                          </TouchableOpacity>
-                        </View>
-                        {validationMessages.confirmPassword ? (
-                          <Text style={styles.validationText}>{validationMessages.confirmPassword}</Text>
-                        ) : null}
-                      </View>
-                      <TouchableOpacity style={styles.changeButton} onPress={() => FirstTimePasswordSet()}>
-                        {firsttimepasswordloader ? (
-                          <ActivityIndicator size="small" color="#fff" />
-                        ) : (
-                          <Text style={styles.changeButtonText}>Submit</Text>
-                        )}
-                      </TouchableOpacity>
-                      <FlashMessage position="top" />
-                    </View>
-                  </Modal>
-                  :
-                  null
-              }
+              } */}
 
               {/* <Modal
                 isVisible={faceNotModal}
@@ -3568,6 +3874,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     paddingVertical: 8,
+    color: Themes == 'dark' ? '#000' : '#000',
   },
   changeButton: {
     backgroundColor: '#0F3E87',

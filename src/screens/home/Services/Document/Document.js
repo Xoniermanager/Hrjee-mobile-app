@@ -61,11 +61,9 @@ const Document = ({navigation}) => {
             setdoc(response.data.data);
           } catch (e) {
             setloading(false);
-            console.log(e);
           }
         } else {
           setloading(false);
-          console.log(response.data.message);
         }
       })
       .catch(error => {

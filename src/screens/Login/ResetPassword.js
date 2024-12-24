@@ -124,8 +124,6 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
             })
             .catch((error) => {
                 setLoader(false)
-
-              console.log(error);
                Popup.show({
                   type: 'Warning',
                   title: 'Warning',
@@ -134,7 +132,6 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
                   buttonText: 'Ok',
                   callback: () => [Popup.hide()]
                 })
-                console.log(error)
                 setloading(false)
             });
         }
@@ -184,7 +181,6 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
              
             })
             .catch((error) => {
-              console.log(error);
               setResendLoader(false)
 
                Popup.show({
@@ -195,7 +191,6 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
                   buttonText: 'Ok',
                   callback: () => [Popup.hide()]
                 })
-                console.log(error)
                 setloading(false)
             });
            

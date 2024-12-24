@@ -5,7 +5,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  useColorScheme
+  useColorScheme,
+  Alert
 } from 'react-native';
 import React, { useState, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,17 +16,17 @@ import { useFocusEffect } from '@react-navigation/native';
 import { EssContext } from '../../../../../Context/EssContext';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Themes from '../../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 
 const LeaveDetails = ({ navigation, route }) => {
   const theme = useColorScheme();
 
   const { user } = useContext(EssContext);
-
   const [leaveDetails, setleaveDetails] = useState();
   const [approvalHist, setapprovalHist] = useState([]);
 
-  console.log("leaveDetails=>", leaveDetails)
+  // console.log("leaveDetails=>", leaveDetails)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -54,22 +55,35 @@ const LeaveDetails = ({ navigation, route }) => {
             setleaveDetails(response.data.data);
             setapprovalHist(response.data.data.approval_history);
           } catch (e) {
-            alert(e);
+
           }
         } else {
-          alert(response.data.message);
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody: response.data.message,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          })
+
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+
         setloading(false)
-        if(error.response.status=='401')
-        {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+        if (error.response.status == '401') {
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody: error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+            navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -99,25 +113,45 @@ const LeaveDetails = ({ navigation, route }) => {
           // console.log('response', response.data);
           if (response.data.status == 1) {
             try {
-              alert(response.data.message);
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody: response.data.message,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              })
+
               navigation.goBack();
             } catch (e) {
-              alert(e);
+
             }
           } else {
-            alert(response.data.message);
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody: response.data.message,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            })
           }
         })
         .catch(error => {
-          // alert(error.request._response);
+
           setloading(false)
-          if(error.response.status=='401')
-          {
-        alert(error.response.data.msg)
-          AsyncStorage.removeItem('Token');
-          AsyncStorage.removeItem('UserData');
-          AsyncStorage.removeItem('UserLocation');
-         navigation.navigate('Login');
+          if (error.response.status == '401') {
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody: error.response.data.msg,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(), AsyncStorage.removeItem('Token'),
+              AsyncStorage.removeItem('UserData'),
+              AsyncStorage.removeItem('UserLocation'),
+              navigation.navigate('Login')]
+            });
           }
         })
       : null;
@@ -125,247 +159,266 @@ const LeaveDetails = ({ navigation, route }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#e3eefb' }}>
-      {leaveDetails ? (
-        <>
-          <PullToRefresh onRefresh={handleRefresh}>
-            <View style={{ backgroundColor: 'white' }}>
+      <Root>
+
+        {leaveDetails ? (
+          <>
+            <PullToRefresh onRefresh={handleRefresh}>
+              <View style={{ backgroundColor: 'white' }}>
+                <View
+                  style={{
+                    padding: 10,
+                    backgroundColor: '#0043ae',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
+                    Employee Details
+                  </Text>
+                </View>
+                <View style={{ padding: 20 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>
+                      Leave ID:
+                    </Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {leaveDetails.leaveid}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>
+                      Employee ID:
+                    </Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {leaveDetails.user_employee_number}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>Name:</Text>
+                    <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
+                      {leaveDetails.user_name}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>Balance:</Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {leaveDetails.leave_balance}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <View style={{ backgroundColor: 'white', marginTop: 15 }}>
+                <View
+                  style={{
+                    padding: 10,
+                    backgroundColor: '#0043ae',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
+                    Leave Details
+                  </Text>
+                </View>
+                <View style={{ padding: 20 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>
+                      Leave Type:
+                    </Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {/* {leaveDetails.leavetype_data.leave_type} */}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>
+                      Current Status:
+                    </Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {approvalHist &&
+                        approvalHist[approvalHist?.length - 1]?.status}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>
+                      Leave start day:
+                    </Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {new Date(leaveDetails.leave_start_dt).toLocaleDateString(
+                        'en-GB',
+                      )}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>
+                      Leave end day:
+                    </Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {new Date(leaveDetails.leave_end_dt).toLocaleDateString(
+                        'en-GB',
+                      )}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>
+                      No. of Days:
+                    </Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {leaveDetails.number_of_days}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>Comment:</Text>
+                    <Text style={[styles.value, { marginTop: 0, width: 170 }]}>
+                      {leaveDetails.notes == null || "" || undefined ? leaveDetails.notes : 'N/A'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
               <View
                 style={{
-                  padding: 10,
-                  backgroundColor: '#0043ae',
-                  alignItems: 'center',
+                  backgroundColor: 'white',
+                  marginTop: 15,
+                  marginBottom: 120,
                 }}>
-                <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
-                  Employee Details
-                </Text>
-              </View>
-              <View style={{ padding: 20 }}>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
+                    padding: 10,
+                    backgroundColor: '#0043ae',
+                    alignItems: 'center',
                   }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>
-                    Leave ID:
-                  </Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {leaveDetails.leaveid}
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
+                    Emergency Contacts
                   </Text>
                 </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>
-                    Employee ID:
-                  </Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {leaveDetails.user_employee_number}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>Name:</Text>
-                  <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
-                    {leaveDetails.user_name}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>Balance:</Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {leaveDetails.leave_balance}
-                  </Text>
+                <View style={{ padding: 20 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>Name:</Text>
+                    <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
+                      {leaveDetails.emergency_contact_name}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>Address:</Text>
+                    <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
+                      {leaveDetails.emergency_contact_address}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      marginTop: 15,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <Text style={[styles.heading, { marginTop: 0 }]}>
+                      Telephone:
+                    </Text>
+                    <Text style={[styles.value, { marginTop: 0 }]}>
+                      {leaveDetails.emergency_contact_phone}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-            <View style={{ backgroundColor: 'white', marginTop: 15 }}>
-              <View
-                style={{
-                  padding: 10,
-                  backgroundColor: '#0043ae',
-                  alignItems: 'center',
-                }}>
-                <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
-                  Leave Details
-                </Text>
-              </View>
-              <View style={{ padding: 20 }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>
-                    Leave Type:
-                  </Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {/* {leaveDetails.leavetype_data.leave_type} */}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>
-                    Current Status:
-                  </Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {approvalHist &&
-                      approvalHist[approvalHist?.length - 1]?.status}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>
-                    Leave start day:
-                  </Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {new Date(leaveDetails.leave_start_dt).toLocaleDateString(
-                      'en-GB',
-                    )}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>
-                    Leave end day:
-                  </Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {new Date(leaveDetails.leave_end_dt).toLocaleDateString(
-                      'en-GB',
-                    )}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>
-                    No. of Days:
-                  </Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {leaveDetails.number_of_days}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>Note:</Text>
-                  <Text style={[styles.value, { marginTop: 0, width: 170 }]}>
-                    {leaveDetails.notes}
-                  </Text>
-                </View>
-              </View>
-            </View>
+            </PullToRefresh>
+
             <View
               style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                padding: 15,
                 backgroundColor: 'white',
-                marginTop: 15,
-                marginBottom: 120,
+                borderTopWidth: 0.5,
+                borderTopColor: '#00000030',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
               }}>
-              <View
-                style={{
-                  padding: 10,
-                  backgroundColor: '#0043ae',
-                  alignItems: 'center',
-                }}>
-                <Text style={{ color: 'white', fontWeight: '600', fontSize: 17 }}>
-                  Emergency Contacts
-                </Text>
-              </View>
-              <View style={{ padding: 20 }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>Name:</Text>
-                  <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
-                    {leaveDetails.emergency_contact_name}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>Address:</Text>
-                  <Text style={[styles.value, { marginTop: 0, width: 150 }]}>
-                    {leaveDetails.emergency_contact_address}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    marginTop: 15,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={[styles.heading, { marginTop: 0 }]}>
-                    Telephone:
-                  </Text>
-                  <Text style={[styles.value, { marginTop: 0 }]}>
-                    {leaveDetails.emergency_contact_phone}
-                  </Text>
-                </View>
-              </View>
+              {route.params.current_status == 'Approved-mgr' ? null :
+                <TouchableOpacity onPress={() =>
+                  Alert.alert(
+                    '',
+                    'Are you sure you want to Cancel Leave?',
+                    [
+                      {
+                        text: 'Cancel',
+                        onPress: () => console.log('Cancel Pressed'),
+                        style: 'cancel',
+                      },
+                      { text: 'OK', onPress: () => cancelLeave(route.leaveid) },
+                    ],
+                  )
+                } style={styles.btn}>
+                  <Text style={{ color: 'white', fontWeight: '700' }}>Cancel</Text>
+                </TouchableOpacity>
+              }
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={styles.btn}>
+                <Text style={{ color: 'white', fontWeight: '700' }}>Close</Text>
+              </TouchableOpacity>
             </View>
-          </PullToRefresh>
-
-          <View
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              padding: 15,
-              backgroundColor: 'white',
-              borderTopWidth: 0.5,
-              borderTopColor: '#00000030',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}>
-            <TouchableOpacity onPress={() => cancelLeave()} style={styles.btn}>
-              <Text style={{ color: 'white', fontWeight: '700' }}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={styles.btn}>
-              <Text style={{ color: 'white', fontWeight: '700' }}>Close</Text>
-            </TouchableOpacity>
+          </>
+        ) : (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="small" color="#0043ae" />
           </View>
-        </>
-      ) : (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="small" color="#0043ae" />
-        </View>
-      )}
+        )}
+
+      </Root>
     </View>
   );
 };

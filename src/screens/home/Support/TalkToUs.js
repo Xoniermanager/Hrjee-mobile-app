@@ -14,6 +14,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../../reusable/apiUrl';
 import axios from 'axios';
 import Themes from '../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TalkToUs = ({ navigation }) => {
   const theme = useColorScheme();
@@ -40,62 +42,90 @@ const TalkToUs = ({ navigation }) => {
       subject: subject,
       comment: comment,
     };
-    console.log('body1mon----->', body);
     if (subject && comment) {
       setloading(true);
       axios
         .post(`${apiUrl}/api/addcomplain`, body, config)
         .then(response => {
-          console.log('response', response.data);
+          // console.log('response', response.data);
           if (response.data.status == 1) {
             try {
               setloading(false);
-              alert(response.data.msg);
-              navigation.goBack();
+              Popup.show({
+                type: 'Success',
+                title: 'Success',
+                button: true,
+                textBody:response.data.msg,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide(), navigation.goBack()]
+              });
             } catch (e) {
               setloading(false);
               console.log(e);
             }
           } else {
             setloading(false);
-            console.log(response.data);
           }
         })
         .catch(error => {
-          // alert(error.request._response);
+         
           setloading(false)
           if(error.response.status=='401')
           {
-        alert(error.response.data.msg)
-          AsyncStorage.removeItem('Token');
-          AsyncStorage.removeItem('UserData');
-          AsyncStorage.removeItem('UserLocation');
-         navigation.navigate('Login');
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:error.response.data.msg,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+              AsyncStorage.removeItem('UserData'),
+              AsyncStorage.removeItem('UserLocation'),
+             navigation.navigate('Login')]
+            });
           }
         });
     } else if (subject == '') {
-      alert('write a subject');
+      
+    
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody:'Please enter some text',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()]
+      });
     } else if (comment == '') {
-      alert('write a comment');
+      Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody:'Please enter some text',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()]
+      });
+    
     }
   };
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
+        // justifyContent: 'center',
+        // alignItems: 'center',
         backgroundColor: GlobalStyle.blueLight,
-        padding: 20,
+        // padding: 20,
       }}>
+        <Root>
       <View
         style={{
           padding: 15,
           backgroundColor: 'white',
           borderRadius: 5,
-          width: '100%',
+          width: '95%',
           margin: 10,
         }}>
         <View style={{}}>
@@ -146,7 +176,8 @@ const TalkToUs = ({ navigation }) => {
           {loading ? <ActivityIndicator color="white" /> : null}
         </TouchableOpacity>
       </View>
-    </View>
+      </Root>
+    </SafeAreaView>
   );
 };
 

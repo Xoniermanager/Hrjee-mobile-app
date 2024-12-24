@@ -27,12 +27,14 @@ ios/.xcode.env.local
 build/
 .idea
 .gradle
+.env
 local.properties
 *.iml
 *.hprof
 .cxx/
 *.keystore
 !debug.keystore
+.env
 
 # node.js
 #

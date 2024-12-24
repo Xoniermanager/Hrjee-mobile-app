@@ -40,9 +40,7 @@ const EffectiveDateNotice = ({navigation}) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('getDetailsApi.data->', getDetailsApi.data);
       if (getDetailsApi.data?.status == 1) {
-        console.log('first--->', getDetailsApi.data);
         // const signature = JSON.parse(getDetailsApi.data.data.signature);
         setinputVal({
           name: getDetailsApi.data.data.name,
@@ -85,7 +83,6 @@ const EffectiveDateNotice = ({navigation}) => {
       effective_date: dateTxt.txt1 == 'select date' ? '' : dateTxt.txt1,
       emp_signature: inputVal.emp_signature,
     };
-    console.log('bdy-->', body);
     const config = {
       headers: {Token: token},
     };

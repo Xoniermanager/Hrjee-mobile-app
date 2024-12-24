@@ -61,7 +61,6 @@ const SharePost = ({navigation, route}) => {
       setpost_id();
       setuser_id();
       setcaption('');
-      console.log('leave');
     }
   }, [isFocused]);
 
@@ -86,7 +85,6 @@ const SharePost = ({navigation, route}) => {
         // Provide which type of file you want user to pick
         type: [DocumentPicker.types.allFiles],
       });
-      console.log('res--->', res);
       setSingleFile(res);
       // setModalVisibleImgUp(!modalVisibleImgUp);
     } catch (err) {
@@ -104,7 +102,6 @@ const SharePost = ({navigation, route}) => {
   };
 
   const uploadPost = async () => {
-    console.log('uploadPost');
     setloading(true);
     const token = await AsyncStorage.getItem('Token');
     // Check if any file is selected or not
@@ -147,7 +144,6 @@ const SharePost = ({navigation, route}) => {
   };
 
   const uploadPostRepost = async () => {
-    console.log('uploadPostRepost');
     setloading(true);
 
     const token = await AsyncStorage.getItem('Token');
@@ -180,7 +176,6 @@ const SharePost = ({navigation, route}) => {
     }, 200);
   }, [add_user_repost_api.data]);
 
-  console.log('WINDOW_WIDTH--->', WINDOW_WIDTH);
 
   return (
     <>

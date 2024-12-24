@@ -18,6 +18,7 @@ import apiUrl from '../../reusable/apiUrl';
 import axios from 'axios';
 import {EssContext} from '../../../Context/EssContext';
 import PullToRefresh from '../../reusable/PullToRefresh';
+import { Root, Popup } from 'popup-ui'
 
 const Training = ({navigation}) => {
   const [empty, setempty] = useState(false);
@@ -51,7 +52,7 @@ const Training = ({navigation}) => {
             setempty(false);
             response.data.content.length < 1 ? setempty(true) : setempty(false);
           } catch (e) {
-            alert(e);
+         
           }
         } else {
           setempty(true);
@@ -59,15 +60,21 @@ const Training = ({navigation}) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+        
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -267,6 +274,8 @@ const Training = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
+      <Root>
+
       {empty ? (
         <View
           style={{
@@ -316,6 +325,8 @@ const Training = ({navigation}) => {
           </Text>
         </TouchableOpacity>
       </View>
+      </Root>
+
     </View>
   );
 };

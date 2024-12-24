@@ -67,10 +67,7 @@ const DisposalReport = ({navigation, route}) => {
             name: requested_by.name,
             signature: requested_by.signature,
           });
-          console.log(
-            'getDetailsApi.data.data.items===',
-            getDetailsApi.data.data.items,
-          );
+
         }
       }, [getDetailsApi.loading]),
     );
@@ -139,7 +136,6 @@ const DisposalReport = ({navigation, route}) => {
       requested_by: requested_by,
     };
 
-    console.log('body--->', body);
     const config = {
       headers: {Token: token},
     };
@@ -159,7 +155,6 @@ const DisposalReport = ({navigation, route}) => {
       requested_by: requested_by,
     };
 
-    console.log(body);
     const config = {
       headers: {Token: token},
     };
@@ -274,7 +269,6 @@ const DisposalReport = ({navigation, route}) => {
                     ? `0${date.getMinutes()}`
                     : date.getMinutes()),
               });
-              console.log('date-->', date);
             }}
             onCancel={() => {
               setstartopen2(false);

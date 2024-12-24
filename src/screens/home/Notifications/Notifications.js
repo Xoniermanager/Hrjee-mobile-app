@@ -6,7 +6,7 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
-  useColorScheme
+  useColorScheme,
 } from 'react-native';
 import React, {useState} from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -19,21 +19,19 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
-
+import { Root, Popup } from 'popup-ui'
+import NotificationListSkeleton from '../../Skeleton/NotificationListSkeleton';
 
 const Notifications = ({navigation}) => {
   const theme = useColorScheme();
-
+ 
   const [empty, setempty] = useState(false);
-  const [notifications, setnotifications] = useState();
+  const [notifications, setnotifications] = useState(null);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      get_notifications();
-    }, []),
-  );
+
 
   const get_notifications = async () => {
+    setempty(true)
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: {Token: token},
@@ -44,38 +42,68 @@ const Notifications = ({navigation}) => {
     axios
       .post(`${apiUrl}/api/notification_list`, body, config)
       .then(response => {
+        // console.log('Notification.....',response?.data)
         if (response.data.status == 1) {
           try {
-            // console.log(response.data.data);
+            setempty(false)
             setnotifications(response.data.data);
-            response.data.data.length < 1 ? setempty(true) : setempty(false);
+            
+            
           } catch (e) {
-            alert(e);
+   
+            Popup.show({
+              type: 'Warning',
+              title: 'Warning',
+              button: true,
+              textBody:e,
+              buttonText: 'Ok',
+              callback: () => [Popup.hide()]
+            });
+          
           }
         } else {
-          alert(response.data.message);
+         console.log("first")
+         
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+        
         if(error.response.status=='401')
+      
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
-
+  useFocusEffect(
+    React.useCallback(() => {
+      get_notifications();
+    }, []),
+  );
   const handleRefresh = async () => {
     // Do something to refresh the data
     get_notifications();
   };
 
+  if(notifications == null){
+    return <NotificationListSkeleton/>
+  }
+
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
+      <Root>
+
+    
       {empty ? (
         <View
           style={{
@@ -91,6 +119,8 @@ const Notifications = ({navigation}) => {
         </View>
       ) : (
         <View style={{flex: 1, padding: 15, paddingTop: 0}}>
+        
+        <Text style={{color:theme == 'dark' ? '#000' : '#000'}}>You have <Text style={{color:'#2260FF'}}>{notifications?.length} Notification</Text>  today.</Text>
           <PullToRefresh onRefresh={handleRefresh}>
             {notifications ? (
               notifications.map((i, index) => (
@@ -100,21 +130,25 @@ const Notifications = ({navigation}) => {
                     styles.card,
                     {
                       marginTop: 20,
+                      padding: 15,
+                      borderWidth:1,
+                      borderColor: '#0528a5',
+                      borderRadius: 20,
                       marginBottom: index == notifications.length - 1 ? 80 : 0,
                     },
                   ]}
                   >
+                  <View style={{}}> 
+                    <Text style={{backgroundColor:'#0528a5',color:'#fff', padding:10,
+                  borderRadius:20,width:157,marginBottom:10,textAlign:'center',}}>{i.created_date}</Text>
+                  </View>
                   <View style={styles.separator}>
-                    <Text style={styles.heading}>Title:</Text>
+                    <Text style={{width:90,fontWeight:'bold',color:'#000000',marginBottom:10,}}>Title:</Text>
                     <Text style={styles.value}>{i.title}</Text>
                   </View>
                   <View style={styles.separator}>
-                    <Text style={styles.heading}>Message:</Text>
-                    <Text style={styles.value}> {i.message}</Text>
-                  </View>
-                  <View style={styles.separator}>
-                    <Text style={styles.heading}>Created Date:</Text>
-                    <Text style={styles.value}>{i.created_date}</Text>
+                    <Text style={{width:90,fontWeight:'bold',color:'#000000',}}>Message:</Text>
+                    <Text style={styles.value}>{i.message}</Text>
                   </View>
                 </View>
               ))
@@ -146,6 +180,7 @@ const Notifications = ({navigation}) => {
           </Text>
         </TouchableOpacity> */}
       </View>
+      </Root>
     </View>
   );
 };

@@ -15,7 +15,6 @@ import GlobalStyle from '../../../../reusable/GlobalStyle';
 import {useFocusEffect} from '@react-navigation/native';
 
 const DocumentDetails = ({route}) => {
-  console.log('doc-->', route.params.doc);
 
   const [loading, setloading] = useState(false);
 
@@ -28,7 +27,6 @@ const DocumentDetails = ({route}) => {
   const openDoc = () => {
     setloading(true);
     const url = route.params.doc;
-    console.log(url);
 
     // this will split the whole url.
     const f2 = url.split('/');
@@ -53,7 +51,15 @@ const DocumentDetails = ({route}) => {
         // Here you can perform any of your completion tasks
       })
       .catch(error => {
-        alert(error.request._response);
+        Popup.show({
+          type: 'Warning',
+          title: 'Warning',
+          button: true,
+          textBody:error.request._response,
+          buttonText: 'Ok',
+          callback: () => [Popup.hide()]
+        })
+     
         setloading(false)
       });
   };

@@ -14,13 +14,13 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import GlobalStyle from '../../reusable/GlobalStyle';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
+import { Root, Popup } from 'popup-ui'
 
 const TrainingDetails = ({ navigation, route }) => {
   const [loading, setloading] = useState(false);
   const [showMore, setshowMore] = useState(true);
 
   const type = route.params.type;
-  console.log('type', type);
   const monthNames = [
     'January',
     'February',
@@ -68,7 +68,6 @@ const TrainingDetails = ({ navigation, route }) => {
   const openDoc = () => {
     setloading(true);
     const url = route.params.url;
-    console.log(url);
 
     // this will split the whole url.
     const f2 = url.split('/');

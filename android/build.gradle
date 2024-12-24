@@ -1,21 +1,27 @@
 buildscript {
     ext {
         buildToolsVersion = "34.0.0"
-        minSdkVersion = 21
+        minSdkVersion = 23
         compileSdkVersion = 34
         targetSdkVersion = 34
         ndkVersion = "25.1.8937393"
         kotlinVersion = "1.8.0"
+        playServicesLocationVersion = "21.0.1"
     }
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' } // Optional, depending on where Bugfender is hosted
+        maven { url 'https://repo.bugfender.com/maven' } // Hypothetical URL, replace if Bugfender documentation provides another
     }
     dependencies {
         classpath("com.android.tools.build:gradle")
+        classpath 'com.google.gms:google-services:4.4.1'
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
     }
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+

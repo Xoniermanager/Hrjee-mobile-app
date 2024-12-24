@@ -20,7 +20,7 @@ import axios from 'axios';
 import {useFocusEffect} from '@react-navigation/native';
 import PullToRefresh from '../../../../reusable/PullToRefresh';
 import Themes from '../../../../Theme/Theme';
-
+import { Root, Popup } from 'popup-ui'
 
 const Document = ({navigation}) => {
   const theme = useColorScheme();
@@ -53,7 +53,7 @@ const Document = ({navigation}) => {
       .post(`${apiUrl}/api/document`, body, config)
       .then(response => {
         setloading(false);
-        console.log('response', response.data);
+        // console.log('response', response.data);
         if (response.data.status === 1) {
           try {
             // console.log(response.data.data);
@@ -69,33 +69,44 @@ const Document = ({navigation}) => {
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+       
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
-
-  console.log('doc--->', doc);
-
   return (
     <>
       {doc && !loading && (
         <SafeAreaView  style={{flex: 1,}}>
-        <View style={{flex: 1, backgroundColor: '#e3eefb', padding: 15}}>
+          <Root>
+        <View style={{ backgroundColor: '#e3eefb', padding: 15}}>
           <PullToRefresh onRefresh={handleRefresh}>
             {doc?.map((i, index) => (
               <TouchableOpacity
                 onPress={() =>
                   i.file
                     ? navigation.navigate('Document Details', {doc: i.file})
-                    : alert('folder is empty')
+                    :   Popup.show({
+                      type: 'Warning',
+                      title: 'Warning',
+                      button: true,
+                      textBody:'folder is empty',
+                      buttonText: 'Ok',
+                      callback: () => [Popup.hide()]
+                    })
                 }
                 key={index}
                 style={[
@@ -156,6 +167,7 @@ const Document = ({navigation}) => {
             </TouchableOpacity>
           </View>
         </View>
+        </Root>
         </SafeAreaView>
       )}
 

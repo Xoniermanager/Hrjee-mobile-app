@@ -85,7 +85,6 @@ const Post = ({navigation}) => {
         // Provide which type of file you want user to pick
         type: [DocumentPicker.types.allFiles],
       });
-      console.log('res--->', res);
       setSingleFile(res);
       setshowUpdate(false);
       // setModalVisibleImgUp(!modalVisibleImgUp);
@@ -158,7 +157,6 @@ const Post = ({navigation}) => {
     );
   };
   const delete_post = async () => {
-    console.log('first');
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: {Token: token},
@@ -173,7 +171,6 @@ const Post = ({navigation}) => {
     handleClosePress();
   };
   const like_post = async id => {
-    console.log('first');
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: {Token: token},
@@ -187,7 +184,6 @@ const Post = ({navigation}) => {
     );
   };
   const dislike_post = async id => {
-    console.log('first');
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: {Token: token},
@@ -244,7 +240,6 @@ const Post = ({navigation}) => {
   };
 
   const updateRepost = async () => {
-    console.log('updateRepost');
     setloading(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -295,7 +290,6 @@ const Post = ({navigation}) => {
       post_id: post_id,
       msg: '',
     };
-    console.log('body---->', body);
     add_user_repost_api.request(body, config);
   };
 
@@ -326,7 +320,6 @@ const Post = ({navigation}) => {
   const handleClosePress = () => bottomSheetRef.current.close();
   const handleExpandPress = () => bottomSheetRef.current.expand();
 
-  console.log('post==>', get_cmp_post.data);
 
   return (
     <View style={{flex: 1}}>

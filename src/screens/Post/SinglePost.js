@@ -111,7 +111,6 @@ const SinglePost = ({navigation, route}) => {
   };
 
   const like_post = async id => {
-    console.log('first');
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: {Token: token},
@@ -126,7 +125,6 @@ const SinglePost = ({navigation, route}) => {
   };
 
   const dislike_post = async id => {
-    console.log('first');
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: {Token: token},
@@ -194,7 +192,6 @@ const SinglePost = ({navigation, route}) => {
   };
 
   const delete_post = async id => {
-    console.log('first');
     const token = await AsyncStorage.getItem('Token');
     const config = {
       headers: {Token: token},
@@ -246,7 +243,6 @@ const SinglePost = ({navigation, route}) => {
       });
 
       let responseJson = await res;
-      console.log('POST edit--->', responseJson);
       if (responseJson.status == 200) {
         setloading(false);
         alert('Updated Successfully');
@@ -267,7 +263,6 @@ const SinglePost = ({navigation, route}) => {
   };
 
   const updateRepost = async () => {
-    console.log('updateRepost');
     setloading(true);
     const token = await AsyncStorage.getItem('Token');
     const config = {
@@ -307,7 +302,6 @@ const SinglePost = ({navigation, route}) => {
         // Provide which type of file you want user to pick
         type: [DocumentPicker.types.allFiles],
       });
-      console.log('res--->', res);
       setSingleFile(res);
       setshowUpdate(false);
       // setModalVisibleImgUp(!modalVisibleImgUp);

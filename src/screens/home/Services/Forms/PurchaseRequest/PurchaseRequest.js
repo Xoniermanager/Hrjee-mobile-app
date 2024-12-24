@@ -93,7 +93,6 @@ const PurchaseRequest = ({navigation, route}) => {
       direct_manager: inputVal.direct_manager,
       items: itemArr,
     };
-    console.log(body);
     const config = {
       headers: {Token: token},
     };
@@ -112,7 +111,6 @@ const PurchaseRequest = ({navigation, route}) => {
       direct_manager: inputVal.direct_manager,
       items: itemArr,
     };
-    console.log(body);
     const config = {
       headers: {Token: token},
     };

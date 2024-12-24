@@ -16,6 +16,7 @@ import apiUrl from '../../../../src/reusable/apiUrl';
 import axios from 'axios';
 import PullToRefresh from '../../../reusable/PullToRefresh';
 import Themes from '../../../Theme/Theme';
+import { Root, Popup } from 'popup-ui'
 
 const NewsDetails = ({navigation, route}) => {
   const theme = useColorScheme();
@@ -79,23 +80,37 @@ const NewsDetails = ({navigation, route}) => {
             setnewsDetail(response.data.data);
           } catch (e) {
             setloading(false);
-            alert(e);
+           
           }
         } else {
           setloading(false);
-          alert('some error occured');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:'some error occured',
+            buttonText: 'Ok',
+            callback: () => [Popup.hide()]
+          });
+      
         }
       })
       .catch(error => {
-        // alert(error.request._response);
+        
         setloading(false)
         if(error.response.status=='401')
         {
-      alert(error.response.data.msg)
-        AsyncStorage.removeItem('Token');
-        AsyncStorage.removeItem('UserData');
-        AsyncStorage.removeItem('UserLocation');
-       navigation.navigate('Login');
+          Popup.show({
+            type: 'Warning',
+            title: 'Warning',
+            button: true,
+            textBody:error.response.data.msg,
+            buttonText: 'Ok',
+            callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+            AsyncStorage.removeItem('UserData'),
+            AsyncStorage.removeItem('UserLocation'),
+           navigation.navigate('Login')]
+          });
         }
       });
   };
@@ -107,6 +122,8 @@ const NewsDetails = ({navigation, route}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: 'white', padding: 15}}>
+      <Root>
+   
       {loading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <ActivityIndicator size="small" color="#388aeb" />
@@ -119,11 +136,11 @@ const NewsDetails = ({navigation, route}) => {
           <Image
             style={styles.tinyLogo}
             source={
-              newsDetail
+              newsDetail?.filename
                 ? {uri: newsDetail.filename}
-                : require('../../../images/meta.jpeg')
+                : require('../../../images/image.png')
             }
-            // source={require('../../../images/meta.jpeg')}
+           
           />
           <View style={{marginTop: 10}}>
           <Text style={{ color:"#000", fontWeight:"bold" }}>Publish Date</Text>
@@ -150,6 +167,8 @@ const NewsDetails = ({navigation, route}) => {
       ) : (
         <Text>No data found</Text>
       )}
+           
+           </Root>
     </View>
   );
 };

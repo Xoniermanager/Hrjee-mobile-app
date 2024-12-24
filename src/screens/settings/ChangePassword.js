@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiUrl from '../../reusable/apiUrl';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { Root, Popup } from 'popup-ui'
 
 const ChangePassword = () => {
   const navigation=useNavigation()
@@ -41,7 +42,7 @@ const ChangePassword = () => {
             if (response.data.status === 1) {
               try {
                 setloading(false);
-                alert('success');
+              
                 setpassword({
                   currentPassword: '',
                   newPassword: '',
@@ -49,30 +50,54 @@ const ChangePassword = () => {
                 });
               } catch (e) {
                 setloading(false);
-                alert(e);
+              
               }
             } else {
               setloading(false);
-              alert('your current password is invalid');
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:'your current password is invalid',
+                buttonText: 'Ok',
+                callback: () => [Popup.hide()]
+              })
+            
             }
           })
           .catch(error => {
-            // alert(error.request._response);
+         
             setloading(false)
             if(error.response.status=='401')
             {
-          alert(error.response.data.msg)
-            AsyncStorage.removeItem('Token');
-            AsyncStorage.removeItem('UserData');
-            AsyncStorage.removeItem('UserLocation');
-           navigation.navigate('Login');
+              Popup.show({
+                type: 'Warning',
+                title: 'Warning',
+                button: true,
+                textBody:error.response.data.msg,
+                buttonText: 'Ok',
+                callback: () => [Popup.hide(),AsyncStorage.removeItem('Token'),
+                AsyncStorage.removeItem('UserData'),
+                AsyncStorage.removeItem('UserLocation'),
+               navigation.navigate('Login')]
+              });
             }
           })
-      : alert('Your password did not match');
+      :  Popup.show({
+        type: 'Warning',
+        title: 'Warning',
+        button: true,
+        textBody:'Your password did not match',
+        buttonText: 'Ok',
+        callback: () => [Popup.hide()]
+      })
+     
   };
 
   return (
     <View style={{flex: 1, backgroundColor: 'white', padding: 15}}>
+      <Root>
+
       <ScrollView>
         <View style={{marginVertical: 10}}>
           <Text>Current Password</Text>
@@ -131,6 +156,8 @@ const ChangePassword = () => {
           {loading ? <ActivityIndicator /> : null}
         </TouchableOpacity>
       </ScrollView>
+      </Root>
+
     </View>
   );
 };

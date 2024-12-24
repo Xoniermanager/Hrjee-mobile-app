@@ -56,7 +56,6 @@ const SparePartsRequest = ({navigation, route}) => {
             signature: requested_by.signature,
           });
 
-          console.log('getDetailsApi.data.data.items===', getDetailsApi.data);
         }
       }, [getDetailsApi.loading]),
     );
@@ -112,7 +111,6 @@ const SparePartsRequest = ({navigation, route}) => {
       },
     };
 
-    console.log('body--->', body);
     const config = {
       headers: {Token: token},
     };

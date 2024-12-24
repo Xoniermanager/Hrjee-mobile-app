@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
@@ -24,51 +24,68 @@ import Services from '../src/screens/home/Services/Services';
 import LocationList from '../src/screens/Location/LocationList';
 import Home from '../src/screens/home/Home';
 import PRM from '../src/screens/PRM/PRM';
+import { responsiveWidth } from 'react-native-responsive-dimensions';
+import { SocketContext } from '../src/tracking/SocketContext';
+import { Platform } from 'react-native';
+
 
 const Tab = createBottomTabNavigator();
+const DUMMY_MENUS = [
+  {
+    "created_date": "2021-07-19 13:53:09",
+    "icon": "fa fa-dashboard",
+    "menu_id": "1",
+    "menu_link": "admin/dashboard",
+    "menu_name": "Dashboard",
+    "modified_date": "2021-07-19 13:54:47",
+    "order_no": "1",
+    "parent_menu": "0",
+    "status": "1"
+  },
+  {
+    "created_date": "2021-07-19 13:53:09",
+    "icon": "fa fa-clock-o",
+    "menu_id": "3",
+    "menu_link": "admin/attendance",
+    "menu_name": "Attendance",
+    "modified_date": "2024-03-18 17:31:44",
+    "order_no": "7",
+    "parent_menu": "0",
+    "status": "1"
+  },
+]
 
 const Main = () => {
+  const { list, prm } = useContext(SocketContext)
   const [companyid, setCompany_id] = useState('');
-  const [prmData, setPrmData] = useState()
+  const [prmData, setPrmData] = useState();
+  const { updatelocationmanagement, prmassignpermissions, ManuAccessdetails_Socket } = useContext(SocketContext);
 
   const company_id = async () => {
-    setloading(true);
     const userData = await AsyncStorage.getItem('UserData');
     const userInfo = JSON.parse(userData);
     let company_id = userInfo?.company_id;
-    setCompany_id(company_id)
-  }
-  AsyncStorage.getItem('PRMData').then(res => {
-    setPrmData(res);
-  });
-  useEffect(() => {
-    company_id()
-  }, [])
-
-  const getRouteName = route => {
-    const routeName = getFocusedRouteNameFromRoute(route);
-    if (
-      routeName?.includes('Login') ||
-      routeName?.includes('Forgot Password') ||
-
-      routeName === undefined
-    ) {
-      return 'none';
-    }
-    return 'flex';
+    setCompany_id(company_id);
   };
+  useEffect(() => {
+    company_id();
+    ManuAccessdetails_Socket()
+  }, []);
+
+
+
+
 
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarActiveTintColor: GlobalStyle.blueDark,
         tabBarInactiveTintColor: 'gray',
       }}>
       <Tab.Screen
         options={({ route }) => ({
           unmountOnBlur: true,
-          // tabBarStyle: { display: getRouteName(route) },
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Entypo name="home" style={{ fontSize: 23, color: color }} />
@@ -77,73 +94,62 @@ const Main = () => {
         name="Home"
         component={Home}
       />
-      <Tab.Screen
-        options={{
-          unmountOnBlur: true,
-          tabBarIcon: ({ color }) => (
-            <FontAwesome
-              name="rupee"
-              style={{ fontSize: 23, color: color }}
-            />
-          ),
-        }}
-        name="Payslip"
-        component={Payslip}
-      />
-      {/* <>
-        {
-          companyid == 56 ?
-            <Tab.Screen
-              options={{
-                unmountOnBlur: true,
-                tabBarIcon: ({ color }) => (
-                  <AntDesign
-                    name="appstore-o"
-                    style={{ fontSize: 23, color: color }}
-                  />
-                ),
-              }}
-              name="Services"
-              component={Services}
-            />
-            :
-            null
 
-        }
-      </> */}
+      {
+        updatelocationmanagement?.length > 0 ?
+          <Tab.Screen
+            options={{
+              unmountOnBlur: true,
+              headerShown: false,
+              tabBarIcon: ({ color }) => (
+                <MaterialIcons
+                  name="add-task"
+                  style={{ fontSize: 23, color: color }}
+                />
+              ),
+            }}
+            name="Location"
+            component={LocationList}
+          />
+          :
+          null
+      }
+
       <Tab.Screen
         options={{
           unmountOnBlur: true,
+          headerShown: false,
           tabBarIcon: ({ color }) => (
-            <AntDesign
-              name="appstore-o"
-              style={{ fontSize: 23, color: color }}
-            />
+            <AntDesign name="appstore-o" style={{ fontSize: 23, color: color }} />
           ),
         }}
         name="Services"
         component={Services}
       />
-      <Tab.Screen
-        options={{
-          unmountOnBlur: true,
-          tabBarIcon: ({ color }) => (
-            <Entypo name="location-pin" style={{ fontSize: 23, color: color }} />
-          ),
-        }}
-        name="Location List"
-        component={LocationList}
-      />
-      {prmData == 0 ? null : <Tab.Screen
-        options={{
-          unmountOnBlur: true,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="payment" style={{ fontSize: 23, color: color }} />
-          ),
-        }}
-        name="PRM"
-        component={PRM}
-      />}
+
+      {prmassignpermissions?.length > 0 ?
+        <Tab.Screen
+          options={{
+            unmountOnBlur: true,
+            headerShown: false, 
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+              marginLeft: Platform.OS == 'ios' ? 0 : responsiveWidth(40),
+            },
+            tabBarIcon: ({ color }) => (
+              <FontAwesome
+                name="rupee"
+                style={{ fontSize: 23, color: color }}
+              />
+            ),
+          }}
+          name="PRM"
+          component={PRM}
+        />
+        :
+        null
+      }
 
       <Tab.Screen
         options={{

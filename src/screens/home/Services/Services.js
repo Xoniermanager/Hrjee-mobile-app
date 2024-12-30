@@ -1,11 +1,21 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, StatusBar, SafeAreaView } from 'react-native';
 import React, { useContext, useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, StatusBar, SafeAreaView } from 'react-native';
+import React, { useContext, useEffect } from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Button from '../../../reusable/Button';
 import { useNavigation } from '@react-navigation/native';
 import { SocketContext } from '../../../tracking/SocketContext';
+import { SocketContext } from '../../../tracking/SocketContext';
 
 const Services = () => {
+  const navigation = useNavigation()
+  const { updatedfacereconization, ManuAccessdetails_Socket } = useContext(SocketContext);
+
+  useEffect(() => {
+    ManuAccessdetails_Socket();
+  }, [])
+
   const navigation = useNavigation()
   const { updatedfacereconization, ManuAccessdetails_Socket } = useContext(SocketContext);
 

@@ -578,11 +578,13 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = HRjee/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HRJee;
+				INFOPLIST_KEY_CFBundleDisplayName = HRJee;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 5.0.0;
 				MARKETING_VERSION = 5.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -611,11 +613,13 @@
 				DEVELOPMENT_TEAM = MV8X238WS5;
 				INFOPLIST_FILE = HRjee/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = HRJee;
+				INFOPLIST_KEY_CFBundleDisplayName = HRJee;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 5.0.0;
 				MARKETING_VERSION = 5.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -700,6 +704,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
 				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -767,6 +772,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;

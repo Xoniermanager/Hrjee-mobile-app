@@ -40,18 +40,65 @@
 
 import { StyleSheet, Text, View, Button, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import React, { useContext, useEffect } from 'react';
+// import { StyleSheet, Text, View } from 'react-native'
+// import React from 'react'
+// import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+// import Pending from './PendingTask/Pending';
+// import Processing from './ProcessingTask/Processing';
+// import Done from './DoneTask/Done';
+
+
+// const Tab = createMaterialTopTabNavigator();
+
+
+// const LocationList = () => {
+//     const tabBarOptions = {
+//         style: {
+//             backgroundColor: '#0043ae',
+//         },
+//         activeTintColor: '#000',
+//         inactiveTintColor: '#fff',
+//         indicatorStyle: { backgroundColor: '#fff', height: '100%' },
+//         pressOpacity: 1,       
+//     }
+//     return (
+//         <Tab.Navigator tabBarOptions={tabBarOptions}  screenOptions={{
+//             swipeEnabled: false,  // Disable swipe gestures
+//         }}>
+//             <Tab.Screen name="Pending" component={Pending} />
+//             <Tab.Screen name="Processing" component={Processing} />
+//             <Tab.Screen name="Done" component={Done} />
+//         </Tab.Navigator>
+//     )
+// }
+
+// export default LocationList
+
+// const styles = StyleSheet.create({})
+
+
+
+
+
+import { StyleSheet, Text, View, Button, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import React, { useContext, useEffect } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Pending from './PendingTask/Pending';
 import Processing from './ProcessingTask/Processing';
 import Done from './DoneTask/Done';
 import { SocketContext } from '../../tracking/SocketContext';
+import { SocketContext } from '../../tracking/SocketContext';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 
+const Stack = createNativeStackNavigator();
 
 
+
+const LocationListTabs = () => {
 const LocationListTabs = () => {
     const tabBarOptions = {
         style: {
@@ -63,7 +110,15 @@ const LocationListTabs = () => {
         pressOpacity: 1,
     };
 
+    };
+
     return (
+        <Tab.Navigator
+            tabBarOptions={tabBarOptions}
+            screenOptions={{
+                swipeEnabled: false, // Disable swipe gestures
+            }}
+        >
         <Tab.Navigator
             tabBarOptions={tabBarOptions}
             screenOptions={{
@@ -117,5 +172,7 @@ const LocationList = ({ navigation }) => {
 };
 
 export default LocationList;
+
+const styles = StyleSheet.create({});
 
 const styles = StyleSheet.create({});

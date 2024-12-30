@@ -88,6 +88,7 @@ const Resign = ({ navigation }) => {
                 .post(`${apiUrl}/secondPhaseApi/submit_resignation`, body, config)
                 .then(response => {
                     setStatus(response?.data)
+                    console.log("res---------------------", response?.data)
                     if (response.data.status == 1) {
                         setloading(false);
                         try {

@@ -23,6 +23,7 @@ import { Root, Popup } from 'popup-ui'
 const Details = ({navigation, route}) => {
   const [loading, setloading] = useState(true);
   const [policyDetail, setpolicyDetail] = useState({});
+  console.log("route.params.policy_id.....", policyDetail)
 
   const monthNames = [
     'January',
@@ -145,7 +146,7 @@ const Details = ({navigation, route}) => {
         thumbnail: policyDetail.filename,
       });
     } else {
-      policyDetail.attacnment.includes('http')
+      policyDetail.attacnment.includes('https')
         ? Linking.openURL(policyDetail.attacnment)
         :     Popup.show({
           type: 'Warning',

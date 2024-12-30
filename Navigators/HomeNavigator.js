@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext, } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
-import Home from '../src/screens/home/Home';
-
 import Attendence from '../src/screens/home/Attendence/Attendence';
 import News from '../src/screens/home/News/News';
 import Policies from '../src/screens/home/Policies/Policies';
@@ -67,51 +65,77 @@ import PRM from '../src/screens/PRM/PRM';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
 import ChangePassword from '../src/screens/settings/ChangePassword';
 import ResetPassword from '../src/screens/Login/ResetPassword';
-import Maps from '../src/screens/Maps/Maps';
+import Maps from '../src/screens/Maps/Modal/Tracking/Maps';
 import UserList from '../src/screens/Maps/UserList';
 import GetLocation from 'react-native-get-location';
 import GetLocation_id from '../src/screens/Maps/GetLocation';
+import ProcessingMessage from '../src/screens/Location/ProcessingTask/ProcessingMessage';
+import HomePayslipSkeleton from '../src/screens/Skeleton/HomePayslipSkeleton';
+import PdfViewer from '../src/screens/Login/PdfViewer';
+import UserProfile from '../src/screens/Maps/Modal/Profile/UserProfile';
+import UserAttendence from '../src/screens/Maps/Modal/Attendence/UserAttendence';
+import UserLeave from '../src/screens/Maps/Modal/Leave/UserLeave';
+import ResignStatus from '../src/screens/home/Services/Resign/ResignStatus';
+import Face_detection from '../src/screens/FaceReconization/Face_detection';
+import AddTask from '../src/screens/Location/AddTask';
+import OnboardingScreen from '../src/Onboarding/OnboardingScreen';
+import Splash from '../src/Splash';
+import PunchINPage from '../src/screens/home/PunchINPage';
+import PunchOutPage from '../src/screens/home/PunchOutPage';
+import Attendence_Update_Request from '../src/screens/home/Services/Attendence/Attendence_Update_Request';
+import Add_Attendence from '../src/screens/home/Services/Attendence/Add_Attendence';
+
+
 const Stack = createNativeStackNavigator();
 
 function MyStack() {
   const [token, settoken] = useState(null);
   const [loading, setloading] = useState(true);
-  const [prmData,setPrmData]=useState()
+
 
   const retrieveData = () => {
     AsyncStorage.getItem('Token').then(res => {
       settoken(res);
     });
   };
-  AsyncStorage.getItem('PRMData').then(res => {
-    setPrmData(res);
-  });  
 
   useEffect(() => {
     retrieveData();
     setTimeout(() => {
       setloading(false);
-      SplashScreen.hide();
     }, 1000);
   }, []);
 
   return (
     <>
       {loading ? null : (
-        <Stack.Navigator
+        <Stack.Navigator initialRouteName="Splash"
           screenOptions={{
             headerShown: true,
             headerBackTitleVisible: false,
           }}>
           {token == null ? (
             <>
-
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="Splash"
+                component={Splash}
+              />
               <Stack.Screen
                 options={{
                   headerShown: false,
                 }}
                 name="Login"
                 component={Login}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PdfViewer"
+                component={PdfViewer}
               />
               <Stack.Screen
                 options={{
@@ -121,9 +145,6 @@ function MyStack() {
                 component={LocationList}
               />
               <Stack.Screen
-                options={{
-                  headerShown: false,
-                }}
                 name="Forgot Password"
                 component={ForgotPassword}
               />
@@ -134,11 +155,28 @@ function MyStack() {
                 name="Main"
                 component={Main}
               />
-             
-              
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PunchINPage"
+                component={PunchINPage}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PunchOutPage"
+                component={PunchOutPage}
+              />
+
+
 
               <Stack.Screen name="News" component={News} />
-              <Stack.Screen name="Attendence" component={Attendence} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Attendence" component={Attendence} />
               <Stack.Screen name="Policies" component={Policies} />
               <Stack.Screen name="Services" component={Services} />
               <Stack.Screen name="Support" component={Support} />
@@ -146,42 +184,67 @@ function MyStack() {
               <Stack.Screen name="LeavePolicy" component={LeavePolicy} />
               <Stack.Screen name="Details" component={Details} />
               <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
                 name="Select Attendance"
                 component={SelectAttendence}
               />
-              <Stack.Screen name="Leave Applied List" component={LeaveList} />
-              <Stack.Screen name="AddPRM" component={AddPRM} 
-                   options={{
-                    title:'Add PRM',
-                    headerBackTitleVisible: false,
-                    headerStyle: {
-                      backgroundColor:'#0043ae',
-                    },
-                    headerTintColor: '#fff',
-                    headerTitleStyle: {
-                      fontWeight: 'bold',
-                      marginLeft:responsiveWidth(35)
-                    },
-                  }}
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }} name="Leave Applied List" component={LeaveList} />
+              <Stack.Screen name="AddPRM" component={AddPRM}
+                options={{
+                  title: 'Add PRM',
+                  headerBackTitleVisible: false,
+                  headerStyle: {
+                    backgroundColor: '#0043ae',
+                  },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                    marginLeft: responsiveWidth(35)
+                  },
+                }}
               />
-              <Stack.Screen name="PRM" component={PRM}  
-               options={{
-                title:'PRM List',
-                headerBackTitleVisible: false,
-                headerStyle: {
-                  backgroundColor:'#1E558D',
-                },
-                headerTintColor: '#fff',
-                headerTitleStyle: {
-                  fontWeight: 'bold',
-                },
-              }}
+              <Stack.Screen name="PRM" component={PRM}
+                options={{
+                  title: 'PRM List',
+                  headerBackTitleVisible: false,
+                  headerStyle: {
+                    backgroundColor: '#1E558D',
+                  },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                  },
+                }}
               />
-              <Stack.Screen name="Apply Leave" component={ApplyLeave} />
-              <Stack.Screen name="Holidays" component={Holidays} />
-              <Stack.Screen name="Resign Content" component={Resign} />
-              <Stack.Screen name="Payslip" component={Payslip} />
-              <Stack.Screen name="Document" component={Document} />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }} name="Apply Leave" component={ApplyLeave} />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }} name="Holidays" component={Holidays} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Resign Content" component={Resign} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Payslip" component={Payslip} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Document" component={Document} />
               <Stack.Screen name="News Detail" component={NewsDetails} />
               <Stack.Screen name="Leave Details" component={LeaveDetails} />
               <Stack.Screen
@@ -259,7 +322,10 @@ function MyStack() {
                 component={VacationRequest}
               />
               <Stack.Screen name="Doc Details" component={DocDetails} />
-              <Stack.Screen name="Doc" component={OpenPdf} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Doc" component={OpenPdf} />
               <Stack.Screen name="Video" component={OpenVideo} />
               <Stack.Screen name="List" component={List} />
               <Stack.Screen name="Listings" component={LoanListings} />
@@ -279,85 +345,219 @@ function MyStack() {
                 name="Accessories Listings"
                 component={AccessoriesListings}
               />
-               <Stack.Screen
+              <Stack.Screen
                 name="ChangePassword"
                 component={ChangePassword}
               />
-                  <Stack.Screen
+              <Stack.Screen
                 name="Enter your Pin"
                 component={ResetPassword}
               />
-                  <Stack.Screen
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
                 name="Maps"
                 component={Maps}
               />
-                   <Stack.Screen
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
                 name="UserList"
                 component={UserList}
               />
-                 <Stack.Screen
+              <Stack.Screen
                 name="User Location"
                 component={GetLocation_id}
               />
+              <Stack.Screen
+                name="ProcessingMessage"
+                component={ProcessingMessage}
+              />
+              <Stack.Screen
+                name="HomePayslipSkeleton"
+                component={HomePayslipSkeleton}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
+                name="Profile"
+                component={UserProfile}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
+                name=" Attendence"
+                component={UserAttendence}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
+                name="Leave"
+                component={UserLeave}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
+                name="ResignStatus"
+                component={ResignStatus}
+              />
+              <Stack.Screen
+                name="Face detection"
+                component={Face_detection}
+              />
+              <Stack.Screen
+                name="AddTask"
+                component={AddTask}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="OnboardingScreen"
+                component={OnboardingScreen}
+              />
+              <Stack.Screen
+                name="Attendence_Update_Request"
+                component={Attendence_Update_Request}
+                options={{
+                  headerShown: true,
+                  title: 'Attendance', // Rename the screen title
+                  headerStyle: {
+                    backgroundColor: '#e3eefb', // Change the header background color
+                  },
+                  headerTintColor: '#000', // Change the text color of the header
+                }}
+              />
+
+              <Stack.Screen
+                name="Add_Attendence"
+                component={Add_Attendence}
+                options={{
+                  headerShown: true,
+                  title: 'Add Attendance', // Rename the screen title
+                  headerStyle: {
+                    backgroundColor: '#e3eefb', // Change the header background color
+                  },
+                  headerTintColor: '#000', // Change the text color of the header
+                }}
+              />
+
             </>
-            
+
           ) : (
             <>
-            
-        
-             <Stack.Screen 
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="Splash"
+                component={Splash}
+              />
+              <Stack.Screen
                 options={{
                   headerShown: false,
                 }}
                 name="Main"
                 component={Main}
               />
-          
-              <Stack.Screen name="Attendance" component={Attendence} />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PunchINPage"
+                component={PunchINPage}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="PunchOutPage"
+                component={PunchOutPage}
+              />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Attendance" component={Attendence} />
               <Stack.Screen name="News" component={News} />
               <Stack.Screen name="Policies" component={Policies} />
-              <Stack.Screen name="Services" component={Services}  />
+              <Stack.Screen name="Services" component={Services} />
               <Stack.Screen name="Support" component={Support} />
               <Stack.Screen name="Notifications" component={Notifications} />
               <Stack.Screen name="LeavePolicy" component={LeavePolicy} />
               <Stack.Screen name="Details" component={Details} />
               <Stack.Screen
-                name="Select Attendance" 
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
+                name="Select Attendance"
                 component={SelectAttendence}
               />
-              <Stack.Screen name="Leave Applied List" component={LeaveList} />
-              <Stack.Screen name="Apply Leave" component={ApplyLeave} />
-              <Stack.Screen name="Holidays" component={Holidays} />
-              <Stack.Screen name="AddPRM" component={AddPRM} 
+              <Stack.Screen
                 options={{
-                  title:'Add PRM ',
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }} name="Leave Applied List" component={LeaveList} />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }} name="Apply Leave" component={ApplyLeave} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Holidays" component={Holidays} />
+              <Stack.Screen name="AddPRM" component={AddPRM}
+                options={{
+                  title: 'Add PRM ',
                   headerBackTitleVisible: false,
                   headerStyle: {
-                    backgroundColor:'#0043ae',
+                    backgroundColor: '#0043ae',
                   },
                   headerTintColor: '#fff',
                   headerTitleStyle: {
                     fontWeight: 'bold',
-                    marginLeft:responsiveWidth(35)
+                    marginLeft: responsiveWidth(35)
                   },
                 }}
               />
-              <Stack.Screen name="PRM" component={PRM} 
-              options={{
-                title:'PRM List',
-                headerBackTitleVisible: false,
-                headerStyle: {
-                  backgroundColor:'#1E558D',
-                },
-                headerTintColor: '#fff',
-                headerTitleStyle: {
-                  fontWeight: 'bold',
-                },
-              }}
-               />
-              <Stack.Screen name="Resign Content" component={Resign} />
-              <Stack.Screen name="Payslip" component={Payslip} />
-              <Stack.Screen name="Document" component={Document} />
+              <Stack.Screen name="PRM" component={PRM}
+                options={{
+                  title: 'PRM List',
+                  headerBackTitleVisible: false,
+                  headerStyle: {
+                    backgroundColor: '#1E558D',
+                  },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                  },
+                }}
+              />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Resign Content" component={Resign} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Payslip" component={Payslip} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Document" component={Document} />
               <Stack.Screen name="News Detail" component={NewsDetails} />
               <Stack.Screen name="Leave Details" component={LeaveDetails} />
               <Stack.Screen
@@ -435,7 +635,10 @@ function MyStack() {
                 component={VacationRequest}
               />
               <Stack.Screen name="Doc Details" component={DocDetails} />
-              <Stack.Screen name="Doc" component={OpenPdf} />
+              <Stack.Screen options={{
+                headerShown: true,
+                headerStyle: { backgroundColor: '#e3eefb' }
+              }} name="Doc" component={OpenPdf} />
               <Stack.Screen name="Video" component={OpenVideo} />
               <Stack.Screen name="List" component={List} />
               <Stack.Screen name="Listings" component={LoanListings} />
@@ -463,30 +666,118 @@ function MyStack() {
                 name="Login"
                 component={Login}
               />
-
               <Stack.Screen
                 options={{
                   headerShown: false,
                 }}
+                name="PdfViewer"
+                component={PdfViewer}
+              />
+
+              <Stack.Screen
                 name="Forgot Password"
                 component={ForgotPassword}
               />
-                   <Stack.Screen
+              <Stack.Screen
                 name="Enter your Pin"
                 component={ResetPassword}
               />
-              
+
               <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
                 name="Maps"
                 component={Maps}
               />
-                  <Stack.Screen
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
                 name="UserList"
                 component={UserList}
               />
-                <Stack.Screen
+              <Stack.Screen
                 name="User Location"
                 component={GetLocation_id}
+              />
+              <Stack.Screen
+                name="ProcessingMessage"
+                component={ProcessingMessage}
+              />
+              <Stack.Screen
+                name="HomePayslipSkeleton"
+                component={HomePayslipSkeleton}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
+                name="Profile"
+                component={UserProfile}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
+                name=" Attendence"
+                component={UserAttendence}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: '#e3eefb' }
+                }}
+                name="Leave"
+                component={UserLeave}
+              />
+              <Stack.Screen
+                name="ResignStatus"
+                component={ResignStatus}
+              />
+              <Stack.Screen
+                name="Face detection"
+                component={Face_detection}
+              />
+              <Stack.Screen
+                name="AddTask"
+                component={AddTask}
+              />
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name="OnboardingScreen"
+                component={OnboardingScreen}
+              />
+              <Stack.Screen
+                name="Attendence_Update_Request"
+                component={Attendence_Update_Request}
+                options={{
+                  headerShown: true,
+                  title: 'Attendence Request List', // Rename the screen title
+                  headerStyle: {
+                    backgroundColor: '#e3eefb', // Change the header background color
+                  },
+                  headerTintColor: '#000', // Change the text color of the header
+                }}
+              />
+
+              <Stack.Screen
+                name="Add_Attendence"
+                component={Add_Attendence}
+                options={{
+                  headerShown: true,
+                  title: 'Attendence Request', // Rename the screen title
+                  headerStyle: {
+                    backgroundColor: '#e3eefb', // Change the header background color
+                  },
+                  headerTintColor: '#000', // Change the text color of the header
+                }}
               />
             </>
           )}

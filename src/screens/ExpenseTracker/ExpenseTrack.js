@@ -73,7 +73,7 @@ const expenseTrack = ({navigation, route}) => {
     }, [getDetailsApi.loading]),
   );
 
-  console.log('singleFile-->', singleFile);
+  // console.log('singleFile-->', singleFile);
 
   const getExpenseDetails = async () => {
     const token = await AsyncStorage.getItem('Token');

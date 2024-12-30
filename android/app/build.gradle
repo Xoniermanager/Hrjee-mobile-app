@@ -80,10 +80,11 @@ android {
         applicationId "com.HRjee"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 22
-        versionName "1.0.22"
+        versionCode 73
+        versionName "1.0.73"
+        missingDimensionStrategy 'react-native-camera', 'mlkit'
     }
-     signingConfigs {
+    signingConfigs {
         release {
             if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
                 storeFile file(MYAPP_UPLOAD_STORE_FILE)
@@ -92,7 +93,7 @@ android {
                 keyPassword MYAPP_UPLOAD_KEY_PASSWORD
             }
         }
-    
+
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'

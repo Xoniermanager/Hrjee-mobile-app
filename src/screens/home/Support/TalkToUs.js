@@ -47,7 +47,7 @@ const TalkToUs = ({ navigation }) => {
       axios
         .post(`${apiUrl}/api/addcomplain`, body, config)
         .then(response => {
-          console.log('response', response.data);
+          // console.log('response', response.data);
           if (response.data.status == 1) {
             try {
               setloading(false);

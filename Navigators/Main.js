@@ -1,7 +1,7 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import React, { useContext, useEffect, useState } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -16,7 +16,7 @@ import ProfileNavigator from './ProfileNavigator';
 import TrainingNavigator from './TrainingNavigator';
 import PostNavigator from './PostNavigator';
 import SharePostNavigator from './SharePostNavigator';
-import {EssContext} from '../Context/EssContext';
+import { EssContext } from '../Context/EssContext';
 import ProfileDrawer from './ProfileDrawer';
 import Payslip from '../src/screens/home/Services/Payslip/Payslip';
 import Attendence from '../src/screens/home/Attendence/Attendence';
@@ -24,8 +24,10 @@ import Services from '../src/screens/home/Services/Services';
 import LocationList from '../src/screens/Location/LocationList';
 import Home from '../src/screens/home/Home';
 import PRM from '../src/screens/PRM/PRM';
-import {responsiveWidth} from 'react-native-responsive-dimensions';
+import { responsiveWidth } from 'react-native-responsive-dimensions';
 import { SocketContext } from '../src/tracking/SocketContext';
+import { Platform, Text } from 'react-native';
+
 
 const Tab = createBottomTabNavigator();
 const DUMMY_MENUS = [
@@ -54,11 +56,11 @@ const DUMMY_MENUS = [
 ]
 
 const Main = () => {
-  const {list,prm}=useContext(SocketContext)
+  // return <Text>Hello</Text>
+  const { list, prm } = useContext(SocketContext)
   const [companyid, setCompany_id] = useState('');
   const [prmData, setPrmData] = useState();
-  const [locationmgmt, setPrmLocationMgmt] = useState();
-  console.log('locationmgmt......', locationmgmt);
+  const { updatelocationmanagement, prmassignpermissions, ManuAccessdetails_Socket } = useContext(SocketContext);
 
   const company_id = async () => {
     const userData = await AsyncStorage.getItem('UserData');
@@ -66,125 +68,96 @@ const Main = () => {
     let company_id = userInfo?.company_id;
     setCompany_id(company_id);
   };
-  AsyncStorage.getItem('PRMAssign').then(res => {
-    setPrmData(res);
-  });
-  AsyncStorage.getItem('PRMAssign').then(res => {
-    setPrmLocationMgmt(res);
-  });
   useEffect(() => {
     company_id();
+    ManuAccessdetails_Socket()
   }, []);
 
-  const getRouteName = route => {
-    const routeName = getFocusedRouteNameFromRoute(route);
-    if (
-      routeName?.includes('Login') ||
-      routeName?.includes('Forgot Password') ||
-      routeName === undefined
-    ) {
-      return 'none';
-    }
-    return 'flex';
-  };
 
-  const checkMenuAccess = (id) => {
-    let filteredMenus = list?.filter((item) => {
-      return item?.menu_id == id
-    });
 
-    if(filteredMenus?.length > 0) return true;
 
-    return false;
-  }
 
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarActiveTintColor: GlobalStyle.blueDark,
         tabBarInactiveTintColor: 'gray',
       }}>
       <Tab.Screen
-        options={({route}) => ({
+        options={({ route }) => ({
           unmountOnBlur: true,
-          // tabBarStyle: { display: getRouteName(route) },
           headerShown: false,
-          tabBarIcon: ({color}) => (
-            <Entypo name="home" style={{fontSize: 23, color: color}} />
+          tabBarIcon: ({ color }) => (
+            <Entypo name="home" style={{ fontSize: 23, color: color }} />
           ),
         })}
         name="Home"
         component={Home}
       />
-      <Tab.Screen
-        options={{
-          unmountOnBlur: true,
-          tabBarIcon: ({color}) => (
-            <FontAwesome name="rupee" style={{fontSize: 23, color: color}} />
-          ),
-        }}
-        name="Payslip"
-        component={Payslip}
-      />
+
+      {
+        updatelocationmanagement?.length > 0 ?
+          <Tab.Screen
+            options={{
+              unmountOnBlur: true,
+              headerShown: false,
+              tabBarIcon: ({ color }) => (
+                <MaterialIcons
+                  name="add-task"
+                  style={{ fontSize: 23, color: color }}
+                />
+              ),
+            }}
+            name="Location"
+            component={LocationList}
+          />
+          :
+          null
+      }
 
       <Tab.Screen
         options={{
           unmountOnBlur: true,
-          tabBarIcon: ({color}) => (
-            <AntDesign name="appstore-o" style={{fontSize: 23, color: color}} />
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <AntDesign name="appstore-o" style={{ fontSize: 23, color: color }} />
           ),
         }}
         name="Services"
         component={Services}
       />
+
+      {prmassignpermissions?.length > 0 ?
         <Tab.Screen
           options={{
             unmountOnBlur: true,
-            tabBarIcon: ({color}) => (
-              <Entypo
-                name="location-pin"
-                style={{fontSize: 23, color: color}}
-              />
-            ),
-          }}
-          name="Location List"
-          component={LocationList}
-        />
-  
-      
-      {prm == 0 ? null : (
-        <Tab.Screen
-          options={{
-            unmountOnBlur: true,
-            title: 'PRM List',
-            headerBackTitleVisible: false,
-            headerStyle: {
-              backgroundColor: '#0043ae',
-            },
+            headerShown: false, 
             headerTintColor: '#fff',
             headerTitleStyle: {
               fontWeight: 'bold',
-              marginLeft: responsiveWidth(35),
+              marginLeft: Platform.OS == 'ios' ? 0 : responsiveWidth(40),
             },
-            tabBarIcon: ({color}) => (
-              <MaterialIcons
-                name="payment"
-                style={{fontSize: 23, color: color}}
+            tabBarIcon: ({ color }) => (
+              <FontAwesome
+                name="rupee"
+                style={{ fontSize: 23, color: color }}
               />
             ),
           }}
           name="PRM"
           component={PRM}
         />
-     )}
+        :
+        null
+      }
 
       <Tab.Screen
         options={{
           unmountOnBlur: true,
           headerShown: false,
-          tabBarIcon: ({color}) => (
-            <Ionicons name="person" style={{fontSize: 23, color: color}} />
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="person" style={{ fontSize: 23, color: color }} />
           ),
         }}
         name="Profile"
@@ -192,6 +165,6 @@ const Main = () => {
       />
     </Tab.Navigator>
   );
-};
+}
 
 export default Main;

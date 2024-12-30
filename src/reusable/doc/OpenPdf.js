@@ -34,7 +34,7 @@ const OpenPdf = ({ route }) => {
             },
           ).then(granted => {
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-              console.log('Storage Permission Granted.');
+              // console.log('Storage Permission Granted.');
               setShow(false)
 
               downloadHistory(item);
@@ -136,6 +136,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#e3eefb',
   },
 });

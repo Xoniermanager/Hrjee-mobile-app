@@ -53,7 +53,7 @@ const Document = ({navigation}) => {
       .post(`${apiUrl}/api/document`, body, config)
       .then(response => {
         setloading(false);
-        console.log('response', response.data);
+        // console.log('response', response.data);
         if (response.data.status === 1) {
           try {
             // console.log(response.data.data);

@@ -48,7 +48,7 @@ const Policies = ({navigation}) => {
           }
         } else {
           setloading(false);
-          console.log('some error occured');
+          // console.log('some error occured');
         }
       })
       .catch(error => {

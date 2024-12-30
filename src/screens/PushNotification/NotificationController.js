@@ -101,7 +101,7 @@ const NotificationController = () => {
     const {delay} = taskDataArguments;
     await new Promise(async resolve => {
       for (let i = 0; BackgroundService.isRunning(); i++) {
-        console.log(i);
+        // console.log(i);
         await sleep(delay);
         const unsubscribe = messaging().setBackgroundMessageHandler(
           async remoteMessage => {
@@ -140,9 +140,10 @@ const NotificationController = () => {
     });
   };
   useEffect(async () => {
-    await BackgroundService.start(veryIntensiveTask, options);
+    // console.log("yashsu")
+    // await BackgroundService.start(veryIntensiveTask, options);
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log(remoteMessage,'remoteMessage')
+      // console.log(remoteMessage,'remoteMessage')
       onDisplayNotification(remoteMessage);
     });
     messaging().onNotificationOpenedApp(remoteMessage => {

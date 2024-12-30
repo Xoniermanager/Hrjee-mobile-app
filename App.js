@@ -10,6 +10,7 @@ import {
   StatusBar,
 } from 'react-native';
 import React, { useEffect, useContext, useState } from 'react';
+import { requestTrackingPermission, getTrackingStatus } from 'react-native-tracking-transparency';
 import { NavigationContainer } from '@react-navigation/native';
 import { EssProvider, EssContext } from './Context/EssContext';
 import SplashScreen from 'react-native-splash-screen';
@@ -23,6 +24,20 @@ import { SocketProvider } from './src/tracking/SocketContext';
 
 
 const App = ({ navigation }) => {
+  const checkTrackingPermission = async () => {
+    const status = await getTrackingStatus();
+    if (status === 'not-determined') {
+        const permissionStatus = await requestTrackingPermission();
+        if (permissionStatus === 'authorized') {
+            console.log('Tracking permission granted.');
+        } else {
+            console.log('Tracking permission denied.');
+        }
+    } else {
+        console.log(`Tracking status: ${status}`);
+    }
+};
+checkTrackingPermission();
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hide();

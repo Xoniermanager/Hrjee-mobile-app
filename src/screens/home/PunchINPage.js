@@ -49,6 +49,15 @@ const PunchINPage = () => {
     const { setuser, setIsPunchedIn } = useContext(EssContext);
     const [punchIn, setpunchIn] = useState(false);
     const [inTime, setinTime] = useState(undefined);
+    const [logs, setLogs] = useState({
+        email: '',
+        location_id: '',
+        latitude: "",
+        longitude: '',
+        login_type:'',
+        current_address:''
+    })
+
     const { activeinactivetracking, updatedlivetrackingaccess, livetrackingaccess, getList, locationblock, ManuAccessdetails_Socket, setStartBackgroundTracking, radius, updatedfacereconization, employeeNumber, firsttimelogin } = useContext(SocketContext);
     const route = useRoute();
     const [currentLocation, setcurrentLocation] = useState({
@@ -61,9 +70,9 @@ const PunchINPage = () => {
         location_id: '',
     });
     const [officetiming, setOfficeTiming] = useState('');
-
     const handlePopupCallback = () => {
         Popup.hide();
+
         setShowKyc(false);
         setIsPunchedIn(true);
         setTimeout(() => {
@@ -245,7 +254,7 @@ const PunchINPage = () => {
                         button: true,
                         textBody: 'Keep Your Face front to the camera',
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide(), setShowKyc(false)]
+                        callback: () => [Popup.hide(), LogsMaintane('Keep Your Face front to the camera'), setShowKyc(false)]
                     });
                     // setShowKyc(false)
                 }
@@ -256,7 +265,7 @@ const PunchINPage = () => {
                         button: true,
                         textBody: 'Keep Your Face front to the camera',
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide(), setShowKyc(false)]
+                        callback: () => [Popup.hide(), LogsMaintane('Keep Your Face front to the camera'), setShowKyc(false)]
                     });
                     // setShowKyc(false)
                 } else {
@@ -267,7 +276,7 @@ const PunchINPage = () => {
                         button: true,
                         textBody: err.message, // Display the actual error message
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide(), setShowKyc(false)]
+                        callback: () => [Popup.hide(), LogsMaintane(err.message), setShowKyc(false)]
                     });
                     // setShowKyc(false)
                 }
@@ -279,7 +288,7 @@ const PunchINPage = () => {
                     button: true,
                     textBody: 'Faces do not match',
                     buttonText: 'Ok',
-                    callback: () => [Popup.hide(), setShowKyc(false)]
+                    callback: () => [Popup.hide(), LogsMaintane('Faces do not match'), setShowKyc(false)]
                 });
                 // setShowKyc(false)
             }
@@ -379,10 +388,12 @@ const PunchINPage = () => {
                         textBody: error.response.data.msg,
                         buttonText: 'Ok',
                         callback: () => [
+                            LogsMaintane(error.response.data.msg),
                             AsyncStorage.removeItem('Token'),
                             AsyncStorage.removeItem('UserData'),
                             AsyncStorage.removeItem('UserLocation'),
                             navigation.navigate('Login'),
+
                         ],
                     });
 
@@ -470,6 +481,8 @@ const PunchINPage = () => {
                                     current_address: address.data?.results[0]?.formatted_address,
 
                                 };
+                                console.log("body--------------->", body)
+                                setLogs({ latitude: lat, longitude: long, location_id: activeLocation.location_id, address: address.data?.results[0]?.formatted_address, })
                                 axios
                                     .post(
                                         `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -499,7 +512,7 @@ const PunchINPage = () => {
                                                 button: true,
                                                 textBody: response.data.message,
                                                 buttonText: 'Ok',
-                                                callback: () => [Popup.hide(), setShowKyc(false)]
+                                                callback: () => [Popup.hide(), LogsMaintane(response.data.message), setShowKyc(false)]
                                             });
                                             setloading(false);
                                             setDisabledBtn(false)
@@ -547,6 +560,7 @@ const PunchINPage = () => {
                                             current_address: address.data?.results[0]?.formatted_address,
 
                                         };
+                                        setLogs({ latitude: lat, longitude: long, location_id: activeLocation.location_id, address: address.data?.results[0]?.formatted_address, })
                                         axios
                                             .post(
                                                 `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -573,12 +587,12 @@ const PunchINPage = () => {
                                                     setloading(false);
                                                     setDisabledBtn(false)
                                                     Popup.show({
-                                                        type: 'Success',
-                                                        title: 'Success',
+                                                        type: 'Warning',
+                                                        title: 'Warning',
                                                         button: true,
                                                         textBody: response.data.message,
                                                         buttonText: 'Ok',
-                                                        callback: () => [Popup.hide(), setShowKyc(false)]
+                                                        callback: () => [Popup.hide(), LogsMaintane(response.data.message), setShowKyc(false)]
                                                     });
                                                 }
                                             })
@@ -593,6 +607,7 @@ const PunchINPage = () => {
                                                         textBody: error.response.data.msg,
                                                         buttonText: 'Ok',
                                                         callback: () => [
+                                                            LogsMaintane(error.response.data.msg),
                                                             AsyncStorage.removeItem('Token'),
                                                             AsyncStorage.removeItem('UserData'),
                                                             AsyncStorage.removeItem('UserLocation'),
@@ -620,6 +635,7 @@ const PunchINPage = () => {
                                             current_address: address.data?.results[0]?.formatted_address,
 
                                         };
+                                        setLogs({ latitude: lat, longitude: long, location_id: activeLocation.location_id, address: address.data?.results[0]?.formatted_address, })
                                         axios
                                             .post(
                                                 `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -646,12 +662,12 @@ const PunchINPage = () => {
                                                     setloading(false);
                                                     setDisabledBtn(false)
                                                     Popup.show({
-                                                        type: 'Success',
-                                                        title: 'Success',
+                                                        type: 'Warning',
+                                                        title: 'Warning',
                                                         button: true,
                                                         textBody: response.data.message,
                                                         buttonText: 'Ok',
-                                                        callback: () => [Popup.hide(), setShowKyc(false)]
+                                                        callback: () => [Popup.hide(), LogsMaintane(response.data.message), setShowKyc(false)]
                                                     });
                                                 }
                                             })
@@ -666,6 +682,7 @@ const PunchINPage = () => {
                                                         textBody: error.response.data.msg,
                                                         buttonText: 'Ok',
                                                         callback: () => [
+                                                            LogsMaintane(error.response.data.msg),
                                                             AsyncStorage.removeItem('Token'),
                                                             AsyncStorage.removeItem('UserData'),
                                                             AsyncStorage.removeItem('UserLocation'),
@@ -684,7 +701,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'Location not find',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide(), setShowKyc(false)],
+                                            callback: () => [Popup.hide(), LogsMaintane('Location not find'), setShowKyc(false)],
                                         });
 
                                         setloading(false);
@@ -697,7 +714,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'Location not find',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide(), setShowKyc(false)],
+                                            callback: () => [Popup.hide(), LogsMaintane('Location not find'), setShowKyc(false)],
                                         });
                                         setloading(false);
                                         setDisabledBtn(false)
@@ -712,7 +729,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'Please set active location',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide(), setShowKyc(false)],
+                                            callback: () => [Popup.hide(), LogsMaintane('Please set active location'), setShowKyc(false)],
                                         });
                                         setloading(false);
                                         setDisabledBtn(false)
@@ -727,7 +744,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'Please set active location',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide(), setShowKyc(false)],
+                                            callback: () => [Popup.hide(), LogsMaintane('Please set active location'), setShowKyc(false)],
                                         });
                                         setloading(false);
                                         setDisabledBtn(false)
@@ -778,7 +795,7 @@ const PunchINPage = () => {
                                                         button: true,
                                                         textBody: response.data.message,
                                                         buttonText: 'Ok',
-                                                        callback: () => [Popup.hide(), setShowKyc(false)]
+                                                        callback: () => [Popup.hide(), LogsMaintane(response.data.message), setShowKyc(false)]
                                                     });
                                                     setShowKyc(false)
                                                     setloading(false);
@@ -796,6 +813,7 @@ const PunchINPage = () => {
                                                         textBody: error.response.data.msg,
                                                         buttonText: 'Ok',
                                                         callback: () => [
+                                                            LogsMaintane(error.response.data.msg),
                                                             AsyncStorage.removeItem('Token'),
                                                             AsyncStorage.removeItem('UserData'),
                                                             AsyncStorage.removeItem('UserLocation'),
@@ -811,7 +829,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: 'You are not in the radius',
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide(), setShowKyc(false)],
+                                            callback: () => [Popup.hide(), LogsMaintane('You are not in the radius'), setShowKyc(false)],
                                         });
 
                                         setloading(false);
@@ -828,7 +846,7 @@ const PunchINPage = () => {
                                 button: true,
                                 textBody: message,
                                 buttonText: 'Ok',
-                                callback: () => [Popup.hide(), setShowKyc(false)],
+                                callback: () => [Popup.hide(), LogsMaintane(message), setShowKyc(false)],
                             });
                             setloading(false);
                             setDisabledBtn(false)
@@ -840,7 +858,7 @@ const PunchINPage = () => {
                         button: true,
                         textBody: 'Location permission denied',
                         buttonText: 'Ok',
-                        callback: () => [Popup.hide(), setShowKyc(false)],
+                        callback: () => [Popup.hide(), LogsMaintane('Location permission denied'), setShowKyc(false)],
                     });
 
                     setloading(false);
@@ -922,6 +940,14 @@ const PunchINPage = () => {
                                 current_address: address.data?.results[0]?.formatted_address,
 
                             };
+                            setLogs({
+                                email: userInfo.email,
+                                location_id: activeLocation.location_id,
+                                latitude: lat,
+                                longitude: long,
+                                login_type: 'mobile',
+                                current_address: address.data?.results[0]?.formatted_address,
+                            })
                             axios
                                 .post(
                                     `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -951,7 +977,7 @@ const PunchINPage = () => {
                                             button: true,
                                             textBody: response.data.message,
                                             buttonText: 'Ok',
-                                            callback: () => [Popup.hide(), setShowKyc(false)]
+                                            callback: () => [Popup.hide(), LogsMaintane(response.data.message), setShowKyc(false)]
                                         });
                                         setloading(false);
                                         setDisabledBtn(false)
@@ -999,6 +1025,14 @@ const PunchINPage = () => {
                                         current_address: address.data?.results[0]?.formatted_address,
 
                                     };
+                                    setLogs({
+                                        email: userInfo.email,
+                                        location_id: activeLocation.location_id,
+                                        latitude: lat,
+                                        longitude: long,
+                                        login_type: 'mobile',
+                                        current_address: address.data?.results[0]?.formatted_address,
+                                    })
                                     axios
                                         .post(
                                             `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -1030,7 +1064,7 @@ const PunchINPage = () => {
                                                     button: true,
                                                     textBody: response.data.message,
                                                     buttonText: 'Ok',
-                                                    callback: () => [Popup.hide(), setShowKyc(false)]
+                                                    callback: () => [Popup.hide(), LogsMaintane(response.data.message), setShowKyc(false)]
                                                 });
                                             }
                                         })
@@ -1045,6 +1079,7 @@ const PunchINPage = () => {
                                                     textBody: error.response.data.msg,
                                                     buttonText: 'Ok',
                                                     callback: () => [
+                                                        LogsMaintane(error.response.data.msg),
                                                         AsyncStorage.removeItem('Token'),
                                                         AsyncStorage.removeItem('UserData'),
                                                         AsyncStorage.removeItem('UserLocation'),
@@ -1072,6 +1107,14 @@ const PunchINPage = () => {
                                         current_address: address.data?.results[0]?.formatted_address,
 
                                     };
+                                    setLogs({
+                                        email: userInfo.email,
+                                        location_id: activeLocation.location_id,
+                                        latitude: lat,
+                                        longitude: long,
+                                        login_type: 'mobile',
+                                        current_address: address.data?.results[0]?.formatted_address,
+                                    })
                                     axios
                                         .post(
                                             `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -1098,12 +1141,12 @@ const PunchINPage = () => {
                                                 setloading(false);
                                                 setDisabledBtn(false)
                                                 Popup.show({
-                                                    type: 'Success',
-                                                    title: 'Success',
+                                                    type: 'Warning',
+                                                    title: 'Warning',
                                                     button: true,
                                                     textBody: response.data.message,
                                                     buttonText: 'Ok',
-                                                    callback: () => [Popup.hide(), setShowKyc(false)]
+                                                    callback: () => [Popup.hide(), LogsMaintane(response.data.message), setShowKyc(false)]
                                                 });
                                             }
                                         })
@@ -1118,6 +1161,7 @@ const PunchINPage = () => {
                                                     textBody: error.response.data.msg,
                                                     buttonText: 'Ok',
                                                     callback: () => [
+                                                        LogsMaintane(error.response.data.msg),
                                                         AsyncStorage.removeItem('Token'),
                                                         AsyncStorage.removeItem('UserData'),
                                                         AsyncStorage.removeItem('UserLocation'),
@@ -1136,7 +1180,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'Location not find',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide(), setShowKyc(false)],
+                                        callback: () => [Popup.hide(), LogsMaintane('Location not find'), setShowKyc(false)],
                                     });
 
                                     setloading(false);
@@ -1149,7 +1193,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'Location not find',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide(), setShowKyc(false)],
+                                        callback: () => [Popup.hide(), LogsMaintane('Location not find'), setShowKyc(false)],
                                     });
                                     setloading(false);
                                     setDisabledBtn(false)
@@ -1164,7 +1208,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'Please set active location',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide(), setShowKyc(false)],
+                                        callback: () => [Popup.hide(), LogsMaintane('Please set active location'), setShowKyc(false)],
                                     });
                                     setloading(false);
                                     setDisabledBtn(false)
@@ -1179,7 +1223,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'Please set active location',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide(), setShowKyc(false)],
+                                        callback: () => [Popup.hide(), LogsMaintane('Please set active location'), setShowKyc(false)],
                                     });
                                     setloading(false);
                                     setDisabledBtn(false)
@@ -1202,6 +1246,14 @@ const PunchINPage = () => {
                                         login_type: 'mobile',
                                         current_address: address.data?.results[0].formatted_address,
                                     };
+                                    setLogs({
+                                        email: userInfo.email,
+                                        location_id: activeLocation.location_id,
+                                        latitude: lat,
+                                        longitude: long,
+                                        login_type: 'mobile',
+                                        current_address: address.data?.results[0].formatted_address,
+                                    })
                                     axios
                                         .post(
                                             `${apiUrl}/secondPhaseApi/mark_attendance_in`,
@@ -1230,7 +1282,7 @@ const PunchINPage = () => {
                                                     button: true,
                                                     textBody: response.data.message,
                                                     buttonText: 'Ok',
-                                                    callback: () => [Popup.hide(), setShowKyc(false)]
+                                                    callback: () => [Popup.hide(), LogsMaintane(response.data.message), setShowKyc(false)]
                                                 });
                                                 setShowKyc(false)
                                                 setloading(false);
@@ -1248,6 +1300,7 @@ const PunchINPage = () => {
                                                     textBody: error.response.data.msg,
                                                     buttonText: 'Ok',
                                                     callback: () => [
+                                                        LogsMaintane(error.response.data.msg),
                                                         AsyncStorage.removeItem('Token'),
                                                         AsyncStorage.removeItem('UserData'),
                                                         AsyncStorage.removeItem('UserLocation'),
@@ -1263,7 +1316,7 @@ const PunchINPage = () => {
                                         button: true,
                                         textBody: 'You are not in the radius',
                                         buttonText: 'Ok',
-                                        callback: () => [Popup.hide(), setShowKyc(false)],
+                                        callback: () => [Popup.hide(), LogsMaintane('You are not in the radius'), setShowKyc(false)],
                                     });
 
                                     setloading(false);
@@ -1280,7 +1333,7 @@ const PunchINPage = () => {
                             button: true,
                             textBody: message,
                             buttonText: 'Ok',
-                            callback: () => [Popup.hide(), setShowKyc(false)],
+                            callback: () => [Popup.hide(), LogsMaintane(message), setShowKyc(false)],
                         });
 
                         setloading(false);
@@ -1294,6 +1347,36 @@ const PunchINPage = () => {
         }
     };
 
+    const LogsMaintane = async (mes) => {
+        const userData = await AsyncStorage.getItem('UserData');
+        const userInfo = JSON.parse(userData);
+        const token = await AsyncStorage.getItem('Token');
+        const config = {
+            headers: { Token: token },
+        };
+        const payload = {
+            reason: mes,
+            url: `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+            payload: {
+                email: logs.email,
+                location_id: logs.location_id,
+                latitude: logs?.latitude,
+                longitude: logs?.longitude,
+                login_type: logs?.login_type,
+                current_address: logs?.current_address,
+            }
+        };
+        console.log(payload, "202")
+        axios
+            .post(`${apiUrl}/SecondPhaseApi/save_log`, payload, config)
+            .then(response => {
+                console.log("res================", response.data)
+            })
+            .catch(error => {
+                console.log(error)
+            });
+    }
+
     useEffect(() => {
         if (punchInApi.data != null) {
             // console.log('punchInApi.data--->', punchInApi.data);
@@ -1304,7 +1387,7 @@ const PunchINPage = () => {
                 button: true,
                 textBody: punchInApi.data.message,
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
+                callback: () => [Popup.hide(), LogsMaintane(punchInApi.data.message), setShowKyc(false)],
             });
         }
     }, [punchInApi.loading,]);
@@ -1319,7 +1402,7 @@ const PunchINPage = () => {
                 button: true,
                 textBody: punchOutApi.data.message,
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
+                callback: () => [Popup.hide(), LogsMaintane(punchOutApi.data.message), setShowKyc(false)],
             });
         }
     }, [punchOutApi.loading]);
@@ -1823,40 +1906,40 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10,
         borderColor: 'rgba(0, 0, 0, 0.1)',
-      },
-      preview: {
+    },
+    preview: {
         flex: 1,
         justifyContent: 'flex-end',
         alignItems: 'center',
         width: '100%',
         height: '80%',
-      },
-      captureButtonContainer: {
+    },
+    captureButtonContainer: {
         flex: 0,
         flexDirection: 'row',
         justifyContent: 'center',
-      },
-      captureButton: {
+    },
+    captureButton: {
         fontSize: 14,
         padding: 10,
         backgroundColor: '#fff',
         borderRadius: 5,
         margin: 20,
-      },
-      capturedImage: {
+    },
+    capturedImage: {
         width: 200,
         height: 200,
         marginTop: 20,
-      },
-      progressContainer: {
+    },
+    progressContainer: {
         position: 'absolute',
         bottom: 50,
         width: '100%',
         alignItems: 'center',
-      },
-      cardsContainer: {
+    },
+    cardsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         padding: 5,
-      },
+    },
 }) 

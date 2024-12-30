@@ -48,6 +48,8 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used to provide nearby service information.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>We access your contacts to help you invite friends to join the app. For example, you can send them a personalized invitation.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>We would like to track your activity to provide personalized ads and better user experience.</string>
 	<key>NSMicrophoneUsageDescription</key>

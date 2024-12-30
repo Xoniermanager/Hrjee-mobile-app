@@ -74,8 +74,6 @@ const Login = ({ children }) => {
 
   const login = () => {
 
-    // console.log("isChecked......", isChecked)
-
     if (email.trim() === '' || password.trim() === '') {
 
       Popup.show({
@@ -84,7 +82,7 @@ const Login = ({ children }) => {
         button: true,
         textBody: 'Please enter employee/email and password',
         buttonText: 'Ok',
-        callback: () => [Popup.hide(),],
+        callback: () => [Popup.hide(),LogsMaintane('Please enter employee/email and password')],
       });
 
     } else if (password.length < 6) {
@@ -94,7 +92,7 @@ const Login = ({ children }) => {
         button: true,
         textBody: 'Password must be at least 6 characters',
         buttonText: 'Ok',
-        callback: () => [Popup.hide(),],
+        callback: () => [Popup.hide(), LogsMaintane('Password must be at least 6 characters')],
       });
     }
     else if (isChecked == false) {
@@ -104,7 +102,7 @@ const Login = ({ children }) => {
         button: true,
         textBody: 'Please checked Terms and Condition',
         buttonText: 'Ok',
-        callback: () => [Popup.hide(),],
+        callback: () => [Popup.hide(), LogsMaintane('Please checked Terms and Condition')],
       });
       return;
     }
@@ -126,7 +124,7 @@ const Login = ({ children }) => {
                 button: true,
                 textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(),],
+                callback: () => [Popup.hide(), LogsMaintane("You are not authorized to use mobile application. Kindly contact admin!")],
               });
               setloading(false);
               setDisabledBtn(false)
@@ -138,7 +136,7 @@ const Login = ({ children }) => {
                 button: true,
                 textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(),],
+                callback: () => [Popup.hide(), LogsMaintane("You are not authorized to use mobile application. Kindly contact admin!")],
               });
               // alert('You are not authorized to use mobile application. Kindly contact admin!')
               setloading(false);
@@ -151,7 +149,7 @@ const Login = ({ children }) => {
                 button: true,
                 textBody: 'You are not authorized to use mobile application. Kindly contact admin!',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(),],
+                callback: () => [Popup.hide(), LogsMaintane('ou are not authorized to use mobile application. Kindly contact admin!')],
               });
               // alert('You have been blocked, Please contact your admin department!')
               setloading(false);
@@ -221,13 +219,14 @@ const Login = ({ children }) => {
             }
 
           } else {
+           
             Popup.show({
               type: 'Warning',
               title: 'Warning',
               button: true,
               textBody: 'Please enter correct credentials!',
               buttonText: 'Ok',
-              callback: () => [Popup.hide(),],
+              callback: () => [Popup.hide(), LogsMaintane('Please enter correct credentials!')],
             });
             // alert('Please enter correct credentials');
             setloading(false);
@@ -241,7 +240,7 @@ const Login = ({ children }) => {
             button: true,
             textBody: error.response.data.message,
             buttonText: 'Ok',
-            callback: () => [Popup.hide()]
+            callback: () => [Popup.hide(), LogsMaintane(error.response.data.message)]
           })
 
           setloading(false)
@@ -251,6 +250,26 @@ const Login = ({ children }) => {
 
   };
 
+  const LogsMaintane = async (mes) => {
+    const payload = {
+      reason: mes,
+      url: `${apiUrl}/users/login`,
+      payload: {
+        email: email,
+        password: password,
+        device_id: fcmtoken,
+      }
+    };
+    console.log(payload)
+    axios
+      .post(`${apiUrl}/users/save_log`, payload)
+      .then(response => {
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  }
 
 
 
@@ -515,7 +534,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
- 
+
   border: {
     position: 'absolute',
     backgroundColor: '#D8F1FE', // Border color

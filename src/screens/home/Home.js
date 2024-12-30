@@ -118,6 +118,15 @@ const Home = ({ navigation }) => {
     image: '',
     name: '',
   });
+  const [logs, setLogs] = useState({
+    user_id: '',
+    employee_number: '',
+    email: '',
+    location_id: '',
+    longitude: '',
+    latitude: '',
+    current_address: '',
+  })
   const [modalVisible1, setModalVisible1] = useState(false);
   const monthNames = [
     'Jan',
@@ -427,6 +436,7 @@ const Home = ({ navigation }) => {
             textBody: error.response.data.msg,
             buttonText: 'Ok',
             callback: () => [
+
               AsyncStorage.removeItem('Token'),
               AsyncStorage.removeItem('UserData'),
               AsyncStorage.removeItem('UserLocation'),
@@ -441,6 +451,7 @@ const Home = ({ navigation }) => {
 
 
   // face dedection start..........................................
+
   const [firstImage, setFirstImage] = useState(false)
   const [showCamera, setShowCamera] = useState(false)
   const [menu_access, setMenuaccess] = useState()
@@ -849,6 +860,7 @@ const Home = ({ navigation }) => {
 
 
         if (radius <= 0) {
+          console.log("radius <= 0")
           const token = await AsyncStorage.getItem('Token');
           const config = {
             headers: { Token: token },
@@ -862,7 +874,16 @@ const Home = ({ navigation }) => {
             longitude: long,
             current_address: address.data?.results[0]?.formatted_address,
           };
-          // console.log("current address............................punch out...........................", body)
+          console.log("punch out payload------------->", body)
+          setLogs({
+            user_id: user.userid,
+            employee_number: user?.employee_number,
+            email: user?.email,
+            location_id: activeLocation.location_id,
+            latitude: lat,
+            longitude: long,
+            address: address.data?.results[0]?.formatted_address
+          })
           axios
             .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
             .then(function (response) {
@@ -883,6 +904,7 @@ const Home = ({ navigation }) => {
                   textBody: error.response.data.msg,
                   buttonText: 'Ok',
                   callback: () => [
+                    LogsMaintane(error.response.data.msg),
                     AsyncStorage.removeItem('Token'),
                     AsyncStorage.removeItem('UserData'),
                     AsyncStorage.removeItem('UserLocation'),
@@ -893,6 +915,7 @@ const Home = ({ navigation }) => {
             });
         }
         else if (radius > 0) {
+          console.log("radius <= 0")
           if (radius >= dis) {
             const token = await AsyncStorage.getItem('Token');
             const config = {
@@ -907,7 +930,15 @@ const Home = ({ navigation }) => {
               longitude: long,
               current_address: address.data?.results[0]?.formatted_address,
             };
-            // console.log("current address............................punch out...........................", body)
+            setLogs({
+              user_id: user.userid,
+              employee_number: user?.employee_number,
+              email: user?.email,
+              location_id: activeLocation.location_id,
+              latitude: lat,
+              longitude: long,
+              address: address.data?.results[0]?.formatted_address
+            })
             axios
               .post(`${apiUrl}/secondPhaseApi/mark_attendance_out`, body, config)
               .then(function (response) {
@@ -928,6 +959,7 @@ const Home = ({ navigation }) => {
                     textBody: error.response.data.msg,
                     buttonText: 'Ok',
                     callback: () => [
+                      LogsMaintane(error.response.data.msg),
                       AsyncStorage.removeItem('Token'),
                       AsyncStorage.removeItem('UserData'),
                       AsyncStorage.removeItem('UserLocation'),
@@ -944,7 +976,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Location not find',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
+                callback: () => [Popup.hide(), LogsMaintane('Location not find'), setShowKyc(false)],
               });
 
               setloading(false);
@@ -956,7 +988,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Location not find',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
+                callback: () => [Popup.hide(), LogsMaintane('Location not find'), setShowKyc(false)],
               });
               setloading(false);
               return;
@@ -970,7 +1002,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Please set active location',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
+                callback: () => [Popup.hide(), LogsMaintane('Please set active location'), setShowKyc(false)],
               });
 
               setloading(false);
@@ -985,7 +1017,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'Please set active location',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
+                callback: () => [Popup.hide(), LogsMaintane('Please set active location'), setShowKyc(false)],
               });
               setloading(false);
               return;
@@ -1028,6 +1060,7 @@ const Home = ({ navigation }) => {
                       textBody: error.response.data.msg,
                       buttonText: 'Ok',
                       callback: () => [
+                        LogsMaintane(error.response.data.msg),
                         AsyncStorage.removeItem('Token'),
                         AsyncStorage.removeItem('UserData'),
                         AsyncStorage.removeItem('UserLocation'),
@@ -1043,7 +1076,7 @@ const Home = ({ navigation }) => {
                 button: true,
                 textBody: 'You are not in the radius',
                 buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
+                callback: () => [Popup.hide(), LogsMaintane('You are not in the radius'), setShowKyc(false)],
               });
 
               setloading(false);
@@ -1058,7 +1091,7 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: 'Location not find',
               buttonText: 'Ok',
-              callback: () => [Popup.hide(), setShowKyc(false)],
+              callback: () => [Popup.hide(), LogsMaintane('Location not find'), setShowKyc(false)],
             });
 
             setloading(false);
@@ -1071,7 +1104,7 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: 'Location not find',
               buttonText: 'Ok',
-              callback: () => [Popup.hide(), setShowKyc(false)],
+              callback: () => [Popup.hide(), LogsMaintane('Location not find'), setShowKyc(false)],
             });
             setloading(false);
             setDisabledBtn(false)
@@ -1086,7 +1119,7 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: 'Please set active location',
               buttonText: 'Ok',
-              callback: () => [Popup.hide(), setShowKyc(false)],
+              callback: () => [Popup.hide(), LogsMaintane('Please set active location'), setShowKyc(false)],
             });
             setloading(false);
             setDisabledBtn(false)
@@ -1101,283 +1134,283 @@ const Home = ({ navigation }) => {
               button: true,
               textBody: 'Please set active location',
               buttonText: 'Ok',
-              callback: () => [Popup.hide(), setShowKyc(false)],
+              callback: () => [Popup.hide(), LogsMaintane('Please set active location'), setShowKyc(false)],
             });
             setloading(false);
             setDisabledBtn(false)
             return;
           }
 
-          if (radius <= 0) {
-            const token = await AsyncStorage.getItem('Token');
-            const userData = await AsyncStorage.getItem('UserData');
-            const userInfo = JSON.parse(userData);
+          // if (radius <= 0) {
+          //   const token = await AsyncStorage.getItem('Token');
+          //   const userData = await AsyncStorage.getItem('UserData');
+          //   const userInfo = JSON.parse(userData);
 
-            const config = {
-              headers: { Token: token },
-            };
-            const body = {
-              email: userInfo.email,
-              location_id: activeLocation.location_id,
-              latitude: lat,
-              longitude: long,
-              login_type: 'mobile',
-              current_address: address.data?.results[0].formatted_address,
-            };
-            axios
-              .post(
-                `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                body,
-                config,
-              )
-              .then(function (response) {
-                if (response.data.status == 1) {
-                  check_punchIn();
-                  setloading(false);
-                  setDisabledBtn(false)
-                  get_month_logs()
-                } else {
-                  Popup.show({
-                    type: 'Warning',
-                    title: 'Warning',
-                    button: true,
-                    textBody: response.data.message,
-                    buttonText: 'Ok',
-                    callback: () => [Popup.hide(), setShowKyc(false)],
-                  });
+          //   const config = {
+          //     headers: { Token: token },
+          //   };
+          //   const body = {
+          //     email: userInfo.email,
+          //     location_id: activeLocation.location_id,
+          //     latitude: lat,
+          //     longitude: long,
+          //     login_type: 'mobile',
+          //     current_address: address.data?.results[0].formatted_address,
+          //   };
+          //   axios
+          //     .post(
+          //       `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+          //       body,
+          //       config,
+          //     )
+          //     .then(function (response) {
+          //       if (response.data.status == 1) {
+          //         check_punchIn();
+          //         setloading(false);
+          //         setDisabledBtn(false)
+          //         get_month_logs()
+          //       } else {
+          //         Popup.show({
+          //           type: 'Warning',
+          //           title: 'Warning',
+          //           button: true,
+          //           textBody: response.data.message,
+          //           buttonText: 'Ok',
+          //           callback: () => [Popup.hide(), setShowKyc(false)],
+          //         });
 
-                  setloading(false);
-                  setDisabledBtn(false)
-                }
-              })
-              .catch(function (error) {
-                setloading(false);
-                setDisabledBtn(false)
-                if (error.response.status == '401') {
-                  Popup.show({
-                    type: 'Warning',
-                    title: 'Warning',
-                    button: true,
-                    textBody: error.response.data.msg,
-                    buttonText: 'Ok',
-                    callback: () => [
-                      AsyncStorage.removeItem('Token'),
-                      AsyncStorage.removeItem('UserData'),
-                      AsyncStorage.removeItem('UserLocation'),
-                      navigation.navigate('Login'),
-                    ],
-                  });
-                }
-              });
-          }
-          else if (radius > 0) {
-            if (radius >= dis) {
-              const token = await AsyncStorage.getItem('Token');
-              const userData = await AsyncStorage.getItem('UserData');
-              const userInfo = JSON.parse(userData);
+          //         setloading(false);
+          //         setDisabledBtn(false)
+          //       }
+          //     })
+          //     .catch(function (error) {
+          //       setloading(false);
+          //       setDisabledBtn(false)
+          //       if (error.response.status == '401') {
+          //         Popup.show({
+          //           type: 'Warning',
+          //           title: 'Warning',
+          //           button: true,
+          //           textBody: error.response.data.msg,
+          //           buttonText: 'Ok',
+          //           callback: () => [
+          //             AsyncStorage.removeItem('Token'),
+          //             AsyncStorage.removeItem('UserData'),
+          //             AsyncStorage.removeItem('UserLocation'),
+          //             navigation.navigate('Login'),
+          //           ],
+          //         });
+          //       }
+          //     });
+          // }
+          // else if (radius > 0) {
+          //   if (radius >= dis) {
+          //     const token = await AsyncStorage.getItem('Token');
+          //     const userData = await AsyncStorage.getItem('UserData');
+          //     const userInfo = JSON.parse(userData);
 
-              const config = {
-                headers: { Token: token },
-              };
-              const body = {
-                email: userInfo.email,
-                location_id: activeLocation.location_id,
-                latitude: lat,
-                longitude: long,
-                login_type: 'mobile',
-                current_address: address.data?.results[0].formatted_address,
-              };
-              axios
-                .post(
-                  `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                  body,
-                  config,
-                )
-                .then(function (response) {
-                  if (response.data.status == 1) {
-                    check_punchIn();
-                    setloading(false);
-                    setDisabledBtn(false)
-                    get_month_logs()
-                  } else {
-                    Popup.show({
-                      type: 'Warning',
-                      title: 'Warning',
-                      button: true,
-                      textBody: response.data.message,
-                      buttonText: 'Ok',
-                      callback: () => [Popup.hide(), setShowKyc(false)],
-                    });
+          //     const config = {
+          //       headers: { Token: token },
+          //     };
+          //     const body = {
+          //       email: userInfo.email,
+          //       location_id: activeLocation.location_id,
+          //       latitude: lat,
+          //       longitude: long,
+          //       login_type: 'mobile',
+          //       current_address: address.data?.results[0].formatted_address,
+          //     };
+          //     axios
+          //       .post(
+          //         `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+          //         body,
+          //         config,
+          //       )
+          //       .then(function (response) {
+          //         if (response.data.status == 1) {
+          //           check_punchIn();
+          //           setloading(false);
+          //           setDisabledBtn(false)
+          //           get_month_logs()
+          //         } else {
+          //           Popup.show({
+          //             type: 'Warning',
+          //             title: 'Warning',
+          //             button: true,
+          //             textBody: response.data.message,
+          //             buttonText: 'Ok',
+          //             callback: () => [Popup.hide(), setShowKyc(false)],
+          //           });
 
-                    setloading(false);
-                    setDisabledBtn(false)
-                  }
-                })
-                .catch(function (error) {
-                  setloading(false);
-                  setDisabledBtn(false)
-                  if (error.response.status == '401') {
-                    Popup.show({
-                      type: 'Warning',
-                      title: 'Warning',
-                      button: true,
-                      textBody: error.response.data.msg,
-                      buttonText: 'Ok',
-                      callback: () => [
-                        AsyncStorage.removeItem('Token'),
-                        AsyncStorage.removeItem('UserData'),
-                        AsyncStorage.removeItem('UserLocation'),
-                        navigation.navigate('Login'),
-                      ],
-                    });
-                  }
-                });
-            } else {
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: 'You are not in the radius',
-                buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
-              });
-              setloading(false);
-              setDisabledBtn(false)
-            }
-          }
-          else {
-            if (lat == null || lat == '') {
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: 'Location not find',
-                buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
-              });
+          //           setloading(false);
+          //           setDisabledBtn(false)
+          //         }
+          //       })
+          //       .catch(function (error) {
+          //         setloading(false);
+          //         setDisabledBtn(false)
+          //         if (error.response.status == '401') {
+          //           Popup.show({
+          //             type: 'Warning',
+          //             title: 'Warning',
+          //             button: true,
+          //             textBody: error.response.data.msg,
+          //             buttonText: 'Ok',
+          //             callback: () => [
+          //               AsyncStorage.removeItem('Token'),
+          //               AsyncStorage.removeItem('UserData'),
+          //               AsyncStorage.removeItem('UserLocation'),
+          //               navigation.navigate('Login'),
+          //             ],
+          //           });
+          //         }
+          //       });
+          //   } else {
+          //     Popup.show({
+          //       type: 'Warning',
+          //       title: 'Warning',
+          //       button: true,
+          //       textBody: 'You are not in the radius',
+          //       buttonText: 'Ok',
+          //       callback: () => [Popup.hide(), setShowKyc(false)],
+          //     });
+          //     setloading(false);
+          //     setDisabledBtn(false)
+          //   }
+          // }
+          // else {
+          //   if (lat == null || lat == '') {
+          //     Popup.show({
+          //       type: 'Warning',
+          //       title: 'Warning',
+          //       button: true,
+          //       textBody: 'Location not find',
+          //       buttonText: 'Ok',
+          //       callback: () => [Popup.hide(), setShowKyc(false)],
+          //     });
 
-              setloading(false);
-              setDisabledBtn(false)
-              return;
-            } else if (long == null || long == '') {
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: 'Location not find',
-                buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
-              });
-              setloading(false);
-              setDisabledBtn(false)
-              return;
-            } else if (
-              activeLocation.latitude == null ||
-              activeLocation.latitude == ''
-            ) {
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: 'Please set active location',
-                buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
-              });
-              setloading(false);
-              setDisabledBtn(false)
-              return;
-            } else if (
-              activeLocation.longitude == null ||
-              activeLocation.longitude == ''
-            ) {
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: 'Please set active location',
-                buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
-              });
-              setloading(false);
-              setDisabledBtn(false)
-              return;
-            }
+          //     setloading(false);
+          //     setDisabledBtn(false)
+          //     return;
+          //   } else if (long == null || long == '') {
+          //     Popup.show({
+          //       type: 'Warning',
+          //       title: 'Warning',
+          //       button: true,
+          //       textBody: 'Location not find',
+          //       buttonText: 'Ok',
+          //       callback: () => [Popup.hide(), setShowKyc(false)],
+          //     });
+          //     setloading(false);
+          //     setDisabledBtn(false)
+          //     return;
+          //   } else if (
+          //     activeLocation.latitude == null ||
+          //     activeLocation.latitude == ''
+          //   ) {
+          //     Popup.show({
+          //       type: 'Warning',
+          //       title: 'Warning',
+          //       button: true,
+          //       textBody: 'Please set active location',
+          //       buttonText: 'Ok',
+          //       callback: () => [Popup.hide(), setShowKyc(false)],
+          //     });
+          //     setloading(false);
+          //     setDisabledBtn(false)
+          //     return;
+          //   } else if (
+          //     activeLocation.longitude == null ||
+          //     activeLocation.longitude == ''
+          //   ) {
+          //     Popup.show({
+          //       type: 'Warning',
+          //       title: 'Warning',
+          //       button: true,
+          //       textBody: 'Please set active location',
+          //       buttonText: 'Ok',
+          //       callback: () => [Popup.hide(), setShowKyc(false)],
+          //     });
+          //     setloading(false);
+          //     setDisabledBtn(false)
+          //     return;
+          //   }
 
-            if (radius >= dis) {
-              const token = await AsyncStorage.getItem('Token');
-              const userData = await AsyncStorage.getItem('UserData');
-              const userInfo = JSON.parse(userData);
+          //   if (radius >= dis) {
+          //     const token = await AsyncStorage.getItem('Token');
+          //     const userData = await AsyncStorage.getItem('UserData');
+          //     const userInfo = JSON.parse(userData);
 
-              const config = {
-                headers: { Token: token },
-              };
-              const body = {
-                email: userInfo.email,
-                location_id: activeLocation.location_id,
-                latitude: lat,
-                longitude: long,
-                login_type: 'mobile',
-                current_address: address.data?.results[0].formatted_address,
-              };
-              axios
-                .post(
-                  `${apiUrl}/secondPhaseApi/mark_attendance_in`,
-                  body,
-                  config,
-                )
-                .then(function (response) {
-                  if (response.data.status == 1) {
-                    check_punchIn();
-                    setloading(false);
-                    setDisabledBtn(false)
-                    get_month_logs()
-                  } else {
-                    Popup.show({
-                      type: 'Warning',
-                      title: 'Warning',
-                      button: true,
-                      textBody: response.data.message,
-                      buttonText: 'Ok',
-                      callback: () => [Popup.hide(), setShowKyc(false)],
-                    });
+          //     const config = {
+          //       headers: { Token: token },
+          //     };
+          //     const body = {
+          //       email: userInfo.email,
+          //       location_id: activeLocation.location_id,
+          //       latitude: lat,
+          //       longitude: long,
+          //       login_type: 'mobile',
+          //       current_address: address.data?.results[0].formatted_address,
+          //     };
+          //     axios
+          //       .post(
+          //         `${apiUrl}/secondPhaseApi/mark_attendance_in`,
+          //         body,
+          //         config,
+          //       )
+          //       .then(function (response) {
+          //         if (response.data.status == 1) {
+          //           check_punchIn();
+          //           setloading(false);
+          //           setDisabledBtn(false)
+          //           get_month_logs()
+          //         } else {
+          //           Popup.show({
+          //             type: 'Warning',
+          //             title: 'Warning',
+          //             button: true,
+          //             textBody: response.data.message,
+          //             buttonText: 'Ok',
+          //             callback: () => [Popup.hide(), setShowKyc(false)],
+          //           });
 
-                    setloading(false);
-                    setDisabledBtn(false)
-                  }
-                })
-                .catch(function (error) {
-                  setloading(false);
-                  setDisabledBtn(false)
-                  if (error.response.status == '401') {
-                    Popup.show({
-                      type: 'Warning',
-                      title: 'Warning',
-                      button: true,
-                      textBody: error.response.data.msg,
-                      buttonText: 'Ok',
-                      callback: () => [
-                        AsyncStorage.removeItem('Token'),
-                        AsyncStorage.removeItem('UserData'),
-                        AsyncStorage.removeItem('UserLocation'),
-                        navigation.navigate('Login'),
-                      ],
-                    });
-                  }
-                });
-            } else {
-              Popup.show({
-                type: 'Warning',
-                title: 'Warning',
-                button: true,
-                textBody: 'You are not in the radius',
-                buttonText: 'Ok',
-                callback: () => [Popup.hide(), setShowKyc(false)],
-              });
+          //           setloading(false);
+          //           setDisabledBtn(false)
+          //         }
+          //       })
+          //       .catch(function (error) {
+          //         setloading(false);
+          //         setDisabledBtn(false)
+          //         if (error.response.status == '401') {
+          //           Popup.show({
+          //             type: 'Warning',
+          //             title: 'Warning',
+          //             button: true,
+          //             textBody: error.response.data.msg,
+          //             buttonText: 'Ok',
+          //             callback: () => [
+          //               AsyncStorage.removeItem('Token'),
+          //               AsyncStorage.removeItem('UserData'),
+          //               AsyncStorage.removeItem('UserLocation'),
+          //               navigation.navigate('Login'),
+          //             ],
+          //           });
+          //         }
+          //       });
+          //   } else {
+          //     Popup.show({
+          //       type: 'Warning',
+          //       title: 'Warning',
+          //       button: true,
+          //       textBody: 'You are not in the radius',
+          //       buttonText: 'Ok',
+          //       callback: () => [Popup.hide(), setShowKyc(false)],
+          //     });
 
-              setloading(false);
-              setDisabledBtn(false)
-            }
-          }
+          //     setloading(false);
+          //     setDisabledBtn(false)
+          //   }
+          // }
         }
       })
       .catch(error => {
@@ -1389,10 +1422,13 @@ const Home = ({ navigation }) => {
           button: true,
           textBody: message,
           buttonText: 'Ok',
-          callback: () => [Popup.hide(), setShowKyc(false)],
+          callback: () => [Popup.hide(), LogsMaintane(message), setShowKyc(false)],
         });
       });
   };
+
+
+
   const punch_in = async () => {
     setDisabledBtn(true)
     setloading(true);
@@ -2322,6 +2358,35 @@ const Home = ({ navigation }) => {
     }
   };
 
+  const LogsMaintane = async (mes) => {
+    const token = await AsyncStorage.getItem('Token');
+    const config = {
+      headers: { Token: token },
+    };
+    const payload = {
+      reason: mes,
+      url: `${apiUrl}/secondPhaseApi/mark_attendance_out`,
+      payload: {
+        user_id: logs?.user_id,
+        employee_number: logs.employee_number,
+        email: logs.email,
+        location_id: logs.location_id,
+        latitude: logs?.lat,
+        longitude: logs?.long,
+        current_address: logs?.current_address,
+      }
+    };
+    console.log(payload, "202")
+    axios
+      .post(`${apiUrl}/SecondPhaseApi/save_log`, payload, config)
+      .then(response => {
+        console.log("res================", response.data)
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  }
+
   /*
 
   //  This is used send live tracking location socketContext page Starting ..................................
@@ -2570,42 +2635,42 @@ const Home = ({ navigation }) => {
         button: true,
         textBody: punchOutApi.data.message,
         buttonText: 'Ok',
-        callback: () => [Popup.hide(), setShowKyc(false)],
+        callback: () => [Popup.hide(), LogsMaintane(punchOutApi.data.message), setShowKyc(false)],
       });
     }
   }, [punchOutApi.loading]);
 
-  useEffect(() => {
-    let interval = null;
+  // useEffect(() => {
+  //   let interval = null;
 
-    if (timerOn == true && inTime != null) {
-      // console.log('timer is on************');
-      interval = setInterval(() => {
-        var timeEnd1 = parseInt(new Date().getTime());
-        const startDate = moment(inTime);
-        const timeEnd = moment(timeEnd1);
-        const diff = timeEnd.diff(startDate);
-        const diffDuration = moment.duration(diff);
-        var days = diffDuration.days();
-        var hours = diffDuration.hours();
-        var minutes = diffDuration.minutes();
-        var seconds = diffDuration.seconds();
-        var time =
-          (hours < 10 ? '0' + hours : hours) +
-          ':' +
-          (minutes < 10 ? '0' + minutes : minutes) +
-          ':' +
-          (seconds < 10 ? '0' + seconds : seconds);
-        setactivityTime(time);
-      }, 1000);
-    } else {
-      clearInterval(interval);
-    }
+  //   if (timerOn == true && inTime != null) {
+  //     // console.log('timer is on************');
+  //     interval = setInterval(() => {
+  //       var timeEnd1 = parseInt(new Date().getTime());
+  //       const startDate = moment(inTime);
+  //       const timeEnd = moment(timeEnd1);
+  //       const diff = timeEnd.diff(startDate);
+  //       const diffDuration = moment.duration(diff);
+  //       var days = diffDuration.days();
+  //       var hours = diffDuration.hours();
+  //       var minutes = diffDuration.minutes();
+  //       var seconds = diffDuration.seconds();
+  //       var time =
+  //         (hours < 10 ? '0' + hours : hours) +
+  //         ':' +
+  //         (minutes < 10 ? '0' + minutes : minutes) +
+  //         ':' +
+  //         (seconds < 10 ? '0' + seconds : seconds);
+  //       setactivityTime(time);
+  //     }, 1000);
+  //   } else {
+  //     clearInterval(interval);
+  //   }
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [timerOn]);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, [timerOn]);
 
 
   useEffect(() => {
@@ -2690,7 +2755,7 @@ const Home = ({ navigation }) => {
     axios
       .post(`${apiUrl}/Api/attendance`, body, config)
       .then(response => {
-        // console.log('response', response.data);
+        console.log('response', response.data);
         if (response.data.status == 1) {
           try {
             setrecentLogs(response.data.content);
@@ -3099,19 +3164,9 @@ const Home = ({ navigation }) => {
     }
   }
 
-
-
-
-
-
-
-
- 
-
-
-  // if (homeskelton == null) {
-  //   return <HomeSkeleton />
-  // }
+  if (homeskelton == null) {
+    return <HomeSkeleton />
+  }
 
 
 
